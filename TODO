@@ -1,0 +1,63 @@
+2D Window : clicking on a point in the 2D map -> highlights corresponding
+points in 3D windows on curve!!
+--> look at ~/coding/qt_examplex/popup for mouse coordinates
+--> look at ~/coding/qt_examples/showimg for image and mouse coords
+
+Implement a "script" that generates a cube out of a set
+of pkf knots (kinda like the knottable square stuff in objects/)
+
+If the curve is changed (picking) in the merge_all bezier mode,
+and the curve is resampled afterwards or mode is switched, then
+the original curve is taken, and not the modified shape !!!
+
+Change SoKnot.cpp
+add a new field : SO_NODE_ADD_FIELD(name, ("bla.pkf"));
+SoSFString SoKnot::name;
+then init knot by given pkf name. or maybe change glRenderAction :
+the first time init the knot with pkf name and keep that value
+immutable after that.
+
+Understand the .iv data format and how the interfacing betw
+the program and the text work. i.e. SoKnot in ASCII iv file
+should be enough to construct mesh in the viewer ... (smth like
+that)
+
+* Fix the straight line case : line.pkf doesn't work (e.g)
+
+have a look at texturing for Antonio's minimal packing stuff.
+then patch the pdf from him onto the solenoid 3d mesh ...
+
+* The uniform twist in the mesh generation doesn't match up
+  textures mapped on the surface! Since I try to minimize
+  mesh twistin by linking different points at the beginning/end
+  of the curve!
+  
+  This could be handled by twisting all the way to the same
+  start/end points or by a twist in function of the torque
+  in the curve ...
+
+* in the general viewer add the functionality, that one
+  can merge an external .iv file in the current scene-graph
+  (superposition of 2 different scenes)
+
+export: RenderMan and POVRay files
+// This is a simple red sphere
+
+// first, the camera position
+camera {
+  location <2,5,-10>
+  look_at <0,0,0>
+}
+
+// now, some light
+light_source {
+  <0,-10,0>
+  color rgb <1,1,1>
+}
+
+// the sphere
+sphere {
+  <0,0,0>, 5
+  pigment { color rgb <1,0,0> }
+}
+

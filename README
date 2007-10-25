@@ -1,0 +1,30 @@
+tangentOnBiarc(); fixed
+needs to be checked in the cvs
+
+templatizing started. include, lib, objects,
+tools, inventor directories are ok.
+only the Makefile for the pkf generation of the objects
+crashes, dunno why
+
+the whole thing is still under heavy construction
+
+do not build all ... !!!
+
+for the stokes meshing prog just type
+
+make stokes
+
+the Biarc Library part documentation is ok for
+Matrix3
+Vector3
+Biarc
+Tube
+Curve
+-------------------------
+
+Remaining docs :
+
+tools direc
+object direc  -> started some doc but not at all finished
+inventor direc
+temp dir

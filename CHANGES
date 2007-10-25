@@ -1,0 +1,9 @@
+- templatized Vector class (all in Biarc.*)
+- pt/tan visual for multi component
+- visualization for points/tangents and midpoints/tangents
+- openInventor visualizer for multi component knots/links
+- supports now more than one component
+- visualize curvature and torsion
+- doxygen doc started
+- tools section added
+- own class that handles the PKF header stuff

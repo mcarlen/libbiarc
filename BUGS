@@ -1,0 +1,20 @@
+BUG list
+
+main viewer prog : whenever we resample with more points than the
+original, then we need more DiffuseColor values!!!! otherwise
+we get an out of bounds error.
+
+resample doesn't work properly, something with the STRAIGHT LENGTH
+
+Tube.cpp : the mesh generation routinge using the frenet framing
+in the closed curve case doesn't work!!!
+
+the viewers in inventor/ do not like straight lines!!!
+e.g. if you try to look at the line.pkf in the objects/ dir,
+it complains about zero length vectors.
+
+resampling,resegmenting a curve while semi-transparent messes up
+the mesh in the viewer progs in dir inventor/!!!!
+
+merge_all texture map goes away when cycling once through the
+          different viewing modes ...

@@ -1,0 +1,6 @@
+the pkf knots in this directory are all normalised to
+arclength 1.0 and the center of mass is set to (0,0,0)
+
+the BIARC_LIB (from M. Carlen) had been used to do so.
+The original data comes from Eric Rawdon (converted
+to pkf file format).
