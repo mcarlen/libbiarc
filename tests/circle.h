@@ -56,7 +56,7 @@ void mp_diff_circle(float rad, Curve<Vector3>* c,float &pmax, float &tmax) {
   Vector3 t, t2, dummy;
   pmax=0.0,tmax=0.0;
 
-  Biarc<Vector3>* curr = c->listHead();
+  vector<Biarc<Vector3> >::iterator curr = c->begin();
   for (int i=0;i<c->nodes();i++) {
     MP = curr->getMidPoint();
     MT = curr->getMidTangent();
@@ -64,7 +64,7 @@ void mp_diff_circle(float rad, Curve<Vector3>* c,float &pmax, float &tmax) {
 //cerr << (rMP-MP).norm() << endl;
 //cerr << (rMT-MT).norm() << endl;
 
-    curr = curr->getNext();
+    ++curr;
     if ((MP-rMP).norm2()>pmax) {
       pmax = (MP-rMP).norm2();
     }

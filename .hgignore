@@ -7,6 +7,8 @@ syntax: glob
 *.pkf
 *.bkp
 *.BKP
+*.so
+*.a
 tests/*.err
 
 syntax: regexp

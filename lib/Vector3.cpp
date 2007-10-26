@@ -66,27 +66,21 @@
   \sa zero().
 */
 Vector3::Vector3() {
-  _v[0] = 0.0;
-  _v[1] = 0.0;
-  _v[2] = 0.0;
+ _v[0]=0;_v[1]=0;_v[2]=0;
 }
 
 /*!
   Constructs a Vector3 instance from \a x, \a y and \a z.
 */
 Vector3::Vector3(const float x, const float y, const float z) {
-  _v[0] = x;
-  _v[1] = y;
-  _v[2] = z;
+  _v[0]=x; _v[1]=y; _v[2]=z;
 }
 
 /*!
   Constructs a Vector3 with initial values from \a v.
 */
 Vector3::Vector3(const float v[3]) {
-  _v[0] = v[0];
-  _v[1] = v[1];
-  _v[2] = v[2];
+  _v[0]=v[0];  _v[1]=v[1]; _v[2] = v[2];
 }
 
 /*!
@@ -98,9 +92,7 @@ Vector3::~Vector3() {}
   Constructs a copy of \a v.
 */
 Vector3::Vector3(const Vector3& v) {
-  _v[0] = v[0];
-  _v[1] = v[1];
-  _v[2] = v[2];
+  _v[0]=v[0]; _v[1]=v[1]; _v[2]=v[2];
 }
 
 /*!
@@ -368,6 +360,7 @@ Vector3 Vector3::operator-() const {
 /*!
   Assign operator. Does the same as the copy constructor.
 */
+/*
 Vector3& Vector3::operator=(const Vector3 &v) {
   this->_v[0] = v[0];
   this->_v[1] = v[1];
@@ -375,6 +368,7 @@ Vector3& Vector3::operator=(const Vector3 &v) {
   
   return(*this);
 } 
+*/
 
 /*!
   Multiplies this vector's components by \a s and returns

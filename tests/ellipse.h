@@ -54,13 +54,13 @@ void mp_diff_ellipse(float a,float b, Curve<Vector3>* c,
   Vector3 t, t2, dummy;
   pmax=0.0,tmax=0.0;
 
-  Biarc<Vector3>* curr = c->listHead();
+  vector<Biarc<Vector3> >::iterator curr = c->begin();
   for (int i=0;i<c->nodes();i++) {
     MP = curr->getMidPoint();
     MT = curr->getMidTangent();
     pointat_ellipse(a,b,((float)i+.5)/(float)c->nodes(),rMP,rMT);
 
-    curr = curr->getNext();
+    ++curr;
     if ((MP-rMP).norm2()>pmax) {
       pmax = (MP-rMP).norm2();
     }

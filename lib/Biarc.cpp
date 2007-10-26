@@ -47,12 +47,10 @@
   point and <0,1,0> for the tangent.
 */
 template<class Vector>
-Biarc<Vector>::Biarc() {
-  _Curve = NULL;
-  _BiarcInCurve = -1;
-  _BIARC_=0;
-  _Point=Vector();_Tangent=Vector(0,1,0);
-}
+Biarc<Vector>::Biarc() :
+  _Curve(NULL), _BiarcInCurve(-1), _BIARC_(0),
+  _Point(0,0,0),_Tangent(0,1,0)
+{}
 
 /*!
   Constructor sets the point to \a p and the tangent to \a t.
@@ -60,11 +58,10 @@ Biarc<Vector>::Biarc() {
 */
 template<class Vector>
 Biarc<Vector>::Biarc(const Vector &p,const Vector &t)
-  : _Point(p),_Tangent(t) {
-  _BIARC_ = 0;
+ : _Point(p),_Tangent(t)
+  ,_BIARC_(0),_Curve(NULL),_BiarcInCurve(-1)
+{
   _Tangent.normalize();
-  _Curve = NULL;
-  _BiarcInCurve = -1;
 }
 
 /*!
@@ -72,22 +69,19 @@ Biarc<Vector>::Biarc(const Vector &p,const Vector &t)
   Doesn't care if we have an interpolated biarc or not.
 */
 template<class Vector>
-Biarc<Vector>::Biarc(const Biarc<Vector>& b) {
-  _BIARC_ = b.isBiarc();
-  _Point = b._Point;
-  _Tangent = b._Tangent;
+Biarc<Vector>::Biarc(const Biarc<Vector>& b)
+  : _Point(b._Point), _Tangent(b._Tangent)
+  ,_BIARC_(b._BIARC_)
+  ,_Curve(b._Curve), _BiarcInCurve(b._BiarcInCurve)
+{
   _Tangent.normalize();
-  _Curve = b._Curve;
-  _BiarcInCurve = b._BiarcInCurve;
 }
 
 /*!
   Destructor.
 */
 template<class Vector>
-Biarc<Vector>::~Biarc() {
-  _Curve = NULL;
-}
+Biarc<Vector>::~Biarc() {}
 
 /*!
   Returns the point of the biarc as a Vector.
@@ -991,14 +985,16 @@ Biarc<Vector> Biarc<Vector>::operator-(const Vector &v) const{
   Assign operator. Copies the values of the point and
   the tangent and sets the biarc flag _BIARC_ to zero.
 */
+/*
 template<class Vector>
 Biarc<Vector>& Biarc<Vector>::operator=(const Biarc &b) {
-  _BIARC_ = b.isBiarc();
-  _Point = b._Point;
-  _Tangent = b._Tangent;
-  _Curve = b._Curve;
+//  _BIARC_=b._BIARC_;
+  _Point=b._Point;
+  _Tangent=b._Tangent;
+//  _Curve=b._Curve;
   return (*this);
 }
+*/
 
 /*!
   Adds \a v to the point value of this biarc and returns

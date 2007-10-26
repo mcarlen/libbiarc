@@ -1,5 +1,8 @@
 DIRS=lib tools objects inventor temp tests
 
+test:
+	cd tests; $(MAKE)
+
 all:
 	@for dir in $(DIRS); do \
 		cd $$dir && { make all; cd ..; } \

@@ -5,25 +5,28 @@ LIB_INC=-L. -L../lib
 LIB=-lbiarc
 FLAGS=${INCLUDE} ${CXXFLAGS}
 
-.PHONY: test
+.PHONY: test basic
 
-all: $(PROGS) test
+all: verb test basic
 
 TESTS=SimpleTest.h BasicTest.h
 
+verb:
+	@echo "Run tests"
+
 basic: basic.cpp
-	g++ ${INCLUDE} -o basic ${LIB_INC} ${LIB} $^
-	./basic
+	@g++ ${INCLUDE} -o basic ${LIB_INC} ${LIB} $^ 2>/dev/null
+	@./basic
 
 test: test.cpp
-	g++ ${INCLUDE} -o test ${LIB_INC} ${LIB} $^
-	./test
+	@g++ ${INCLUDE} -o test ${LIB_INC} ${LIB} $^ 2>/dev/null
+	@./test
 
 basic.cpp: BasicTest.h
-	cxxtestgen.pl --error-printer -o $@ $^
+	@cxxtestgen.pl --error-printer -o $@ $^
 
 test.cpp: SimpleTest.h
-	cxxtestgen.pl --error-printer -o $@ $^
+	@cxxtestgen.pl --error-printer -o $@ $^
 
 clean :
 	@echo Cleaning `basename ${PWD}`
