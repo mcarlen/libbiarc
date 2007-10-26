@@ -14,13 +14,16 @@ TESTS=SimpleTest.h BasicTest.h
 verb:
 	@echo "Run tests"
 
-basic: basic.cpp
-	@g++ ${INCLUDE} -o basic ${LIB_INC} ${LIB} $^ 2>/dev/null
-	@./basic
+library:
+	cd ../lib; make
 
-test: test.cpp
-	@g++ ${INCLUDE} -o test ${LIB_INC} ${LIB} $^ 2>/dev/null
-	@./test
+basic: basic.cpp library
+	g++ ${INCLUDE} -o basic ${LIB_INC} ${LIB} basic.cpp
+	./basic
+
+test: test.cpp library
+	g++ ${INCLUDE} -o test ${LIB_INC} ${LIB} test.cpp
+	./test
 
 basic.cpp: BasicTest.h
 	@cxxtestgen.pl --error-printer -o $@ $^

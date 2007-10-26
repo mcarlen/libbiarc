@@ -389,7 +389,7 @@ inline void Curve<Vector>::push(const Vector &p, const Vector &t) {
 template<class Vector>
 inline void Curve<Vector>::append(const Biarc<Vector> &b) {
   _Biarcs.push_back(b);
-//  _Biarcs.back().setIdAndCurve(_Biarcs.size()-1,this);
+  _Biarcs.back().setIdAndCurve(_Biarcs.size()-1,this);
 }
 
 /*!

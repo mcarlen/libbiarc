@@ -120,7 +120,7 @@ class Biarc {
   */
   Biarc<Vector> operator+(const Vector &v) const;
   Biarc<Vector> operator-(const Vector &v) const;
-//  Biarc<Vector> &operator=(const Biarc<Vector> &b);
+  Biarc<Vector> &operator=(const Biarc<Vector> &b);
   Biarc<Vector> &operator+=(const Vector &v);
   Biarc<Vector> &operator-=(const Vector &v);
   Biarc<Vector> &operator/=(const float d);

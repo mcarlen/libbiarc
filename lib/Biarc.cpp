@@ -985,16 +985,14 @@ Biarc<Vector> Biarc<Vector>::operator-(const Vector &v) const{
   Assign operator. Copies the values of the point and
   the tangent and sets the biarc flag _BIARC_ to zero.
 */
-/*
 template<class Vector>
 Biarc<Vector>& Biarc<Vector>::operator=(const Biarc &b) {
-//  _BIARC_=b._BIARC_;
+  _BIARC_=b._BIARC_;
   _Point=b._Point;
   _Tangent=b._Tangent;
-//  _Curve=b._Curve;
+  _Curve=b._Curve;
   return (*this);
 }
-*/
 
 /*!
   Adds \a v to the point value of this biarc and returns
