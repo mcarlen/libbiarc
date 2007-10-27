@@ -48,8 +48,9 @@
 */
 template<class Vector>
 Biarc<Vector>::Biarc() :
-  _Curve(NULL), _BiarcInCurve(-1), _BIARC_(0),
-  _Point(0,0,0),_Tangent(0,1,0)
+  _BIARC_(0),
+  _Point(0,0,0),_Tangent(0,1,0),
+  _BiarcInCurve(-1), _Curve(NULL)
 {}
 
 /*!
@@ -57,9 +58,10 @@ Biarc<Vector>::Biarc() :
   Normalizes the tangent.
 */
 template<class Vector>
-Biarc<Vector>::Biarc(const Vector &p,const Vector &t)
- : _Point(p),_Tangent(t)
-  ,_BIARC_(0),_Curve(NULL),_BiarcInCurve(-1)
+Biarc<Vector>::Biarc(const Vector &p,const Vector &t) :
+  _BIARC_(0),
+  _Point(p),_Tangent(t),
+  _BiarcInCurve(-1) ,_Curve(NULL)
 {
   _Tangent.normalize();
 }
@@ -69,10 +71,10 @@ Biarc<Vector>::Biarc(const Vector &p,const Vector &t)
   Doesn't care if we have an interpolated biarc or not.
 */
 template<class Vector>
-Biarc<Vector>::Biarc(const Biarc<Vector>& b)
-  : _Point(b._Point), _Tangent(b._Tangent)
-  ,_BIARC_(b._BIARC_)
-  ,_Curve(b._Curve), _BiarcInCurve(b._BiarcInCurve)
+Biarc<Vector>::Biarc(const Biarc<Vector>& b) :
+  _BIARC_(b._BIARC_),
+  _Point(b._Point), _Tangent(b._Tangent),
+  _BiarcInCurve(b._BiarcInCurve), _Curve(b._Curve) 
 {
   _Tangent.normalize();
 }

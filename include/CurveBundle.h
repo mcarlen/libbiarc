@@ -14,6 +14,7 @@ class CurveBundle : public PKFmanip {
  public:
 
   int curves() const ;
+  int nodes() const;
   void link();
   void unlink();
 
@@ -34,6 +35,7 @@ class CurveBundle : public PKFmanip {
 
   void normalize();
   float length();
+  float thickness();
   CurveBundle& operator+=(const Vector &vec);
   CurveBundle& operator-=(const Vector &vec);
   void center();

@@ -108,6 +108,30 @@ template<class Vector>
 int CurveBundle<Vector>::curves() const {return (int)bundle.size();}
 
 /*!
+  Returns the total number of nodes of the Bundle (i.e. the sum of the
+  number of nodes of each curve)
+*/
+template<class Vector>
+int CurveBundle<Vector>::nodes() const {
+  int N = bundle[0].nodes();
+  for (int i=1;i<curves();i++)
+    N += bundle[i].nodes();
+  return N;
+}
+
+
+/*!
+  Returns the thickness (biggest possible tube radius without self-intersection)
+  of the curve bundle
+  XXX : Only single component knots are supported for now
+*/
+template<class Vector>
+float CurveBundle<Vector>::thickness() {
+  assert(curves()==1);
+  return bundle[0].thickness();
+}
+
+/*!
   Returns the total length of the bundle. This is the
   sum of the arc-length of all the stored curves.
 */
