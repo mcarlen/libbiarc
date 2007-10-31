@@ -21,8 +21,8 @@ rendermanlib:
 	@echo Build biarc lib with renderman support; \
 	cd lib/ && { make renderman; cd ..; } ;
 
-realclean:
-	@for dir in $(DIRS); do \
+clean:
+	@for dir in $(DIRS) benchmark annealing; do \
 		cd $$dir && { make realclean; cd ..; } \
 	done
 	@echo Remove doc

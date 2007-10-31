@@ -4,7 +4,8 @@
 #include <math.h>
 #include <iostream>
 
-// #define float double
+// #define float long double
+
 using namespace std;
 
 class Vector3 {

@@ -23,7 +23,7 @@ class PKFmanip {
   void init();
   void clear();
 
-  inline char *setString(char *string);
+  inline char *setString(const char *string);
   char *readString(istream &is,const char *szLengthTag,
 		   const char *szTag);
   void writeString(ostream &os,const char *szLengthTag,
@@ -36,17 +36,17 @@ class PKFmanip {
   PKFmanip &operator= (const PKFmanip &h);
   ~PKFmanip();
 
-  void header(char name[50]="No name",char etic[50]="",
-	      char cite[50]="",char history[50]="");
+  void header(const char* name="No name",const char* etic="",
+	      const char *cite="", const char *history="");
 
-  void setName(char *name);
-  void setEtic(char *etic);
-  void setCite(char *cite);
-  void setHistory(char *history);
-  char *getName() const;
-  char *getEtic() const;
-  char *getCite() const;
-  char *getHistory() const;
+  void setName(const char *name);
+  void setEtic(const char *etic);
+  void setCite(const char *cite);
+  void setHistory(const char *history);
+  const char *getName() const;
+  const char *getEtic() const;
+  const char *getCite() const;
+  const char *getHistory() const;
 
   int readHeader(istream& in);
   int writeHeader(ostream& out);
@@ -61,7 +61,7 @@ inline ostream &operator<<(ostream &out, PKFmanip &pkf) {
   return out;
 }
 
-inline char* PKFmanip::setString(char *string) {
+inline char* PKFmanip::setString(const char *string) {
   char *tmp = new char[strlen(string)+1];
   strcpy(tmp,string);
   return tmp;

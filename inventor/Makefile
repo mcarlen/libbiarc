@@ -11,7 +11,7 @@ INC_LIB = -L../lib -L$(COIN)/lib -L$(SOQT)/lib -L/usr/lib -L/usr/local/lib -L${Q
 
 ######### LIBRARIES  #########################
 
-LIBS = `soqt-config --libs` -lbiarc
+LIBS = `soqt-config --libs` -lbiarcf
 
 ######### FLAGS      #########################
 

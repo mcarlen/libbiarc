@@ -20,7 +20,7 @@
 */
 
 /*!
-  \fn char* PKFmanip::setString(char *string)
+  \fn const char* PKFmanip::setString(const char *string)
 
   Constructs a new string and returns a pointer to it.
 */
@@ -47,8 +47,8 @@ void PKFmanip::init() {
 
   \sa setName(),setEtic(),setCite(),setHistory()
 */
-void PKFmanip::header(char name[50],char etic[50],
-		   char cite[50],char history[50]) {
+void PKFmanip::header(const char* name,const char* etic,
+		      const char* cite,const char* history) {
   setName(name); setEtic(etic);
   setCite(cite); setHistory(history);
 }
@@ -100,7 +100,7 @@ PKFmanip::~PKFmanip() {
 
   \sa setEtic(),setCite(),setHistory()
 */
-void PKFmanip::setName(char *name) {
+void PKFmanip::setName(const char *name) {
   delete _NameString;
   _NameString = setString(name);
 }
@@ -110,7 +110,7 @@ void PKFmanip::setName(char *name) {
 
   \sa setName(),setCite(),setHistory()
 */
-void PKFmanip::setEtic(char *etic) {
+void PKFmanip::setEtic(const char *etic) {
   delete _EticString;
   _EticString = setString(etic);
 }
@@ -120,7 +120,7 @@ void PKFmanip::setEtic(char *etic) {
 
   \sa setName(),setEtic(),setHistory()
 */
-void PKFmanip::setCite(char *cite) {
+void PKFmanip::setCite(const char *cite) {
   delete _CiteString;
   _CiteString = setString(cite);
 }
@@ -130,7 +130,7 @@ void PKFmanip::setCite(char *cite) {
 
   \sa setName(),setEtic(),setCite()
 */
-void PKFmanip::setHistory(char *history) {
+void PKFmanip::setHistory(const char *history) {
   delete _HistoryString;
   _HistoryString = setString(history);
 }
@@ -140,28 +140,28 @@ void PKFmanip::setHistory(char *history) {
 
   \sa getEtic(),getCite(),getHistory()
 */
-char* PKFmanip::getName() const {return _NameString;}
+const char* PKFmanip::getName() const {return _NameString;}
 
 /*!
   Returns a pointer to the etic string.
 
   \sa getName(),getCite(),getHistory()
 */
-char* PKFmanip::getEtic() const {return _EticString; }
+const char* PKFmanip::getEtic() const {return _EticString; }
 
 /*!
   Returns a pointer to the cite string.
 
   \sa getName(),getEtic(),getHistory()
 */
-char* PKFmanip::getCite() const {return _CiteString;}
+const char* PKFmanip::getCite() const {return _CiteString;}
 
 /*!
   Returns a pointer to the history string.
 
   \sa getName(),getEtic(),getCite()
 */
-char* PKFmanip::getHistory() const {return _HistoryString;}
+const char* PKFmanip::getHistory() const {return _HistoryString;}
 
 
 // (c) Ben Laurie PKF Methods

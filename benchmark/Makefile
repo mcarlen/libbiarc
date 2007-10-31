@@ -19,4 +19,6 @@ benchben: bench.cpp
 	$(LINKER) ${PROF} -DBENCH_BEN -DLINUX -I${KNOTLIB}/include -o $@ bench.cpp ${KNOTLIB}/lib/libknot.a -lrt
 
 clean:
-	-rm -f bench benchold benchben
+	@-rm -f bench benchben
+
+realclean: clean

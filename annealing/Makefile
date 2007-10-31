@@ -13,5 +13,5 @@ all: anneal
 anneal: anneal.cpp
 	$(LINKER) ${PROF} -I../include -o $@ -L../lib $^ ../lib/libbiarc.a -lrt
 
-clean:
-	-rm -f anneal
+clean realclean:
+	@-rm -f anneal
