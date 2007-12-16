@@ -300,14 +300,16 @@ Vector3 Vector3::operator*(const Vector3 &v) const {
 /*!
   Returns a Vector3 that is this vector scaled by a scalar \a s.
 */
+/*
 Vector3 Vector3::operator*(const float s) const {
   return Vector3(s*_v[0], s*_v[1], s*_v[2]);
 }
+*/
 
 /*!
   Returns a Vector3 that is the vector \a v scaled by a scalar \a d.
 */
-Vector3 operator *(Vector3 & v, float d) {
+Vector3 operator*(const Vector3 & v, float d) {
   return Vector3(d*v[0], d*v[1], d*v[2]);
 }
 
@@ -315,23 +317,25 @@ Vector3 operator *(Vector3 & v, float d) {
   Returns a Vector3, that is the vector \a v
   scaled by a scalar \a s.
 */
-Vector3 operator *(float d, Vector3 & v) {
+Vector3 operator*(float d, const Vector3 & v) {
   return Vector3(d*v[0],d*v[1],d*v[2]);
 }
 
 /*!
   Returns a Vector3 whose components are divided by \a d.
 */
+/*
 Vector3 Vector3::operator/(const float d) const {
   float fac = 1.0/d;
   return Vector3(_v[0]*fac, _v[1]*fac, _v[2]*fac);
 }
+*/
 
 /*!
   Friend function that returns the vector v whose components are
   scaled by d.
 */
-Vector3 operator /(Vector3 & v, float d) {
+Vector3 operator /(const Vector3 & v, float d) {
   float fac = 1.0/d;
   return Vector3(v[0]*fac, v[1]*fac, v[2]*fac);
 }

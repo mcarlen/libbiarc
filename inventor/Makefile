@@ -11,7 +11,7 @@ INC_LIB = -L../lib -L$(COIN)/lib -L$(SOQT)/lib -L/usr/lib -L/usr/local/lib -L${Q
 
 ######### LIBRARIES  #########################
 
-LIBS = `soqt-config --libs` -lbiarcf
+LIBS = `soqt-config --libs` -lbiarc
 
 ######### FLAGS      #########################
 
@@ -74,7 +74,7 @@ curveview: curveview.o SoKnot.o
 
 main: SoKnot.o main.o Widgets.o moc_Widgets.o moc_main.o
 	@echo Link $@
-	@$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o \
+	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o \
 	Widgets.o moc_Widgets.o moc_main.o $(LIBS)
 
 plotzoom: plotzoom.o moc_plotzoom.o

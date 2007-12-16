@@ -21,10 +21,11 @@ public:
 void testCircle() {
   float rad = 1.0f;
   int nodes = 100;
-  float ds = rad/(float)nodes;
+  float ds;
 
   Curve<Vector3>* c = gen_circle(rad, nodes);
   c->link(); c->make_default();
+  ds = c->length()/(float)nodes;
 
   TS_ASSERT_DELTA(2.0f*rad,c->thickness(),1e-2);
   TS_ASSERT_DELTA(2.0f*M_PI,c->length(),1e-4);
@@ -46,11 +47,12 @@ void testEllipse() {
   float a = 1.0;
   float b = 1.0;
   int nodes = 100;
-  float ds = (a+b)/2./(float)nodes;
+  float ds;
   float rad = (a+b)/2.;
 
   Curve<Vector3>* c = gen_ellipse(a,b,nodes);
   c->link(); c->make_default();
+  ds = c->length()/(float)nodes;
 
   float rH = b*b/a, rN = a*a/b;
   TS_ASSERT_DELTA(2.*(rH<rN?rH:rN),c->thickness(),1e-2);

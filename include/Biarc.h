@@ -63,6 +63,13 @@ class Biarc {
   const Vector& getMidTangent() const;
   void setPoint(const Vector &p);
   void setPoint(float &p0,float &p1,float &p2);
+
+  // These functions should update cached values (i.e. radius,angles...)
+  void setMidPoint(const Vector &p);
+  void setMidPoint(float &p0,float &p1,float &p2);
+  void setMidTangent(const Vector &p);
+  void setMidTangent(float &p0,float &p1,float &p2);
+
   void setTangentUnnormalized(const Vector &t);
   void setTangent(const Vector &t);
   void setTangent(float &t0,float &t1,float &t2);
@@ -73,6 +80,7 @@ class Biarc {
   void reverse();
   int isProper() const;
   int isBiarc() const;
+  void setBiarc();
 
   // FIXME : wrap around if closed and we're at the end
   //         using global knowledge about position in curve

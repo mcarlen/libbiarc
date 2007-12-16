@@ -359,7 +359,7 @@ Matrix3 operator*(float d, const Matrix3 &m) {
   Divides every element of the matrix \a m by \a d.
   and returns a Matrix3 object.
 */
-Matrix3 operator/(const Matrix3 &m, float d) {
+Matrix3 operator/(const Matrix3 &m, const float d) {
   Matrix3 tmp = m;
   return Matrix3(tmp[0]/d, tmp[1]/d, tmp[2]/d);
 }

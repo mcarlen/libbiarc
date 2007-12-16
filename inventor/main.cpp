@@ -373,7 +373,7 @@ int main(int argc, char **argv) {
     knot_shape[i]->ref();
 
     materials[i] = new SoMaterial;
-    for (int z=0;z<(*Knot)[i].nodes();z++) {
+    for (int z=0;z<(*Knot)[i].nodes()-((*Knot)[i].isClosed()?0:1);z++) {
       materials[i]->diffuseColor.set1Value(z,ColorTable[i%ColorNum]);
       // materials[i]->diffuseColor.set1Value(z,ColorTable[ColorIdx]);
       ColorIdx=((ColorIdx+1)%ColorNum);

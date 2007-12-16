@@ -150,6 +150,30 @@ void Biarc<Vector>::setPoint(float p0,float p1,float p2) {
 */
 
 /*!
+  Set midpoint to \a p.
+*/
+template<class Vector>
+void Biarc<Vector>::setMidPoint(const Vector &p) {
+  _MidPoint = p;
+}
+
+/*!
+  Set midtangent to \a p.
+*/
+template<class Vector>
+void Biarc<Vector>::setMidTangent(const Vector &p) {
+  _MidTangent = p;
+  // XXX : this should go somewhere else. where we init the Bezier points
+  //       as well.
+  _BIARC_ = 1;
+  Vector q0 = _Point, q1 = getNext().getPoint();
+  Vector t0 = _Tangent, t1 = getNext().getTangent();
+  _BezierPoint0 = q0+(_MidPoint-q0).norm2()/2./(_MidPoint-q0).dot(t0)*t0;
+  _BezierPoint1 = _MidPoint+(q1-_MidPoint).norm2()/2./(q1-_MidPoint).dot(_MidTangent)*_MidTangent;
+  cache();
+}
+
+/*!
   Set tangent of the biarc. No normalization of the tangent is done.
 */
 template<class Vector>
@@ -242,6 +266,14 @@ int Biarc<Vector>::isProper() const {
 template<class Vector>
 int Biarc<Vector>::isBiarc() const {
   return _BIARC_;
+}
+
+/*!
+  Sets the "interpolated" flag to be true.
+*/
+template<class Vector>
+void Biarc<Vector>::setBiarc() {
+  _BIARC_ = 1;
 }
 
 /*!
@@ -736,8 +768,8 @@ Vector Biarc<Vector>::pointOnArc0(float s) const {
 
   Vector t0 = b1-b0, t2 = b2-b1;
   t0.normalize(); t2.normalize();
-  Vector n = t0.cross(t2); n.normalize();
-  Vector bin = n.cross(t0); bin.normalize();
+  Vector n = t0.cross(t2); // n.normalize();
+  Vector bin = n.cross(t0); // bin.normalize();
 
   Vector Center = b0 + bin*_Radius0;
 

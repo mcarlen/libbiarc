@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
   cb.link();
   cb.make_default();
 
-  cout.precision(8);
+  cout.precision(16);
   cout << "\nPKF info for < " << cb.getName() << " >\n\n";
 
   for (int i=0;i<cb.curves();i++) {

@@ -20,14 +20,11 @@ float p_diff_circle(float rad, float ds, Curve<Vector3>* c) {
   for (float s=0.0;s<=c->length();s+=ds) {
     p = c->pointAt(s);
     pointat_circle(rad,s/c->length(),p2,dummy);
- //cout << s << " : "<< p << ", " << p2 << "\tdiff = " << (p-p2).norm() << endl;
- //cerr << (p-p2).norm() << endl;
     if ((p-p2).norm2()>max) {
       max = (p-p2).norm2();
       s_max = s;
     }
   }
- // cout << "\nCircle\nP  " << max << endl;
   return max;
 }
 

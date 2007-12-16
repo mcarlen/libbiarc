@@ -4,7 +4,7 @@
 #include <math.h>
 #include <iostream>
 
-// #define float long double
+// #define float double
 
 using namespace std;
 
@@ -43,11 +43,11 @@ class Vector3 {
   Vector3 rotPtAroundAxis(float angle, Vector3 axis) const;
 
   Vector3 operator*(const Vector3 &v) const;
-  Vector3 operator*(const float s) const;
-  Vector3 operator/(const float d) const;
-  friend Vector3 operator *(Vector3 & v, float d);
-  friend Vector3 operator *(float d, Vector3 & v);
-  friend Vector3 operator /(Vector3 & v, float d);
+  // Vector3 operator*(const float s) const;
+  // Vector3 operator/(const float d) const;
+  friend Vector3 operator*(const Vector3 & v, float d);
+  friend Vector3 operator*(float d, const Vector3 & v);
+  friend Vector3 operator/(const Vector3 & v, float d);
 
   Vector3 operator+(const Vector3 &v) const;
   Vector3 operator-(const Vector3 &v) const;

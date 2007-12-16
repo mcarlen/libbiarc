@@ -333,7 +333,7 @@ void Tube<Vector>::scaleTubeRadius(float NewRadius) {
 
   // for each point on the curve, scale the radius of corresponding circle
   while (count<N) {
-
+    if (current==this->end()) current = this->begin();
     Point = current->getPoint();
 
     // Circle loop
@@ -506,7 +506,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
     this->link();
     Vector3 p0,p1,p2;
 
-    current = this->listHead();
+    current = this->begin();
     for (int i=0;i<Nloc;i++) {
 
       p0 = (current->getPoint()-current->getPrevious()->getPoint());
@@ -516,7 +516,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
       Normals[i] = (current->getTangent().cross(p2));
       Normals[i].normalize();
 
-      current = current->getNext();
+      current++;
 
     }
 
@@ -533,14 +533,14 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
     Vector3 p0,p1,p2;
     Vector3 *tmpNormals = new Vector3[Nloc];
 
-    current = this->listHead();
+    current = this->begin();
     for (int i=0;i<Nloc;i++) {
       p0 = (current->getPoint()-current->getPrevious()->getPoint());
       p1 = (current->getNext()->getPoint()-current->getPrevious()->getPoint());
       p2 = p1.cross(p0);
       tmpNormals[i] = (current->getTangent().cross(p2));
       tmpNormals[i].normalize();
-      current = current->getNext();
+      current++;
     }
 
     for (int i=1;i<Nloc;i++) {

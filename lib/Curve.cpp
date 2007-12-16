@@ -563,8 +563,10 @@ void Curve<Vector>::make(float f) {
 
   \sa make(), CurveBundle::makeMidpointRule()
 */
+// #define TROVATO
 template<class Vector>
 void Curve<Vector>::makeMidpointRule() {
+#ifdef TROVATO
   biarc_it current = _Biarcs.begin();
   // FIXME: here we assume that _Biarcs has at least 2 data points!
   biarc_it next    = current+1;
@@ -602,7 +604,37 @@ void Curve<Vector>::makeMidpointRule() {
     current->make(Gamma);
 
   }
-  
+#else
+/* Ben/Jana Style */
+  biarc_it p0 = _Biarcs.begin(),p1 = _Biarcs.begin()+1;
+  Vector q0,q1,t0,t1,q1m0,qhalf;
+  float l,y,d,b,c;
+  int N = nodes() - (_Closed?0:1);
+  for (int i=0;i<N;i++) {
+    if (p0==_Biarcs.end()) p0 = _Biarcs.begin();
+    if (p1==_Biarcs.end()) p1 = _Biarcs.begin();
+    q0 = p0->getPoint();
+    q1 = p1->getPoint();
+    t0 = p0->getTangent();
+    t1 = p1->getTangent();
+    q1m0=q1-q0;
+    l=q1m0.norm();
+    q1m0/=l;
+    y=sqrt(2.-2.*t0.dot(t1)+4.*q1m0.dot(t0)*q1m0.dot(t1));
+    d=y+q1m0.dot(t0+t1);
+    b=(q1m0.dot(t1)+y/2.)/d;
+    c=l/d/2.;
+    qhalf=(1.-b)*q0+b*q1+c*(t0-t1);
+    p0->setMidPoint(qhalf);
+
+    // XXX : fix this, computing the tangent this way is unstable.
+    //       c.f. pointOnBiarc
+    Vector mmp0=qhalf-q0;
+    p0->setMidTangent(2.*mmp0.dot(t0)/mmp0.norm2()*mmp0-t0);
+
+    p0++;p1++;
+  }
+#endif
 }
 
 /*! TODO DOC */
@@ -865,6 +897,8 @@ float Curve<Vector>::minSegDistance() const {
 
   \sa refine(),make(),CurveBundle::resample()
 */
+// XXX : resampling doesn't work. problem with closed curves!
+//       i.e. we get one point to much
 template<class Vector>
 void Curve<Vector>::resample(int NewNoNodes) {
 
@@ -915,7 +949,7 @@ void Curve<Vector>::resample(int NewNoNodes) {
         if (current==stop_biarc) {
           current = _Biarcs.begin();
           if (NewNoNodes!=c->nodes()) {
-  	    float d = ((*c)[0].getPoint() - (*c)[c->nodes()].getPoint()).norm();
+  	    float d = ((*c)[0].getPoint()-((*c).end()-1)->getPoint()).norm();
   	    if (d < SegLen/100.0)
 	      c->remove(c->nodes()-1);
   	  }
