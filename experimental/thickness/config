@@ -1,0 +1,3 @@
+LIBBIARC=${HOME}/work/libbiarc
+KNOTLIB=${HOME}/work/links-knots
+MDIR= # ${HOME}/work/jana_matlab

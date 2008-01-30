@@ -9,7 +9,11 @@ syntax: glob
 *.BKP
 *.so
 *.a
+moc_*
 tests/*.err
+tests/*.cpp
+tests/basic
+tests/test
 
 syntax: regexp
 .*\#.*\#$

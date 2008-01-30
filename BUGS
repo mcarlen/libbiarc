@@ -1,5 +1,8 @@
 BUG list
 
+experimental/thickness : for a circle it seems to converge to the
+correct value however only if we crank up the number of node.
+
 main viewer prog : whenever we resample with more points than the
 original, then we need more DiffuseColor values!!!! otherwise
 we get an out of bounds error.

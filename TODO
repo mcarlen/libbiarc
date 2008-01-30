@@ -1,3 +1,16 @@
+experimental/thickness {
+
+the bisection routine should compute
+the intermediate points always using the
+initial arc! this way we reduce summing
+up errors.
+
+! When comparing results, don't forget
+to use double (i.e. in include/Vector3.h,
+use the "#define double float" hack)
+
+}
+
 2D Window : clicking on a point in the 2D map -> highlights corresponding
 points in 3D windows on curve!!
 --> look at ~/coding/qt_examplex/popup for mouse coordinates
@@ -60,4 +73,5 @@ sphere {
   <0,0,0>, 5
   pigment { color rgb <1,0,0> }
 }
+
 
