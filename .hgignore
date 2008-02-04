@@ -9,6 +9,8 @@ syntax: glob
 *.BKP
 *.so
 *.a
+*.png
+*.txt
 moc_*
 tests/*.err
 tests/*.cpp
