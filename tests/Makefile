@@ -2,7 +2,8 @@ include ../Makefile.config
 
 INCLUDE=-I. -I../include 
 LIB_INC=-L. -L../lib
-LIB=-lbiarc
+LIB= -lbiarc
+# LIB= ../lib/libbiarc.a      # static linking
 FLAGS=${INCLUDE} ${CXXFLAGS}
 
 .PHONY: test basic
@@ -19,11 +20,11 @@ library:
 
 basic: basic.cpp library
 	g++ ${INCLUDE} -o basic ${LIB_INC} ${LIB} basic.cpp
-	./basic
+	 LD_LIBRARY_PATH=../lib/ ./basic
 
 test: test.cpp library
 	g++ ${INCLUDE} -o test ${LIB_INC} ${LIB} test.cpp
-	./test
+	LD_LIBRARY_PATH=../lib/ ./test
 
 basic.cpp: BasicTest.h
 	@cxxtestgen.pl --error-printer -o $@ $^
