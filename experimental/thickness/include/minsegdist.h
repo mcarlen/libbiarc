@@ -33,6 +33,7 @@ int double_critical_test(const Vector &a0, const Vector &a1,
   if (w.dot(t0a)>sina  && w.dot(t1a)>sina) return 0;
   if (w.dot(t0b)<-sina && w.dot(t1b)<-sina) return 0;
   if (w.dot(t0b)>sina  && w.dot(t1b)>sina) return 0;
+
   return 1;
 }
 

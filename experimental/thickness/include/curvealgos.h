@@ -1,10 +1,12 @@
 #ifndef CURVE_ALGOS
 #define CURVE_ALGOS
-// #include <CurveBundle.h>
+
 #include "minsegdist.h"
 #include "segdist.h"
 
 #define ITERATE
+
+static int ITERATION;
 
 template<class Vector>
 class ArcInfo{
@@ -47,6 +49,7 @@ public:
   {
     static float dum1,dum2;
     d = min_seg_dist(a0,a2,b0,b2,dum1,dum2);
+cerr << ITERATION << " " << a0 << " " << a2 << " " << b0 << " " << b2 << " " << d << endl;
   }
   Candi(const Vector3 &a0,const Vector3 &a1,const Vector3 &a2,
         const float &a_err,const float &a_ferr,
@@ -56,6 +59,7 @@ public:
   {
     static float dum1,dum2;
     d = min_seg_dist(a0,a2,b0,b2,dum1,dum2);
+cerr << ITERATION << " " << a0 << " " << a2 << " " << b0 << " " << b2 << " " << d << endl;
   }
 };
 
@@ -113,6 +117,7 @@ int rhopt(Vector p, Vector b0,Vector b1,Vector b2,float r,Vector &v) {
 
 template<class Vector>
 float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL) {
+ITERATION = 0;
   const float rel_err_tol = 1e-12;
 
   biarc_it current, var;
@@ -131,7 +136,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
       if (tmpf > 0)
         min_diam = tmpf;
   }
-  // cout << "Local diameter " << min_diam << endl;
+  cout << "Local diameter " << min_diam << endl;
 
   // Double critical candidates
   // Distance check passed candidates
@@ -203,6 +208,8 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
     }
   }
 
+  cout << "Criticality candidates : " << CritC.size() << endl;
+
   // Initial Distance Test
   float d_b = 1e8;
   for (candi_it i=CritC.begin();i!=CritC.end();i++) {
@@ -215,6 +222,8 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
       DistC.push_back(*i);
     }
   }
+
+  cout << "Distance   candidates : " << DistC.size() << endl;
 
   // Initial Thickness Bounds
   float D_lb = 1e8, D_ub = 1e8;
@@ -234,15 +243,16 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
   rel_err = max_err/D_lb;
   int iter = 0;
 
-// cout << endl;
-//  cout << rel_err << "/" << rel_err_tol << endl;
-//  cout << min_diam << "/" << D_lb << endl;
+  cout << endl;
+  cout << "err/err_tol : " << rel_err << "/" << rel_err_tol << endl;
+  cout << "D_ub/D_lb : " << D_ub << "/" << D_lb << endl;
 
 #ifdef ITERATE
 
   // Bisection loop while relative error larger than our given
   // tolerance and while D_lb smaller than the minimal 2*radius
   while(rel_err > rel_err_tol && min_diam > D_lb) {
+ITERATION++;
     ++iter;
 
     // Bisect Candidates
@@ -290,13 +300,16 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
        }
     }
 
-// cout << iter << " : No crit : " << CritC.size() << endl;
+//    cout << iter << " : No crit : " << CritC.size() << endl;
 
     // Distance Test
     DistC.clear();
     // XXX : maybe this is not necessary
     d_b = 1e8;
-    if (CritC.size()==0) break;
+    if (CritC.size()==0) {
+      cout << "DistTestIter : CritC is empty\n";
+      break;
+    }
     for (candi_it i=CritC.begin();i!=CritC.end();i++) {
       tmpf = i->a.err+i->b.err+i->d;
       if (tmpf<d_b) d_b = tmpf;
@@ -308,10 +321,13 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
       }
     }
 
-// cout << iter << " : No dist : " << DistC.size() << endl;
+//    cout << iter << " : No dist : " << DistC.size() << endl;
 
     // Thickness Bounds
-    if (DistC.size()==0) break;
+    if (DistC.size()==0) {
+      cout << "BoundsIter : DistC is empty\n";
+      break;
+    }
     max_err = 0;
     D_ub = 1e8; D_lb = 1e8;
     for (candi_it i=DistC.begin();i!=DistC.end();i++) {
@@ -324,14 +340,14 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
     }
   
     rel_err = max_err/min(D_lb,min_diam);
-// cout << iter << " : "<< max_err << "/" << D_lb << "=" << rel_err << endl;
+    cout << iter << "(D_ub/D_lb=rel_err) : "<< D_ub << "/" << D_lb << "=" << rel_err << endl;
      
   }
 #endif // ITERATE
 
-  // cout << "Number of iterations : " << iter << endl;
-  // cout << "Thick upper bound    : " << D_ub << endl;
-  // cout << "Thick lower bound    : " << D_lb << endl;
+  cout << "Number of iterations : " << iter << endl;
+  cout << "Thick upper bound    : " << D_ub << endl;
+  cout << "Thick lower bound    : " << D_lb << endl;
 //  if (from!=NULL && to!=NULL) {
 //    *from = thick_1; *to = thick_2;
   CritC.clear(); DistC.clear();
