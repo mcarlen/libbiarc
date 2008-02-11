@@ -1,8 +1,5 @@
 #include "Curve.h"
-
 #include "curvealgos.h"
-#include "minsegdist.h"
-#include "segdist.h"
 
 int main(int argc,char** argv) {
 

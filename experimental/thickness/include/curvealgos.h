@@ -5,19 +5,18 @@
 #include "segdist.h"
 
 #define ITERATE
-
 static int ITERATION;
 
 template<class Vector>
 class ArcInfo{
 public:
-  Vector3 b0,b1,b2;
-  Vector3 m; // Midpoint
+  Vector b0,b1,b2;
+  Vector m; // Midpoint
   float err,ferr,omega;
-  ArcInfo(const Vector3 &a0,const Vector3 &a1,const Vector3 &a2)
+  ArcInfo(const Vector &a0,const Vector &a1,const Vector &a2)
   : b0(a0),b1(a1),b2(a2)
   {
-    Vector3 b1b0 = b1-b0, b2b0 = b2-b0;
+    Vector b1b0 = b1-b0, b2b0 = b2-b0;
     b1b0.normalize(); b2b0.normalize();
     omega = b1b0.dot(b2b0);
     m     = (b0+2.*omega*b1+b2)/(2.+2.*omega);
@@ -25,11 +24,11 @@ public:
     ferr  = 2.+sqrt(2.+2.*omega);
   }
   // // Second constructor for iteration part
-  ArcInfo(const Vector3 &a0,const Vector3 &a1,const Vector3 &a2,
+  ArcInfo(const Vector &a0,const Vector &a1,const Vector &a2,
           const float &Err, const float &FErr)
   : b0(a0),b1(a1),b2(a2),err(Err),ferr(FErr)
   {
-    Vector3 b1b0 = b1-b0, b2b0 = b2-b0;
+    Vector b1b0 = b1-b0, b2b0 = b2-b0;
     b1b0.normalize(); b2b0.normalize();
     omega = b1b0.dot(b2b0);
     m     = (b0+2.*omega*b1+b2)/(2.+2.*omega);
@@ -43,25 +42,34 @@ public:
   ArcInfo<Vector> a,b;
   float d;
 
-  Candi(const Vector3 &a0,const Vector3 &a1,const Vector3 &a2,
-        const Vector3 &b0,const Vector3 &b1,const Vector3 &b2)
+  Candi(const Vector &a0,const Vector &a1,const Vector &a2,
+        const Vector &b0,const Vector &b1,const Vector &b2)
   : a(a0,a1,a2), b(b0,b1,b2)
   {
     static float dum1,dum2;
     d = min_seg_dist(a0,a2,b0,b2,dum1,dum2);
-cerr << ITERATION << " " << a0 << " " << a2 << " " << b0 << " " << b2 << " " << d << endl;
+cout << "Candi with d = " << d << endl;
   }
-  Candi(const Vector3 &a0,const Vector3 &a1,const Vector3 &a2,
+
+  Candi(const Vector &a0,const Vector &a1,const Vector &a2,
         const float &a_err,const float &a_ferr,
-        const Vector3 &b0,const Vector3 &b1,const Vector3 &b2,
+        const Vector &b0,const Vector &b1,const Vector &b2,
         const float &b_err,const float &b_ferr)
   : a(a0,a1,a2,a_err,a_ferr), b(b0,b1,b2,b_err,b_ferr)
   {
     static float dum1,dum2;
     d = min_seg_dist(a0,a2,b0,b2,dum1,dum2);
-cerr << ITERATION << " " << a0 << " " << a2 << " " << b0 << " " << b2 << " " << d << endl;
+cout << "Candi with d = " << d << endl;
   }
+
+  // friend ostream & operator <<(ostream &out, const Candi<Vector> &c);
 };
+
+template<class Vector>
+inline ostream & operator<< (ostream &out, const Candi<Vector> &c) {
+  out << c.a.b0 << " " << c.a.b2 << " " << c.b.b0 << " " << c.b.b2 << " " <<c.d;
+  return out;
+}
 
 #define candi_it typename vector<Candi<Vector> >::iterator
 
@@ -115,18 +123,24 @@ int rhopt(Vector p, Vector b0,Vector b1,Vector b2,float r,Vector &v) {
   return 0; //(new Vector(0,0,0));
 }
 
+/*
+  Write all the candidate segment pairs to cerr
+*/
 template<class Vector>
-float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL) {
-ITERATION = 0;
-  const float rel_err_tol = 1e-12;
+void dump_candidates(vector<Candi<Vector > > *C,int iter = 0) {
+  for (candi_it i=C->begin();i!=C->end();++i)
+    cerr << iter << " " << (*i) << endl;
+}
 
-  biarc_it current, var;
-  Vector *tmp, *tmpmin; static int cbiarc = 0;
-  float min_diam = 1e8; Vector thick_1, thick_2;
-
+/*
+ Iterate through curve c and find the smallest
+ radius of curvature. Returns 2x that radius.
+*/
+template<class Vector>
+float check_local_curvature(Curve<Vector>* c) {
   // First we check the local redii of the arcs
-  float tmpf;
-  for (biarc_it it=c->begin();it!=c->end()-(c->isClosed()?0:1);it++) {
+  float tmpf, min_diam = 2.*c->begin()->radius0();
+  for (biarc_it it=c->begin();it!=c->end()-(c->isClosed()?0:1);++it) {
     tmpf = 2.0*it->radius0();
     if (tmpf < min_diam)
       if (tmpf > 0)
@@ -136,6 +150,47 @@ ITERATION = 0;
       if (tmpf > 0)
         min_diam = tmpf;
   }
+  return min_diam;
+}
+
+/*
+  Compute the intial thickness bounds lb and ub and the maximal error err.
+  The relative error is given by rel_err = err/D_lb*2.  // cf. Jana Page 94
+  md is the smallest localdiameter so far.
+*/
+template<class Vector>
+void compute_thickness_bounds(vector<Candi<Vector> > *C,float md, float &lb, float &ub, float &err) {
+  // Initial Thickness Bounds
+  float D_lb = 1e8, D_ub = 1e8;
+  float max_err = 0, rel_err, tmperr, tmpf;
+
+  for (candi_it i=C->begin();i!=C->end();i++) {
+    tmperr = i->a.err+i->b.err;
+    if (tmperr>max_err) max_err = tmperr;
+
+    tmpf = i->d - tmperr;
+    if (tmpf<D_lb) D_lb = tmpf;
+    tmpf = i->d + tmperr;
+    if (tmpf<D_ub) D_ub = tmpf;
+  }
+  lb = (D_lb<md?D_lb:md);
+  ub = (D_ub<md?D_ub:md);
+  err = max_err;
+
+  cout << "Bounds : \n";
+  cout << "max_err/rel_err : " << max_err << "/" << (max_err/D_lb*2.) << endl;
+  cout << "D_lb/D_ub       : " << lb << "/" << ub << endl;
+}
+
+template<class Vector>
+float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL) {
+
+  const float rel_err_tol = 1e-12;
+
+  biarc_it current, var;
+  Vector *tmp, *tmpmin; static int cbiarc = 0;
+  float min_diam = 1e8, tmpf; Vector thick_1, thick_2;
+  min_diam = check_local_curvature(c);
   cout << "Local diameter " << min_diam << endl;
 
   // Double critical candidates
@@ -146,6 +201,7 @@ ITERATION = 0;
   Vector Ba0,Ba1,Ba2,Bb0,Bb1,Bb2;
 
   // Initial double critical test
+cout << "Init double crit test\n" ;
   for (biarc_it i=c->begin();i!=c->end()-(c->isClosed()?0:1);i++) {
     a0  = i->getPoint();
     t0a = i->getTangent();
@@ -208,9 +264,10 @@ ITERATION = 0;
     }
   }
 
-  cout << "Criticality candidates : " << CritC.size() << endl;
+  cout << "Criticality candidates : " << CritC.size() <<  endl;
 
   // Initial Distance Test
+cout << "Init dist test\n";
   float d_b = 1e8;
   for (candi_it i=CritC.begin();i!=CritC.end();i++) {
     tmpf = i->a.err+i->b.err+i->d;
@@ -222,38 +279,22 @@ ITERATION = 0;
       DistC.push_back(*i);
     }
   }
-
-  cout << "Distance   candidates : " << DistC.size() << endl;
+  cout << "Distance candidates : " << DistC.size() << endl;
 
   // Initial Thickness Bounds
   float D_lb = 1e8, D_ub = 1e8;
-  float max_err = 0, rel_err, tmperr;
-  for (candi_it i=DistC.begin();i!=DistC.end();i++) {
-    tmperr = i->a.err+i->b.err;
-    if (tmperr>max_err) max_err = tmperr;
+  float max_err = 0, rel_err;
+  compute_thickness_bounds(&DistC,min_diam,D_lb,D_ub,max_err);
+  rel_err = max_err/D_lb*2.;
 
-    tmpf = i->d - tmperr;
-    if (tmpf<D_lb) D_lb = tmpf;
-    tmpf = i->d + tmperr;
-    if (tmpf<D_ub) D_ub = tmpf;
-  }
-  D_lb = (D_lb<min_diam?D_lb:min_diam);
-  D_ub = (D_ub<min_diam?D_ub:min_diam);
- 
-  rel_err = max_err/D_lb;
-  int iter = 0;
-
-  cout << endl;
-  cout << "err/err_tol : " << rel_err << "/" << rel_err_tol << endl;
-  cout << "D_ub/D_lb : " << D_ub << "/" << D_lb << endl;
+  ITERATION = 0;
 
 #ifdef ITERATE
 
   // Bisection loop while relative error larger than our given
   // tolerance and while D_lb smaller than the minimal 2*radius
   while(rel_err > rel_err_tol && min_diam > D_lb) {
-ITERATION++;
-    ++iter;
+    ++ITERATION;
 
     // Bisect Candidates
     
@@ -300,7 +341,12 @@ ITERATION++;
        }
     }
 
-//    cout << iter << " : No crit : " << CritC.size() << endl;
+//    cout << ITERATION << " : No crit : " << CritC.size() << endl;
+
+    // Print bounds after the double criticality test
+    cout << "After DC test"<<endl;
+    compute_thickness_bounds(&DistC,min_diam,D_lb,D_ub,max_err);
+    dump_candidates(&CritC);
 
     // Distance Test
     DistC.clear();
@@ -321,31 +367,25 @@ ITERATION++;
       }
     }
 
-//    cout << iter << " : No dist : " << DistC.size() << endl;
+//    cout << ITERATION << " : No dist : " << DistC.size() << endl;
 
     // Thickness Bounds
     if (DistC.size()==0) {
       cout << "BoundsIter : DistC is empty\n";
       break;
     }
-    max_err = 0;
-    D_ub = 1e8; D_lb = 1e8;
-    for (candi_it i=DistC.begin();i!=DistC.end();i++) {
-      tmperr = i->a.err+i->b.err;
-      if (tmperr>max_err) max_err = tmperr;
-      tmpf = i->d - tmperr;
-      if (tmpf<D_lb) D_lb = tmpf;
-      tmpf = i->d + tmperr;
-      if (tmpf<D_ub) D_ub = tmpf;
-    }
-  
-    rel_err = max_err/min(D_lb,min_diam);
-    cout << iter << "(D_ub/D_lb=rel_err) : "<< D_ub << "/" << D_lb << "=" << rel_err << endl;
+
+    cout << "After dist test"<<endl;
+    compute_thickness_bounds(&DistC,min_diam,D_lb,D_ub,max_err);
+
+    rel_err = max_err/D_lb*2.;
+    cout << ITERATION << "(D_ub/D_lb=rel_err) : "<< D_ub << "/" << D_lb << "=" << rel_err << endl;
      
   }
+
 #endif // ITERATE
 
-  cout << "Number of iterations : " << iter << endl;
+  cout << "Number of iterations : " << ITERATION << endl;
   cout << "Thick upper bound    : " << D_ub << endl;
   cout << "Thick lower bound    : " << D_lb << endl;
 //  if (from!=NULL && to!=NULL) {

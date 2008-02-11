@@ -23,6 +23,7 @@ def main_cmd(argv):
    while line:
      im = Image.new("RGB",(200,200),color="white")
      draw = ImageDraw.Draw(im)
+     draw.ellipse((10,10,190,190),outline="red")
      (it, x00, y00, z00, x01, y01, z01, x10, y10, z10, x11, y11, z11,d) =  map(float,line.split())
      (x00, y00, z00, x01, y01, z01, x10, y10, z10, x11, y11, z11) = map(normalize, (x00, y00, z00, x01, y01, z01, x10, y10, z10, x11, y11, z11))
      #print it,  x00, y00, x01, y01, x10, y10, x11, y11, d
