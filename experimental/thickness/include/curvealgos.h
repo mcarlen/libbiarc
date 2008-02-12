@@ -67,7 +67,14 @@ cout << "Candi with d = " << d << endl;
 
 template<class Vector>
 inline ostream & operator<< (ostream &out, const Candi<Vector> &c) {
-  out << c.a.b0 << " " << c.a.b2 << " " << c.b.b0 << " " << c.b.b2 << " " <<c.d;
+  Vector3 ta0 = (c.a.b1-c.a.b0); ta0.normalize();
+  Vector3 ta1 = (c.a.b2-c.a.b1); ta1.normalize();
+
+  Vector3 tb0 = (c.b.b1-c.b.b0); tb0.normalize();
+  Vector3 tb1 = (c.b.b2-c.b.b1); tb1.normalize();
+
+  out << c.a.b0 << " " << c.a.b2 << " " << ta0 << " " << ta1 << " "
+      << c.b.b0 << " " << c.b.b2 << " " << tb0 << " " << tb1 << " " << c.d; 
   return out;
 }
 
@@ -123,7 +130,7 @@ int rhopt(Vector p, Vector b0,Vector b1,Vector b2,float r,Vector &v) {
   return 0; //(new Vector(0,0,0));
 }
 
-/*
+/*!
   Write all the candidate segment pairs to cerr
 */
 template<class Vector>
@@ -132,7 +139,7 @@ void dump_candidates(vector<Candi<Vector > > *C,int iter = 0) {
     cerr << iter << " " << (*i) << endl;
 }
 
-/*
+/*!
  Iterate through curve c and find the smallest
  radius of curvature. Returns 2x that radius.
 */
@@ -153,83 +160,39 @@ float check_local_curvature(Curve<Vector>* c) {
   return min_diam;
 }
 
-/*
-  Compute the intial thickness bounds lb and ub and the maximal error err.
-  The relative error is given by rel_err = err/D_lb*2.  // cf. Jana Page 94
-  md is the smallest localdiameter so far.
+/*!
+  Initial double critical test
+
+  Filters non critical arc pairs from the curve c. The candidate arc paris are
+  pushed to a Candi vector CritC.
 */
 template<class Vector>
-void compute_thickness_bounds(vector<Candi<Vector> > *C,float md, float &lb, float &ub, float &err) {
-  // Initial Thickness Bounds
-  float D_lb = 1e8, D_ub = 1e8;
-  float max_err = 0, rel_err, tmperr, tmpf;
+void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC) {
 
-  for (candi_it i=C->begin();i!=C->end();i++) {
-    tmperr = i->a.err+i->b.err;
-    if (tmperr>max_err) max_err = tmperr;
-
-    tmpf = i->d - tmperr;
-    if (tmpf<D_lb) D_lb = tmpf;
-    tmpf = i->d + tmperr;
-    if (tmpf<D_ub) D_ub = tmpf;
-  }
-  lb = (D_lb<md?D_lb:md);
-  ub = (D_ub<md?D_ub:md);
-  err = max_err;
-
-  cout << "Bounds : \n";
-  cout << "max_err/rel_err : " << max_err << "/" << (max_err/D_lb*2.) << endl;
-  cout << "D_lb/D_ub       : " << lb << "/" << ub << endl;
-}
-
-template<class Vector>
-float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL) {
-
-  const float rel_err_tol = 1e-12;
-
-  biarc_it current, var;
-  Vector *tmp, *tmpmin; static int cbiarc = 0;
-  float min_diam = 1e8, tmpf; Vector thick_1, thick_2;
-  min_diam = check_local_curvature(c);
-  cout << "Local diameter " << min_diam << endl;
-
-  // Double critical candidates
-  // Distance check passed candidates
-  vector<Candi<Vector> > CritC, DistC;
   Vector a0,am,a1,b0,bm,b1,t0a,tma,t1a,t0b,tmb,t1b;
   // Temporary Bezier points
   Vector Ba0,Ba1,Ba2,Bb0,Bb1,Bb2;
 
-  // Initial double critical test
-cout << "Init double crit test\n" ;
   for (biarc_it i=c->begin();i!=c->end()-(c->isClosed()?0:1);i++) {
-    a0  = i->getPoint();
-    t0a = i->getTangent();
-    am  = i->getMidPoint();
-    tma = i->getMidTangent();
+    a0  = i->getPoint();    t0a = i->getTangent();
+    am  = i->getMidPoint(); tma = i->getMidTangent();
    
     if (c->isClosed()) {
       if (i==c->end()-1) {
-        a1  = c->begin()->getPoint();
-        t1a = c->begin()->getTangent();
+        a1  = c->begin()->getPoint(); t1a = c->begin()->getTangent();
       }
       else {
-        a1  = (i+1)->getPoint();
-        t1a = (i+1)->getTangent();
+        a1  = (i+1)->getPoint(); t1a = (i+1)->getTangent();
       }
     }
     else {
-      a1  = (i+1)->getPoint();
-      t1a = (i+1)->getTangent();
+      a1  = (i+1)->getPoint(); t1a = (i+1)->getTangent();
     }
 
     for (biarc_it j=c->begin();j!=i;j++) {
-      b0  = j->getPoint();
-      t0b = j->getTangent();
-      bm  = j->getMidPoint();
-      tmb = j->getMidTangent();
-      b1  = (j+1)->getPoint();
-      t1b = (j+1)->getTangent();
+      b0  = j->getPoint();     t0b = j->getTangent();
+      bm  = j->getMidPoint();  tmb = j->getMidTangent();
+      b1  = (j+1)->getPoint(); t1b = (j+1)->getTangent();
  
       // Now double criticle all 4 possibilities
       // excluding next neighbors
@@ -265,26 +228,147 @@ cout << "Init double crit test\n" ;
   }
 
   cout << "Criticality candidates : " << CritC.size() <<  endl;
+}
 
-  // Initial Distance Test
-cout << "Init dist test\n";
-  float d_b = 1e8;
-  for (candi_it i=CritC.begin();i!=CritC.end();i++) {
+/*!
+  Double critical test (in subdivision loop)
+
+  Filters non critical arc pair candidates from Candi vector C.
+  The candidate arc paris passing the test are pushed to a Candi
+  vector CritC. The reference to CritC is cleared at the beginning!
+*/
+template<class Vector>
+void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC) {
+
+  // Double Critical Test
+  CritC.clear();
+
+  for (candi_it i=C.begin();i!=C.end();i++) {
+  // for each candidate use the bezier points
+  // in double_critical_test_v2 and
+  // put the correct 3 Bezier points in the subdiv arc!!!
+  // example if we need the left sub arc of a0,a1,a2,m
+  // subarc Bezier points are given by a0,(a0+a1)/2,m !!!
+    // arc a1 - b1
+    if (double_critical_test_v2(i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,
+                                i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m)) {
+       CritC.push_back(Candi<Vector>(
+         i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,i->a.err/i->a.ferr,i->a.ferr,
+         i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,i->b.err/i->b.ferr,i->b.ferr
+                                    ));
+    }
+    // arc a1 - b2
+    if (double_critical_test_v2(i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,
+                                i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2)) {
+      CritC.push_back(Candi<Vector>(
+        i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,i->a.err/i->a.ferr,i->a.ferr,
+        i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,i->b.err/i->b.ferr,i->b.ferr
+                                   ));
+    }
+    // arc a2 - b1
+    if (double_critical_test_v2(i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,
+                                i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m)) {
+      CritC.push_back(Candi<Vector>(
+        i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,i->a.err/i->a.ferr,i->a.ferr,
+        i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,i->b.err/i->b.ferr,i->b.ferr
+                                   ));
+    }
+    // arc a2 - b2
+    if (double_critical_test_v2(i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,
+                                i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2)) {
+      CritC.push_back(Candi<Vector>(
+        i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,i->a.err/i->a.ferr,i->a.ferr,
+        i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,i->b.err/i->b.ferr,i->b.ferr
+                                   ));
+    }
+  }
+//    cout << ITERATION << " : No crit : " << CritC.size() << endl;
+
+}
+
+
+/*!
+  Given a Candi vector C,
+  compute the initial thickness bounds lb and ub and the maximal error err.
+  The relative error is given by rel_err = err/D_lb*2.  // cf. Jana Page 94
+  md is the smallest localdiameter so far.
+*/
+template<class Vector>
+void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, float &ub, float &err) {
+  // Initial Thickness Bounds
+  float D_lb = 1e8, D_ub = 1e8;
+  float max_err = 0, rel_err, tmperr, tmpf;
+
+  for (candi_it i=C.begin();i!=C.end();i++) {
+    tmperr = i->a.err+i->b.err;
+    if (tmperr>max_err) max_err = tmperr;
+
+    tmpf = i->d - tmperr;
+    if (tmpf<D_lb) D_lb = tmpf;
+    tmpf = i->d + tmperr;
+    if (tmpf<D_ub) D_ub = tmpf;
+  }
+  lb = (D_lb<md?D_lb:md);
+  ub = (D_ub<md?D_ub:md);
+  err = max_err;
+
+  cout << "Bounds : \n";
+  cout << "max_err/rel_err : " << max_err << "/" << (max_err/D_lb*2.) << endl;
+  cout << "D_lb/D_ub       : " << lb << "/" << ub << endl;
+}
+
+
+/*!
+  The Candidates in C that pass the distance test are pushed
+  to the vector Cfiltered. Cfiltered is cleared first!
+*/
+template<class Vector>
+void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered) {
+  cout << "Distance Test\n";
+  float d_b = 1e8, tmpf;
+  if (Cfiltered.size()!=0)
+    Cfiltered.clear();
+  assert(C.size()>0);
+  for (candi_it i=C.begin();i!=C.end();i++) {
     tmpf = i->a.err+i->b.err+i->d;
     if (tmpf<d_b) d_b = tmpf;
   }
-  for (candi_it i=CritC.begin();i!=CritC.end();i++) {
+  for (candi_it i=C.begin();i!=C.end();i++) {
     tmpf = i->d - i->a.err - i->b.err;
     if (tmpf<=d_b) {
-      DistC.push_back(*i);
+      Cfiltered.push_back(*i);
     }
   }
-  cout << "Distance candidates : " << DistC.size() << endl;
+  cout << "Distance Candidates : " << Cfiltered.size() << endl;
+}
+
+template<class Vector>
+float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL) {
+
+  const float rel_err_tol = 1e-12;
+
+  biarc_it current, var;
+  Vector *tmp, *tmpmin; static int cbiarc = 0;
+  float min_diam = 1e8, tmpf; Vector thick_1, thick_2;
+  min_diam = check_local_curvature(c);
+  cout << "Local diameter " << min_diam << endl;
+
+  // Double critical candidates
+  // Distance check passed candidates
+  vector<Candi<Vector> > CritC, DistC;
+
+  // Initial double critical test
+  initial_dbl_crit_filter(c,CritC);
+  dump_candidates(&CritC);
+
+  // Initial Distance Test
+  distance_filter(CritC,DistC);
+//  dump_candidates(&DistC,1);
 
   // Initial Thickness Bounds
   float D_lb = 1e8, D_ub = 1e8;
   float max_err = 0, rel_err;
-  compute_thickness_bounds(&DistC,min_diam,D_lb,D_ub,max_err);
+  compute_thickness_bounds(DistC,min_diam,D_lb,D_ub,max_err);
   rel_err = max_err/D_lb*2.;
 
   ITERATION = 0;
@@ -297,76 +381,17 @@ cout << "Init dist test\n";
     ++ITERATION;
 
     // Bisect Candidates
-    
-    // Double Critical Test
-    CritC.clear();
-
-    for (candi_it i=DistC.begin();i!=DistC.end();i++) {
-    // for each candidate use the bezier points
-    // in double_critical_test_v2 and
-    // put the correct 3 Bezier points in the subdiv arc!!!
-    // example if we need the left sub arc of a0,a1,a2,m
-    // subarc Bezier points are given by a0,(a0+a1)/2,m !!!
-      // arc a1 - b1
-      if (double_critical_test_v2(i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,
-                                  i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m)) {
-         CritC.push_back(Candi<Vector>(
-           i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,i->a.err/i->a.ferr,i->a.ferr,
-           i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,i->b.err/i->b.ferr,i->b.ferr
-                                      ));
-       }
-       // arc a1 - b2
-       if (double_critical_test_v2(i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,
-                                   i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2)) {
-         CritC.push_back(Candi<Vector>(
-           i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,i->a.err/i->a.ferr,i->a.ferr,
-           i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,i->b.err/i->b.ferr,i->b.ferr
-                                      ));
-       }
-       // arc a2 - b1
-       if (double_critical_test_v2(i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,
-                                   i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m)) {
-         CritC.push_back(Candi<Vector>(
-           i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,i->a.err/i->a.ferr,i->a.ferr,
-           i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,i->b.err/i->b.ferr,i->b.ferr
-                                      ));
-       }
-       // arc a2 - b2
-       if (double_critical_test_v2(i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,
-                                   i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2)) {
-         CritC.push_back(Candi<Vector>(
-           i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,i->a.err/i->a.ferr,i->a.ferr,
-           i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,i->b.err/i->b.ferr,i->b.ferr
-                                      ));
-       }
-    }
-
-//    cout << ITERATION << " : No crit : " << CritC.size() << endl;
+    dbl_crit_filter(DistC,CritC);   
 
     // Print bounds after the double criticality test
+/*
     cout << "After DC test"<<endl;
-    compute_thickness_bounds(&DistC,min_diam,D_lb,D_ub,max_err);
-    dump_candidates(&CritC);
+    compute_thickness_bounds(DistC,min_diam,D_lb,D_ub,max_err);
+    dump_candidates(&CritC,ITERATION);
+*/
 
     // Distance Test
-    DistC.clear();
-    // XXX : maybe this is not necessary
-    d_b = 1e8;
-    if (CritC.size()==0) {
-      cout << "DistTestIter : CritC is empty\n";
-      break;
-    }
-    for (candi_it i=CritC.begin();i!=CritC.end();i++) {
-      tmpf = i->a.err+i->b.err+i->d;
-      if (tmpf<d_b) d_b = tmpf;
-    }
-    for (candi_it i=CritC.begin();i!=CritC.end();i++) {
-      tmpf = i->d - i->a.err - i->b.err;
-      if (tmpf<=d_b) {
-        DistC.push_back(*i);
-      }
-    }
-
+    distance_filter(CritC,DistC);
 //    cout << ITERATION << " : No dist : " << DistC.size() << endl;
 
     // Thickness Bounds
@@ -376,7 +401,7 @@ cout << "Init dist test\n";
     }
 
     cout << "After dist test"<<endl;
-    compute_thickness_bounds(&DistC,min_diam,D_lb,D_ub,max_err);
+    compute_thickness_bounds(DistC,min_diam,D_lb,D_ub,max_err);
 
     rel_err = max_err/D_lb*2.;
     cout << ITERATION << "(D_ub/D_lb=rel_err) : "<< D_ub << "/" << D_lb << "=" << rel_err << endl;
