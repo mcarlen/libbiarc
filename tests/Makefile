@@ -6,11 +6,15 @@ LIB= -lbiarc
 # LIB= ../lib/libbiarc.a      # static linking
 FLAGS=${INCLUDE} ${CXXFLAGS}
 
-.PHONY: test basic
+.PHONY: test runthem
 
-all: verb test basic
+all: test
 
-TESTS=SimpleTest.h BasicTest.h
+TESTS=SimpleTest.h BasicTest.h ThicknessTest.h
+TESTSCPP=${TESTS:.h=.cpp}
+BUILDTESTS=${TESTS:.h=}
+
+test: library verb runthem
 
 verb:
 	@echo "Run tests"
@@ -18,24 +22,21 @@ verb:
 library:
 	cd ../lib; make
 
-basic: basic.cpp library
-	g++ ${INCLUDE} -o basic ${LIB_INC} ${LIB} basic.cpp
-	 LD_LIBRARY_PATH=../lib/ ./basic
+runthem: $(BUILDTESTS)
+	@for i in $^; do \
+	  echo "Run test $$i"; LD_LIBRARY_PATH=../lib/ ./$$i; \
+	done
 
-test: test.cpp library
-	g++ ${INCLUDE} -o test ${LIB_INC} ${LIB} test.cpp
-	LD_LIBRARY_PATH=../lib/ ./test
+%: %.cpp
+	@g++ ${INCLUDE} -o $@ ${LIB_INC} ${LIB} $<
 
-basic.cpp: BasicTest.h
-	@cxxtestgen.pl --error-printer -o $@ $^
-
-test.cpp: SimpleTest.h
+%.cpp: %.h
 	@cxxtestgen.pl --error-printer -o $@ $^
 
 clean :
 	@echo Cleaning `basename ${PWD}`
 	@-rm -rf ii_files
-	@-rm -f test.cpp basic.cpp test basic
+	@-rm -f ${RUNTESTS} ${TESTSCPP}
 
 realclean : clean
 	@echo Purge `basename ${PWD}`
