@@ -4,7 +4,9 @@
 #include <math.h>
 #include <iostream>
 
+#ifndef PRECISION_HACK
 #define float double
+#endif
 
 using namespace std;
 

@@ -3,34 +3,58 @@ include ../Makefile.config
 INCLUDE+=-I../include
 
 ifeq ($(RENDERMAN),YES)
-LIB=libbiarc_pixie.so
-STATIC_LIB=libbiarc_pixie.a
+LIB_FLOAT=libbiarc_pixie.so
+STATIC_LIB_FLOAT=libbiarc_pixie.a
+TODO=${LIB} ${STATIC_LIB}
 else
-LIB=libbiarc.so
-STATIC_LIB=libbiarc.a
+LIB_FLOAT=libbiarc_float.so
+STATIC_LIB_FLOAT=libbiarc_float.a
+LIB_DOUBLE=libbiarc.so
+STATIC_LIB_DOUBLE=libbiarc.a
+TODO=${LIB_FLOAT} ${STATIC_LIB_FLOAT} ${LIB_DOUBLE} ${STATIC_LIB_DOUBLE}
 endif
 
-SRC=PKFmanip.cpp Vector3.cpp Vector4.cpp Curve.cpp CurveBundle.cpp \
-	Biarc.cpp Matrix3.cpp Matrix4.cpp Tube.cpp TubeBundle.cpp
-OBJ=${SRC:.cpp=.o}
+SRC=$(wildcard *.cpp)
+OBJ_FLOAT=${SRC:.cpp=_float.o}
+OBJ_DOUBLE=${SRC:.cpp=_double.o}
 
 #####  RULES  ####
 .SUFFIXES: .cpp
 
-.cpp.o:
-	@echo Compile $<
-	@$(CXX) $(INCLUDE) ${CXXFLAGS} -fPIC -c $<
+%_float.o: %.cpp
+	@echo Compile Float $<
+	@$(CXX) $(INCLUDE) ${CXXFLAGS} -DPRECISION_HACK -fPIC -c $< -o $@
 
-all: $(LIB) $(STATIC_LIB)
+%_double.o: %.cpp
+	@echo Compile Double $<
+	@$(CXX) $(INCLUDE) ${CXXFLAGS} -fPIC -c $< -o $@
 
-$(LIB): $(OBJ)
-	@echo Build shared lib $(LIB)
-	@$(LINKER) -shared $(OBJ) -o $(LIB)
+all: $(TODO)
 
-$(STATIC_LIB): $(OBJ)
+# Build float only
+float: ${LIB_FLOAT} ${STATIC_LIB_FLOAT}
+
+# Build double only
+double: ${LIB_DOUBLE} ${STATIC_LIB_DOUBLE}
+
+$(LIB_FLOAT): ${OBJ_FLOAT}
+	@echo Build shared lib $(LIB_FLOAT)
+	@$(LINKER) -shared $? -o $(LIB_FLOAT)
+
+$(STATIC_LIB_FLOAT): ${OBJ_FLOAT}
 	@echo using $?
-	@echo Build static lib $(STATIC_LIB)
-	@ar crs $(STATIC_LIB) $? 
+	@echo Build static lib $(STATIC_LIB_FLOAT)
+	@ar crs $(STATIC_LIB_FLOAT) $? 
+
+$(LIB_DOUBLE): ${OBJ_DOUBLE}
+	@echo Build shared lib $(LIB_DOUBLE)
+	@$(LINKER) -shared $? -o $(LIB_DOUBLE)
+
+$(STATIC_LIB_DOUBLE): ${OBJ_DOUBLE}
+	@echo using $?
+	@echo Build static lib $(STATIC_LIB_DOUBLE)
+	@ar crs $(STATIC_LIB_DOUBLE) $? 
+
 
 ###--------------###
 ###    Clean     ###
@@ -38,11 +62,12 @@ $(STATIC_LIB): $(OBJ)
 
 clean :
 	@echo Cleaning `basename ${PWD}`
-	@-rm -f $(OBJ)
+	@-rm -f $(OBJ_FLOAT) $(OBJ_DOUBLE)
 	@-rm -rf ii_files
 
 realclean :
-	@echo Purge `basename ${PWD}` ${LIB} and ${STATIC_LIB}
-	@rm -f $(OBJ) $(LIB) $(STATIC_LIB)
+	@echo Purge `basename ${PWD}`
+	@rm -f $(OBJ_FLOAT) $(LIB) $(STATIC_LIB)
+	@rm -f $(OBJ_DOUBLE) $(LIB_DOUBLE) $(STATIC_LIB_DOUBLE)
 	@rm -f *~ *% .*~ .*% core
 	@rm -rf ii_file
