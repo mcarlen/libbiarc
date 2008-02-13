@@ -99,7 +99,8 @@ public:
     TS_ASSERT(c[0].isBiarc());
     TS_ASSERT(c[0].isProper());
     TS_ASSERT_DELTA(c[0].radius0(),c[0].radius1(),1e-6);
-    TS_ASSERT(c[0].getMidPoint()==Vector3(.5,0,0));
+    cout << c[0].getMidPoint() << " " << Vector3(.5,0,0) << endl;
+    TS_ASSERT_DELTA(c[0].getMidPoint().norm(),Vector3(.5,0,0).norm(),1e-6);
     tmp = Vector3(1,-1,0); tmp.normalize();
     TS_ASSERT_VECTOR3(c[0].getMidTangent(),tmp,1e-6);
     c.flush_all();

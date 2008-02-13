@@ -4,7 +4,7 @@
 #include <math.h>
 #include <iostream>
 
-// #define float double
+#define float double
 
 using namespace std;
 
