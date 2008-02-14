@@ -610,8 +610,8 @@ void Biarc<Vector>::getBezier(Vector& b0_0, Vector& b1_0, Vector& b2_0,
   used for that purpose.
 */
 template<class Vector>
-Vector& Biarc<Vector>::a(const Vector &b0, const Vector &b1,
-		 const Vector &b2, float tau) const {
+Vector Biarc<Vector>::a(const Vector &b0, const Vector &b1,
+	  	        const Vector &b2, float tau) const {
 
   float omega = (b1-b0).dot(b2-b0)/(b1-b0).norm()/(b2-b0).norm();
 
@@ -634,7 +634,7 @@ Vector& Biarc<Vector>::a(const Vector &b0, const Vector &b1,
   \sa pointOnArc0(),pointOnArc1(),pointOnBiarc(),a1().
 */
 template<class Vector>
-Vector& Biarc<Vector>::a0(float tau) const {
+Vector Biarc<Vector>::a0(float tau) const {
   if (_BIARC_ && tau<=1.0 && tau>=0.0)
     return a(_Point,_BezierPoint0,_MidPoint,tau);
   else {
@@ -656,7 +656,7 @@ Vector& Biarc<Vector>::a0(float tau) const {
   \sa pointOnArc0(),pointOnArc1(),pointOnBiarc(),a0().
 */
 template<class Vector>
-Vector& Biarc<Vector>::a1(float tau) const {
+Vector Biarc<Vector>::a1(float tau) const {
   if (_BIARC_ && tau<=1.0 && tau>=0.0) {
     return a(_MidPoint,_BezierPoint1,getNext().getPoint(),tau);
   }  else {
@@ -732,7 +732,6 @@ Vector Biarc<Vector>::pointOnArc0(float s) const {
   // cord length to get the tau in [0,1]!!
 
   // FIXME : Maybe there should also be a Vector2 class for this
-/* old version 
   Vector3 P_s(-_Radius0*cos(s/_Radius0),
 	      _Radius0*sin(s/_Radius0),
 	      0);
@@ -750,18 +749,12 @@ Vector Biarc<Vector>::pointOnArc0(float s) const {
   float tau = 0;
   if (P_s.dot(P_l)>10e-8)
     tau = P_s.dot(P_l)/scale_factor;
-*/
+
+  return a0(tau);
 
 /*
-  Vector3 P_s(-_Radius0*cos(s/_Radius0),
-              _Radius0*sin(s/_Radius0),
-              0);
-  Vector3 P_l(-_Radius0*cos(_ArcLength0/_Radius0),
-              _Radius0*sin(_ArcLength0/_Radius0),
-              0);
-*/
-
- // P_s+=offset;
+  This version is buggy
+////
   Vector b0 = _Point;
   Vector b1 = _BezierPoint0;
   Vector b2 = _MidPoint;
@@ -774,7 +767,7 @@ Vector Biarc<Vector>::pointOnArc0(float s) const {
   Vector Center = b0 + bin*_Radius0;
 
   return ((b0-Center).rotPtAroundAxis(s/_Radius0,n)+Center);
-  // return a0(tau);
+*/
 }
 
 /*!
@@ -794,7 +787,7 @@ Vector Biarc<Vector>::pointOnArc1(float s) const {
   if (s==_ArcLength1) return getNext().getPoint();
 
   // Mapping to [0,1] for tau is explained in pointOnArc0()
-/*
+
   Vector3 P_s(-_Radius1*cos(s/_Radius1),
 	      _Radius1*sin(s/_Radius1),
 	      0);
@@ -814,12 +807,13 @@ Vector Biarc<Vector>::pointOnArc1(float s) const {
     tau = P_s.dot(P_l)/scale_factor;
 
   return a1(tau);
-*/
 
+/*
+  This Version is buggy
+////
   Vector b0 = _MidPoint;
   Vector b1 = _BezierPoint1;
   Vector b2 = getNext().getPoint();
-
   Vector t0 = b1-b0, t2 = b2-b1;
   t0.normalize(); t2.normalize();
   Vector n = t0.cross(t2); n.normalize();
@@ -828,7 +822,7 @@ Vector Biarc<Vector>::pointOnArc1(float s) const {
   Vector Center = b0 + bin*_Radius1;
 
   return ((b0-Center).rotPtAroundAxis(s/_Radius1,n)+Center);
-
+*/
 }
 
 /*!
@@ -892,7 +886,7 @@ Vector Biarc<Vector>::tangentOnBiarc(float arclength) const {
   else if (arclength==_ArcLength0) return _MidTangent;
   else if (arclength==_Length) return getNext().getTangent();
   else if (arclength > this->arclength0()) {
-    if (arclength > (this->arclength0()+this->arclength1()/2.0))
+    if (arclength > (this->arclength0()+this->arclength1())/2.0)
       t = this->getMidTangent().reflect(p-this->getMidPoint());
     else
       t = this->getNext().getTangent().reflect(this->getNext().getPoint()-p);

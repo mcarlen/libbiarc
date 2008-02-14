@@ -47,7 +47,7 @@ class Biarc {
   float _arclength1() const;
   float _biarclength() const;
 
-  Vector& a(const Vector &b0,const Vector &b1,const Vector &b2,float tau) const;
+  Vector a(const Vector &b0,const Vector &b1,const Vector &b2,float tau) const;
   void cache();
 
  public:
@@ -110,8 +110,8 @@ class Biarc {
   void getBezierArc1(Vector& b0,Vector& b1,Vector& b2) const;
   void getBezier(Vector& b0_0, Vector& b1_0, Vector& b2_0,
 		 Vector& b0_1, Vector& b1_1, Vector& b2_1) const;
-  Vector& a0(float tau) const;
-  Vector& a1(float tau) const;
+  Vector a0(float tau) const;
+  Vector a1(float tau) const;
 
   const Biarc<Vector>& getNext() const;
   const Biarc<Vector>& getPrevious() const;
