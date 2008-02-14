@@ -28,7 +28,7 @@ runthem: $(BUILDTESTS)
 	done
 
 %: %.cpp
-	@g++ ${INCLUDE} -o $@ ${LIB_INC} ${LIB} $<
+	g++ ${INCLUDE} -o $@ ${LIB_INC} ${LIB} $<
 
 %.cpp: %.h
 	@cxxtestgen.pl --error-printer -o $@ $^
@@ -36,8 +36,9 @@ runthem: $(BUILDTESTS)
 clean :
 	@echo Cleaning `basename ${PWD}`
 	@-rm -rf ii_files
-	@-rm -f ${RUNTESTS} ${TESTSCPP}
+	@-rm -f ${TESTSCPP}
 
 realclean : clean
 	@echo Purge `basename ${PWD}`
+	@-rm -f ${BUILDTESTS}
 	@-rm -f *~ *% .*~ .*% core *.pkf ii_files

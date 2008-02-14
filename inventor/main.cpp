@@ -375,9 +375,14 @@ int main(int argc, char **argv) {
     materials[i] = new SoMaterial;
     for (int z=0;z<(*Knot)[i].nodes()-((*Knot)[i].isClosed()?0:1);z++) {
       materials[i]->diffuseColor.set1Value(z,ColorTable[i%ColorNum]);
-      // materials[i]->diffuseColor.set1Value(z,ColorTable[ColorIdx]);
+      /*
+      materials[i]->diffuseColor.set1Value(z,ColorTable[ColorIdx]);
       ColorIdx=((ColorIdx+1)%ColorNum);
+      */
     }
+    // Mark beginning of curve!
+    materials[i]->diffuseColor.set1Value(0,ColorTable[1]);
+
     materials[i]->transparency = transp;
 
     if (1) {

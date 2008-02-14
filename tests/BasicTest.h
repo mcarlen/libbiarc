@@ -50,6 +50,13 @@ public:
     Vector3 t = c[0].tangentOnBiarc(M_PI/4.);
     TS_ASSERT_VECTOR3(t,Vector3(1,-1,0)/Vector3(1,-1,0).norm(),1e-6);
 
+    t = c[0].tangentOnBiarc(0.);
+    TS_ASSERT_VECTOR3(t,c[0].getTangent(),1e-6);
+    t = c[0].tangentOnBiarc(c[0].biarclength());
+    TS_ASSERT_VECTOR3(t,c[0].getNext().getTangent(),1e-6);
+    t = c[0].tangentOnBiarc(c[0].arclength0());
+    TS_ASSERT_VECTOR3(t,c[0].getMidTangent(),1e-6);
+
   }
 
   void testCurve() {

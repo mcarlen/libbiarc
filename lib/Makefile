@@ -39,21 +39,19 @@ double: ${LIB_DOUBLE} ${STATIC_LIB_DOUBLE}
 
 $(LIB_FLOAT): ${OBJ_FLOAT}
 	@echo Build shared lib $(LIB_FLOAT)
-	@$(LINKER) -shared $? -o $(LIB_FLOAT)
+	@$(LINKER) -shared ${OBJ_FLOAT} -o $(LIB_FLOAT)
 
 $(STATIC_LIB_FLOAT): ${OBJ_FLOAT}
-	@echo using $?
 	@echo Build static lib $(STATIC_LIB_FLOAT)
-	@ar crs $(STATIC_LIB_FLOAT) $? 
+	@ar crs $(STATIC_LIB_FLOAT) ${OBJ_FLOAT}
 
 $(LIB_DOUBLE): ${OBJ_DOUBLE}
 	@echo Build shared lib $(LIB_DOUBLE)
-	@$(LINKER) -shared $? -o $(LIB_DOUBLE)
+	@$(LINKER) -shared ${OBJ_DOUBLE} -o $(LIB_DOUBLE)
 
 $(STATIC_LIB_DOUBLE): ${OBJ_DOUBLE}
-	@echo using $?
 	@echo Build static lib $(STATIC_LIB_DOUBLE)
-	@ar crs $(STATIC_LIB_DOUBLE) $? 
+	@ar crs $(STATIC_LIB_DOUBLE) ${DOUBLE}
 
 
 ###--------------###

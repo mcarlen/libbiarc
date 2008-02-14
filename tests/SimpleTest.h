@@ -5,6 +5,8 @@
 #include "circle.h"
 #include "ellipse.h"
 
+#include "algo_helpers.h"
+
 template<class Vector>
 class Biarc;
 

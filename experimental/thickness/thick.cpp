@@ -1,9 +1,7 @@
 #include "Curve.h"
 #include "knot.h"
 
-#include "curvealgos.h"
-#include "minsegdist.h"
-#include "segdist.h"
+#include "algo_helpers.h"
 
 #include <sys/resource.h>
 

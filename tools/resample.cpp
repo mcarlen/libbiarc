@@ -54,6 +54,9 @@ int main(int argc, char** argv) {
   original.resample(N);
   cout << "\t[OK]\n";
   
+  for (int i=0;i<original.curves();i++)
+    original[i].check_tangents();
+
   cout << "Write resampled curve to file\t";
   original.writePKF(outfile.c_str());
   cout << "\t[OK]\n";

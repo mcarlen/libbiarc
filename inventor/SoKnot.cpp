@@ -166,7 +166,7 @@ void SoKnot::GLRender(SoGLRenderAction * action) {
   SoState * state = action->getState();
 
   SoMaterialBundle mb(action);
-  mb.sendFirst();
+//  mb.sendFirst();
 
   SbBool doTextures = FALSE;
   SbBool do3DTextures = FALSE;
@@ -458,15 +458,15 @@ void SoKnot::sogl_render_tube(const float radius,
   int N = knot->isClosed()?nodes:nodes-1;
 
   //  int u;
-
+  material->sendFirst();
   glBegin(GL_QUADS);
 
   for (int j=0;j<N;j++) { // number of nodes on the curve
 
-    for (int i=0;i<S;i++) { // number of segments on the circle
+    if (flags & SOGL_MATERIAL_PER_PART)
+      material->forceSend(j); //, TRUE);
 
-      if (flags & SOGL_MATERIAL_PER_PART)
-        material->send(j, TRUE);
+    for (int i=0;i<S;i++) { // number of segments on the circle
 
       // 4 corners of the quad
       // corner 1

@@ -3,9 +3,8 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "Biarc.h"
 #include "Curve.h"
-#include "../experimental/thickness/include/curvealgos.h"
+#include "algo_helpers.h"
 
 class ThicknessTest : public CxxTest::TestSuite {
 public:
@@ -43,6 +42,13 @@ public:
     TS_ASSERT_EQUALS(double_critical_test_v2(a0p,xxx,a1p,b0p,yyy,b1p),0);
     dbl_crit_filter(C,CC);
     TS_ASSERT_EQUALS(CC.size(),0);
+  }
+
+  void testCurveThickness() {
+    Curve<Vector3> c("../knots/k3.1.pkf");
+    c.link();
+    c.make_default();
+    TS_ASSERT_DELTA(c.thickness(),0.061033,1e-8);
   }
 
 };

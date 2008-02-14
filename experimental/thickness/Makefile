@@ -4,19 +4,19 @@ LIBBIARC=../../
 
 thick: thick.cpp
 	g++ -Wall -I${LIBBIARC}/include -I${KNOTLIB}/include \
-	-I./include -o $@ thick.cpp \
+	-o $@ thick.cpp \
 	${LIBBIARC}/lib/libbiarc.a ${KNOTLIB}/lib/libknot.a -lrt
 
 compute_thickness: compute_thickness.cpp
-	g++ -Wall -I${LIBBIARC}/include -I./include -o $@ $< \
+	g++ -Wall -I${LIBBIARC}/include -o $@ $< \
 	-L${LIBBIARC}/lib -lbiarc
 
 test_circle: test_circle.cpp
-	g++ -I${LIBBIARC}/include -I./include -o $@ $< \
+	g++ -I${LIBBIARC}/include -o $@ $< \
 	-L${LIBBIARC}/lib -lbiarc
 
 double_critical: double_critical.cpp
-	g++ -Wall -I${KNOTLIB}/include -I../../include -I./include -o $@ $< \
+	g++ -Wall -I${KNOTLIB}/include -I../../include -o $@ $< \
 	-L../../lib -lbiarc ${KNOTLIB}/lib/libknot.a
 
 realclean:

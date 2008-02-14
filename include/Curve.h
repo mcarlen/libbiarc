@@ -112,6 +112,7 @@ class Curve : public PKFmanip {
   
   float radius_global(Biarc<Vector>& at);
 
+  float thickness_fast();
   float thickness();
   float minSegDistance() const;
   float maxSegDistance() const;
@@ -148,6 +149,8 @@ class Curve : public PKFmanip {
   void center();
   void normalize();
   void scale(float s);
+
+  void check_tangents();
 
   int readPKF(const char* filename);
   int readPKF(istream &in);

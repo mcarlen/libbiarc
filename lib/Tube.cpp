@@ -530,15 +530,16 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
 
     cout << "Parallel Transport ODE Framing\n" << flush;
     this->link();
-    Vector3 p0,p1,p2;
+    Vector3 p0,p1,p2,tt;
     Vector3 *tmpNormals = new Vector3[Nloc];
 
     current = this->begin();
     for (int i=0;i<Nloc;i++) {
-      p0 = (current->getPoint()-current->getPrevious()->getPoint());
-      p1 = (current->getNext()->getPoint()-current->getPrevious()->getPoint());
+      p0 = (current->getPoint()-current->getPrevious().getPoint());
+      p1 = (current->getNext().getPoint()-current->getPrevious().getPoint());
       p2 = p1.cross(p0);
-      tmpNormals[i] = (current->getTangent().cross(p2));
+      tt = current->getTangent();
+      tmpNormals[i] = (tt.cross(p2));
       tmpNormals[i].normalize();
       current++;
     }

@@ -731,7 +731,7 @@ void Curve<Vector>::makeMidpointRule(Biarc<Vector>* from, Biarc<Vector>* to) {
   called \f$\rho_{pt}(s,t)\f$. The arguments are the
   positions of the datapoints.
 
-  \sa thickness()
+  \sa thickness(), thickness_fast()
 */
 template<class Vector>
 float Curve<Vector>::radius_pt(int from, int to) {
@@ -749,7 +749,7 @@ float Curve<Vector>::radius_pt(int from, int to) {
   called \f$\rho_{pt}(s,t)\f$. The arguments are two
   pointers to biarcs.
 
-  \sa thickness()
+  \sa thickness(), thickness_fast()
 */
 template<class Vector>
 float Curve<Vector>::radius_pt(biarc_it from, biarc_it to) {
@@ -763,7 +763,7 @@ float Curve<Vector>::radius_pt(biarc_it from, biarc_it to) {
   called \f$\rho_{pt}(s,t)\f$. The arguments are two
   pointers to biarcs.
 
-  \sa thickness()
+  \sa thickness(), thickness_fast()
 */
 template<class Vector>
 float Curve<Vector>::radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &to) {
@@ -778,7 +778,7 @@ float Curve<Vector>::radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &t
   called \f$\rho_{pt}(s,t)\f$.
   The arguments are thre Vectors p0,t0,p1.
 
-  \sa thickness()
+  \sa thickness(), thickness_fast()
 */
 template<class Vector>
 float Curve<Vector>::radius_pt(const Vector &p0, const Vector &t0,
@@ -801,7 +801,7 @@ float Curve<Vector>::radius_pt(const Vector &p0, const Vector &t0,
   goes through the 3 points x,y,z. This function is commonly
   called \f$\rho_{ppp}(s,t)\f$.
 
-  \sa thickness()
+  \sa thickness(), thickness_fast()
 */
 template<class Vector>
 float Curve<Vector>::radius_global(Biarc<Vector> &at) {
@@ -819,13 +819,29 @@ float Curve<Vector>::radius_global(Biarc<Vector> &at) {
 }
 
 /*!
+  Returns the diameter of the thickest possible tube
+  around the biarc curve without self intersection or
+  crossing. This function implements the subdivision
+  scheme as proposed in the thesis of Jana Smutny.
+
+  \sa radius_pt(), thickness_fast()
+*/
+template<class Vector>
+float Curve<Vector>::thickness() {
+  return compute_thickness(this);
+}
+
+
+/*!
   Returns the diameter of the fattest possible tube around
-  the biarc curve.
+  the biarc curve. This is the inaccurate/fast version where
+  we only look for the smallest local radius of curvature or
+  the smallest rho_pt.
 
   \sa radius_pt()
 */
 template<class Vector>
-float Curve<Vector>::thickness() {
+float Curve<Vector>::thickness_fast() {
 
   float minrad = 1e16, radpt;
   
@@ -1450,6 +1466,21 @@ Vector Curve<Vector>::getCenter() {
     sum += current->getPoint();
   sum /= ((float)nodes());
   return sum;
+}
+
+/*!
+  Prints Biarc and Tangent norm, if abs(norm-1)>1e-4
+*/
+template<class Vector>
+void Curve<Vector>::check_tangents() {
+  int count = 0;
+  for (biarc_it it = begin(); it!= end(); it++) {
+    count++;
+    if (fabsf(it->getTangent().norm()-1.0)>1e-4)
+      cout << "Tan norm of biarc " << count << " : " << (*it) << " = " << it->getTangent().norm()<<endl;
+    if (it->getTangent().dot(it->getNext().getTangent())<1-0.1 && it!=end()-1)
+      cout << "Tan too far apart of biarc " << count << " : " << (*it) << " = " << it->getTangent().norm()<<endl;
+  }
 }
 
 /*!
