@@ -47,18 +47,17 @@ class Vector4 {
   */
 
   Vector4 operator*(const Vector4 &v) const;
-  Vector4 operator*(const float s) const;
-  Vector4 operator/(const float d) const;
-  friend Vector4 operator *(Vector4 & v, float d);
-  friend Vector4 operator *(float d, Vector4 & v);
-  friend Vector4 operator /(Vector4 & v, float d);
+  // Vector4 operator*(const float s) const;
+  // Vector4 operator/(const float d) const;
+  friend Vector4 operator*(const Vector4 & v, float d);
+  friend Vector4 operator*(float d, const Vector4 & v);
+  friend Vector4 operator/(const Vector4 & v, float d);
 
   Vector4 operator+(const Vector4 &v) const;
   Vector4 operator-(const Vector4 &v) const;
   Vector4 operator-() const;
 
-  
-  Vector4& operator=(const Vector4 &v);
+  // Vector4& operator=(const Vector4 &v);
   Vector4& operator+=(const Vector4 &v);
   Vector4& operator-=(const Vector4 &v);
   Vector4& operator*=(const float s);

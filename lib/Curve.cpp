@@ -1459,7 +1459,7 @@ void Curve<Vector>::center() {
 */
 template<class Vector>
 Vector Curve<Vector>::getCenter() {
-  Vector sum(0,0,0);
+  Vector sum; sum.zero();
   biarc_it current = _Biarcs.begin();
 
   for (;current!=_Biarcs.end();current++)

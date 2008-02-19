@@ -244,15 +244,17 @@ Vector4 Vector4::operator*(const Vector4 &v) const {
   Returns a Vector4 that is this vector scaled by a
   scalar \a s.
 */
+/*
 Vector4 Vector4::operator*(const float s) const {
   return Vector4(s*_v[0], s*_v[1], s*_v[2], s*_v[3]);
 }
+*/
 
 /*!
   Returns a Vector4 that is the vector \a v scaled
   by a scalar \a d.
 */
-Vector4 operator *(Vector4 & v, float d) {
+Vector4 operator *(const Vector4 & v, float d) {
   return Vector4(d*v[0], d*v[1], d*v[2], d*v[3]);
 }
 
@@ -260,7 +262,7 @@ Vector4 operator *(Vector4 & v, float d) {
   Returns a Vector4, that is the vector \a v
   scaled by a scalar \a s.
 */
-Vector4 operator *(float d, Vector4 & v) {
+Vector4 operator *(float d, const Vector4 & v) {
   return Vector4(d*v[0],d*v[1],d*v[2],d*v[3]);
 }
 
@@ -268,17 +270,19 @@ Vector4 operator *(float d, Vector4 & v) {
   Returns a Vector4 whose components are divided
   by \a d.
 */
+/*
 Vector4 Vector4::operator/(const float d) const {
   float fac = 1.0/d;
   return Vector4(_v[0]*fac, _v[1]*fac,
 		 _v[2]*fac, _v[3]*fac);
 }
+*/
 
 /*!
   Friend function that returns the vector v whose
   components are scaled by d.
 */
-Vector4 operator /(Vector4 & v, float d) {
+Vector4 operator /(const Vector4 & v, float d) {
   float fac = 1.0/d;
   return Vector4(v[0]*fac, v[1]*fac,
 		 v[2]*fac, v[3]*fac);
@@ -310,6 +314,7 @@ Vector4 Vector4::operator-() const {
 /*!
   Assign operator. Does the same as the copy constructor.
 */
+/*
 Vector4& Vector4::operator=(const Vector4 &v) {
   this->_v[0] = v[0];
   this->_v[1] = v[1];
@@ -318,6 +323,7 @@ Vector4& Vector4::operator=(const Vector4 &v) {
   
   return(*this);
 } 
+*/
 
 /*!
   Multiplies this vector's components by \a s and returns

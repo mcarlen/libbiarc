@@ -344,7 +344,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
 
   // Bisection loop while relative error larger than our given
   // tolerance and while D_lb smaller than the minimal 2*radius
-  if (min_diam <= D_lb) cout << "Curvature active!\n";
+  // if (min_diam <= D_lb) cout << "Curvature active!\n";
   while(rel_err > rel_err_tol && min_diam > D_lb) {
     ++ITERATION;
 
@@ -352,7 +352,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
     dbl_crit_filter(DistC,CritC);   
 
     if (CritC.size()==0) {
-      cout << "CritIter : CritC is empty (curvature active?)\n";
+      //  cout << "CritIter : CritC is empty (curvature active?)\n";
       D_lb = D_ub = min_diam;
       break;
     }
@@ -365,7 +365,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
 
     // Thickness Bounds
     if (DistC.size()==0) {
-      cout << "BoundsIter : DistC is empty (curvature active?)\n";
+      // cout << "BoundsIter : DistC is empty (curvature active?)\n";
       D_lb = D_ub = min_diam;
       break;
     }

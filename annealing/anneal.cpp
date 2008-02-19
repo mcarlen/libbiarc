@@ -8,7 +8,16 @@ Copyright (C) 1997 Ben Laurie
 #include <sys/types.h>
 #include <stdio.h>
 #include <limits.h>
+
+#ifdef COMPUTE_IN_R4
+#include "Vector4.h"
+#define TVec Vector4
+#else
+#define TVec Vector3
+#endif
+
 #include "CurveBundle.h"
+#include "algo_helpers.h"
 
 #ifndef WIN32
 # include <unistd.h>
@@ -71,7 +80,7 @@ inline ostream &operator<<(ostream &os,const CStep &step)
 
 CStep *StepArray;
 
-void ShowStepSpread(CurveBundle<Vector3> &c, ostream &os) {
+void ShowStepSpread(CurveBundle<TVec> &c, ostream &os) {
   float dMinP,dMaxP,dMinT,dMaxT;
 
   dMinP=dMaxP=StepArray[0].Get(TRUE);
@@ -99,7 +108,7 @@ void ShowStepSpread(CurveBundle<Vector3> &c, ostream &os) {
 //       after each change we have to recompute the biarc Midpoint!!!!
 //       implement a routine that does that does the midpoint rule
 //       for a single biarc
-BOOL CheckTangent(int n, Curve<Vector3> &c) {
+BOOL CheckTangent(int n, Curve<TVec> &c) {
 return (c[n].isProper() && c[n].getPrevious().isProper());
 /*
  if ((c[n].getPoint()-c.getPrevious(n).getPoint()).dot(c[n].getTangent()) <= 0)
@@ -110,7 +119,7 @@ return (c[n].isProper() && c[n].getPrevious().isProper());
 */
 }
 
-BOOL CheckPoint(int n, Curve<Vector3> &c) {
+BOOL CheckPoint(int n, Curve<TVec> &c) {
 return (c[n].isProper()&&c[n].getPrevious().isProper());
 /*
   if (!CheckTangent(n,c)) return FALSE;
@@ -122,7 +131,7 @@ return (c[n].isProper()&&c[n].getPrevious().isProper());
 */
 }
 
-float Energy(CurveBundle<Vector3> &rKnot) {
+float Energy(CurveBundle<TVec> &rKnot) {
   // s_dMinSegDistance=rKnot.MinSegDistanceCache();
   s_dMinSegDistance = rKnot.thickness();
   return rKnot.length()/s_dMinSegDistance;
@@ -140,7 +149,7 @@ public:
   BOOL m_bAnneal;
 };
 
-void Increase(CAnnealInfo &info,Curve<Vector3> *pC,int n,BOOL bPoint) {
+void Increase(CAnnealInfo &info,Curve<TVec> *pC,int n,BOOL bPoint) {
   StepArray[n].Increase(bPoint);
   if(bPoint)
     info.m_dStepSize*=1+STEP_CHANGE;
@@ -148,7 +157,7 @@ void Increase(CAnnealInfo &info,Curve<Vector3> *pC,int n,BOOL bPoint) {
     info.m_dTStepSize*=1+STEP_CHANGE;
 }
 
-void Decrease(CAnnealInfo &info,Curve<Vector3> *pC,int n,BOOL bPoint) {
+void Decrease(CAnnealInfo &info,Curve<TVec> *pC,int n,BOOL bPoint) {
   StepArray[n].Decrease(bPoint);
   if(bPoint)
     info.m_dStepSize*=1-STEP_CHANGE;
@@ -156,11 +165,11 @@ void Decrease(CAnnealInfo &info,Curve<Vector3> *pC,int n,BOOL bPoint) {
     info.m_dTStepSize*=1-STEP_CHANGE;
 }
 
-BOOL Anneal(CurveBundle<Vector3> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
-  Vector3 vNew,vWas;
+BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
+  TVec vNew,vWas;
   int n,c;
   float dMin=s_dMinSegDistance;
-  Curve<Vector3> *pC;
+  Curve<TVec> *pC;
   static int nTurns;
   bool bChangePoint;
   c=R(0,rKnot.curves()-1);
@@ -184,7 +193,12 @@ BOOL Anneal(CurveBundle<Vector3> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
     float d=(bChangePoint ? info.m_dStepSize : info.m_dTStepSize)
  	*(StepArray[n].Get(bChangePoint))
         ;
-    vNew+=Vector3(r(-d,d)*r(0,1),r(-d,d)*r(0,1),r(-d,d)*r(0,1));
+#ifdef COMPUTE_IN_R4
+    vNew+=TVec(r(-d,d)*r(0,1),r(-d,d)*r(0,1),
+               r(-d,d)*r(0,1),r(-d,d)*r(0,1));
+#else
+    vNew+=TVec(r(-d,d)*r(0,1),r(-d,d)*r(0,1),r(-d,d)*r(0,1));
+#endif
 
     BOOL ok;
     if(bChangePoint) {
@@ -236,7 +250,7 @@ rKnot.make_default();
 
 char *g_szPlotRoot;
 
-void WriteBest(CurveBundle<Vector3> &rKnot) {
+void WriteBest(CurveBundle<TVec> &rKnot) {
   char buf[1000];
 
   sprintf(buf,"%s/best",g_szPlotRoot);
@@ -244,7 +258,7 @@ void WriteBest(CurveBundle<Vector3> &rKnot) {
   cout << "!" << Energy(rKnot) << "!" << flush;
 }
 
-void DoAnneal(CurveBundle<Vector3> &rKnot,CAnnealInfo &info)
+void DoAnneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info)
     {
     int nGeneration=0;
     char buf[1000];
@@ -371,7 +385,7 @@ int main(int argc,char **argv)
    cout << "Setting seed to " << nSeed << endl;
     srand(nSeed);
 
-    CurveBundle<Vector3> knot;
+    CurveBundle<TVec> knot;
     knot.readPKF(szSourceFile);
     knot.link();
     knot.make_default();

@@ -6,12 +6,15 @@ LIB+=-lbiarc -lrt
 FLAGS=${INCLUDE} ${CXXFLAGS}
 SRC=$(wildcard *.cpp)
 
-PROF=-O2
+PROF=${FLAGS} -O2
 
-all: anneal
+all: anneal anneal4
 
 anneal: anneal.cpp
-	$(LINKER) ${PROF} -I../include -o $@ -L../lib $^ ../lib/libbiarc.a -lrt
+	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
+
+anneal4: anneal.cpp
+	$(LINKER) ${PROF} -DCOMPUTE_IN_R4 -o $@ ${LIB_INC} $^ ${LIB}
 
 clean realclean:
-	@-rm -f anneal
+	@-rm -f anneal anneal4

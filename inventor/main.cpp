@@ -388,7 +388,7 @@ int main(int argc, char **argv) {
     if (1) {
       // Material bundle
       material_bindings[i] = new SoMaterialBinding;
-      material_bindings[i]->value = SoMaterialBinding::PER_PART;
+      // material_bindings[i]->value = SoMaterialBinding::PER_PART;
       knot_node[i]->addChild(material_bindings[i]);
     }
     knot_node[i]->addChild(materials[i]);
