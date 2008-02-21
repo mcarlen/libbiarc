@@ -41,6 +41,7 @@
 */
 
 #include "../include/Vector4.h"
+#include "../include/Matrix4.h"
 
 /*!
   Constructs an empty vector initialized to zero.
@@ -229,6 +230,22 @@ float Vector4::min() {
       min = _v[i];
 
   return min;
+}
+
+/*!
+  Returns the mirror vector according to the given axe \a ref_ax.
+  The reference axe needs not to be normalized, since this is done
+  automatically.
+*/
+Vector4 Vector4::reflect(const Vector4 &ref_ax) const {
+  Matrix4 m, id;
+  Vector4 ax = ref_ax;
+
+  id.id();
+  ax.normalize();
+
+  m = (2.0*(m.outer(ax,ax))-id);
+  return (m*(*this));
 }
 
 /*!

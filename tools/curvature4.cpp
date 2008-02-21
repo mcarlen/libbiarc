@@ -19,13 +19,10 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
+  // XXX We do not normalize the curve in S^3
   CurveBundle<Vector4> cb(argv[1]);
   cb.link();
   cb.make_default();
-  cb.normalize();
-  cb.make_default();
-  //cb.normalize();
-  //cb.make_default();
   
   float s = 0, r, r_global;
   for (int i=0;i<cb.curves();i++) {

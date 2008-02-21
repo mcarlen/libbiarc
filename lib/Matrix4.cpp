@@ -337,7 +337,7 @@ Matrix4& Matrix4::outer(const Vector4 &a,const Vector4 &b) {
   Multiplies the current matrix on the right hand side by \a m and
   returns the result as a new Matrix4 instance.
 */
-Matrix4 Matrix4::operator*(Matrix4 &m) {
+Matrix4 Matrix4::operator*(const Matrix4 &m) {
   Matrix4 tmp;
   for (int i=0;i<4;i++) {
     for (int j=0;j<4;j++) {
@@ -352,7 +352,7 @@ Matrix4 Matrix4::operator*(Matrix4 &m) {
   Applies the current matrix on the left side of a column vector \a v
   and returns a vector with the result.
 */
-Vector4 Matrix4::operator*(Vector4 &v) {
+Vector4 Matrix4::operator*(const Vector4 &v) {
   float a[4];
   for (int i=0;i<4;i++) {
     a[i] = 0;
@@ -367,7 +367,7 @@ Vector4 Matrix4::operator*(Vector4 &v) {
   Multiplies every element of the matrix \a m by a factor of \a d.
   and returns a Matrix4 object.
 */
-Matrix4 operator*(Matrix4 &m, float d) {
+Matrix4 operator*(const Matrix4 &m, float d) {
   return Matrix4(d*m[0],d*m[1],d*m[2],d*m[3]);
 }
 
@@ -375,7 +375,7 @@ Matrix4 operator*(Matrix4 &m, float d) {
   Multiplies every element of the matrix \a m by a factor of \a d.
   and returns a Matrix4 object.
 */
-Matrix4 operator*(float d, Matrix4 &m) {
+Matrix4 operator*(float d, const Matrix4 &m) {
   return Matrix4(d*m[0],d*m[1],d*m[2],d*m[3]);
 }
 
@@ -383,7 +383,7 @@ Matrix4 operator*(float d, Matrix4 &m) {
   Divides every element of the matrix \a m by \a d.
   and returns a Matrix4 object.
 */
-Matrix4 operator/(Matrix4 &m, float d) {
+Matrix4 operator/(const Matrix4 &m, float d) {
   return Matrix4(m[0]/d, m[1]/d, m[2]/d, m[3]/d);
 }
 

@@ -41,7 +41,7 @@ class Vector4 {
   float max();
   float min();
 
-  Vector4 reflect(const Vector4 &v);
+  Vector4 reflect(const Vector4 &v) const;
   /*
   Vector4 rotPtAroundAxis(float angle, Vector4 axis);
   */

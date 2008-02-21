@@ -236,7 +236,7 @@ float Vector3::min() {
 /*!
   Returns the mirror vector according to the given axe \a ref_ax.
   The reference axe needs not to be normalized, since this is done
-  automaically.
+  automatically.
 */
 Vector3 Vector3::reflect(const Vector3 &ref_ax) const {
   Matrix3 m, id;

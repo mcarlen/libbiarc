@@ -37,11 +37,11 @@ class Matrix4 {
   Matrix4 & adjoint();
   Matrix4& outer(const Vector4 &a, const Vector4 &b);
 
-  Matrix4 operator*(Matrix4 &m);
-  Vector4 operator*(Vector4 &v);
-  friend Matrix4 operator*(Matrix4 &m, float d);
-  friend Matrix4 operator*(float d, Matrix4 &m);
-  friend Matrix4 operator/(Matrix4 &m, float d);
+  Matrix4 operator*(const Matrix4 &m);
+  Vector4 operator*(const Vector4 &v);
+  friend Matrix4 operator*(const Matrix4 &m, float d);
+  friend Matrix4 operator*(float d, const Matrix4 &m);
+  friend Matrix4 operator/(const Matrix4 &m, float d);
 
   Matrix4 operator+(const Matrix4 &m) const;
   Matrix4 operator-(const Matrix4 &m) const;
