@@ -1,4 +1,5 @@
 #include "plotzoom.h"
+#include "algo_helpers.h"
 #include "colors.h"
 
 int Plot::height() {
@@ -204,8 +205,10 @@ Plot::Plot(const char* pkfname, int w, int h,
   this->w = w; this->h = h; Depth = 0;
   plots[Depth].fromx = 0; plots[Depth].fromy = 0;
   plots[Depth].tox = 1.; plots[Depth].toy = 1.;
-  if (plots[Depth].img.create(w,h,32)) NULL; //cout << "Image created succ.\n";
-  else { cout << "Could not generate image.\n"; exit(-1); }
+  if (!plots[Depth].img.create(w,h,32)) {
+    cout << "Could not generate image.\n";
+    exit(-1);
+  }
 
   // drawing part;
   QVBoxLayout *l = new QVBoxLayout(this);

@@ -15,7 +15,7 @@
 
 // colors.h comes from pngmanip
 // so be careful to keep 'em sync'd
-#include "../include/Curve.h"
+#include "Curve.h"
 
 using namespace std;
 
