@@ -102,7 +102,7 @@ void ShowStepSpread(CurveBundle<TVec> &c, ostream &os) {
   os << dMinP << '-' << dMaxP << '/' << dMinT << '-' << dMaxT;
 }
 
-# define STEP_CHANGE	.1
+# define STEP_CHANGE	.01
 
 // XXX : Improve these checks!!!
 //       after each change we have to recompute the biarc Midpoint!!!!
@@ -133,8 +133,11 @@ return (c[n].isProper()&&c[n].getPrevious().isProper());
 
 float Energy(CurveBundle<TVec> &rKnot) {
   // s_dMinSegDistance=rKnot.MinSegDistanceCache();
+  float off_equi;
   s_dMinSegDistance = rKnot.thickness();
-  return rKnot.length()/s_dMinSegDistance;
+  if (s_dMinSegDistance < 0) return 1e+99; //__qurick
+  off_equi = (rKnot[0].maxSegDistance() / rKnot[0].minSegDistance());
+  return rKnot.length()/s_dMinSegDistance +0.0001*(off_equi);
 }
 
 class CAnnealInfo {
@@ -151,10 +154,12 @@ public:
 
 void Increase(CAnnealInfo &info,Curve<TVec> *pC,int n,BOOL bPoint) {
   StepArray[n].Increase(bPoint);
-  if(bPoint)
+  if(bPoint) {
     info.m_dStepSize*=1+STEP_CHANGE;
-  else
+    }
+  else {
     info.m_dTStepSize*=1+STEP_CHANGE;
+    }
 }
 
 void Decrease(CAnnealInfo &info,Curve<TVec> *pC,int n,BOOL bPoint) {
@@ -194,15 +199,41 @@ BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
  	*(StepArray[n].Get(bChangePoint))
         ;
 #ifdef COMPUTE_IN_R4
-    vNew+=TVec(r(-d,d)*r(0,1),r(-d,d)*r(0,1),
-               r(-d,d)*r(0,1),r(-d,d)*r(0,1));
+    // we calculate a random tangent vTan 
+    TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1), r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+    // Project to normal plane, so vTan is tangent to S^3
+    TVec vBasePoint =(*pC)[n].getPoint();
+    vBasePoint.normalize();
+    vTan -= vTan.dot(vBasePoint)*(vBasePoint/vTan.norm());
+    if(bChangePoint)
+      {
+        // move point in direction of vTan and project back to S^3
+        vNew += vTan;
+        vNew.normalize();
+      }
+    else 
+      {
+        vTan -= vNew.dot(vTan)/vTan.norm() * vNew;
+        vNew += vTan;
+        // Fix new tangent to be in TS^3
+        vNew -= vNew.dot(vBasePoint)*(vBasePoint/vNew.norm());
+        vNew.normalize();
+      }
 #else
-    vNew+=TVec(r(-d,d)*r(0,1),r(-d,d)*r(0,1),r(-d,d)*r(0,1));
+    //vNew+=TVec(r(-d,d)*r(0,1),r(-d,d)*r(0,1),r(-d,d)*r(0,1));
+    vNew+=TVec(d*r(-1,1),d*r(-1,1),d*r(-1,1));
 #endif
 
     BOOL ok;
     if(bChangePoint) {
       (*pC)[n].setPoint(vNew);
+#ifdef COMPUTE_IN_R4
+      // Fix tangent to be in TS^3
+      vTan = (*pC)[n].getTangent();
+      vTan -= vTan.dot(vNew)*vNew;
+      vTan.normalize();
+      (*pC)[n].setTangent(vTan);
+#endif
       if(!CheckPoint(n,*pC)) {
         (*pC)[n].setPoint(vWas);
         Decrease(info,pC,n,bChangePoint);
@@ -294,23 +325,28 @@ rKnot.make_default(); // MC
 	    }
 	if(info.m_nWriteFrequency > 1000 && nGeneration%1000 == 0)
 	    {
-rKnot.make_default(); // MC
+       rKnot.make_default(); // MC
+#ifndef COMPUTE_IN_R4
 	    float dL=rKnot.length();
 	    info.m_dStepSize/=dL;
 	    info.m_dTStepSize/=dL;
 	    s_dMinSegDistance/=dL;
+
 	    rKnot.normalize();
-rKnot.make_default(); // MC
+#endif
+       rKnot.make_default(); // MC
 	    }
        	if(nGeneration%info.m_nWriteFrequency == 0)
 	    {
-rKnot.make_default(); // MC
+       rKnot.make_default(); // MC
+#ifndef COMPUTE_IN_R4
 	    float dL=rKnot.length();
 	    info.m_dStepSize/=dL;
 	    info.m_dTStepSize/=dL;
 	    s_dMinSegDistance/=dL;
 	    rKnot.normalize();
-rKnot.make_default(); // MC
+#endif
+       rKnot.make_default(); // MC
 	    sprintf(buf,"%s/%08d",g_szPlotRoot,nGeneration);
 	    rKnot.writePKF(buf);
 	    cout << Energy(rKnot)
@@ -328,6 +364,7 @@ rKnot.make_default(); // MC
 	    nSuccess=0;
 	    if(info.m_dStepSize/rKnot.length() < info.m_fStopStep)
 		{
+		cout << info.m_dStepSize << "/" << rKnot.length() << "=" << info.m_dStepSize/rKnot.length() << " < " << info.m_fStopStep << endl;
 		cout << "Finished!\n";
 		exit(0);
 		}

@@ -114,8 +114,8 @@ class Curve : public PKFmanip {
 
   float thickness_fast();
   float thickness();
-  float minSegDistance() const;
-  float maxSegDistance() const;
+  float minSegDistance();
+  float maxSegDistance();
 
   float curvature(int n);
   float torsion(int n);

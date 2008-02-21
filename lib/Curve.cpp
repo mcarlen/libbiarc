@@ -871,13 +871,13 @@ float Curve<Vector>::thickness_fast() {
   \sa minSegDistance()
 */
 template<class Vector>
-float Curve<Vector>::maxSegDistance() const {
+float Curve<Vector>::maxSegDistance() {
   assert(_Biarcs[0].isBiarc());
 
   float M = -1.0;
 
-  biarc_it it, stop = (_Closed?_Biarcs.end():_Biarcs.end()-1);
-  for (it=_Biarcs.begin();it!=stop;it++)
+  biarc_it it, stop = (_Closed?end():end()-1);
+  for (it=begin();it!=stop;it++)
     M= max(it->biarclength(),M);
 
   return M;
@@ -890,14 +890,14 @@ float Curve<Vector>::maxSegDistance() const {
   \sa maxSegDistance()
 */
 template<class Vector>
-float Curve<Vector>::minSegDistance() const {
+float Curve<Vector>::minSegDistance() {
   assert(_Biarcs[0].isBiarc());
 
   float M = 1e12;
 
-  biarc_it it, stop = (_Closed?_Biarcs.end():_Biarcs.end()-1);
-  for (it=_Biarcs.begin();it!=stop;it++)
-    M= max(it->biarclength(),M);
+  biarc_it it, stop = (_Closed?end():end()-1);
+  for (it=begin();it!=stop;it++)
+    M= min(it->biarclength(),M);
 
   return M;
 }

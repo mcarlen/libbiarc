@@ -149,6 +149,7 @@ float check_local_curvature(Curve<Vector>* c) {
   float tmpf, min_diam = 2.*c->begin()->radius0();
   for (biarc_it it=c->begin();it!=c->end()-(c->isClosed()?0:1);++it) {
     tmpf = 2.0*it->radius0();
+    if (tmpf < 0.0) continue;
     if (tmpf < min_diam)
       if (tmpf > 0)
         min_diam = tmpf;
