@@ -116,12 +116,15 @@ template<class Vector>
 float check_local_curvature(Curve<Vector>* c) {
   // First we check the local redii of the arcs
   float tmpf, min_diam = 2.*c->begin()->radius0();
+  if (min_diam<0) min_diam = 1e99;
   for (biarc_it it=c->begin();it!=c->end()-(c->isClosed()?0:1);++it) {
     tmpf = 2.0*it->radius0();
+    if (tmpf<0.) continue;
     if (tmpf < min_diam)
       if (tmpf > 0)
         min_diam = tmpf;
     tmpf = 2.0*it->radius1();
+    if (tmpf<0.) continue;
     if (tmpf < min_diam)
       if (tmpf > 0)
         min_diam = tmpf;
@@ -319,7 +322,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
   biarc_it current, var;
   // Vector *tmp, *tmpmin; static int cbiarc = 0;
   // float tmpf;
-  float min_diam = 1e8; Vector thick_1, thick_2;
+  float min_diam = 1e99; Vector thick_1, thick_2;
   min_diam = check_local_curvature(c);
 
   // Double critical candidates
@@ -333,7 +336,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
   distance_filter(CritC,DistC);
 
   // Initial Thickness Bounds
-  float D_lb = 1e8, D_ub = 1e8;
+  float D_lb = 1e99, D_ub = 1e99;
   float max_err = 0, rel_err;
   compute_thickness_bounds(DistC,min_diam,D_lb,D_ub,max_err);
   rel_err = max_err/D_lb*2.;
@@ -388,7 +391,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
 }
 
 /*!
-  The double criticality test is a translation
+ 9aThe double criticality test is a translation
   of Jana's Matlab code (listing in her Thesis)
 */
 template<class Vector>

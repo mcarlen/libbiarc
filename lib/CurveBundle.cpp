@@ -132,6 +132,18 @@ float CurveBundle<Vector>::thickness() {
 }
 
 /*!
+  Returns the "fast" thickness (pt radii only)
+  of the curve bundle
+  XXX : Only single component knots are supported for now
+*/
+template<class Vector>
+float CurveBundle<Vector>::thickness_fast() {
+  assert(curves()==1);
+  return bundle[0].thickness_fast();
+}
+
+
+/*!
   Returns the total length of the bundle. This is the
   sum of the arc-length of all the stored curves.
 */

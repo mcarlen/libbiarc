@@ -36,6 +36,7 @@ class CurveBundle : public PKFmanip {
   void normalize();
   float length();
   float thickness();
+  float thickness_fast();
   CurveBundle& operator+=(const Vector &vec);
   CurveBundle& operator-=(const Vector &vec);
   void center();
