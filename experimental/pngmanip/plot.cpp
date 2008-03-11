@@ -20,12 +20,10 @@ int size = 500;
 float length,thickness,alen,ptmin,ptmax,cur;
 Curve<TVec> *curve;
 
-void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
+// Zoom in on some rectangular region
+float fromx,fromy,tox,toy;
 
-  // XXX : give the user the choice to set the "rectangle"
-  //       to show the plot on!
-  float fromy = 0, fromx = 0;
-  float toy = 1, tox = 1;
+void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
 
   curve = new Curve<TVec>(name);
   if (curve==NULL) exit(10);
@@ -37,7 +35,7 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
   RGB c;
 
   float pttable[w][h];
-  thickness = curve->thickness()/2.;
+  thickness = curve->thickness(); // /2.;
   length = curve->length();
   ptmin = 10000;
   ptmax = -10000;
@@ -89,7 +87,7 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
         float sina = sqrt(1.0-cosa*cosa);
         
         if (sina==0) cur = 0.0;
-        else cur = 2.*thickness*sina/Dlen;
+        else cur = .5*thickness*sina/Dlen;
 
         if (cur<0.) cur = 0.;
         else if (cur>1.) cur = 1.;
@@ -122,12 +120,11 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
           tt2 = 0;
         else
           tt2 = z/n;
-        cur = sqrt(tt2)/thickness;
+        cur = thickness*.5/sqrt(tt2);
 
         // FIXME clamp tt plot to [0,1]
         // I didn't think about it, but it fixes the plot ...
         if (cur<0.) cur=0.;
-        else if (cur>1.) cur = 1.;
 
         ptmin = (cur<ptmin?cur:ptmin);
         ptmax = (cur>ptmax?cur:ptmax);
@@ -155,6 +152,10 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
         ptmin = (cur<ptmin?cur:ptmin);
         ptmax = (cur>ptmax?cur:ptmax);
 
+        // cut off at 0.005
+        if (cur>0.005)
+        pttable[i][j] = 0.004999999;
+        else
         pttable[i][j] = cur;
       }
     }
@@ -162,11 +163,14 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
   for (int j=0;j<h;j++) {
     src = px + j*(3*w);
     for (int i=0;i<w;i++) {
-      map_color_sine_end(&c,pttable[i][j],0.,1.);
+      if (ptype==TT_PLOT)
+        map_color_fine(&c,pttable[i][j],ptmin,0.005);
+      else
+        map_color_sine_end(&c,pttable[i][j],0.,(ptmax>1.0)?ptmax:1.0);
       *src++ = c.r; *src++ = c.g; *src++ = c.b;
     }
   }
-  cout << "Max/Min   : " << ptmax << " / " << ptmin << endl;
+  cout << "Min/Max   : " << ptmin << " / " << ptmax << endl;
   cout << "Thickness : " << thickness << endl;
 
   sp_png_write_rgb("out.png",px,w,h,0.1,0.1,3*w);
@@ -190,6 +194,9 @@ int main(int argc,char **argv) {
   int Res = 500;
   char *cname = NULL;
   PLOT_TYPE pType = PT_PLOT;
+
+  fromx = 0.0; tox = 1.0;
+  fromy =0.0; toy = 1.0;
 
   int arg = 1;
   while (arg<=argc) {
@@ -227,6 +234,12 @@ int main(int argc,char **argv) {
       cout << arg << endl;
       cname = argv[arg];
       cout << cname << endl;
+      if (arg+1<argc) {
+        fromx = atof(argv[arg+1]);
+        tox = atof(argv[arg+2]);
+        fromy = atof(argv[arg+3]);
+        toy = atof(argv[arg+4]);
+      }
       arg=argc+10;
     }
   }

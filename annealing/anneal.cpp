@@ -133,11 +133,19 @@ return (c[n].isProper()&&c[n].getPrevious().isProper());
 
 float Energy(CurveBundle<TVec> &rKnot) {
   // s_dMinSegDistance=rKnot.MinSegDistanceCache();
-  float off_equi;
+//  float off_equi;
+  rKnot.make_default();
   s_dMinSegDistance = rKnot.thickness();
-  if (s_dMinSegDistance < 0) return 1e+99; //__qurick
-  off_equi = (rKnot[0].maxSegDistance() / rKnot[0].minSegDistance());
-  return rKnot.length()/s_dMinSegDistance +0.0001*(off_equi);
+  if (s_dMinSegDistance > 100) {
+    cout << "TOO BIG : " << s_dMinSegDistance << endl;
+    exit(12);
+  }
+  if (s_dMinSegDistance < 1e-6) {
+    cout << "NEG ENERGY! : " << s_dMinSegDistance << endl;
+    exit(11);
+  } //__qurick
+//  off_equi = (rKnot[0].maxSegDistance() / rKnot[0].minSegDistance());
+  return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
 }
 
 class CAnnealInfo {
@@ -279,6 +287,121 @@ rKnot.make_default();
     return FALSE;
     }
 
+
+// It seems that for "not so well" converged knots this leads
+// faster to better shapes!
+BOOL AnnealAll(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
+
+  CurveBundle<TVec> rCopy(rKnot);
+  vector<Biarc<TVec> >::iterator b;
+  TVec tnow,pnow;
+  int n;
+  float d;
+
+shuffle_again:
+  for (int i=0;i<rKnot.curves();++i) {
+    n=0;
+    // Displace points
+    for (b=rKnot[i].begin();b!=rKnot[i].end();b++) {
+      pnow = b->getPoint();
+      d=info.m_dStepSize*(StepArray[n].Get(1));
+      // cout << "d = " << d << endl;
+#ifdef COMPUTE_IN_R4
+      // we calculate a random tangent vTan 
+      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1),
+                       r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+      // Project to normal plane, so vTan is tangent to S^3
+      pnow.normalize();
+      vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
+      // move point in direction of vTan and project back to S^3
+      pnow += d*vTan;
+      pnow.normalize();
+#else
+      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+      pnow += vTan;
+#endif
+      b->setPoint(pnow);
+      ++n;
+    }
+    n=0;
+    // Displace tangents
+#if 1
+    for (b=rKnot[i].begin();b!=rKnot[i].end();++b) {
+      tnow = b->getTangent();
+      d=info.m_dStepSize*(StepArray[n].Get(0));
+      // cout << "d = " << d << endl;
+#ifdef COMPUTE_IN_R4
+      // we calculate a random tangent vTan 
+      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1),
+                       r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+      // Project to normal plane, so vTan is tangent to S^3
+      pnow.normalize();
+      vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
+      // move point in direction of vTan and project back to S^3
+      pnow += d*vTan;
+      pnow.normalize();
+#else
+      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+      tnow += vTan;
+      tnow.normalize();
+#endif
+      b->setTangent(tnow);
+      ++n;
+    }
+  }
+#else
+  }
+  rKnot.computeTangents();
+#endif // Tangents
+
+  for (int i=0;i<rKnot.curves();++i) {
+    for (int n=0;n<rKnot[i].nodes();++n) {
+      if (!(rKnot[i][n].isProper())) {
+        rKnot = rCopy;
+cout << "AGAIN\n";
+        goto shuffle_again;
+      }
+    }
+  }
+
+/*
+  // Anneal the matching point as well
+  for (int i=0;i<rKnot.curves();++i)
+    for (b=rKnot[i].begin();b!=rKnot[i].end();++b)
+      b->make(r(.1,.9));
+*/
+  rKnot.make_default();
+  rKnot.normalize();
+  rKnot.make_default();
+
+  float dNewEnergy=Energy(rKnot);
+  if(dNewEnergy <= dCurEnergy) {
+    dCurEnergy=dNewEnergy;
+    for (int i=0;i<rKnot.curves();++i)
+      for (int n=0;n<rKnot[i].nodes();++n)
+        Increase(info,&rKnot[i],n,1);
+    return TRUE;
+  }
+  float p=exp(-(dNewEnergy-dCurEnergy)/info.m_fTemperature);
+  if(r(0,1) <= p) {
+    dCurEnergy=dNewEnergy;
+    for (int i=0;i<rKnot.curves();++i)
+      for (int n=0;n<rKnot[i].nodes();++n)
+        Increase(info,&rKnot[i],n,1);
+    return TRUE;
+  }
+  rKnot = rCopy;
+  for (int i=0;i<rKnot.curves();++i)
+    for (int n=0;n<rKnot[i].nodes();++n)
+      Decrease(info,&rKnot[i],n,1);
+
+  // note that since we may have updated distances above we need to do
+  // something - an optimisation is that if the error of the cached distance
+  // is non-zero, we haven't recalculated, so we subtract, otherwise we add
+  return FALSE;
+}
+
+
 char *g_szPlotRoot;
 
 void WriteBest(CurveBundle<TVec> &rKnot) {
@@ -311,7 +434,7 @@ rKnot.make_default(); // MC
     for( ; ; ++nGeneration)
 	{
 
-// if (nGeneration == 1000) exit(0);
+// if (nGeneration == 100) exit(0);
 
 	if(nGeneration%info.m_nLogFrequency == 0)
 	    {
@@ -323,34 +446,34 @@ rKnot.make_default(); // MC
 	    log << endl;
 	    dLogMax=dLogMin=dEnergy;
 	    }
+#ifndef COMPUTE_IN_R4
 	if(info.m_nWriteFrequency > 1000 && nGeneration%1000 == 0)
 	    {
-       rKnot.make_default(); // MC
-#ifndef COMPUTE_IN_R4
+//       rKnot.make_default(); // MC
 	    float dL=rKnot.length();
 	    info.m_dStepSize/=dL;
 	    info.m_dTStepSize/=dL;
 	    s_dMinSegDistance/=dL;
 
-	    rKnot.normalize();
-#endif
-       rKnot.make_default(); // MC
+//	    rKnot.normalize();
+//       rKnot.make_default(); // MC
 	    }
+#endif
        	if(nGeneration%info.m_nWriteFrequency == 0)
 	    {
-       rKnot.make_default(); // MC
 #ifndef COMPUTE_IN_R4
+//       rKnot.make_default(); // MC
 	    float dL=rKnot.length();
 	    info.m_dStepSize/=dL;
 	    info.m_dTStepSize/=dL;
 	    s_dMinSegDistance/=dL;
-	    rKnot.normalize();
+//	    rKnot.normalize();
+//       rKnot.make_default(); // MC
 #endif
-       rKnot.make_default(); // MC
 	    sprintf(buf,"%s/%08d",g_szPlotRoot,nGeneration);
 	    rKnot.writePKF(buf);
 	    cout << Energy(rKnot)
-		 << " s=" << info.m_dStepSize << '/' << info.m_dTStepSize
+	         << " s=" << info.m_dStepSize << '/' << info.m_dTStepSize
 		 << " x=";
 	    ShowStepSpread(rKnot,cout);
 	    cout << " T=" << info.m_fTemperature
@@ -371,8 +494,8 @@ rKnot.make_default(); // MC
 	    }
 	if(info.m_bAnneal)
 	    {
-rKnot.make_default();
-	    BOOL bStepped=Anneal(rKnot,info,dEnergy);
+//rKnot.make_default();
+	    BOOL bStepped=AnnealAll(rKnot,info,dEnergy);
 	    if(dEnergy < dMinEnergy)
 		{
 		WriteBest(rKnot);
@@ -387,6 +510,7 @@ rKnot.make_default();
 	    info.m_fTemperature*=(1-info.m_fCooling);
 	    }
 	}
+cout << "again\n";
     }
 
 void onkill(int sig)

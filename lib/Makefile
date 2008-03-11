@@ -5,7 +5,7 @@ INCLUDE+=-I../include
 ifeq ($(RENDERMAN),YES)
 LIB_FLOAT=libbiarc_pixie.so
 STATIC_LIB_FLOAT=libbiarc_pixie.a
-TODO=${LIB} ${STATIC_LIB}
+TODO=${LIB_FLOAT} ${STATIC_LIB}
 else
 LIB_FLOAT=libbiarc_float.so
 STATIC_LIB_FLOAT=libbiarc_float.a
@@ -65,7 +65,7 @@ clean :
 
 realclean :
 	@echo Purge `basename ${PWD}`
-	@rm -f $(OBJ_FLOAT) $(LIB) $(STATIC_LIB)
+	@rm -f $(OBJ_FLOAT) $(STATIC_LIB)
 	@rm -f $(OBJ_DOUBLE) $(LIB_DOUBLE) $(STATIC_LIB_DOUBLE)
 	@rm -f *~ *% .*~ .*% core
 	@rm -rf ii_file

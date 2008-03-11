@@ -118,6 +118,9 @@ class Curve : public PKFmanip {
   float maxSegDistance();
 
   float curvature(int n);
+  float curvature(biarc_it b);
+  Vector normalVector(int n);
+  Vector normalVector(biarc_it b);
   float torsion(int n);
   float torsion2(int n);
 

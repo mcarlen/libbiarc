@@ -9,6 +9,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "../include/CurveBundle.h"
+#include "../include/algo_helpers.h"
 
 int main(int argc, char **argv) {
 

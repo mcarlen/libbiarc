@@ -16,5 +16,8 @@ anneal: anneal.cpp
 anneal4: anneal.cpp
 	$(LINKER) ${PROF} -DCOMPUTE_IN_R4 -o $@ ${LIB_INC} $^ ${LIB}
 
+curvatureflow: curvatureflow.cpp
+	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
+
 clean realclean:
 	@-rm -f anneal anneal4
