@@ -64,6 +64,9 @@ int main(int argc,char** argv) {
   cout << "L=" << length << ",D=" << thickness << endl;
   int n = 0;
   char buf[1000];
+
+  int ALREADY_SET = 0;
+
   while (true) {
 
     // Displace points according to their local curvature
@@ -71,38 +74,42 @@ int main(int argc,char** argv) {
       nv     = c.normalVector(b);
 
       b->setPoint(b->getPoint()+scale*nv);
+
       // Not midpoint rule. But we do not really care!
       // here we recompute the cache as well!
       b->make(.5);
+    }
 
-      // Mistake use the old curve parameters to guess
-      // wheter we are allowed to take this step or not!
-      for (it bp=c.begin();bp!=c.end();++bp) {
-        if (bp==b) continue;
-        arclen_diff = arclength_between(bp,b,&c);
-        if (length-arclen_diff<arclen_diff)
-          arclen_diff = length - arclen_diff;
-        if (arclen_diff > M_PI*.5*thickness) {
-          direc   = (b->getPoint()-bp->getPoint());
-          pp_dist = direc.norm();
-          direc /= pp_dist;
-          if (pp_dist < thickness) {
-            // Intersection. We put the point back! We even move
-            // it further away to change the knot confirmation
-            b->setPoint(b->getPoint()-scale*nv);
+    int OVERLAPS = 1;
+    // Cache neighbors!!!
+    while(OVERLAPS>0) {
+      OVERLAPS=0;
+      for (it b=c.begin();b!=c.end();++b) {
+        for (it bp=c.begin();bp!=c.end();++bp) {
+          if (bp==b) continue;
+          arclen_diff = arclength_between(bp,b,&c);
+          if (length-arclen_diff<arclen_diff)
+            arclen_diff = length - arclen_diff;
+          if (arclen_diff > M_PI*.5*thickness) {
+            direc   = (b->getPoint()-bp->getPoint());
+            pp_dist = direc.norm();
+            direc /= pp_dist;
+            if (pp_dist < thickness) {
+              // Intersection. We put the point back! We even move
+              // it further away to change the knot confirmation
+              b->setPoint(b->getPoint()-scale*nv);
+              direc.normalize();
+              b->setPoint(b->getPoint()+(.5*(thickness-pp_dist)+scale*delta)*direc);
+              bp->setPoint(bp->getPoint()-(.5*(thickness-pp_dist)+scale*delta)*direc);
 
-            direc.normalize();
-            b->setPoint(b->getPoint()+(.5*(thickness-pp_dist)+scale*delta)*direc);
-            bp->setPoint(bp->getPoint()-(.5*(thickness-pp_dist)+scale*delta)*direc);
-
-            b->make(.5);
-            bp->make(.5);
-
-            break;
+              b->make(.5);
+              bp->make(.5);
+              OVERLAPS++;
+              break;
+            }
           }
         }
       }
-
     }
     ropelength_old = length/thickness;
     c.computeTangents();

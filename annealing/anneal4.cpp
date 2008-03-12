@@ -9,7 +9,8 @@ Copyright (C) 1997 Ben Laurie
 #include <stdio.h>
 #include <limits.h>
 
-#define TVec Vector3
+#include "Vector4.h"
+#define TVec Vector4
 
 #include "CurveBundle.h"
 #include "algo_helpers.h"
@@ -201,12 +202,36 @@ BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
     float d=(bChangePoint ? info.m_dStepSize : info.m_dTStepSize)
  	*(StepArray[n].Get(bChangePoint))
         ;
-    //vNew+=TVec(r(-d,d)*r(0,1),r(-d,d)*r(0,1),r(-d,d)*r(0,1));
-    vNew+=TVec(d*r(-1,1),d*r(-1,1),d*r(-1,1));
+    // we calculate a random tangent vTan 
+    TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1), r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+    // Project to normal plane, so vTan is tangent to S^3
+    TVec vBasePoint =(*pC)[n].getPoint();
+    vBasePoint.normalize();
+    vTan -= vTan.dot(vBasePoint)*(vBasePoint/vTan.norm());
+    if(bChangePoint)
+      {
+        // move point in direction of vTan and project back to S^3
+        vNew += vTan;
+        vNew.normalize();
+      }
+    else 
+      {
+        vTan -= vNew.dot(vTan)/vTan.norm() * vNew;
+        vNew += vTan;
+        // Fix new tangent to be in TS^3
+        vNew -= vNew.dot(vBasePoint)*(vBasePoint/vNew.norm());
+        vNew.normalize();
+      }
 
     BOOL ok;
     if(bChangePoint) {
       (*pC)[n].setPoint(vNew);
+      // Fix tangent to be in TS^3
+      vTan = (*pC)[n].getTangent();
+      vTan -= vTan.dot(vNew)*vNew;
+      vTan.normalize();
+      (*pC)[n].setTangent(vTan);
+
       if(!CheckPoint(n,*pC)) {
         (*pC)[n].setPoint(vWas);
         Decrease(info,pC,n,bChangePoint);
@@ -271,8 +296,15 @@ shuffle_again:
       pnow = b->getPoint();
       d=info.m_dStepSize*(StepArray[n].Get(1));
       // cout << "d = " << d << endl;
-      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1), r(-d,d)*r(0,1));
-      pnow += vTan;
+      // we calculate a random tangent vTan 
+      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1),
+                       r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+      // Project to normal plane, so vTan is tangent to S^3
+      pnow.normalize();
+      vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
+      // move point in direction of vTan and project back to S^3
+      pnow += d*vTan;
+      pnow.normalize();
       b->setPoint(pnow);
       ++n;
     }
@@ -283,9 +315,15 @@ shuffle_again:
       tnow = b->getTangent();
       d=info.m_dStepSize*(StepArray[n].Get(0));
       // cout << "d = " << d << endl;
-      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1), r(-d,d)*r(0,1));
-      tnow += vTan;
-      tnow.normalize();
+      // we calculate a random tangent vTan 
+      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1),
+                       r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+      // Project to normal plane, so vTan is tangent to S^3
+      pnow.normalize();
+      vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
+      // move point in direction of vTan and project back to S^3
+      pnow += d*vTan;
+      pnow.normalize();
       b->setTangent(tnow);
       ++n;
     }
@@ -387,27 +425,8 @@ rKnot.make_default(); // MC
 	    log << endl;
 	    dLogMax=dLogMin=dEnergy;
 	    }
-	if(info.m_nWriteFrequency > 1000 && nGeneration%1000 == 0)
-	    {
-//       rKnot.make_default(); // MC
-	    float dL=rKnot.length();
-	    info.m_dStepSize/=dL;
-	    info.m_dTStepSize/=dL;
-	    s_dMinSegDistance/=dL;
-
-//	    rKnot.normalize();
-//       rKnot.make_default(); // MC
-	    }
-
        	if(nGeneration%info.m_nWriteFrequency == 0)
 	    {
-//       rKnot.make_default(); // MC
-	    float dL=rKnot.length();
-	    info.m_dStepSize/=dL;
-	    info.m_dTStepSize/=dL;
-	    s_dMinSegDistance/=dL;
-//	    rKnot.normalize();
-//       rKnot.make_default(); // MC
 	    sprintf(buf,"%s/%08d",g_szPlotRoot,nGeneration);
 	    rKnot.writePKF(buf);
 	    cout << Energy(rKnot)

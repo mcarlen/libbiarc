@@ -13,8 +13,8 @@ all: anneal anneal4
 anneal: anneal.cpp
 	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
 
-anneal4: anneal.cpp
-	$(LINKER) ${PROF} -DCOMPUTE_IN_R4 -o $@ ${LIB_INC} $^ ${LIB}
+anneal4: anneal4.cpp
+	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
 
 curvatureflow: curvatureflow.cpp
 	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
