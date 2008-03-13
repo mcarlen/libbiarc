@@ -276,6 +276,8 @@ void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, flo
     if (tmperr>max_err) max_err = tmperr;
 
     tmpf = i->d - tmperr;
+    if (tmpf<0) tmpf = 0.;
+
     if (tmpf<D_lb) D_lb = tmpf;
     tmpf = i->d + tmperr;
     if (tmpf<D_ub) D_ub = tmpf;

@@ -1146,7 +1146,7 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
 /*!
   Computes the curvature at biarc number \a n.
 
-  This curavture function is independant of the interpolation
+  This curvature function is independant of the interpolation
   it takes only data points/tangents and computes the curvature
   approximation as given in Smutny's Thesis pp.60
 
@@ -1156,22 +1156,41 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
 */
 template<class Vector>
 float Curve<Vector>::curvature(int n) {
+  biarc_it b = accessBiarc(n);
+  return curvature(b);
+}
+
+/*!
+  Computes the curvature at biarc \a b.
+
+  This curvature function is independant of the interpolation
+  it takes only data points/tangents and computes the curvature
+  approximation as given in Smutny's Thesis pp.60
+
+  Caution : No inflection points test, so far.
+
+  \sa torsion(),torsion2()
+*/
+template<class Vector>
+float Curve<Vector>::curvature(biarc_it b) {
 
   // FIXME
   // so far no inflection point test!!
 
-  biarc_it current   = accessBiarc(n);
-  biarc_it current_h = accessBiarc(n+1);
-  
-  
+  biarc_it current   = b;
+  biarc_it current_h = b+1;
+  if (current_h == end())
+    current_h = begin();
 
   if (_Closed) {
     current_h = current+1;
     if (current_h==_Biarcs.end())
       current_h = _Biarcs.begin();
   }
-  else
-    current_h = accessBiarc(n==(nodes()-1)?(n-1):(n+1));
+  else {
+    if (b+1==end())
+      current_h = b-1;
+  }
 
   Vector d_h = current_h->getPoint() - current->getPoint();
   Vector t_0 = current->getTangent();
@@ -1182,6 +1201,42 @@ float Curve<Vector>::curvature(int n) {
 
   // return radius of curvature which is 1/rho
   return 3.0/(2.0*radius_0 + radius_1);
+}
+
+/*!
+  Returns the normal vector at biarc number \a n.
+
+  XXX : inflection points!
+*/
+template<class Vector>
+Vector Curve<Vector>::normalVector(int n) {
+  biarc_it b = accessBiarc(n);
+  return normalVector(b);
+}
+
+/*!
+  Returns the normal vector at biarc \a b.
+
+  XXX : - inflection points!
+        - closed curve case!
+*/
+template<class Vector>
+Vector Curve<Vector>::normalVector(biarc_it b) {
+  biarc_it prev,next;
+  if (b == begin())
+    prev = end()-1;
+  else
+    prev = b-1;
+  if (b+1 == end())
+    next = begin();
+  else
+    next = b+1;
+  Vector v = (b->getMidPoint()-b->getPoint())-
+             (b->getPoint()-prev->getMidPoint());
+// XXX not normalize, this way we indirectly recovert the
+//     local curvature
+//  v.normalize();
+  return v;
 }
 
 /*!
