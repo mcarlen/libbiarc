@@ -42,6 +42,7 @@ int main(int argc, char **argv) {
     cout << "Thickness (D=2r)   : " << D << endl;
     cout << "Roplength (L/D)    : " << L/D << endl;
     cout << "L/r                : " << L/D*2 << endl;
+    cout << "MaxDist/MinDist    : " << (cb[i].maxSegDistance() / cb[i].minSegDistance()) << endl;
     cout << "==================\n";
 
   }

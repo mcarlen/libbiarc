@@ -903,6 +903,25 @@ float Curve<Vector>::minSegDistance() {
 }
 
 /*!
+  Returns the Distance Energy in the current curve.
+
+  \sa maxSegDistance(), minSegDistance()
+*/
+template<class Vector>
+float Curve<Vector>::distEnergy() {
+  assert(_Biarcs[0].isBiarc());
+
+  float avg = length() / nodes(), E = 0.0, t;
+
+  biarc_it it, stop = (_Closed?end():end()-1);
+  for (it=begin();it!=stop;it++) {
+    t= it->biarclength()-avg;
+    E += t*t;
+    }
+  return E;
+}
+
+/*!
   This function resamples the current Curve object with
   \a NewNoNodes nodes on the curve. The whole curve
   is given as a sequence of biarcs and resampling by biarcs

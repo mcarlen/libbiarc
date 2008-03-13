@@ -102,7 +102,7 @@ void ShowStepSpread(CurveBundle<TVec> &c, ostream &os) {
   os << dMinP << '-' << dMaxP << '/' << dMinT << '-' << dMaxT;
 }
 
-# define STEP_CHANGE	.01
+# define STEP_CHANGE	.005
 
 // XXX : Improve these checks!!!
 //       after each change we have to recompute the biarc Midpoint!!!!
@@ -131,13 +131,15 @@ return (c[n].isProper()&&c[n].getPrevious().isProper());
 */
 }
 
+
 float Energy(CurveBundle<TVec> &rKnot) {
   // s_dMinSegDistance=rKnot.MinSegDistanceCache();
   float off_equi;
   s_dMinSegDistance = rKnot.thickness();
-  if (s_dMinSegDistance < 0) return 1e+99; //__qurick
-  off_equi = (rKnot[0].maxSegDistance() / rKnot[0].minSegDistance());
-  return rKnot.length()/s_dMinSegDistance +0.0001*(off_equi);
+  // if (s_dMinSegDistance < 0) return 1e+99; //__quirck
+  //off_equi = (rKnot[0].maxSegDistance() / rKnot[0].minSegDistance());
+  off_equi = rKnot[0].distEnergy();
+  return 2.0-s_dMinSegDistance + 0.0000001*(off_equi) ; // + 0.0001*rKnot[0].length();
 }
 
 class CAnnealInfo {
@@ -362,7 +364,7 @@ rKnot.make_default(); // MC
 		 << endl;
 	      ;
 	    nSuccess=0;
-	    if(info.m_dStepSize/rKnot.length() < info.m_fStopStep)
+	    if(abs(info.m_dStepSize/rKnot.length()) < info.m_fStopStep)
 		{
 		cout << info.m_dStepSize << "/" << rKnot.length() << "=" << info.m_dStepSize/rKnot.length() << " < " << info.m_fStopStep << endl;
 		cout << "Finished!\n";
@@ -431,7 +433,7 @@ int main(int argc,char **argv)
 
     // MC knot.InitCache();
     // info.m_dStepSize=info.m_dTStepSize=knot.MinSegDistanceCache()/1000;
-    info.m_dStepSize=info.m_dTStepSize=knot.thickness()/1000.;
+    info.m_dStepSize=info.m_dTStepSize=abs(knot.thickness())/1000.;
     signal(SIGINT,onkill);
     if(info.m_bAnneal)
 	DoAnneal(knot,info);
