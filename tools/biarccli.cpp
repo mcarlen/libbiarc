@@ -9,6 +9,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "../include/CurveBundle.h"
+#include "../include/algo_helpers.h"
 
 #define write_vec(vec) (cout << vec[0] << ',' << vec[1] << ',' << (vec[2]))
 

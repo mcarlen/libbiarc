@@ -15,11 +15,10 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent);
 static void motionfunc(void *data, SoEventCallback *eventCB);
 static void mousefunc(void *data, SoEventCallback *eventCB);
 bool PRESSED = 0;
-Vector3 PickedCurvePoint;
-SbVec2f PRESSED_AT;
 vector<Biarc<Vector3> >::iterator picked_biarc;
-SbVec3f EXACT_PICKED_POINT;
-SbPlaneProjector *MAIN_PROJ;
+SbPlaneProjector spp;
+SbVec3f UpVector, LeftVector, delta;
+float AspectratioX, AspectratioY;
 
 // background
 unsigned int BackGroundFlag;
@@ -768,72 +767,27 @@ static void motionfunc(void *data, SoEventCallback *eventCB) {
   if (view_mode==BIARC_VIEW && PRESSED) {
     
     const SoMouseButtonEvent *mbe=(SoMouseButtonEvent* )eventCB->getEvent();
-    //AllData *appData=(AllData*)data;
-//    SoQtExaminerViewer *viewer = (SoQtExaminerViewer*)data;
     VVV *viewer = (VVV*)data;
-    // Scene *scene=appData->scene;
     
-    // if(!scene->Grabbed())
-    // {
-    //    return;
-    // }
+    SbVec3f loc = spp.project(mbe->getNormalizedPosition(viewer->getViewportRegion())) + delta;
     
-    SbVec2f pos=mbe->getNormalizedPosition(viewer->getViewportRegion());
-    
-    //SbVec2f dif = pos - PRESSED_AT;
+    loc += (LeftVector*(AspectratioX-1.f)*(loc.dot(LeftVector))
+             + UpVector*(AspectratioY-1.f)*(loc.dot(UpVector))) ;
 
-    cout << "x = " << pos[0] << ", y = "
-    	 << pos[1] << endl;
-    // scene->UpdateGrab(pos);
-    //cout << "change PickedCurvePoint " << PickedCurvePoint
-    //	 << " to " << (PickedCurvePoint+Vector3(dif[0],dif[1],0.0)) << endl;
-  
-
-    // FIXME : The dif Vector should be in the Observation plane!!!
-    // right now we can only translate the points in the x,y plane!
-    // Since the original curve is resampled, we'll find after every resampling
-    // the initial curve shape, and not BIARC_VIEW modified shape!!!
-    // HOWTO prevent resampling from error accumulation and reshaping the
-    // curve at the same time!!!
-    // implement an export to PKF routine!
-    //cout << picked_biarc << endl;
-
-
-      //It's a sphere
-      //Set the projection plane
-    //SbVec3f PICKED_POINT((float *)&PRESSED_AT[0]);//PickedCurvePoint[0]);
-
-    //SbPlane plane(-viewer->getCamera()->getViewVolume().getProjectionDirection(),PICKED_POINT);
-    //SbPlaneProjector *proj=new SbPlaneProjector;
-    //proj->setViewVolume(viewer->getCamera()->getViewVolume());
-    //cout << "TEST pos  : " << *((Vector3*)&pos[0]) << endl;
-    //cout << "TEST proj : " << *((Vector3*)&proj->project(pos)[0]) << endl;
-
-    SbVec3f uaaa = MAIN_PROJ->project(pos);
-    Vector3 uaaavec(*(Vector3*)&uaaa[0]);
-    cout << "Proj :  to " << uaaavec << endl;
-
-    picked_biarc->setPoint(uaaavec);
+    picked_biarc->setPoint(Vector3((float*)&loc[0]));
 
     SoChildList *children = new SoChildList(scene);
     Tube<Vector3>* bez_tub;
     children = scene->getChildren();
     
+    for (int i=0;i<Knot->tubes();i++)
+      children->remove(0);
+    
     for (int i=0;i<Knot->tubes();i++) {
-      //knot_shape[i]->nodes.setValue(tN);
-      if (view_mode==BIARC_VIEW)
-	children->remove(0);
+      bez_tub = knot_shape[i]->getKnot();
+      bez_tub->make_default();
+      addBezierCurve(scene,bez_tub);
     }
-    
-    if (view_mode==BIARC_VIEW) {
-      for (int i=0;i<Knot->tubes();i++) {
-	bez_tub = knot_shape[i]->getKnot();
-	bez_tub->make_default();
-	addBezierCurve(scene,bez_tub);
-      }
-    }
-    
-
   }
 }
 
@@ -842,157 +796,107 @@ static void mousefunc(void *data, SoEventCallback *eventCB) {
 
   if (view_mode!=BIARC_VIEW) return;
 
-  //AllData *appData=(AllData*)data;
-  //SoQtExaminerViewer *viewer = (SoQtExaminerViewer*)data;
   VVV *viewer = (VVV*)data;
-
-  // Scene *scene=appData->scene;
   const SoMouseButtonEvent *mbe=(SoMouseButtonEvent*)eventCB->getEvent();
   
   //Handle point grabbing
   if(mbe->getButton() == SoMouseButtonEvent::BUTTON1 && mbe->getState() == SoButtonEvent::DOWN) {
     
-    //Get viewport point and search for 3D picked point
-
-    // viewer does not give back the realroot!!!
     SoRayPickAction rp(viewer->getViewportRegion());
-
-    //assert(viewer!=NULL);
-    //viewer->getViewportRegion();
-
     rp.setPoint(mbe->getPosition());
     rp.apply(viewer->getSceneManager()->getSceneGraph());
+    
     SoPickedPoint *point = rp.getPickedPoint();
 
-cout << "Ray : " << *((Vector3*)&(rp.getLine().getDirection()[0])) <<endl;
+    if (point) {
 
-    if(point == NULL) {
-      cout << "no point picked\n";
-      return;
-    }
+      SoPath *path = point->getPath();
+      SoNode *node = path->getTail();
+
+      if(node && node->getTypeId()==SoSphere::getClassTypeId()) {
+
+        Vector3 pp(point->getPoint()[0],
+                   point->getPoint()[1],
+ 	           point->getPoint()[2]);
+    
+        Vector3 cp;
+        int FOUND = 0;
+
+        // FIXME: If we have more than one curve, give this as userData to the callback
+        vector<Biarc<Vector3> >::iterator current;
+        for (int l=0;l<Knot->tubes();l++) {
+          current = knot_shape[l]->getKnot()->begin();
+          float Tolerance = (current->getPoint()-current->getNext().getPoint()).norm()/4.0;
+          while (current!=knot_shape[l]->getKnot()->end()) {
+  	    if ((current->getPoint()-pp).norm()<Tolerance) {
+	      cp = current->getPoint();
+  	      picked_biarc = current;
+	      FOUND = 1;
+	      break;
+  	    }
+	    ++current;
+          }
+        }
+
+        if (FOUND) {
+          SbViewVolume vv = viewer->getCamera()->getViewVolume();
+          SbPlane s(-(vv.getProjectionDirection()), point->getPoint());
+          spp = SbPlaneProjector(s);
+          spp.setViewVolume(vv);
+
+          // up and left vector according to the current camera position
+          SbRotation rot = viewer->getCamera()->orientation.getValue();
+          rot.multVec(SbVec3f(1,0,0),LeftVector);
+          rot.multVec(SbVec3f(0,1,0),UpVector);
+
+          SbVec2s winsize = viewer->getViewportRegion().getWindowSize();
+          AspectratioX = (float)winsize[0]/(float)winsize[1];
+          AspectratioY = 1;
+
+          if (AspectratioX < 1) {
+            AspectratioY = (float)winsize[1]/(float)winsize[0];
+            AspectratioX = 1;
+          }
+
+          delta = SbVec3f((float*)&cp[0]) - point->getPoint();
+
+          // If the viewport is not square we have a
+          // aspect ratio problem. Meaning, that the vector
+          // is actually smaller!
+          delta -= (LeftVector*(1.f-1.f/AspectratioX)*(delta.dot(LeftVector))
+                     + UpVector*(1.f-1.f/AspectratioY)*(delta.dot(UpVector))) ;
+
+          PRESSED = 1;
+        }
+      } // Sphere end
+      else PRESSED = 0;
+    } // point end
+    else PRESSED = 0;
+
     eventCB->setHandled();
+  }
 
-    //Get the first picked node
-    SoNode *node=point->getPath()->getTail();
-    if(node->getTypeId()!=SoSphere::getClassTypeId()) {
-      cout << "picked point not a SoSphere\n";
-      return;
+  //Handle ungrabbing
+  if(mbe->getButton() == SoMouseButtonEvent::BUTTON1 && mbe->getState() == SoButtonEvent::UP) {
+    if (PRESSED) {
+
+      SoChildList *children = new SoChildList(scene);
+      Tube<Vector3>* bez_tub;
+      children = scene->getChildren();
+
+      for (int i=0;i<Knot->tubes();i++)
+        children->remove(0);
+       
+      for (int i=0;i<Knot->tubes();i++) {
+        bez_tub = knot_shape[i]->getKnot();
+        bez_tub->make_default();
+        addBezierCurve(scene,bez_tub);
+      }
     }
-
-    //It's a sphere
-
-    Vector3 pp(point->getPoint()[0],
-	       point->getPoint()[1],
-	       point->getPoint()[2]);
-    //cout << "Mouse down at " << point->getObjectPoint()[0] << ' '
-    // << point->getObjectPoint()[1] << ' '
-    // << point->getObjectPoint()[2] << endl;
-    
-    cout << "Screen " << mbe->getNormalizedPosition(viewer->getViewportRegion())[0] << " " << mbe->getNormalizedPosition(viewer->getViewportRegion())[1] << " - World : " << pp << endl ;
-
-    // TEMP TEMP TEMP
-    EXACT_PICKED_POINT = point->getPoint();
-
-    Vector3 cp;
-    int FOUND = 0;
-
-    // FIXME: If we have more than one curve, give this as userData to the callback
-    vector<Biarc<Vector3> >::iterator current;
-    for (int l=0;l<Knot->tubes();l++) {
-      current = knot_shape[l]->getKnot()->begin();
-      float Tolerance = (current->getPoint()-current->getNext().getPoint()).norm()/4.0;
-      //cout << "Tolerance is " << Tolerance << endl;
-      while (current!=knot_shape[l]->getKnot()->end()) {
-	if ((current->getPoint()-pp).norm()<Tolerance) {
-	  cp = current->getPoint();
-	  picked_biarc = current;
-	  //cout << "found : " << current << endl;
-	  FOUND = 1;
-	  break;
-	}
-	++current;
-      }
-      if (!FOUND) {
-	if ((current->getPoint()-pp).norm()<Tolerance) {
-	  cp = current->getPoint();
-	  picked_biarc = current;
-	  //cout << "found : " << current << endl;
-	  FOUND = 1;
-	}
-      }
-   
-      //if (cp==Vector3(0,0,0))
-      //	cout << "No near point on curve\n";
-      //else
-      if (FOUND) {
-    //Set the projection plane
-
-    // origianal : SbPlane plane(viewer->getCamera()->getViewVolume().getProjectionDirection(), point->getPoint());// SbVec3f((float*)&EXACT_PICKED_POINT[0])); //point->getPoint());
-SbPlane plane(viewer->getCamera()->getViewVolume().getProjectionDirection(), (SbVec3f)&cp[0]);
-
-    SbPlaneProjector *proj=new SbPlaneProjector(plane,TRUE);
-    proj->setViewVolume(viewer->getCamera()->getViewVolume());
-    
-//cout << "Cam info : " << viewer->getCamera()->position.getValue()[0] << " "
-//<< viewer->getCamera()->position.getValue()[1] << " " << viewer->getCamera()->position.getValue()[2] << endl;
-//#define show(x) (cout << (x[0]) << " " << (x[1]) << " " << (x[2])<<endl)
-//cout << "Plane info : ";
-//show(plane.getNormal());
-//cout << plane.getDistanceFromOrigin() << endl;
-
-    MAIN_PROJ = proj;
-	//cout << "Closest point on curve : " << cp << endl;
-	PickedCurvePoint = cp;
-	PRESSED = 1;
-	PRESSED_AT = mbe->getNormalizedPosition(viewer->getViewportRegion());
-	cout << "Screen " << PRESSED_AT[0] << " " << PRESSED_AT[1] << " - World : "
-    << *((Vector3*)&(MAIN_PROJ->project(mbe->getNormalizedPosition(viewer->getViewportRegion())))[0])
-	 << " !!\n" << "--------\n";
-cout << "Biarc is : " << picked_biarc->getPoint() << endl;
-cout << "Obj coord: " << (Vector3((float*)&(point->getObjectPoint())[0])) << endl;
-
-    SbPlaneProjector *proj2=new SbPlaneProjector;
-    proj2->setViewVolume(viewer->getCamera()->getViewVolume());
-    cout << "TEST pos  : " << *((Vector3*)&PRESSED_AT[0]) << endl;
-    cout << "TEST proj : " << *((Vector3*)&proj2->project(PRESSED_AT)[0]) << endl;
-
-
-      }
-      else
-	PRESSED = 0;
-    }
-     
-   }
-
-   //Handle ungrabbing
-   if(mbe->getButton() == SoMouseButtonEvent::BUTTON1 && mbe->getState() == SoButtonEvent::UP)
-   {
-     if (PRESSED) {
-
-       SoChildList *children = new SoChildList(scene);
-       Tube<Vector3>* bez_tub;
-       children = scene->getChildren();
-
-       for (int i=0;i<Knot->tubes();i++) {
-	 //knot_shape[i]->nodes.setValue(tN);
-	 if (view_mode==BIARC_VIEW)
-	   children->remove(0);
-       }
        
-       if (view_mode==BIARC_VIEW) {
-	 for (int i=0;i<Knot->tubes();i++) {
-	   bez_tub = knot_shape[i]->getKnot();
-	   bez_tub->make_default();
-	   addBezierCurve(scene,bez_tub);
-	 }
-       }
-       
-       
-     }
-     PRESSED = 0;
-     eventCB->setHandled();
-   }
-
+    PRESSED = 0;
+    eventCB->setHandled();
+  }
 }
 
 
