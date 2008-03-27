@@ -10,6 +10,9 @@
 
 #include "main.h"
 
+#include <Inventor/details/SoPointDetail.h>
+#include <Inventor/details/SoLineDetail.h>
+
 SbBool myAppEventHandler(void *userData, QEvent *anyevent);
 
 static void motionfunc(void *data, SoEventCallback *eventCB);
@@ -19,6 +22,7 @@ vector<Biarc<Vector3> >::iterator picked_biarc;
 SbPlaneProjector spp;
 SbVec3f UpVector, LeftVector, delta;
 float AspectratioX, AspectratioY;
+int EditTangent;
 
 // background
 unsigned int BackGroundFlag;
@@ -769,12 +773,21 @@ static void motionfunc(void *data, SoEventCallback *eventCB) {
     const SoMouseButtonEvent *mbe=(SoMouseButtonEvent* )eventCB->getEvent();
     VVV *viewer = (VVV*)data;
     
-    SbVec3f loc = spp.project(mbe->getNormalizedPosition(viewer->getViewportRegion())) + delta;
+    if (EditTangent) {
+      SbVec3f loc = spp.project(mbe->getNormalizedPosition(viewer->getViewportRegion())) + delta;
+      loc += (LeftVector*(AspectratioX-1.f)*(loc.dot(LeftVector))
+               + UpVector*(AspectratioY-1.f)*(loc.dot(UpVector))) ;
+      Vector3 editT((float*)&loc[0]);
+      picked_biarc->setTangent(editT-picked_biarc->getPoint());
+    }
+    else {
+      SbVec3f loc = spp.project(mbe->getNormalizedPosition(viewer->getViewportRegion())) + delta;
     
-    loc += (LeftVector*(AspectratioX-1.f)*(loc.dot(LeftVector))
-             + UpVector*(AspectratioY-1.f)*(loc.dot(UpVector))) ;
+      loc += (LeftVector*(AspectratioX-1.f)*(loc.dot(LeftVector))
+               + UpVector*(AspectratioY-1.f)*(loc.dot(UpVector))) ;
 
-    picked_biarc->setPoint(Vector3((float*)&loc[0]));
+      picked_biarc->setPoint(Vector3((float*)&loc[0]));
+    }
 
     SoChildList *children = new SoChildList(scene);
     Tube<Vector3>* bez_tub;
@@ -808,6 +821,7 @@ static void mousefunc(void *data, SoEventCallback *eventCB) {
     
     SoPickedPoint *point = rp.getPickedPoint();
 
+    EditTangent = 0;
     if (point) {
 
       SoPath *path = point->getPath();
@@ -869,6 +883,44 @@ static void mousefunc(void *data, SoEventCallback *eventCB) {
           PRESSED = 1;
         }
       } // Sphere end
+      else
+        if(node && node->getTypeId()==SoLineSet::getClassTypeId()) {
+          SoLineSet *ls = (SoLineSet*)node;
+          if (ls->getName() != "datatangents") {
+            eventCB->setHandled();
+            return;
+          }
+
+          EditTangent = 1;
+
+          int sl_idx = ((SoLineDetail*)point->getDetail())->getPoint0()->getCoordinateIndex();
+          // XXX only single component
+          picked_biarc = (knot_shape[0]->getKnot()->begin()+(sl_idx>>1));
+          
+          // XXX same code as above!!!
+          SbViewVolume vv = viewer->getCamera()->getViewVolume();
+          SbPlane s(-(vv.getProjectionDirection()), point->getPoint());
+          spp = SbPlaneProjector(s);
+          spp.setViewVolume(vv);
+
+          // up and left vector according to the current camera position
+          SbRotation rot = viewer->getCamera()->orientation.getValue();
+          rot.multVec(SbVec3f(1,0,0),LeftVector);
+          rot.multVec(SbVec3f(0,1,0),UpVector);
+
+          SbVec2s winsize = viewer->getViewportRegion().getWindowSize();
+          AspectratioX = (float)winsize[0]/(float)winsize[1];
+          AspectratioY = 1;
+
+          if (AspectratioX < 1) {
+            AspectratioY = (float)winsize[1]/(float)winsize[0];
+            AspectratioX = 1;
+          }
+
+          delta = SbVec3f(0,0,0);
+          PRESSED = 1;
+
+        } // LineSet end
       else PRESSED = 0;
     } // point end
     else PRESSED = 0;
@@ -986,6 +1038,7 @@ void addBezierCurve(SoSeparator *root, Tube<Vector3>* t) {
   //
 
   SoLineSet *linesetData        = new SoLineSet;
+  linesetData->setName(SbName("datatangents"));
   SoCoordinate3 *DataTanCoords  = new SoCoordinate3; 
   SoSeparator *DataTangentsNode = new SoSeparator;
 
@@ -1028,6 +1081,7 @@ void addBezierCurve(SoSeparator *root, Tube<Vector3>* t) {
   //
 
   SoLineSet *linesetMid        = new SoLineSet;
+  linesetMid->setName(SbName("midtangents"));
   SoCoordinate3 *MidTanCoords  = new SoCoordinate3; 
   SoSeparator *MidTangentsNode = new SoSeparator;
 
