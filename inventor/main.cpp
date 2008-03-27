@@ -1,9 +1,12 @@
 /*!
-  \file merge_all.cpp
+  \file main.cpp
   \ingroup InventorGroup
   \brief Supposed to become the unique viewer combining
          the now separated multiview, skeleton open/closed etc
 
+  This is the most complete viewer. It includes a biarc view.
+  Basic editing. pt/pp/tt plot viewer (not finished). Multi
+  components are partially supported.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
