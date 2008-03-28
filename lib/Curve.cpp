@@ -415,6 +415,7 @@ inline void Curve<Vector>::append(const Vector &p,const Vector &t) {
 template<class Vector>
 inline void Curve<Vector>::insert(int loc, const Biarc<Vector> &b) {
   _Biarcs.insert(_Biarcs.begin()+loc,b);
+  // XXX we need to renumber the IdAndCurve in all biarcs after loc
   (_Biarcs.begin()+loc)->setIdAndCurve(_Biarcs.size()-1,this);
 }
 
@@ -1023,7 +1024,8 @@ void Curve<Vector>::refine(int from_N, int to_N, int NewNoNodes) {
 
   So Far, periodic refinement is not yet implemented. I.e.
   it is not possible to refine the curve between node 'nodes-5' and
-  node '10' !!!!
+  node '10' !!!! We do not know which new node is the "start" of
+  the new curve, that's why!
 
   \sa resample(),make().
 */
@@ -1046,7 +1048,7 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
 
   while (current!=end) {
     PartLength += current->biarclength();
-    if (_Closed&& current==(_Biarcs.end()-1))
+    if (_Closed && current==(_Biarcs.end()-1))
       current = _Biarcs.begin();
     else
       current++;
@@ -1059,7 +1061,8 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
   // Init first part of curve till biarc begin
   // begin+1 since the stl range copy is excluding the last elem
   // pointed to by iterator
-  c.insert(c.begin(),_Biarcs.begin(),begin+1);
+  if (begin->id() < end->id())
+    c.insert(c.begin(),_Biarcs.begin(),begin+1);
   current = begin;
 
   while (current!=end) {
@@ -1075,7 +1078,8 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
 	p = current->pointOnBiarc(SegDummy);
       
 	// compute corresponding tangent
-	t = current->getTangent().reflect(p-current->getPoint());
+//	t = current->getTangent().reflect(p-current->getPoint());
+        t = current->tangentOnBiarc(SegDummy);
       }
 
       t.normalize();
@@ -1104,19 +1108,30 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
    * put it manually. this point is the "end" biarc given as argument
    * of this function
    */
-  if ((c.back().getPoint()-current->getPoint()).norm()>(10e-3*SegLen))
-    c.push_back(*current);
-  current++;
-
-  // append rest of the curve
-  while (current!=_Biarcs.end()) {
-    c.push_back(*current);
+  if (end!=_Biarcs.begin()) {
+    if ((c.back().getPoint()-current->getPoint()).norm()>(10e-3*SegLen))
+      c.push_back(*current);
     current++;
+
+    // append rest of the curve
+    // XXX : if we resample up to the last biarc and the curve is closed
+    //       this doesn't work!
+    while (current!=_Biarcs.end()) {
+      c.push_back(*current);
+      current++;
+    }
   }
  
+  if (begin->id() > end->id())
+    c.insert(c.end(),end,begin);
+
   // give the newly resampled curve back to the user
   _Biarcs = c;
 
+  // Reset Id and Curve
+  int cID = 0;
+  for (biarc_it it = _Biarcs.begin(); it != _Biarcs.end(); ++it)
+    it->setIdAndCurve(cID++,this);
 }
 
 /*

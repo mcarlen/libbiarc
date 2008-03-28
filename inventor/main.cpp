@@ -30,6 +30,11 @@ int EditTangent;
 // background
 unsigned int BackGroundFlag;
 
+// Partial Resample of the curve globals
+unsigned int ResamplePartFlag;
+unsigned int FirstPoint;
+vector<Biarc<Vector3> >::iterator FirstBiarc;
+
 void addBezierCurve(SoSeparator *root, Tube<Vector3>* t);
 
 #define _SCREEN_W_ 800
@@ -480,6 +485,9 @@ int parse(int argc, char** argv) {
   int pkf_idx = 0;
   N = 0;
 
+  ResamplePartFlag = 0;
+  FirstPoint = 0;
+
   // default values
   S = 12;
   R = 0.0083; // experimental knot value
@@ -736,7 +744,17 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       cout << "[Not Implemented] Current curve is exported to a Renderman RIB file knot.rib.\n";
       break;
 
+    /* Start "resample curve between two points" procedure
+       This is only working in BIARC_VIEW
+    */
     case Qt::Key_R:
+      if (view_mode == BIARC_VIEW) {
+        ResamplePartFlag = 1;
+        cout << "Resample a part of the curve!\n";
+      }
+      break;
+
+    case Qt::Key_O:
       //knot_shape[0]->getKnot()->exportPOVFile("knot.pov");
       cout << "[Not Implemented] Current curve is exported to a Povray file knot.pov.\n";
       break;
@@ -813,6 +831,7 @@ static void mousefunc(void *data, SoEventCallback *eventCB) {
   if (view_mode!=BIARC_VIEW) return;
 
   VVV *viewer = (VVV*)data;
+  Tube<Vector3>* bez_tub;
   const SoMouseButtonEvent *mbe=(SoMouseButtonEvent*)eventCB->getEvent();
   
   //Handle point grabbing
@@ -855,7 +874,26 @@ static void mousefunc(void *data, SoEventCallback *eventCB) {
           }
         }
 
-        if (FOUND) {
+        if (FOUND && ResamplePartFlag) {
+          if (!FirstPoint) {
+            FirstBiarc = picked_biarc;
+            FirstPoint = 1;
+          }
+           else {
+             // XXX only single components!
+             bez_tub = knot_shape[0]->getKnot();
+             bez_tub->make_default();
+             // XXX resample from FirstBiarc to picked_biarc with 10 points
+             bez_tub->refine(FirstBiarc,picked_biarc,5);
+             bez_tub->make_default();
+             for (int i=0;i<scene->getChildren()->getLength();i++)
+               scene->getChildren()->remove(0);
+             addBezierCurve(scene,bez_tub);
+             FirstPoint = 0;
+             ResamplePartFlag = 0;
+           }
+        }
+        else if (FOUND) {
           SbViewVolume vv = viewer->getCamera()->getViewVolume();
           SbPlane s(-(vv.getProjectionDirection()), point->getPoint());
           spp = SbPlaneProjector(s);
