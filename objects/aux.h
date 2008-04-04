@@ -100,7 +100,8 @@ Curve<Vector3>* gen_bone(float a, float b, float scale, int nodes) {
     pointat_bone(a,b,scale,(float)i/(float)nodes,p,t);
     bone->append(p,t);
   }
-bone->computeTangents();
+  bone->link();
+  bone->computeTangents();
   return bone;
 }
 

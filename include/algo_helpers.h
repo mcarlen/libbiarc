@@ -70,13 +70,22 @@ template<class Vector>
 void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC);
 
 template<class Vector>
-void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, float &ub, float &err);
+void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, float &ub, float &err, candi_it &min_candi);
 
 template<class Vector>
 void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered);
 
 template<class Vector>
 float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL);
+
+template<class Vector>
+float mindist_between_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
+                           const Vector &b0,const Vector &b1,const Vector &b2,
+                           Vector* from, Vector* to);
+
+template<class Vector>
+float mindist_between_arcs(const Candi<Vector> &pair_of_arcs,
+                           Vector* from, Vector* to);
 
 template<class Vector>
 int double_critical_test(const Vector &a0, const Vector &a1,

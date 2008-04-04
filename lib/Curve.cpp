@@ -829,7 +829,8 @@ float Curve<Vector>::radius_global(Biarc<Vector> &at) {
 */
 template<class Vector>
 float Curve<Vector>::thickness() {
-  return compute_thickness(this);
+  Vector from,to;
+  return compute_thickness(this,&from,&to);
 }
 
 
@@ -1950,12 +1951,12 @@ ostream& Curve<Vector>::writeSingleData(ostream &out, const char* delimiter,
 */
 template<class Vector>
 void Curve<Vector>::computeTangents() {
-  biarc_it head = _Biarcs.begin(), tail = _Biarcs.end();
+  biarc_it head = _Biarcs.begin(), tail = _Biarcs.end()-1;
   biarc_it current = head+1;
   Vector t;
 
   // compute tangents except for first, last point
-  for (;current!=tail-1;current++) {
+  for (;current!=tail;current++) {
     t = (current+1)->getPoint() - (current-1)->getPoint() ;
     current->setTangent(t);
   }
@@ -1964,12 +1965,12 @@ void Curve<Vector>::computeTangents() {
   if (_Closed) {
 
     // First curve point
-    t = (head+1)->getPoint() - (tail-1)->getPoint() ;
+    t = (head+1)->getPoint() - (tail)->getPoint() ;
     head->setTangent(t);
 
     // Last curve point
-    t = head->getPoint() - (tail-2)->getPoint() ;
-    (tail-1)->setTangent(t);
+    t = head->getPoint() - (tail-1)->getPoint() ;
+    (tail)->setTangent(t);
   }
   else {
 
@@ -1979,7 +1980,7 @@ void Curve<Vector>::computeTangents() {
 
     // Last curve point
     t = tail->getPoint() - (tail-1)->getPoint() ;
-    (tail-1)->setTangent(t);
+    (tail)->setTangent(t);
   }
     
 }
