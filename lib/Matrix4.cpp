@@ -342,7 +342,7 @@ Matrix4 Matrix4::operator*(const Matrix4 &m) {
   for (int i=0;i<4;i++) {
     for (int j=0;j<4;j++) {
       for (int k=0;k<4;k++)
-	tmp[i][j]+=(_v[i][k]*m[k][j]);
+	tmp[j][i]+=(_v[k][i]*m[j][k]);
     }
   }
   return tmp;
