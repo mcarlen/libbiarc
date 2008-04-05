@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
+  Vector3 from,to;
   CurveBundle<Vector3> cb(argv[1]);
   cb.link();
   cb.make_default();
@@ -32,7 +33,7 @@ int main(int argc, char **argv) {
   for (int i=0;i<cb.curves();i++) {
 
     float L = cb[i].length();
-    float D = cb[i].thickness();
+    float D = cb[i].thickness(&from,&to);
     cout << "Curve " << i+1 << endl;
     cout << "------------------\n";
     cout << "Number of data pts : " << cb[i].nodes() << endl;
@@ -41,6 +42,7 @@ int main(int argc, char **argv) {
     cout << "Thickness (D=2r)   : " << D << endl;
     cout << "Roplength (L/D)    : " << L/D << endl;
     cout << "L/r                : " << L/D*2 << endl;
+    cout << "Thickness between  : " << from << ", " << to << endl;
     cout << "==================\n";
 
   }

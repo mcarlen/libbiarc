@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 
   Vector3 a0,a1,a2,b0,b1,b2;
   Vector3 from,to;
-
+  // Bone check
   a0 = Vector3(-1,1.2,0);
   a1 = Vector3(0,1,0);
   a2 = Vector3(1,1.2,0);

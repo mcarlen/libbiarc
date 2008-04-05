@@ -152,12 +152,14 @@ float check_local_curvature(Curve<Vector>* c) {
 template<class Vector>
 void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC) {
 
+  CritC.clear();
+
   Vector a0,am,a1,b0,bm,b1,t0a,tma,t1a,t0b,tmb,t1b;
   // Temporary Bezier points
   Vector Ba0,Ba1,Ba2,Bb0,Bb1,Bb2;
   for (biarc_it i=c->begin();i!=c->end()-1;i++) {
-    i->getBezierArc0(Ba0,Ba1,Ba2);
     for (biarc_it j=i+1;j!=c->end();j++) {
+      i->getBezierArc0(Ba0,Ba1,Ba2);
       j->getBezierArc0(Bb0,Bb1,Bb2);
  
       // Now double criticle all 4 possibilities
@@ -169,8 +171,10 @@ void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC) {
 
       j->getBezierArc1(Bb0,Bb1,Bb2);
       // arc a1 - b2
-      if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2)) {
-        CritC.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+      if (!(i==c->begin() && j==(c->end()-1))) {
+        if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2)) {
+          CritC.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+        }
       }
 
       i->getBezierArc1(Ba0,Ba1,Ba2);
@@ -508,7 +512,7 @@ int double_critical_test(const Vector &a0, const Vector &a1,
   if (denum<=(val0+val1)) return 1;
 
   // XXX hack to let pass more candidates
-  float eps = 0.001;
+  float eps = 0.01;
 
   float sina = (val0+val1)/denum;
   w.normalize();

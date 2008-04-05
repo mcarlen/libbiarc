@@ -828,11 +828,9 @@ float Curve<Vector>::radius_global(Biarc<Vector> &at) {
   \sa radius_pt(), thickness_fast()
 */
 template<class Vector>
-float Curve<Vector>::thickness() {
-  Vector from,to;
-  return compute_thickness(this,&from,&to);
+float Curve<Vector>::thickness(Vector3 *from = NULL, Vector3 *to = NULL) {
+  return compute_thickness(this,from,to);
 }
-
 
 /*!
   Returns the diameter of the fattest possible tube around
