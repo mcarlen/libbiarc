@@ -1,4 +1,6 @@
 syntax: glob
+annealing/k*
+annealing/j*
 *.orig
 *.rej
 *~

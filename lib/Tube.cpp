@@ -668,7 +668,8 @@ this->unlink();
       Theta = Vector3(Theta0,Theta1,TwistSpeed);
 
       // Get next local frame
-      Frame = (tmp.cay(Theta)*Frame);
+//      Frame = (tmp.cay(Theta)*Frame);
+      Frame = (Frame*tmp.cay(Theta));
       
       Normals[i] = Frame[0];
       Normals[i].normalize();  
