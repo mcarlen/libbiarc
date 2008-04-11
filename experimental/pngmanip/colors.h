@@ -13,7 +13,11 @@ inline void set_rgb(RGB* c, char r, char g, char b) {
 
 inline void map_color_rainbow(RGB* c, float val, float min, float max) {
   // blue low, red hight, linear in between
-  float t4=((val-min)/(max-min))*4.;
+  float lval = val;
+  if (val>max) lval = max;
+  if (val<min) lval = min;
+
+  float t4=((lval-min)/(max-min))*4.;
   int i = (int)t4;
   float v = t4-(float)i;
   switch (i) {
@@ -37,7 +41,11 @@ inline void map_color_rainbow(RGB* c, float val, float min, float max) {
 
 inline void map_color_rainbow_cycle(RGB* c, float val, float min, float max) {
   // blue low, red hight, linear in between
-  float t6=((val-min)/(max-min))*6.;
+  float lval = val;
+  if (val>max) lval = max;
+  if (val<min) lval = min;
+
+  float t6=((lval-min)/(max-min))*6.;
   int i = (int)t6;
   float v = t6-(float)i;
   switch (i) {
@@ -68,7 +76,11 @@ inline void map_color_rainbow_cycle(RGB* c, float val, float min, float max) {
 
 inline void map_color_fine(RGB* c, float val, float min, float max) {
   // blue low, red hight, linear in between
-  float t = (val-min)/(max-min);
+  float lval = val;
+  if (val>max) lval = max;
+  if (val<min) lval = min;
+
+  float t = (lval-min)/(max-min);
   int i = (int)(t*20.);
   float v = t*20.0-(float)i;
 
@@ -94,7 +106,10 @@ float b2f(unsigned char c) {
 
 inline void map_color_sine_end(RGB* c, float val, float min, float max) {
   // blue low, red hight, linear in between
-  float t = (val-min)/(max-min),t2;
+  float lval = val;
+  if (val>max) lval = max;
+  if (val<min) lval = min;
+  float t = (lval-min)/(max-min),t2;
   RGB c2;float r,g,b;
   unsigned int ri,gi,bi;
 

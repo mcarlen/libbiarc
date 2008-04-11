@@ -36,7 +36,7 @@ all: $(PROGS)
 
 t: t.o SoKnot.o
 	@echo Link ${<:.o=}
-	@$(LINKER) $(FLAGS) -o t $(INC_LIB) t.o SoKnot.o $(LIBS)
+	@$(LINKER) $(FLAGS) -o t $(INC_LIB) $? $(LIBS)
 
 #kv4: knot4view.o SoKnot.o
 #	@echo Link ${<:.o=}
@@ -44,16 +44,16 @@ t: t.o SoKnot.o
 
 xyzview: xyzview.o SoKnot.o
 	@echo Link ${<:.o=}
-	@$(LINKER) $(FLAGS) -o xyzview $(INC_LIB) xyzview.o SoKnot.o $(LIBS)
+	@$(LINKER) $(FLAGS) -o xyzview $(INC_LIB) $? $(LIBS)
 
 main: SoKnot.o main.o Widgets.o moc_Widgets.o moc_main.o
 	@echo Link $@
-	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o \
-	Widgets.o moc_Widgets.o moc_main.o $(LIBS)
+	$(LINKER) $(FLAGS) -o main $(INC_LIB) $? $(LIBS)
 
 plotzoom: plotzoom.o moc_plotzoom.o
 	@echo Link $@
-	@$(LINKER) $(FLAGS) -o plotzoom $(INC_LIB) $< $(LIBS)
+	@echo $(LINKER) $(FLAGS) -o plotzoom $(INC_LIB) $? $(LIBS)
+	@$(LINKER) $(FLAGS) -o plotzoom $(INC_LIB) $? $(LIBS)
 
 moc_main.cpp: main.h
 	moc -o $@ $<
