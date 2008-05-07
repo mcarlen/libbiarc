@@ -70,7 +70,7 @@ void Plot::ptplot() {
         float sina = sqrt(1.0-cosa*cosa);
         
         if (sina==0) cur = 0.0;
-        else cur = 2.*thickness*sina/Dlen;
+        else cur = thickness*sina/Dlen;
 
         if (cur<0.) cur = 0.;
         else if (cur>1.) cur = 1.;
@@ -102,12 +102,12 @@ void Plot::ptplot() {
           tt2 = 0;
         else
           tt2 = z/n;
-        cur = sqrt(tt2)/thickness;
+        cur = sqrt(tt2)*thickness;
 
         // FIXME clamp tt plot to [0,1]
         // I didn't think about it, but it fixes the plot ...
         if (cur<0.) cur=0.;
-        else if (cur>1.) cur = 1.;
+        // else if (cur>1.) cur = 1.;
 
         ptmin = (cur<ptmin?cur:ptmin);
         ptmax = (cur>ptmax?cur:ptmax);
@@ -122,9 +122,9 @@ void Plot::ptplot() {
       // pttable[j][j] = 0.0;
       for (int i=0;i<w;i++) {
         Vector3 from = Pts_i[i], to = Pts_j[j];
-        cur = 2.*thickness/(from-to).norm();
+        cur = 2.*(from-to).norm()/thickness;
         if (cur<0 || (from-to).norm()<1e-7) cur = 0.0;
-        if (cur>1.) cur = 1.;
+        // if (cur>1.) cur = 1.;
 
         ptmin = (cur<ptmin?cur:ptmin);
         ptmax = (cur>ptmax?cur:ptmax);
@@ -135,7 +135,7 @@ void Plot::ptplot() {
   }
   for (int j=0;j<h;j++) {
     for (int i=0;i<w;i++) {
-      map_color_sine_end(&c,pttable[i][j],0.,1.);
+      map_color_sine_end(&c,pttable[i][j],0.,ptmax);
       // map_bw(&c,pttable[i][j],0.,1.);
       plots[Depth].img.setPixel(i,j,qRgb(c.r,c.g,c.b));
     }

@@ -22,6 +22,7 @@ Curve<TVec> *curve;
 
 // Zoom in on some rectangular region
 float fromx,fromy,tox,toy;
+int HEIGHTMAP;
 
 void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
 
@@ -30,11 +31,21 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
   curve->link();
   curve->make_default();
   px = new unsigned char[3*w*h];
+  if (px == NULL) {
+    cerr << "Memory alloc problem!\n";
+    exit(5);
+  }
 
   TVec pt,pt2;
   RGB c;
 
-  float pttable[w][h];
+  // Allocate data table
+  float **pttable;
+  pttable = new float*[h];
+  for (int zz=0;zz<h;zz++) pttable[zz] = new float[w];
+  if (pttable == NULL) { cout << "Mem alloc prob!\n";
+    exit(5);
+  }
   // Here we use the thickness only as a scaling factor, thus
   // perfect accuracy is not that important
   thickness = curve->thickness_fast();
@@ -89,14 +100,13 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
         float sina = sqrt(1.0-cosa*cosa);
         
         if (sina==0) cur = 0.0;
-        else cur = .5*thickness*sina/Dlen;
+        else cur = thickness*sina/Dlen;
 
         if (cur<0.) cur = 0.;
         else if (cur>1.) cur = 1.;
 
         ptmin = (cur<ptmin?cur:ptmin);
         ptmax = (cur>ptmax?cur:ptmax);
-
         pttable[i][j] = cur;
       }
     }
@@ -122,7 +132,7 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
           tt2 = 0;
         else
           tt2 = z/n;
-        cur = sqrt(tt2)*.5*thickness;
+        cur = sqrt(tt2)*thickness;
 
         // FIXME clamp tt plot to [0,1]
         // I didn't think about it, but it fixes the plot ...
@@ -147,7 +157,7 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
         //     the below gives the same scale as for pt plots.
         //     only problem : the circle is chopped of
         //cur = 2.*thickness/(from-to).norm();
-        cur = (from-to).norm()*.5/thickness;
+        cur = 2.*(from-to).norm()/thickness;
 
         if (cur<0) cur = 0.0;
         // if (cur>1. || (from-to).norm()<1e-7) cur = 1.;
@@ -162,12 +172,10 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
   for (int j=0;j<h;j++) {
     src = px + j*(3*w);
     for (int i=0;i<w;i++) {
-      if (ptype==TT_PLOT)
-        map_color_fine(&c,pttable[i][j],0.0,1.0);
-      else if (ptype==PP_PLOT)
-        map_color_sine_end(&c,pttable[i][j],0.,ptmax);
+      if (!HEIGHTMAP)
+        map_color_sine_end(&c,pttable[i][j],0.0,ptmax);
       else
-        map_color_sine_end(&c,pttable[i][j],0.0,1.0); // (ptmax>1.0)?ptmax:1.0);
+        height_map(&c,pttable[i][j],0.,ptmax);
       *src++ = c.r; *src++ = c.g; *src++ = c.b;
     }
   }
@@ -182,7 +190,9 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
 void usage(char* prog) {
     cout << "Usage : " << prog << " [option] <pkf file>\n";
     cout << "\n  -plot type\ttype is either pp, pt or tt.\n"
-         << "  -res N\tN is the resolution of the plot. Default 500\n";
+         << "  -res N\tN is the resolution of the plot. Default 500\n"
+         << "  -hm   \tHeighmap gradient (black&white)\n"
+         << "  -h    \tThis help\n";
     exit(-1);
 }
 
@@ -194,19 +204,23 @@ int main(int argc,char **argv) {
 
   int Res = 500;
   char *cname = NULL;
-  PLOT_TYPE pType = PT_PLOT;
-
+  HEIGHTMAP = 0;
+  PLOT_TYPE pType = PT_PLOT; 
   fromx = 0.0; tox = 1.0;
   fromy =0.0; toy = 1.0;
 
   int arg = 1;
   while (arg<=argc) {
     if (argv[arg][0] == '-') {
-      if (!strncmp(&argv[arg][1],"h",1)) {
+      if (!strncmp(&argv[arg][1],"hm",2)) {
+        HEIGHTMAP = 1; ++arg;
+      }
+      else if (!strncmp(&argv[arg][1],"h",1)) {
         usage(argv[0]);
       }
       else if (!strncmp(&argv[arg][1],"res",3)) {
         Res = atoi(argv[arg+1]);
+        ++arg;
         ++arg;
       }
       else if (!strncmp(&argv[arg][1],"plot",4)) {
@@ -245,7 +259,10 @@ int main(int argc,char **argv) {
     }
   }
 
-  cout << "Start plot ";
+  cout << "Square X : " << fromx << " to " << tox << endl
+       << "       Y : " << fromy << " to " << toy << endl;
+
+  cout << "Start plot with Resolution " << Res;
   DoPlot(cname,Res,Res,pType);
   cout << "\t[OK]\n";
 

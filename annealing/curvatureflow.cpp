@@ -3,8 +3,9 @@
 
 #define it vector<Biarc<Vector3> >::iterator
 
-float TOL = 0.01;
-int LogFreq = 5000;
+float TOL = 0.003;
+// This way we start logging at the first step
+int LogFreq = 0;
 
 float r(float l,float u) {
   return l+(float)rand()/RAND_MAX*(u-l);
@@ -120,9 +121,12 @@ int main(int argc,char** argv) {
     thickness = c.thickness_fast(); length = c.length();
     scale = thick_scale*thickness;
     
-    if (n%LogFreq == 0) {
+// XXX Log stuff exponentially (since we adapt the LogFreq dynamically)
+//    if (n%LogFreq == 0) {
+    if (LogFreq>0) LogFreq--;
+    if (LogFreq == 0) {
       cout << "Log " << n << " ( " << length/thickness << " )\n" ;
-      sprintf(buf,"/tmp/%08d",n);
+      sprintf(buf,"./%08d.pkf",n);
 
 //    Resampling might help in notting getting stuck
 //    in a local min
@@ -134,8 +138,19 @@ int main(int argc,char** argv) {
       }
       c.writePKF(buf);
     }
+    // XXX exponential decrease of LogFreq, i.e. we wait longer until
+    // we log the next file
     n++;
+    if (LogFreq == 0) {
+      float MaxIter  = 40000.;
+      float MaxDelay = 1000.;
+      int MinOffset  = 10;
+      LogFreq = (int)exp(log(MaxDelay)*(float)n/MaxIter)+MinOffset;
+      cout << "New Log Delay : " << LogFreq << endl;
+    }
   }
+
+  c.writePKF("best.pkf");
 
   return 0;
 

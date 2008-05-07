@@ -135,8 +135,24 @@ if (t3<0.) t3 = 1.+t3;
   }
 }
 
+// Black and white scale from 0 (black) to 1 (white)
+inline void height_map(RGB* c, float val, float min, float max) {
+  // blue low, red hight, linear in between
+  float lval = val;
+  if (val>max) lval = max;
+  if (val<min) lval = min;
+  float t = (lval-min)/(max-min);
 
+  unsigned int ri,gi,bi;
 
+  ri = (unsigned int)rintf(t*255.);
+  gi = (unsigned int)rintf(t*255.);
+  bi = (unsigned int)rintf(t*255.);
+
+  set_rgb(c,(unsigned char)ri,
+            (unsigned char)gi,
+            (unsigned char)bi);
+}
 
 
 #endif
