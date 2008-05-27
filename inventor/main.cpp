@@ -386,10 +386,10 @@ int main(int argc, char **argv) {
     materials[i] = new SoMaterial;
     for (int z=0;z<(*Knot)[i].nodes()-((*Knot)[i].isClosed()?0:1);z++) {
       materials[i]->diffuseColor.set1Value(z,ColorTable[i%ColorNum]);
-      /*
+/*
       materials[i]->diffuseColor.set1Value(z,ColorTable[ColorIdx]);
       ColorIdx=((ColorIdx+1)%ColorNum);
-      */
+*/
     }
     // Mark beginning of curve!
     materials[i]->diffuseColor.set1Value(0,ColorTable[1]);
@@ -405,6 +405,24 @@ int main(int argc, char **argv) {
     knot_node[i]->addChild(materials[i]);
     //addBezierCurve(root,&(*Knot)[i]);
     knot_node[i]->addChild(knot_shape[i]);
+#if 1 // SPHERE_END
+if (!(*Knot)[i].isClosed()) {
+    SoTranslation *tr = new SoTranslation;
+    SoTranslation *tr2 = new SoTranslation;
+    tr->translation.setValue((SbVec3f&)((*Knot)[i][0].getPoint()[0]));
+    tr2->translation.setValue((SbVec3f&)((*Knot)[i][(*Knot)[i].nodes()-1].getPoint()[0]));
+    SoSphere *sp = new SoSphere;
+    sp->radius = R;
+    SoSeparator *sep1 = new SoSeparator;
+    knot_node[i]->addChild(sep1);
+    SoSeparator *sep2 = new SoSeparator;
+    knot_node[i]->addChild(sep2);
+    sep1->addChild(tr);
+    sep1->addChild(sp);
+    sep2->addChild(tr2);
+    sep2->addChild(sp);
+}
+#endif
     scene->addChild(knot_node[i]);
   }
 
