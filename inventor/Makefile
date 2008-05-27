@@ -1,4 +1,4 @@
-PROGS = xyzview main # kv4
+PROGS = xyzview main animate plotzoom # kv4
 
 include ../Makefile.config
 
@@ -20,7 +20,8 @@ FLAGS = $(INCLUDE) `soqt-config --cxxflags` $(CXXFLAGS) -DDEBUG -DPRECISION_HACK
 ######### SOURCE FILES #######################
 
 SRC = SoKnot.cpp xyzview.cpp Widgets.cpp \
-	main.cpp trefoil_builder.cpp
+	main.cpp trefoil_builder.cpp animate.cpp \
+        plotzoom.cpp
 OBJ = $(SRC:.cpp=.o)
 
 #####  RULES  ####
@@ -55,6 +56,10 @@ plotzoom: plotzoom.o moc_plotzoom.o
 	@echo $(LINKER) $(FLAGS) -o plotzoom $(INC_LIB) $? $(LIBS)
 	@$(LINKER) $(FLAGS) -o plotzoom $(INC_LIB) $? $(LIBS)
 
+animate: SoKnot.o animate.o 
+	@echo Link $@
+	$(LINKER) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
+
 moc_main.cpp: main.h
 	moc -o $@ $<
 moc_Widgets.cpp: Widgets.h
@@ -74,7 +79,7 @@ trefoil_builder: SoKnot.o trefoil_builder.o moc_Widgets.o Widgets.o moc_trefoil_
 
 clean :
 	@echo Cleaning `basename ${PWD}`
-	@-rm -f $(OBJ) $(COMMON_OBJ) moc_*.o plotzoom.o
+	@-rm -f $(OBJ) $(COMMON_OBJ) moc_*.o plotzoom.o animate.o
 	@-rm -rf ii_files
 
 realclean :

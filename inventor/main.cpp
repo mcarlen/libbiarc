@@ -563,8 +563,8 @@ int parse(int argc, char** argv) {
   // closed curve requested?
   for (int i=1;i<argc;i++)
     if (!strncmp(&argv[i][1],"closed",6)) {
-      for (int i=0;i<Knot->tubes();i++)
-	(*Knot)[i].link();
+      for (int j=0;j<Knot->tubes();j++)
+	(*Knot)[j].link();
     }
   
   // FIXME

@@ -848,7 +848,7 @@ Vector Biarc<Vector>::pointOnBiarc(float arclength) const {
   }
 
   if (_Radius0 <0 || _Radius1 <0) {
-    cerr << "STRAIGHT LINE\n";
+    // cerr << "STRAIGHT LINE\n";
     return (_Point + (getNext().getPoint()-_Point)*arclength/_Length);
   }
 
@@ -874,7 +874,7 @@ Vector Biarc<Vector>::tangentOnBiarc(float arclength) const {
   }
 
   if (_Radius0 <0 || _Radius1 <0) {
-    cerr << "STRAIGHT LINE\n";
+    // cerr << "STRAIGHT LINE\n";
     Vector tan = _Tangent + (getNext().getTangent()-_Tangent)*(arclength/_Length);
     tan.normalize();
     return tan;

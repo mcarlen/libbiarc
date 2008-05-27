@@ -3,7 +3,7 @@
 
 #define it vector<Biarc<Vector3> >::iterator
 
-float TOL = 0.003;
+float TOL = 0.001;
 // This way we start logging at the first step
 int LogFreq = 0;
 

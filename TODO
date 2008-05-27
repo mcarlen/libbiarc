@@ -1,3 +1,18 @@
+implement ACN and Writhe (see Ideal Knots book p. 48)
+
+For all pair of points p_{i_c,i_n}, p_{j_c,j_n}
+
+T_i = p_{i_c,i_n+1}-p_{i_c,i_n}
+T_j = p_{j_c,j_n+1}-p_{j_c,j_n}
+d_{ij} = (T_i x E_ij)*T_j
+w_{ij} = |T_i||T_j|d_{ij}/E_{ij}^2
+a_{ij} = |T_i||T_j||d_{ij}|/E_{ij}^2
+
+E_ij ??? (normalized distance vector between d_i and d_j ??!??)
+
+Writhe = sum w_{ij}
+ACL    = sum a_{ij}
+
 experimental/thickness {
 
 the bisection routine should compute

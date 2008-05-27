@@ -8,7 +8,7 @@ SRC=$(wildcard *.cpp)
 
 PROF=${FLAGS} -O2
 
-all: anneal anneal4
+all: anneal anneal4 sono curvatureflow
 
 anneal: anneal.cpp
 	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
@@ -19,5 +19,8 @@ anneal4: anneal4.cpp
 curvatureflow: curvatureflow.cpp
 	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
 
+sono: sono.cpp
+	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
+
 clean realclean:
-	@-rm -f anneal anneal4
+	@-rm -f anneal anneal4 sono curvatureflow *.o
