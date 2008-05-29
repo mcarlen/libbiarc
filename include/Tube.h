@@ -75,6 +75,9 @@ class Tube : public Curve<Vector> {
  public:
   void renderman_init();
   void renderman_draw();
+  void exportRIBFile(char* filename, int W, int H,
+                     const Vector &p, const Vector &a, float angle,
+                     const Vector &light_dir);
 #endif
 
   /*

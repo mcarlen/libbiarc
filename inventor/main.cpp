@@ -15,6 +15,11 @@
 
 #include <Inventor/details/SoPointDetail.h>
 #include <Inventor/details/SoLineDetail.h>
+#include <Inventor/nodes/SoDirectionalLight.h>
+
+#ifdef RENDERMAN
+#include "ri.h"
+#endif
 
 SbBool myAppEventHandler(void *userData, QEvent *anyevent);
 
@@ -450,7 +455,7 @@ if (!(*Knot)[i].isClosed()) {
   if (BackGroundFlag)
     myViewer->setBackgroundColor(SbColor(1,1,1));
 
-  // myViewer->setFeedbackVisibility(TRUE);
+  myViewer->setFeedbackVisibility(TRUE);
 
   myViewer->setTitle("KnotViewer");
   myViewer->show();
@@ -608,6 +613,9 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
   int child_len;
   Tube<Vector3>* bez_tub;
 
+  float CamAngle; SbVec3f CamAxis, CamPos;
+  SbRotation CamOrientation;
+
   if(anyevent->type()==QEvent::KeyPress) {
 
     children = scene->getChildren();
@@ -758,8 +766,16 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
       // TODO TODO
     case Qt::Key_E:
-      //knot_shape[0]->getKnot()->exportRIBFile("knot.rib");
-      cout << "[Not Implemented] Current curve is exported to a Renderman RIB file knot.rib.\n";
+      // FIXME get camera and lighting info and pass to RIB export
+      cout << "Export RIB File (knot.rib)" << flush;
+      CamPos = myViewer->getCamera()->position.getValue();
+      CamOrientation = myViewer->getCamera()->orientation.getValue();
+      CamOrientation.getValue(CamAxis,CamAngle);
+      knot_shape[0]->getKnot()->exportRIBFile("knot.rib",320,240,
+                                              (Vector3)&CamPos[0],
+                                              (Vector3)&CamAxis[0],CamAngle,
+             (Vector3)&(myViewer->getHeadlight()->direction.getValue())[0]);
+      cout << " [OK]\n";
       break;
 
     /* Start "resample curve between two points" procedure

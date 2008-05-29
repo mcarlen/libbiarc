@@ -8,7 +8,6 @@ COIN=`coin-config --prefix`
 SOQT=`soqt-config --prefix`
 INCLUDE  = -I../include -I$(COIN)/include -I$(SOQT)/include -D_REENTRANT -I${QT_INC} -I/usr/X11R6/include
 INC_LIB = -L../lib -L$(COIN)/lib -L$(SOQT)/lib -L/usr/lib -L/usr/local/lib -L${QT_LIB} -L/usr/X11R6/lib
-
 ######### LIBRARIES  #########################
 
 LIBS = `soqt-config --libs` -lbiarc_float
@@ -16,6 +15,14 @@ LIBS = `soqt-config --libs` -lbiarc_float
 ######### FLAGS      #########################
 
 FLAGS = $(INCLUDE) `soqt-config --cxxflags` $(CXXFLAGS) -DDEBUG -DPRECISION_HACK -Wall # -D_USE_QT_  -D__debug__
+
+ifeq ($(RENDERMAN),YES)
+INCLUDE+= -I${PIXIEHOME}/include
+INC_LIB+= -L${PIXIEHOME}/lib
+LIBS+= -lri
+endif
+
+
 
 ######### SOURCE FILES #######################
 
@@ -29,7 +36,7 @@ OBJ = $(SRC:.cpp=.o)
 
 .cpp.o:
 	@echo Compile $<
-	@$(CXX) ${FLAGS} -c $<
+	$(CXX) ${FLAGS} -c $<
 
 ################ COMPILATION #####################
 

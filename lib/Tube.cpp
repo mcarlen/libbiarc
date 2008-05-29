@@ -859,6 +859,45 @@ void Tube<Vector>::renderman_draw() {
 	      RI_NULL);
 };
 
+template <class Vector>
+void Tube<Vector>::exportRIBFile(char* filename, int W, int H,
+                                 const Vector &p, const Vector &a, float angle,
+                                 const Vector &light_dir) {
+  if (!MeshPoints) renderman_init();
+  RiBegin(filename);
+  RiOrientation(RI_RH);
+  RiShadingRate(1.0);
+  RiPixelSamples(4,4);
+  RiFormat(W,H,1.0);
+  RiCropWindow(0.0,1.0,0.0,1.0);
+  RtFloat fov = 50;
+
+  RtString strtmp = ".:%PIXIEHOME%/displays";
+  RiOption( "searchpath","string display",&strtmp,RI_NULL);
+
+  RiProjection("perspective","fov",&fov,RI_NULL);
+  RiDisplay("output.tif",RI_FILE,RI_RGB,RI_NULL);
+  RtPoint from = {0,0,0}, to = {-light_dir[0],-light_dir[1],-light_dir[2]};
+  RtFloat intensity = 1;
+  RtColor light_color = { 1,1,1 };
+  // Setup Lights
+  RiLightSource("distantlight","from",&from,"to",&to);//,
+//                "intensity",&intensity,"lightcolor",&light_color);
+
+  // Setup Camera
+  RiRotate(-angle/M_PI*180.,-a[0],-a[1],a[2]);
+  RiTranslate(-p[0],-p[1],p[2]);
+  
+  RiWorldBegin();
+  // FIXME : colors ? other shaders ?
+  // Inventor and RenderMan do not have the sym coord system
+  RiScale(1,1,-1);
+  RiSurface("plastic",RI_NULL);
+  renderman_draw();
+  RiWorldEnd();
+  RiEnd();
+}
+
 #endif // RENDERMAN
 
 #endif // __TUBE_SRC__
