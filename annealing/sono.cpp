@@ -97,8 +97,10 @@ void ControlLeashes(Curve<Vector3> &c,float l) {
     if (dd>lmax) lmax = dd;
     else if (dd<lmin) lmin = dd;
     sep = (l-dd)*.5;
-    c[jj].setPoint(c[jj].getPoint()+sep*d);
-    c[ii].setPoint(c[ii].getPoint()-sep*d);
+    if (fabsf(l-dd)>l*.5) {
+      c[jj].setPoint(c[jj].getPoint()+sep*d);
+      c[ii].setPoint(c[ii].getPoint()-sep*d);
+    }
   }
 //  cout << "Leashes min/max : " << lmin << "/" << lmax << endl;
 }
@@ -166,14 +168,13 @@ int main(int argc,char** argv) {
   while (zz<MaxIter) {
     // if (zz%50==0 && zz!=0)
     overlap = RemoveOverlaps(c,D, (int)(M_PI*D*.5*(float)N/(float)L),OverlapDelta);
-//    ControlLeashes(c,l);
-    L = GetLength(c);
-    l = L/(float)N;
+    ControlLeashes(c,l);
     if (ShrinkFailed > 50)
       ShiftNodes(c,ShiftScaleFactor);
     if (overlap <= OverlapTol) { 
       SavePkf(c,zz++);
       Shrink(c,ShrinkFactor);
+      l*=ShrinkFactor;
       if (overlap>MaxOverlap) MaxOverlap = overlap;
       AvgOverlap += overlap;
       ShrinkCount++;
@@ -181,6 +182,7 @@ int main(int argc,char** argv) {
     else
       ShrinkFailed++;
 
+    L = GetLength(c);
     RopeOld = Rope;
     Rope = L/D;
     if (Rope < BestRope) BestRope = Rope;
