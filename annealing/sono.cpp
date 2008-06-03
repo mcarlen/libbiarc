@@ -97,7 +97,7 @@ void ControlLeashes(Curve<Vector3> &c,float l) {
     if (dd>lmax) lmax = dd;
     else if (dd<lmin) lmin = dd;
     sep = (l-dd)*.5;
-    if (fabsf(l-dd)>l*.5) {
+    if (fabsf(l-dd)>l*.2) {
       c[jj].setPoint(c[jj].getPoint()+sep*d);
       c[ii].setPoint(c[ii].getPoint()-sep*d);
     }
@@ -169,11 +169,14 @@ int main(int argc,char** argv) {
     // if (zz%50==0 && zz!=0)
     overlap = RemoveOverlaps(c,D, (int)(M_PI*D*.5*(float)N/(float)L),OverlapDelta);
     ControlLeashes(c,l);
-    if (ShrinkFailed > 50)
+    if (ShrinkFailed > 50) {
       ShiftNodes(c,ShiftScaleFactor);
+      ControlLeashes(c,l);
+    }
     if (overlap <= OverlapTol) { 
       SavePkf(c,zz++);
       Shrink(c,ShrinkFactor);
+      ControlLeashes(c,l);
       l*=ShrinkFactor;
       if (overlap>MaxOverlap) MaxOverlap = overlap;
       AvgOverlap += overlap;

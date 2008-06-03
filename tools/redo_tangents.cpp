@@ -1,9 +1,7 @@
 /*!
-  \file resample.cpp
+  \file redo_tangents.cpp
   \ingroup ToolsGroup
-  \brief Resample an open or closed PKF curve.
-
-  Long explanation ... Bla bla bla
+  \brief Recompute tangents using only the data points.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

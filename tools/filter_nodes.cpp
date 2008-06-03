@@ -31,8 +31,23 @@ int main(int argc, char **argv) {
     biarc3_it previous = cb[i].begin();
     biarc3_it current = previous+1;
 
-    while (current!=cb[i].end()) {
-      if((current->getPoint() - previous->getPoint()).norm() < tolerance) {
+    while ((current+1)!=cb[i].end()) {
+      if (!current->isProper()) {
+       	cout << "remove (not proper)"<<endl <<flush;
+        previous = current;
+        current++;
+        cb[i].remove(previous);
+	CountNodes++;
+      }
+      // Remove points that are in the backside!
+      else if((current->getPoint()-previous->getPoint()).dot(current->getTangent())<0) {
+	cout << "remove (wrong order) "<<endl <<flush;
+        previous = current;
+        current++;
+        cb[i].remove(previous);
+	CountNodes++;
+      }
+      else if((current->getPoint() - previous->getPoint()).norm() < tolerance) {
 	cout << "remove "<<endl <<flush;
         previous = current;
         current++;
@@ -44,11 +59,13 @@ int main(int argc, char **argv) {
         current++;
       }
     }
+    // XXX assume closed curve !!!
+    cb[i].link();
+    cb[i].computeTangents();
   }
   cout << "\t[OK]\n";  
 
   cout << CountNodes << " nodes removed.\n";
-
   cout << "Write filtered curve to "<<argv[3];
   cb.writePKF(argv[3]);
   cout << "\t[OK]\n";  
