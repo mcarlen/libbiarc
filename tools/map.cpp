@@ -31,10 +31,11 @@ int main(int argc, char **argv) {
   cout << "\t\t\t\t[OK]\n";
 
   float epsilon = atof(argv[1]);
+  cout << "Param is " << epsilon << endl;
   assert(epsilon<=1.0 && epsilon>=0.0);
 
-  if (epsilon == 1.0) cb_end.writePKF(argv[4]);
-  else if (epsilon == 0.0) cb_start.writePKF(argv[4]);
+  if (epsilon == 1.0) {cb_end.writePKF(argv[4]);return 0;}
+  else if (epsilon == 0.0) {cb_start.writePKF(argv[4]); return 0;}
 
   assert(cb_start.curves()==cb_end.curves());
 

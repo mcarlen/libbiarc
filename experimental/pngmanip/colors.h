@@ -4,10 +4,10 @@
 #include <math.h>
 
 typedef struct RGB {
-  char r,g,b;
+  unsigned char r,g,b;
 } RGB;
 
-inline void set_rgb(RGB* c, char r, char g, char b) {
+inline void set_rgb(RGB* c, unsigned char r, unsigned char g, unsigned char b) {
   c->r = r; c->g = g; c->b = b;
 }
 

@@ -59,6 +59,10 @@ Candi<Vector>::Candi(const Vector &a0,const Vector &a1,const Vector &a2,
   d = min_seg_dist(a0,a2,b0,b2,dum1,dum2);
 }
 
+/*!
+   Given the Bezier arc b0,b1,b2 and radius r, this returns
+   the binormal b and the center c of the circle through b0,b1,b2
+*/
 template<class Vector>
 void get_it(Vector b0,Vector b1,Vector b2,float r,Vector &b, Vector &c) {
   b = (b0-b1).cross(b2-b1); b.normalize();
@@ -348,7 +352,10 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
   // Bisection loop while relative error larger than our given
   // tolerance and while D_lb smaller than the minimal 2*radius
   // if (min_diam <= D_lb) cout << "Curvature active!\n";
-  if (min_diam <= D_lb) { cout << "Smallest radius\n"; LocalActive = 1; }
+  if (min_diam <= D_lb) {
+    // cout << "Smallest radius\n";
+    LocalActive = 1;
+  }
   while(rel_err > rel_err_tol && min_diam > D_lb) {
     ++ITERATION;
 
@@ -356,7 +363,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
     dbl_crit_filter(DistC,CritC);   
 
     if (CritC.size()==0) {
-      cout << "CritIter : CritC is empty (curvature active?)\n";
+      // cout << "CritIter : CritC is empty (curvature active?)\n";
       // LocalActive = 1;
       // D_lb = D_ub = min_diam;
       break;
@@ -370,7 +377,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
 
     // Thickness Bounds
     if (DistC.size()==0) {
-      cout << "BoundsIter : DistC is empty (curvature active?)\n";
+      // cout << "BoundsIter : DistC is empty (curvature active?)\n";
       // LocalActive = 1;
       // D_lb = D_ub = min_diam;
       break;
@@ -400,7 +407,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
     }
   }
   else {
-    cout << "Local curvature active!\n";
+//    cout << "Local curvature active!\n";
   }
 
   CritC.clear(); DistC.clear();

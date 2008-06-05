@@ -74,59 +74,79 @@ int main(int argc, char **argv) {
       token.assign(strtok(NULL,":"));
       double s = atof(token.c_str());
       if (s<0.0 or s>1.0) {
-         cout << "! s-value out of bound. " << __FILE__ << ":" << __LINE__ << endl;
-         continue;
-         }
-      printpointat(s);
+        cout << "! s-value out of bound. " << __FILE__ << ":" << __LINE__ << endl;
+        continue;
       }
+      printpointat(s);
+    }
 
     if (token.compare("closed")==0) {
       cb->link();
       cb->make_default();
       cout << ".Curve closed." << endl;;
       continue;
-      }
+    }
 
     if (token.compare("normalize")==0) {
       cb->normalize();
       cb->make_default();
       cout << ".Curve normalized." << endl;
       continue;
-      }
+    }
 
     if (token.compare("thickness")==0) {
       cout << "." << (*cb)[0].thickness() << endl;
       continue;
-      }
+    }
 
     if (token.compare("scale")==0) {
       token.assign(strtok(NULL,":"));
       double s = atof(token.c_str());
       if (s < 0.0) {
-         cout << "! s-value out of bound. " << __FILE__ << ":" << __LINE__ << endl;
-         continue;
-         }
+        cout << "! s-value out of bound. " << __FILE__ << ":" << __LINE__ << endl;
+        continue;
+      }
       cb->scale(s);
       cb->make_default();
       cout << ".Curve rescaled." << endl;
       continue;
-      }
+    }
 
     if (token.compare("length")==0) {
       cout << "." << (*cb)[0].length() << endl;;
       continue;
-      }
+    }
 
     if (token.compare("setprecision")==0) {
       token.assign(strtok(NULL,":"));
       cout.precision(atoi(token.c_str())) ;
       cout << "." << "New precision " << cout.precision() << endl;;
       continue;
-      }
+    }
+
+    if (token.compare("rotate")==0) {
+      token.assign(strtok(NULL,":"));
+      float angle = atof(token.c_str());
+      Vector3 axis;
+      token.assign(strtok(NULL,":"));
+      axis[0] = atof(token.c_str());
+      token.assign(strtok(NULL,":"));
+      axis[1] = atof(token.c_str());
+      token.assign(strtok(NULL,":"));
+      axis[2] = atof(token.c_str());
+      (*cb)[0].rotAroundAxis(angle,axis);
+      cout << "." << "Rotate " << angle << " rad around [ " << axis << " ].\n";
+    }
+
+    if (token.compare("save")==0) {
+      cb->writePKF("curve.pkf");
+      cout << ".Saved curve.pkf." << endl;;
+      continue;
+    }
 
     if (token.compare("exit")==0) {
       return 0;
-      }
+    }
   }
   return 0;
 

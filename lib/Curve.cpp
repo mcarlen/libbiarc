@@ -1464,8 +1464,8 @@ Curve<Vector> Curve<Vector>::operator-(const Curve<Vector> &c) const {
   c_new.header(getName(),getEtic(),getCite(),getHistory());
 
   for (;c1!=_Biarcs.end();c1++,c2++)
-     c_new.append(c1->getPoint()+c2->getPoint(),
-                  c1->getTangent()+c2->getTangent()); 
+     c_new.append(c1->getPoint()-c2->getPoint(),
+                  c1->getTangent()-c2->getTangent()); 
 
   return c_new;
 }
