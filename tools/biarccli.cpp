@@ -9,6 +9,7 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "../include/CurveBundle.h"
+#include "../include/Tube.h"
 #include "../include/algo_helpers.h"
 
 #define write_vec(vec) (cout << vec[0] << ',' << vec[1] << ',' << (vec[2]))
@@ -137,6 +138,22 @@ int main(int argc, char **argv) {
       (*cb)[0].rotAroundAxis(angle,axis);
       cout << "." << "Rotate " << angle << " rad around [ " << axis << " ].\n";
     }
+
+    // Request mesh points, given N,S,R
+    if (token.compare("mesh")==0) {
+      token.assign(strtok(NULL,":"));
+      int N = atoi(token.c_str());
+      token.assign(strtok(NULL,":"));
+      int S = atoi(token.c_str());
+      token.assign(strtok(NULL,":"));
+      float R = atof(token.c_str());
+      Tube<Vector3> curve(argv[1]);
+      if ((*cb)[0].isClosed()) curve.link();
+      curve.make_default();
+      curve.makeMesh(N,S,R,1e-3);
+      cout << ".\n" << curve ;
+    }
+
 
     if (token.compare("save")==0) {
       cb->writePKF("curve.pkf");
