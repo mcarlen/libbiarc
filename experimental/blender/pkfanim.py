@@ -4,8 +4,8 @@ from os import popen2, listdir
 # Parameters
 T_N = Draw.Create(100)
 T_S = Draw.Create(12)
-T_R = Draw.Create(0.01)
-T_File = Draw.Create("")
+T_R = Draw.Create(0.2)
+T_File = Draw.Create("/tmp/pkf")
 
 # Global Variables
 gMesh = 0
@@ -68,10 +68,10 @@ def bevent(evt):
     for key in ipo.curveConsts:
       ipo.addCurve(key)
       icurve = ipo[key]
-      icurve.interpolation = IpoCurve.InterpTypes['LINEAR']
-      icurve.append((count*10,0))
-      icurve.append(((count+1)*10,1))
-      icurve.append(((count+1.5)*10,0))
+      icurve.interpolation = IpoCurve.InterpTypes['CONST']
+      icurve.append((count*1,0))
+      icurve.append(((count+1)*1,1))
+      icurve.append(((count+2)*1,0))
       count+=1
   elif (evt == EVENT_FILE):
 	Window.FileSelector(getfile)
