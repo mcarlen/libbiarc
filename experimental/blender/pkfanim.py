@@ -1,16 +1,15 @@
-""" Given a pkf file, the number of Nodes N, the number
-of segments S and a radius R, generate a mesh for blender.
-To get a smooth surface, enable Gouraud shading with Set Smooth
-and add a subsurf modifier."""
-
 from Blender import *
-from os import popen2
+from os import popen2, listdir
 
 # Parameters
 T_N = Draw.Create(100)
 T_S = Draw.Create(12)
 T_R = Draw.Create(0.01)
 T_File = Draw.Create("")
+
+# Global Variables
+gMesh = 0
+gFrameCounter = 0
 
 # Events
 EVENT_NOEVENT = 1
@@ -36,8 +35,7 @@ def draw():
                     T_S.val, 3, 36, "Number of cross section segments");
   T_R = Draw.Slider("Radius: ", EVENT_NOEVENT, 10, 35, 210, 18,
                     T_R.val, 0.001, 1, 1, "Radius of the tube");
-  T_File = Draw.String("File: ", EVENT_NOEVENT, 10, 95, 145, 18, T_File.val, 200)
-  Draw.Button("Browse", EVENT_FILE, 160, 95, 60, 18)
+  T_File = Draw.String("PKF Directory: ", EVENT_NOEVENT, 10, 95, 210, 18, T_File.val, 200)
 
   ######### Draw and Exit Buttons
   Draw.Button("Draw",EVENT_DRAW , 10, 10, 80, 18)
@@ -59,15 +57,29 @@ def bevent(evt):
   if (evt == EVENT_EXIT):
     Draw.Exit()
   elif (evt == EVENT_DRAW):
-    mkpkfmesh(T_File.val,T_N.val,T_S.val,T_R.val)
-    Redraw()
+    for f in listdir(T_File.val):
+      if f[-4:]=='.pkf':
+        print 'Load ',f
+        mkpkfmesh(T_File.val+'/'+f,T_N.val,T_S.val,T_R.val)
+    if gMesh.key.ipo == None:
+      gMesh.key.ipo = Ipo.New('Key','KeyIpo')
+    ipo = gMesh.key.ipo
+    count = 0
+    for key in ipo.curveConsts:
+      ipo.addCurve(key)
+      icurve = ipo[key]
+      icurve.interpolation = IpoCurve.InterpTypes['LINEAR']
+      icurve.append((count*10,0))
+      icurve.append(((count+1)*10,1))
+      icurve.append(((count+1.5)*10,0))
+      count+=1
   elif (evt == EVENT_FILE):
-	print 'File select'
 	Window.FileSelector(getfile)
 
 Draw.Register(draw, event, bevent)
 
 def mkpkfmesh(pkffile,N,S,R):
+  global gFrameCounter, gMesh
 
   # Here we use the biarc client included in the libbiarc tools directory
   # to recover a mesh
@@ -88,7 +100,7 @@ def mkpkfmesh(pkffile,N,S,R):
     for j in xrange(S+1):
       x,y,z = map(lambda v: float(v),cli[1].readline().strip().split())
       if j==S: continue
-      coords += [[x,y,z]]
+      coords += [ [x,y,z] ]
 
   cli[0].write('exit\n')
   del cli
@@ -97,37 +109,43 @@ def mkpkfmesh(pkffile,N,S,R):
     return (i)*S+j
 
   faces = []
-  for i in xrange(N-2):
+  if gFrameCounter==0:
+    for i in xrange(N-2):
+      for j in xrange(S):
+        faces += [[idx(i,j),idx(i,(j+1)%S),
+                   idx(i+1,(j+1)%S),idx(i+1,j)]]
+
+    # Glue the Ends
+    def distance(a,b):
+      x,y,z=a[0]-b[0],a[1]-b[1],a[2]-b[2]
+      return (x*x+y*y+z*z)
+
+    # Find permutation index
+    pidx = 0
+    cdist = distance(coords[0],coords[idx(N-1,0)])
+    for i in xrange(1,S):
+      d = distance(coords[i],coords[idx(N-1,0)])
+      if d<cdist:
+        cdist = d
+        pidx = i
+
     for j in xrange(S):
-      faces += [[idx(i,j),idx(i,(j+1)%S),
-                 idx(i+1,(j+1)%S),idx(i+1,j)]]
+      faces += [[ idx(N-2,j),idx(N-2,(j+1)%S),
+                  idx(0,(j+1+pidx)%S),idx(0,(j+pidx)%S) ]]
 
-  # Glue the Ends
-  def distance(a,b):
-    x,y,z=a[0]-b[0],a[1]-b[1],a[2]-b[2]
-    return (x*x+y*y+z*z)
+  if gFrameCounter==0:
+    gMesh = Mesh.New('pkfMesh')
+    gMesh.verts.extend(coords[:S*(N-1)])
+    gMesh.faces.extend(faces)
+    gMesh.insertKey()
 
-  # Find permutation index
-  pidx = 0
-  cdist = distance(coords[0],coords[idx(N-1,0)])
-  for i in xrange(1,S):
-    d = distance(coords[i],coords[idx(N-1,0)])
-    if d<cdist:
-      cdist = d
-      pidx = i
+    scn = Scene.GetCurrent()   # link object to current scene
+    ob = scn.objects.new(gMesh, 'pkfMesh')
+  else:
+    for i in xrange(S*(N-1)):
+      gMesh.verts[i] = Mesh.MVert(*coords[i])
+    gMesh.insertKey()
 
-  for j in xrange(S):
-    faces += [[ idx(N-2,j),idx(N-2,(j+1)%S),
-                idx(0,(j+1+pidx)%S),idx(0,(j+pidx)%S) ]]
+  gFrameCounter+=1
 
-  me = Mesh.New('myMesh')
-
-  # We remove the last row of coords (same as first)
-  # The face indexing is correct (c.f. above permutation index)
-  me.verts.extend(coords[:S*(N-1)])
-  me.faces.extend(faces)
-
-  scn = Scene.GetCurrent()   # link object to current scene
-  ob = scn.objects.new(me, 'PKFMesh')
-
-  return ob
+  Redraw()
