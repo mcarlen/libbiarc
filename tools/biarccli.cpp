@@ -65,6 +65,7 @@ int main(int argc, char **argv) {
   cb = new CurveBundle<Vector3>(argv[1]);
   cb->make_default();
 
+  cout << "OK" << endl << flush;
 
   cout.precision(10);
   while (!cin.eof()) {
