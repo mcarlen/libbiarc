@@ -765,6 +765,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       break;
 
       // TODO TODO
+#ifdef RENDERMAN
     case Qt::Key_E:
       // FIXME get camera and lighting info and pass to RIB export
       cout << "Export RIB File (knot.rib)" << flush;
@@ -777,6 +778,11 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
              (Vector3)&(myViewer->getHeadlight()->direction.getValue())[0]);
       cout << " [OK]\n";
       break;
+#else
+    case Qt::Key_E:
+      cout << "Export RIB File (knot.rib) : No Pixie support compiled in!\n";
+      break;
+#endif
 
     /* Start "resample curve between two points" procedure
        This is only working in BIARC_VIEW
@@ -901,6 +907,7 @@ static void mousefunc(void *data, SoEventCallback *eventCB) {
   	    if ((current->getPoint()-pp).norm()<Tolerance) {
 	      cp = current->getPoint();
   	      picked_biarc = current;
+              cout << "Picked biarc " << picked_biarc->id() << endl;
 	      FOUND = 1;
 	      break;
   	    }

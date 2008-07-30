@@ -126,6 +126,11 @@ int main(int argc, char **argv) {
       continue;
     }
 
+    if (token.compare("center")==0) {
+      cb->center();
+      cout << ".centered\n";
+    }
+
     if (token.compare("rotate")==0) {
       token.assign(strtok(NULL,":"));
       float angle = atof(token.c_str());
@@ -155,10 +160,14 @@ int main(int argc, char **argv) {
       cout << ".\n" << curve ;
     }
 
-
     if (token.compare("save")==0) {
-      cb->writePKF("curve.pkf");
-      cout << ".Saved curve.pkf." << endl;;
+      char* name = strtok(NULL,":");
+      if (name==NULL)
+        token.assign("curve.pkf");
+      else
+        token.assign(name);
+      cb->writePKF(token.c_str());
+      cout << ".Saved " << token << endl;;
       continue;
     }
 

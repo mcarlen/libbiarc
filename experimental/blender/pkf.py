@@ -37,7 +37,7 @@ def pkfread(file):
     if KnotType == 'BIARC_KNOT':
       for i in xrange(int(COMP)):
         token,x,y,z,tx,ty,tz = file.readline().strip().split()
-        coords.append([10.*float(x),10.*float(y),10.*float(z),1.0])
+        coords.append([float(x),float(y),float(z),1.0])
         tangents.append([float(tx),float(ty),float(tz)])
         if i>0:
           edges.append([i,i-1])

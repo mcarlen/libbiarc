@@ -45,7 +45,8 @@ void generateNormals(int N, Vector3 *Normals, Curve<Vector3> &c, int S, float To
   Vector3 vt0, ClosestDirection;
 
   vt0 = c[0].getTangent();
-  Normals[0] = (c[1].getPoint()-c[0].getPoint()).cross(vt0).normalize();
+  Normals[0] = (c[1].getPoint()-c[0].getPoint()).cross(vt0);
+  Normals[0].normalize();
 
   // Propagate initial Frame along the the curve
   // given the tangents. Try to match up start and
@@ -63,6 +64,8 @@ void generateNormals(int N, Vector3 *Normals, Curve<Vector3> &c, int S, float To
 
     ClosestDirection = Normals[N-1];
     dist = (ClosestDirection-Normals[0]).norm();
+    PermutationIndex = 0;
+/* Disable Permutation 
     for (int j=0;j<S;++j) {
       rot_point = Normals[N-1].rotPtAroundAxis(2.0*M_PI/(float)S*(float)j,
                                                vt0);
@@ -75,8 +78,10 @@ void generateNormals(int N, Vector3 *Normals, Curve<Vector3> &c, int S, float To
           ClosestDirection = rot_point;
       }
     }
+*/
 
     if (Normals[0].dot(ClosestDirection) > 1-Tol) {
+      angleDiff = acos(Normals[0].dot(ClosestDirection));
       cerr << "Angle diff " << angleDiff << " rad." << endl;
       Stop = 1;
     }
@@ -112,8 +117,14 @@ float arclength(Curve<Vector3> &c, int n) {
   Convert angle from acos() to interval [0,1]
 */
 float OPI2 = 1/M_PI;
-float myangle(float angle) {
-  return angle*OPI2;
+float myangle(Vector3 &v1, Vector3 &v2, Vector3 &tan) {
+  float angle = v1.dot(v2), direc = 1.;
+  if ((v1.cross(v2)).dot(tan)<0)
+    direc = -1.;
+  // Transform to interval [-pi,pi]->[-1,1]
+  float ret = direc*acos(angle)*OPI2;
+  // Return transformed [-1,1]->[0,1]
+  return (ret+1.)*.5;
 }
 
 int main(int argc, char **argv) {
@@ -148,11 +159,12 @@ int main(int argc, char **argv) {
      at the point p
   */
 #define b3 vector<Biarc<Vector3> >::iterator
-  Vector3 b0,b1,b2,p,v,CDir;
+  Vector3 b0,b1,b2,p,v,CDir,tan;
   float r, slen;
   int ContactN = 0;
   for (int i=0;i<N;++i) {
     p = c[i%c.nodes()].getPoint();
+    tan = c[i%c.nodes()].getTangent();
     slen = arclength(c,i)/L;
     for (b3 it=c.begin();it!=c.end();++it) {
       if (it==(c.begin()+i)) continue;
@@ -160,14 +172,16 @@ int main(int argc, char **argv) {
       r = it->radius0();
       if (rhopt(p,b0,b1,b2,r,v) && th_cond(thick,p,v,tol)) {
         CDir = (v-p); CDir.normalize();
-        cout << slen << " " << myangle(acos(Normals[i].dot(CDir))) << endl;
+        cout << slen << " " << myangle(Normals[i],CDir,tan) << endl;
+        // cout << slen << " " << myangle(acos(Normals[i].dot(CDir))) << endl;
         ++ContactN;
       }
       it->getBezierArc1(b0,b1,b2);
       r = it->radius1();
       if (rhopt(p,b0,b1,b2,r,v) && th_cond(thick,p,v,tol)) {
         CDir = (v-p); CDir.normalize();
-        cout << slen << " " << myangle(acos(Normals[i].dot(CDir))) << endl;
+        cout << slen << " " << myangle(Normals[i],CDir,tan) << endl;
+        // cout << slen << " " << myangle(acos(Normals[i].dot(CDir))) << endl;
         ++ContactN;
       }
     }

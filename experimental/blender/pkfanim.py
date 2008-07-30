@@ -30,7 +30,7 @@ def draw():
   BGL.glRasterPos2d(8, 83)
   Draw.Text("Parameters:")
   T_N = Draw.Number("Points: ", EVENT_NOEVENT, 10, 75, 210, 18,
-                    T_N.val, 3, 200, "Number of points along the curve");
+                    T_N.val, 3, 2000, "Number of points along the curve");
   T_S = Draw.Number("Segments: ", EVENT_NOEVENT, 10, 55, 210, 18,
                     T_S.val, 3, 36, "Number of cross section segments");
   T_R = Draw.Slider("Radius: ", EVENT_NOEVENT, 10, 35, 210, 18,
@@ -57,7 +57,7 @@ def bevent(evt):
   if (evt == EVENT_EXIT):
     Draw.Exit()
   elif (evt == EVENT_DRAW):
-    for f in listdir(T_File.val):
+    for f in sorted(listdir(T_File.val)):
       if f[-4:]=='.pkf':
         print 'Load ',f
         mkpkfmesh(T_File.val+'/'+f,T_N.val,T_S.val,T_R.val)
@@ -69,9 +69,9 @@ def bevent(evt):
       ipo.addCurve(key)
       icurve = ipo[key]
       icurve.interpolation = IpoCurve.InterpTypes['CONST']
-      icurve.append((count*1,0))
-      icurve.append(((count+1)*1,1))
-      icurve.append(((count+2)*1,0))
+      icurve.append((count,0))
+      icurve.append(((count+1),1))
+      icurve.append(((count+2),0))
       count+=1
   elif (evt == EVENT_FILE):
 	Window.FileSelector(getfile)
@@ -103,6 +103,9 @@ def mkpkfmesh(pkffile,N,S,R):
       coords += [ [x,y,z] ]
 
   cli[0].write('exit\n')
+  cli[0].flush()
+#  cli[0].close()
+#  cli[1].close()
   del cli
 
   def idx(i,j):

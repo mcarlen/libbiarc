@@ -702,6 +702,8 @@ this->unlink();
     else {
       ClosestDirection = Normals[Nloc-1];
       dist = (ClosestDirection-Normals[0]).norm();
+/* XXX Disable Permutation stuff (which minimizes internal twist)
+       but this is specially for visualization and texturing painfull!
       for (int j=0;j<S;j++) {
 	// trigonometric orientation of the point on the circle !!!
 	rot_point = Normals[Nloc-1].rotPtAroundAxis(2.0*M_PI/(float)S*(float)j,
@@ -715,6 +717,9 @@ this->unlink();
 	    ClosestDirection = rot_point;
 	}
       }
+*/
+// Set the PermutationIndex to 0
+PermutationIndex = 0;
 
 #ifdef __debug__
       cout << "Angle diff for iteration " << iterations << " : " << angleDiff

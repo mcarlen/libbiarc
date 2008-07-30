@@ -5,6 +5,7 @@ and add a subsurf modifier."""
 
 from Blender import *
 from os import popen2
+from Blender.Mathutils import Vector
 
 # Parameters
 T_N = Draw.Create(100)
@@ -71,6 +72,11 @@ def mkpkfmesh(pkffile,N,S,R):
 
   # Here we use the biarc client included in the libbiarc tools directory
   # to recover a mesh
+  cli2 = popen2("env")
+  for i in cli2[1].readlines():
+    print i
+  cli2[1].flush()
+  del cli2
   cli = popen2("biarccli %s" % pkffile)
   if cli[1].readline().strip()!='OK':
     return
@@ -84,7 +90,7 @@ def mkpkfmesh(pkffile,N,S,R):
   cli[1].readline()
 
   coords = []
-  for i in xrange(N):
+  for i in xrange(N+1):
     for j in xrange(S+1):
       x,y,z = map(lambda v: float(v),cli[1].readline().strip().split())
       if j==S: continue
@@ -97,35 +103,54 @@ def mkpkfmesh(pkffile,N,S,R):
     return (i)*S+j
 
   faces = []
-  for i in xrange(N-2):
+  for i in xrange(N):
     for j in xrange(S):
       faces += [[idx(i,j),idx(i,(j+1)%S),
-                 idx(i+1,(j+1)%S),idx(i+1,j)]]
+                 idx((i+1)%(N),(j+1)%S),idx((i+1)%(N),j)]]
 
   # Glue the Ends
   def distance(a,b):
     x,y,z=a[0]-b[0],a[1]-b[1],a[2]-b[2]
     return (x*x+y*y+z*z)
 
+  # XXX Permutation index disabled in mesh generation (libbiarc)
   # Find permutation index
-  pidx = 0
-  cdist = distance(coords[0],coords[idx(N-1,0)])
-  for i in xrange(1,S):
-    d = distance(coords[i],coords[idx(N-1,0)])
-    if d<cdist:
-      cdist = d
-      pidx = i
+ #  pidx = 0
+ # cdist = distance(coords[0],coords[idx(N-1,0)])
+ # for i in xrange(1,S):
+ #   d = distance(coords[i],coords[idx(N-1,0)])
+ #   if d<cdist:
+ #     cdist = d
+ #     pidx = i
 
-  for j in xrange(S):
-    faces += [[ idx(N-2,j),idx(N-2,(j+1)%S),
-                idx(0,(j+1+pidx)%S),idx(0,(j+pidx)%S) ]]
+#  for j in xrange(S):
+#    faces += [[ idx(N-2,j),idx(N-2,(j+1)%S),
+#                idx(0,(j+1+pidx)%S),idx(0,(j+pidx)%S) ]]
+
+  
 
   me = Mesh.New('myMesh')
 
   # We remove the last row of coords (same as first)
   # The face indexing is correct (c.f. above permutation index)
-  me.verts.extend(coords[:S*(N-1)])
+  me.verts.extend(coords[:S*N])
   me.faces.extend(faces)
+
+  print me.getUVLayerNames()
+
+  # Init texture coordinates
+  for i in xrange(N):
+    for j in xrange(S):
+      t0,s0 = float(j)/float(S), float(i)/float(N)
+      t1,s1 = float(j+1)/float(S), float(i+1)/float(N)
+      n = i*S+j
+      me.faces[n].uv = [ Vector(s0,t0), Vector(s0,t1),
+                         Vector(s1,t1), Vector(s1,t0) ]
+
+
+  print 'Tex coords'
+  for i in me.faces:
+    print i.uv
 
   scn = Scene.GetCurrent()   # link object to current scene
   ob = scn.objects.new(me, 'PKFMesh')
