@@ -16,6 +16,7 @@
 #include <Inventor/details/SoPointDetail.h>
 #include <Inventor/details/SoLineDetail.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
+#include <Inventor/actions/SoWriteAction.h>
 
 #ifdef RENDERMAN
 #include "ri.h"
@@ -600,6 +601,15 @@ int parse(int argc, char** argv) {
   return 1;
 }
 
+void exportIV() {
+  SoWriteAction myAction;
+   
+  myAction.getOutput()->openFile("curve.iv");
+  myAction.getOutput()->setBinary(FALSE);
+  myAction.apply(myViewer->getSceneManager()->getSceneGraph());
+  myAction.getOutput()->closeFile();
+}
+
 SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
   //  SoQtRenderArea *myRenderArea = (SoQtRenderArea *) userData;
@@ -799,6 +809,12 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       cout << "[Not Implemented] Current curve is exported to a Povray file knot.pov.\n";
       break;
       
+
+    case Qt::Key_I:
+      cout << "Export curve.iv file\n";
+      exportIV();
+      break;
+
     case Qt::Key_P:
       if (!pl_win) {
         pl_win = new Aux2DPlotWindow(NULL,"2dwindow",Qt::WNoAutoErase);
