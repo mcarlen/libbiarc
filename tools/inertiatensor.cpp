@@ -17,7 +17,7 @@
 
    At the end of the routine the matrix a is q!
 */
-const float eps = 1e-4;
+const float eps = 1e-6;
 void qr_decomp(Matrix3 &a, Matrix3 &r) {
   for (int j=0;j<3;++j) {
     r[j][j] = a[j].norm();
