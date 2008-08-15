@@ -91,9 +91,9 @@ int main(int argc, char **argv) {
 
   cout << "Finished after " << iter << " iterations." << endl << endl;
   cout << "Eigenvalues\n===========\n"
-       << m[0][0] << ", "
-       << m[1][1] << ", "
-       << m[2][2] << endl << endl;
+       << r[0][0] << ", "
+       << r[1][1] << ", "
+       << r[2][2] << endl << endl;
 
   cout << "Eigenvectors\n============\n" << ev << endl;
 
