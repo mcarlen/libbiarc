@@ -20,7 +20,7 @@ class Matrix3 {
   const Vector3 &operator[](int n) const;
     
   void setOne(const int c, const Vector3 &v);
-  void setOne(const int c, const float a, const float b, const float c);
+  void setOne(const int c, const float v1, const float v2, const float v3);
   void setAll(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3);
   void setAll(const Vector3 *v);
   Vector3 getOne(const int c);

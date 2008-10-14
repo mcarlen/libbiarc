@@ -113,7 +113,7 @@ class Curve : public PKFmanip {
   float radius_global(Biarc<Vector>& at);
 
   float thickness_fast();
-  float thickness(Vector3 *from, Vector3 *to);
+  float thickness(Vector *from, Vector *to);
   float minSegDistance();
   float maxSegDistance();
 

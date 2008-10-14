@@ -1,6 +1,8 @@
 #ifndef __PKF_MANIP_H__
 #define __PKF_MANIP_H__
 
+#include <stdlib.h>
+#include <string.h>
 #include <iostream>
 #include <assert.h>
 

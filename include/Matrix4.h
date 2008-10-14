@@ -20,8 +20,8 @@ class Matrix4 {
   const Vector4 &operator[](int n) const;
     
   void setOne(const int c, const Vector4 &v);
-  void setOne(const int c, const float a, const float b,
-	      const float c, const float d);
+  void setOne(const int c, const float v1, const float v2,
+	      const float v3, const float v4);
   void setAll(const Vector4 &v1, const Vector4 &v2,
 	      const Vector4 &v3, const Vector4 &v4);
   void setAll(const Vector4 *v);

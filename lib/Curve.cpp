@@ -828,7 +828,7 @@ float Curve<Vector>::radius_global(Biarc<Vector> &at) {
   \sa radius_pt(), thickness_fast()
 */
 template<class Vector>
-float Curve<Vector>::thickness(Vector3 *from = NULL, Vector3 *to = NULL) {
+float Curve<Vector>::thickness(Vector *from = NULL, Vector *to = NULL) {
   return compute_thickness(this,from,to);
 }
 

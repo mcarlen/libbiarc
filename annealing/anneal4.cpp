@@ -23,6 +23,50 @@ Copyright (C) 1997 Ben Laurie
 
 #include <signal.h>
 
+
+
+/* HG Python dilate function
+def dilate_on_sn_v(p_v , center_v , expalpha):
+        """Dilate a single point p_v on S^n by alpha around center_v."""
+        if (p_v-center_v).norm2 < 1e9 : return center_v
+        return (
+                ( ( (expalpha**2-1.0)*(p_v-center_v).norm2() + 4.0*expalpha*(expalpha-1.0)*center_v.dot(p_v))*center_v + 4.0*expalpha*p_v)
+                / ( (expalpha-1.0)*p_v + (expalpha+1.0)*center_v).norm2()
+               ).normalize()
+*/
+
+/*! Dilation with center center_v and a factor expalpha applied
+    to a point p_v.
+
+    expalpha is between 0 and inf. Identity map for expalpha = 1
+ */
+inline Vector4 dilate1Point(const Vector4 &p_v, Vector4 &center_v, double expalpha) {
+  Vector4 p;
+  if ((p_v-center_v).norm2() < 1e-9) return center_v;
+  p = ( ( (expalpha*expalpha-1.0)*(p_v-center_v).norm2() +
+          4.0*expalpha*(expalpha-1.0)*center_v.dot(p_v))*
+         center_v + 4.0*expalpha*p_v
+      )
+      / ( (expalpha-1.0)*p_v + (expalpha+1.0)*center_v).norm2();
+  p.normalize();
+  return p;
+}
+
+/*! Dilation with center center_v and a factor alpha applied
+    to curve knot.
+
+    alpha is between -inf and inf. Identity map for alpha = 0
+ */
+void dilateOnS3(Curve<Vector4> *knot, Vector4 center_v, double alpha) {
+  double expalpha = exp(alpha);
+  vector<Biarc<Vector4> >::iterator it;
+  Biarc<Vector4> b(Vector4(0,0,0,0),Vector4(1,0,0,0));
+  for (it=knot->begin();it!=knot->end();++it)
+    it->setPoint(dilate1Point(it->getPoint(),center_v,expalpha));
+  knot->make_default();
+}
+
+
 typedef int BOOL;
 #define FALSE     0
 #define TRUE      1
@@ -476,6 +520,7 @@ void onkill(int sig)
     exit(1);
     }
 
+#ifndef TEST
 int main(int argc,char **argv)
     {
     if(argc < 8)
@@ -518,3 +563,70 @@ int main(int argc,char **argv)
 	DoAnneal(knot,info);
     return 0;
     }
+#else // TEST
+
+#define rand_vec4() (Vector4(drand48(),drand48(),drand48(),drand48()))
+
+void random_dilate(Curve<Vector4> *knot, double scale) {
+
+  Vector4 center = rand_vec4();
+  while (center.norm2()<1e-9) center = rand_vec4();
+  center.normalize();
+
+  // pos scalefactor is a dilation
+  // neg a contraction
+  dilateOnS3(knot, center, scale*(1.-2.*drand48()));
+  knot->computeTangents();
+
+  vector<Biarc<Vector4> >::iterator it;
+  Vector4 vTan, pnow;
+  for (it=knot->begin();it!=knot->end();++it) {
+    vTan = it->getTangent(); pnow = it->getPoint();
+    vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
+    it->setTangent(vTan);
+  }
+}
+
+#define SNAP_FREQ 100
+
+int main(int argc, char** argv) {
+
+  cout << "Load " << argv[1];
+  Curve<Vector4> knot(argv[1]);
+  knot.link();
+  knot.make_default();
+  cout << " [ok]\n";
+  dilateOnS3(&knot, Vector4(0,0,0,1), -1);
+  // knot.computeTangents();
+
+  int no = 1;
+  char buf[1024];
+  double thick, best_thick;
+  best_thick = thick = knot.thickness();
+
+  cout << "Thickness : " << thick << endl;
+  cout << "Thickness fast : " << knot.thickness_fast() << endl;
+
+
+  Curve<Vector4> best_knot = knot;
+
+  while(1) {
+    no++;
+    thick = knot.thickness_fast();
+    random_dilate(&knot, 0.18);
+    // cout << no << " Thickness : " << thick << endl;
+    if (thick > best_thick) {
+      best_thick = thick;
+      best_knot = knot;
+      cout << "!!!" << no << " Thickness : " << thick << endl;
+    } 
+    else {knot = best_knot;}
+    if (no%SNAP_FREQ) {
+      sprintf(buf,"snap%05d.pkf",no);
+      cout << "Thickness : " << thick << endl;
+      knot.writePKF(buf);
+    }
+  }
+
+}
+#endif // TEST
