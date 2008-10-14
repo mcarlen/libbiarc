@@ -100,7 +100,7 @@ void ShowStepSpread(CurveBundle<TVec> &c, ostream &os) {
   os << dMinP << '-' << dMaxP << '/' << dMinT << '-' << dMaxT;
 }
 
-# define STEP_CHANGE	.005
+# define STEP_CHANGE	.002
 
 // XXX : Improve these checks!!!
 //       after each change we have to recompute the biarc Midpoint!!!!
@@ -146,7 +146,7 @@ float Energy(CurveBundle<TVec> &rKnot) {
   // return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
 
   // On S^3 we maximize thickness
-  return 1./s_dMinSegDistance + 0.0000001*(off_equi) ;// + rKnot.length())/(s_dMinSegDistance*s_dMinSegDistance);
+  return 1./s_dMinSegDistance + 1e-6*(off_equi)/s_dMinSegDistance; // + rKnot.length());
 }
 
 class CAnnealInfo {
@@ -186,6 +186,7 @@ void Decrease(CAnnealInfo &info,Curve<TVec> *pC,int n,BOOL bPoint) {
  *  AllAnneal : move all points and tangents, recompute energy.
  *  random_dilate : pick a center and a scale factor, performs a dilation
  *                  on S^3.
+ *  dance_around : move points along the tangents.
  */
 
 BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
@@ -482,7 +483,51 @@ BOOL random_dilate(CurveBundle<TVec> &rKnot,
   return FALSE;
 }
 
+/*
+ * Moves point along the tangent. (leaves points unmoved with percentage_of_points probability)
+ */
+BOOL dance_around(CurveBundle<TVec> &rKnot,
+                   CAnnealInfo &info,float &dCurEnergy) {
 
+  CurveBundle<TVec> rCopy(rKnot);
+  Curve<TVec> *knot;
+  float percentage_of_points = r(0,1);
+  
+  for (int i=0;i<rKnot.curves();++i) {
+    knot = &(rKnot[i]);
+    float scale = r(0,0.001)*knot->minSegDistance(); //Use rKnot[0].minSegDistance() ? XXX
+    vector<Biarc<Vector4> >::iterator it;
+    Vector4 vTan, pnow;
+    for (it=knot->begin();it!=knot->end();++it) {
+      if ( r(0,1) > 1.0 - percentage_of_points) {
+        vTan = it->getTangent(); 
+        pnow = it->getPoint();
+        pnow += scale*r(-1,1)*vTan;
+        pnow.normalize();
+        vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
+        it->setPoint(pnow);
+        it->setTangent(vTan);
+      }
+    }
+  }
+
+  rKnot.make_default();
+
+  float dNewEnergy=Energy(rKnot);
+  if(dNewEnergy <= dCurEnergy) {
+    dCurEnergy=dNewEnergy;
+    return TRUE;
+  }
+  float p=exp(-(dNewEnergy-dCurEnergy)/info.m_fTemperature);
+  if(r(0,1) <= p) {
+    dCurEnergy=dNewEnergy;
+    return TRUE;
+  }
+
+  rKnot = rCopy;
+
+  return FALSE;
+}
 
 
 char *g_szPlotRoot;
@@ -519,8 +564,7 @@ rKnot.make_default(); // MC
     // Creates the Step Size arrays in each component
     // MC rKnot.InitSteps();
 
-    float random_dilate_prob= 4.0, anneal_all_prob=500.0, anneal_prob=550.0; // 1000.0 based
-    float total_prob = random_dilate_prob + anneal_all_prob + anneal_prob;
+    float random_dilate_prob= 4.0, anneal_all_prob=500.0, anneal_prob=550.0, dance_prob=4.0; // 1000.0 based
     for( ; ; ++nGeneration)
 	{
 
@@ -551,7 +595,8 @@ rKnot.make_default(); // MC
 // MC		 << '/' << rKnot.MinSegDistance()
 		 << " S=" << (float)nSuccess/info.m_nWriteFrequency
 		 << endl;
-                 cout << "probs:" << anneal_all_prob << ", " << anneal_prob << ", " << random_dilate_prob << endl;
+                 cout << "probs:" << anneal_all_prob << ", " << anneal_prob << ", " << random_dilate_prob << ", "
+                      << dance_prob << endl;
 	      ;
 	    nSuccess=0;
 	    if(info.m_dStepSize < info.m_fStopStep)
@@ -564,9 +609,9 @@ rKnot.make_default(); // MC
 	if(info.m_bAnneal)
 	    {
 //rKnot.make_default();
+            float total_prob = random_dilate_prob + anneal_all_prob + anneal_prob + dance_prob;
 	    double move_proba = drand48();
             BOOL bStepped;
-            total_prob = random_dilate_prob + anneal_all_prob + anneal_prob;
             //cout << "probs:" << anneal_all_prob << ", " << anneal_prob << ", " << random_dilate_prob << endl;
             if (move_proba < anneal_all_prob / total_prob) {
  	      bStepped=AnnealAll(rKnot,info,dEnergy);
@@ -575,6 +620,9 @@ rKnot.make_default(); // MC
             } else if (move_proba < (anneal_all_prob + anneal_prob)/total_prob) {
  	      bStepped=Anneal(rKnot,info,dEnergy);
               adjust_prob(anneal_prob, bStepped, 200.0);
+            } else if (move_proba < (anneal_all_prob + anneal_prob + dance_prob)/total_prob) {
+ 	      bStepped=dance_around(rKnot,info,dEnergy);
+              adjust_prob(dance_prob, bStepped);
             } else {
               bStepped=random_dilate(rKnot,info,dEnergy);
               adjust_prob(random_dilate_prob, bStepped);
@@ -634,6 +682,25 @@ int main(int argc,char **argv)
     knot.readPKF(szSourceFile);
     knot.link();
     knot.make_default();
+
+    // make sure knot is on S^3
+    Curve<TVec> *Cknot;
+    for (int i=0;i<knot.curves();++i) {
+      Cknot = &(knot[i]);
+      vector<Biarc<Vector4> >::iterator it;
+      Vector4 vTan, pnow;
+      for (it=Cknot->begin();it!=Cknot->end();++it) {
+        vTan = it->getTangent(); 
+        pnow = it->getPoint();
+        pnow.normalize();
+        vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
+        it->setPoint(pnow);
+        it->setTangent(vTan);
+      }
+    }
+    knot.make_default();
+
+
 
     StepArray = new CStep[knot.nodes()];
 
