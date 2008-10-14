@@ -34,6 +34,8 @@ int main(int argc, char **argv) {
 
     float L = cb[i].length();
     float D = cb[i].thickness();
+    float  off_equi = (cb[i].maxSegDistance() / cb[i].minSegDistance());
+
     cout << "Curve " << i+1 << endl;
     cout << "------------------\n";
     cout << "Number of data pts : " << cb[i].nodes() << endl;
@@ -42,6 +44,7 @@ int main(int argc, char **argv) {
     cout << "Thickness (D=2r)   : " << D << endl;
     cout << "Roplength (L/D)    : " << L/D << endl;
     cout << "L/r                : " << L/D*2 << endl;
+    cout << "maxArc/minArc      : " << off_equi << endl;
     cout << "==================\n";
 
   }

@@ -25,48 +25,6 @@ Copyright (C) 1997 Ben Laurie
 
 
 
-/* HG Python dilate function
-def dilate_on_sn_v(p_v , center_v , expalpha):
-        """Dilate a single point p_v on S^n by alpha around center_v."""
-        if (p_v-center_v).norm2 < 1e9 : return center_v
-        return (
-                ( ( (expalpha**2-1.0)*(p_v-center_v).norm2() + 4.0*expalpha*(expalpha-1.0)*center_v.dot(p_v))*center_v + 4.0*expalpha*p_v)
-                / ( (expalpha-1.0)*p_v + (expalpha+1.0)*center_v).norm2()
-               ).normalize()
-*/
-
-/*! Dilation with center center_v and a factor expalpha applied
-    to a point p_v.
-
-    expalpha is between 0 and inf. Identity map for expalpha = 1
- */
-inline Vector4 dilate1Point(const Vector4 &p_v, Vector4 &center_v, double expalpha) {
-  Vector4 p;
-  if ((p_v-center_v).norm2() < 1e-9) return center_v;
-  p = ( ( (expalpha*expalpha-1.0)*(p_v-center_v).norm2() +
-          4.0*expalpha*(expalpha-1.0)*center_v.dot(p_v))*
-         center_v + 4.0*expalpha*p_v
-      )
-      / ( (expalpha-1.0)*p_v + (expalpha+1.0)*center_v).norm2();
-  p.normalize();
-  return p;
-}
-
-/*! Dilation with center center_v and a factor alpha applied
-    to curve knot.
-
-    alpha is between -inf and inf. Identity map for alpha = 0
- */
-void dilateOnS3(Curve<Vector4> *knot, Vector4 center_v, double alpha) {
-  double expalpha = exp(alpha);
-  vector<Biarc<Vector4> >::iterator it;
-  Biarc<Vector4> b(Vector4(0,0,0,0),Vector4(1,0,0,0));
-  for (it=knot->begin();it!=knot->end();++it)
-    it->setPoint(dilate1Point(it->getPoint(),center_v,expalpha));
-  knot->make_default();
-}
-
-
 typedef int BOOL;
 #define FALSE     0
 #define TRUE      1
@@ -142,7 +100,7 @@ void ShowStepSpread(CurveBundle<TVec> &c, ostream &os) {
   os << dMinP << '-' << dMaxP << '/' << dMinT << '-' << dMaxT;
 }
 
-# define STEP_CHANGE	.01
+# define STEP_CHANGE	.005
 
 // XXX : Improve these checks!!!
 //       after each change we have to recompute the biarc Midpoint!!!!
@@ -173,7 +131,7 @@ return (c[n].isProper()&&c[n].getPrevious().isProper());
 
 float Energy(CurveBundle<TVec> &rKnot) {
   // s_dMinSegDistance=rKnot.MinSegDistanceCache();
-//  float off_equi;
+  double off_equi;
   rKnot.make_default();
   s_dMinSegDistance = rKnot.thickness();
   if (s_dMinSegDistance > 100) {
@@ -184,8 +142,11 @@ float Energy(CurveBundle<TVec> &rKnot) {
     cout << "NEG ENERGY! : " << s_dMinSegDistance << endl;
     exit(11);
   } //__qurick
-//  off_equi = (rKnot[0].maxSegDistance() / rKnot[0].minSegDistance());
-  return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
+  off_equi = (rKnot[0].maxSegDistance() / rKnot[0].minSegDistance());
+  // return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
+
+  // On S^3 we maximize thickness
+  return 1./s_dMinSegDistance + 0.0000001*(off_equi) ;// + rKnot.length())/(s_dMinSegDistance*s_dMinSegDistance);
 }
 
 class CAnnealInfo {
@@ -217,6 +178,15 @@ void Decrease(CAnnealInfo &info,Curve<TVec> *pC,int n,BOOL bPoint) {
   else
     info.m_dTStepSize*=1-STEP_CHANGE;
 }
+
+/*
+ *  Various moves for the annealing.
+ *
+ *  Anneal : pick a single point or tangent. move it, recompute energy.
+ *  AllAnneal : move all points and tangents, recompute energy.
+ *  random_dilate : pick a center and a scale factor, performs a dilation
+ *                  on S^3.
+ */
 
 BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
   TVec vNew,vWas;
@@ -332,6 +302,7 @@ BOOL AnnealAll(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
   int n;
   float d;
 
+  int again_counter = 0;
 shuffle_again:
   for (int i=0;i<rKnot.curves();++i) {
     n=0;
@@ -382,6 +353,10 @@ shuffle_again:
       if (!(rKnot[i][n].isProper())) {
         rKnot = rCopy;
 cout << "AGAIN\n";
+        if (again_counter++ > 100) {
+          cout << "GIVING UP\n";
+          exit(1);
+        }
         goto shuffle_again;
       }
     }
@@ -394,8 +369,8 @@ cout << "AGAIN\n";
       b->make(r(.1,.9));
 */
   rKnot.make_default();
-  rKnot.normalize();
-  rKnot.make_default();
+//  rKnot.normalize();
+//  rKnot.make_default();
 
   float dNewEnergy=Energy(rKnot);
   if(dNewEnergy <= dCurEnergy) {
@@ -425,6 +400,91 @@ cout << "AGAIN\n";
 }
 
 
+// Dilation move functions
+
+/*! Dilation with center center_v and a factor expalpha applied
+    to a point p_v.
+
+    expalpha is between 0 and inf. Identity map for expalpha = 1
+ */
+inline Vector4 dilate1Point(const Vector4 &p_v, Vector4 &center_v, double expalpha) {
+  Vector4 p;
+  if ((p_v-center_v).norm2() < 1e-9) return center_v;
+  p = ( ( (expalpha*expalpha-1.0)*(p_v-center_v).norm2() +
+          4.0*expalpha*(expalpha-1.0)*center_v.dot(p_v))*
+         center_v + 4.0*expalpha*p_v
+      )
+      / ( (expalpha-1.0)*p_v + (expalpha+1.0)*center_v).norm2();
+  p.normalize();
+  return p;
+}
+
+/*! Dilation with center center_v and a factor alpha applied
+    to curve knot.
+
+    alpha is between -inf and inf. Identity map for alpha = 0
+ */
+void dilateOnS3(Curve<Vector4> *knot, Vector4 center_v, double alpha) {
+  double expalpha = exp(alpha);
+  vector<Biarc<Vector4> >::iterator it;
+  Biarc<Vector4> b(Vector4(0,0,0,0),Vector4(1,0,0,0));
+  for (it=knot->begin();it!=knot->end();++it)
+    it->setPoint(dilate1Point(it->getPoint(),center_v,expalpha));
+  knot->make_default();
+}
+
+#define rand_vec4() (Vector4(drand48(),drand48(),drand48(),drand48()))
+
+BOOL random_dilate(CurveBundle<TVec> &rKnot,
+                   CAnnealInfo &info,float &dCurEnergy) {
+
+  CurveBundle<TVec> rCopy(rKnot);
+
+  Curve<TVec> *knot;
+  double dilation_factor = info.m_fTemperature*(1.-2.*drand48());
+
+  Vector4 center = rand_vec4();
+  while (center.norm2()<1e-9) center = rand_vec4();
+  center.normalize();
+
+  for (int i=0;i<rKnot.curves();++i) {
+    knot = &(rKnot[i]);
+
+    // pos scalefactor is a dilation
+    // neg a contraction
+    dilateOnS3(knot, center, dilation_factor);
+    knot->computeTangents();
+
+    vector<Biarc<Vector4> >::iterator it;
+    Vector4 vTan, pnow;
+    for (it=knot->begin();it!=knot->end();++it) {
+      vTan = it->getTangent(); pnow = it->getPoint();
+      vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
+      it->setTangent(vTan);
+    }
+  }
+
+  rKnot.make_default();
+
+  float dNewEnergy=Energy(rKnot);
+  if(dNewEnergy <= dCurEnergy) {
+    dCurEnergy=dNewEnergy;
+    return TRUE;
+  }
+  float p=exp(-(dNewEnergy-dCurEnergy)/info.m_fTemperature);
+  if(r(0,1) <= p) {
+    dCurEnergy=dNewEnergy;
+    return TRUE;
+  }
+
+  rKnot = rCopy;
+
+  return FALSE;
+}
+
+
+
+
 char *g_szPlotRoot;
 
 void WriteBest(CurveBundle<TVec> &rKnot) {
@@ -434,6 +494,11 @@ void WriteBest(CurveBundle<TVec> &rKnot) {
   rKnot.writePKF(buf);
   cout << "!" << Energy(rKnot) << "!" << flush;
 }
+
+inline void adjust_prob(float &prob, BOOL increase, float min = 1.0, float max = 1000.0) {
+    if (increase && prob < max) prob +=1.0;
+    else if (prob > min) prob -= 1.0;
+    }
 
 void DoAnneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info)
     {
@@ -454,6 +519,8 @@ rKnot.make_default(); // MC
     // Creates the Step Size arrays in each component
     // MC rKnot.InitSteps();
 
+    float random_dilate_prob= 4.0, anneal_all_prob=500.0, anneal_prob=550.0; // 1000.0 based
+    float total_prob = random_dilate_prob + anneal_all_prob + anneal_prob;
     for( ; ; ++nGeneration)
 	{
 
@@ -484,11 +551,12 @@ rKnot.make_default(); // MC
 // MC		 << '/' << rKnot.MinSegDistance()
 		 << " S=" << (float)nSuccess/info.m_nWriteFrequency
 		 << endl;
+                 cout << "probs:" << anneal_all_prob << ", " << anneal_prob << ", " << random_dilate_prob << endl;
 	      ;
 	    nSuccess=0;
-	    if(info.m_dStepSize/rKnot.length() < info.m_fStopStep)
+	    if(info.m_dStepSize < info.m_fStopStep)
 		{
-		cout << info.m_dStepSize << "/" << rKnot.length() << "=" << info.m_dStepSize/rKnot.length() << " < " << info.m_fStopStep << endl;
+		cout << info.m_dStepSize <<  " < " << info.m_fStopStep << endl;
 		cout << "Finished!\n";
 		exit(0);
 		}
@@ -496,7 +564,21 @@ rKnot.make_default(); // MC
 	if(info.m_bAnneal)
 	    {
 //rKnot.make_default();
-	    BOOL bStepped=AnnealAll(rKnot,info,dEnergy);
+	    double move_proba = drand48();
+            BOOL bStepped;
+            total_prob = random_dilate_prob + anneal_all_prob + anneal_prob;
+            //cout << "probs:" << anneal_all_prob << ", " << anneal_prob << ", " << random_dilate_prob << endl;
+            if (move_proba < anneal_all_prob / total_prob) {
+ 	      bStepped=AnnealAll(rKnot,info,dEnergy);
+              adjust_prob(anneal_all_prob, bStepped, 200.0);
+              //cout << "bStepped: " << bStepped << " " <<  anneal_all_prob << endl;
+            } else if (move_proba < (anneal_all_prob + anneal_prob)/total_prob) {
+ 	      bStepped=Anneal(rKnot,info,dEnergy);
+              adjust_prob(anneal_prob, bStepped, 200.0);
+            } else {
+              bStepped=random_dilate(rKnot,info,dEnergy);
+              adjust_prob(random_dilate_prob, bStepped);
+            }
 	    if(dEnergy < dMinEnergy)
 		{
 		WriteBest(rKnot);
@@ -565,28 +647,6 @@ int main(int argc,char **argv)
     }
 #else // TEST
 
-#define rand_vec4() (Vector4(drand48(),drand48(),drand48(),drand48()))
-
-void random_dilate(Curve<Vector4> *knot, double scale) {
-
-  Vector4 center = rand_vec4();
-  while (center.norm2()<1e-9) center = rand_vec4();
-  center.normalize();
-
-  // pos scalefactor is a dilation
-  // neg a contraction
-  dilateOnS3(knot, center, scale*(1.-2.*drand48()));
-  knot->computeTangents();
-
-  vector<Biarc<Vector4> >::iterator it;
-  Vector4 vTan, pnow;
-  for (it=knot->begin();it!=knot->end();++it) {
-    vTan = it->getTangent(); pnow = it->getPoint();
-    vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
-    it->setTangent(vTan);
-  }
-}
-
 #define SNAP_FREQ 100
 
 int main(int argc, char** argv) {
@@ -596,7 +656,7 @@ int main(int argc, char** argv) {
   knot.link();
   knot.make_default();
   cout << " [ok]\n";
-  dilateOnS3(&knot, Vector4(0,0,0,1), -1);
+ // dilateOnS3(&knot, Vector4(0,0,0,1), -1);
   // knot.computeTangents();
 
   int no = 1;
@@ -613,7 +673,7 @@ int main(int argc, char** argv) {
   while(1) {
     no++;
     thick = knot.thickness_fast();
-    random_dilate(&knot, 0.18);
+    random_dilate(&knot, 0.08);
     // cout << no << " Thickness : " << thick << endl;
     if (thick > best_thick) {
       best_thick = thick;
@@ -623,7 +683,7 @@ int main(int argc, char** argv) {
     else {knot = best_knot;}
     if (no%SNAP_FREQ) {
       sprintf(buf,"snap%05d.pkf",no);
-      cout << "Thickness : " << thick << endl;
+//      cout << "Thickness : " << thick << endl;
       knot.writePKF(buf);
     }
   }
