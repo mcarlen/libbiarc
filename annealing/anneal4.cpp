@@ -100,7 +100,7 @@ void ShowStepSpread(CurveBundle<TVec> &c, ostream &os) {
   os << dMinP << '-' << dMaxP << '/' << dMinT << '-' << dMaxT;
 }
 
-# define STEP_CHANGE	.002
+# define STEP_CHANGE	.008
 
 // XXX : Improve these checks!!!
 //       after each change we have to recompute the biarc Midpoint!!!!
@@ -564,7 +564,7 @@ rKnot.make_default(); // MC
     // Creates the Step Size arrays in each component
     // MC rKnot.InitSteps();
 
-    float random_dilate_prob= 500.0, anneal_all_prob=500.0, anneal_prob=500.0, dance_prob=500.0; // 1000.0 based
+    float random_dilate_prob= 100.0, anneal_all_prob=100.0, anneal_prob=100.0, dance_prob=100.0; // 1000.0 based
     for( ; ; ++nGeneration)
 	{
 
@@ -615,11 +615,11 @@ rKnot.make_default(); // MC
             //cout << "probs:" << anneal_all_prob << ", " << anneal_prob << ", " << random_dilate_prob << endl;
             if (move_proba < anneal_all_prob / total_prob) {
  	      bStepped=AnnealAll(rKnot,info,dEnergy);
-              adjust_prob(anneal_all_prob, bStepped, 200.0);
+              adjust_prob(anneal_all_prob, bStepped);
               //cout << "bStepped: " << bStepped << " " <<  anneal_all_prob << endl;
             } else if (move_proba < (anneal_all_prob + anneal_prob)/total_prob) {
  	      bStepped=Anneal(rKnot,info,dEnergy);
-              adjust_prob(anneal_prob, bStepped, 200.0);
+              adjust_prob(anneal_prob, bStepped);
             } else if (move_proba < (anneal_all_prob + anneal_prob + dance_prob)/total_prob) {
  	      bStepped=dance_around(rKnot,info,dEnergy);
               adjust_prob(dance_prob, bStepped);
