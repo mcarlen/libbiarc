@@ -454,7 +454,7 @@ BOOL random_dilate(CurveBundle<TVec> &rKnot,
     // pos scalefactor is a dilation
     // neg a contraction
     dilateOnS3(knot, center, dilation_factor);
-    knot->computeTangents();
+    //knot->computeTangents();
 
     vector<Biarc<Vector4> >::iterator it;
     Vector4 vTan, pnow;
@@ -564,7 +564,7 @@ rKnot.make_default(); // MC
     // Creates the Step Size arrays in each component
     // MC rKnot.InitSteps();
 
-    float random_dilate_prob= 4.0, anneal_all_prob=500.0, anneal_prob=550.0, dance_prob=4.0; // 1000.0 based
+    float random_dilate_prob= 500.0, anneal_all_prob=500.0, anneal_prob=500.0, dance_prob=500.0; // 1000.0 based
     for( ; ; ++nGeneration)
 	{
 
