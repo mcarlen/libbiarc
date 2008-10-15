@@ -146,7 +146,7 @@ float Energy(CurveBundle<TVec> &rKnot) {
   // return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
 
   // On S^3 we maximize thickness
-  return 1./s_dMinSegDistance + 1e-6*(off_equi)/s_dMinSegDistance; // + rKnot.length());
+  return 1./s_dMinSegDistance + 1e-4*(off_equi)/s_dMinSegDistance; // + rKnot.length());
 }
 
 class CAnnealInfo {

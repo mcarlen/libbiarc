@@ -18,7 +18,8 @@ tests/*.err
 tests/*.cpp
 tests/basic
 tests/test
-annealing/tmp*
+annealing/tmp/*
+annealing/r4tmp/*
 
 syntax: regexp
 .*\#.*\#$
