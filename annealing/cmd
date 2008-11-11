@@ -1,2 +1,2 @@
 #sample command for ../knots/r4/trefoil_s3.pkf
-while [ ! -f stop ]; do ./anneal4 r4tmp/best r4tmp 0.00008 0.000001 1 200 1e-9; done; rm stop
+while [ ! -f stop ]; do nice ./anneal4 r4tmp/best r4tmp 0.00008 0.000001 1 200 1e-9; done; rm stop
