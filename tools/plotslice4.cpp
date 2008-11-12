@@ -6,6 +6,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+#include "../include/algo_helpers.h"
 #include "../include/Vector4.h"
 #include "../include/Curve.h"
 
