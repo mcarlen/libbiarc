@@ -485,7 +485,10 @@ int main(int argc,char **argv)
     srand(nSeed);
 
     CurveBundle<TVec> knot;
-    knot.readPKF(szSourceFile);
+    if (!knot.readPKF(szSourceFile)) {
+      cerr << "[Err] Problem reading file : " << szSourceFile << endl;
+      exit(1);
+    }
     knot.link();
     knot.make_default();
 

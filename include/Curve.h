@@ -3,6 +3,7 @@
 
 #include "Biarc.h"
 #include "PKFmanip.h"
+#include "algo_helpers.h"
 #include <fstream>
 #include <vector>
 
