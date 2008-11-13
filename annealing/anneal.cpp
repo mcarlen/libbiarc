@@ -97,7 +97,7 @@ void ShowStepSpread(CurveBundle<TVec> &c, ostream &os) {
   os << dMinP << '-' << dMaxP << '/' << dMinT << '-' << dMaxT;
 }
 
-# define STEP_CHANGE	.01
+# define STEP_CHANGE	.005
 
 // XXX : Improve these checks!!!
 //       after each change we have to recompute the biarc Midpoint!!!!
@@ -125,6 +125,7 @@ return (c[n].isProper()&&c[n].getPrevious().isProper());
   return TRUE;
 */
 }
+
 
 float Energy(CurveBundle<TVec> &rKnot) {
   // s_dMinSegDistance=rKnot.MinSegDistanceCache();

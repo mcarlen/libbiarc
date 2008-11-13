@@ -116,6 +116,7 @@ class Curve : public PKFmanip {
   float thickness(Vector *from, Vector *to);
   float minSegDistance();
   float maxSegDistance();
+  float distEnergy();
 
   float curvature(int n);
   float curvature(biarc_it b);
