@@ -129,7 +129,12 @@ return (c[n].isProper()&&c[n].getPrevious().isProper());
 */
 }
 
-float Energy(CurveBundle<TVec> &rKnot) {
+
+/**
+  1/Thickness + epsilon * (deviation from equidistant nodes)
+*/
+
+float ThicknessEnergy_e(CurveBundle<TVec> &rKnot) {
   // s_dMinSegDistance=rKnot.MinSegDistanceCache();
   double off_equi;
   rKnot.make_default();
@@ -148,6 +153,39 @@ float Energy(CurveBundle<TVec> &rKnot) {
   // On S^3 we maximize thickness
   return 1./s_dMinSegDistance + 1e-4*(off_equi)/s_dMinSegDistance; // + rKnot.length());
 }
+
+/**
+  1/Thickness + epsilon * (deviation from equidistant nodes)
+*/
+
+
+float LengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
+  // s_dMinSegDistance=rKnot.MinSegDistanceCache();
+  const double minthickness = 1.0;
+  double off_equi, length;
+  rKnot.make_default();
+  s_dMinSegDistance = rKnot.thickness();
+  if (s_dMinSegDistance > 100) {
+    cout << "TOO BIG : " << s_dMinSegDistance << endl;
+    exit(12);
+  }
+  if (s_dMinSegDistance < 1e-6) {
+    cout << "NEG ENERGY! : " << s_dMinSegDistance << endl;
+    exit(11);
+  } //__qurick
+  off_equi = (rKnot[0].maxSegDistance() / rKnot[0].minSegDistance());
+  length = rKnot.length();
+  // return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
+
+  // On S^3 we maximize thickness
+  return length 
+                + ((s_dMinSegDistance > minthickness )?0:(exp(5*(minthickness - s_dMinSegDistance))-1)) 
+                + 1e-6*(off_equi)/s_dMinSegDistance;
+}
+
+
+#define Energy LengthEnergy_fixedThickness_e
+#define Energy_str "LengthEnergy_fixedThickness_e"
 
 class CAnnealInfo {
 public:
@@ -675,6 +713,7 @@ int main(int argc,char **argv)
     else
 	nSeed=time(NULL);
 
+   cout << "Energy: " << Energy_str << endl;
    cout << "Setting seed to " << nSeed << endl;
     srand(nSeed);
 
