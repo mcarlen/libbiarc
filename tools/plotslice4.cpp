@@ -35,8 +35,8 @@ int main(int argc, char **argv) {
 
   for (int i=0;i<N;++i) {
     t = (double)i*fac;
-cerr << "t="<<t<<endl;
     if (t>l) continue;
+    else if (t==l) t=0;
     pt2 = knot.pointAt(t);
     if (mode==2)
       cout << t << " " << .5*thickness*knot.radius_pt(pt,tg,pt2) << endl;
