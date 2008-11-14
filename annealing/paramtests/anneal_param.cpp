@@ -372,7 +372,8 @@ rKnot.make_default(); // MC
     int nSuccess=0;
 
     dMinEnergy=dLogMax=dLogMin=dEnergy;
-    sprintf(buf,"%s/log",g_szPlotRoot);
+    // Name (not directory) for logging!
+    sprintf(buf,"%s",g_szPlotRoot);
     ofstream log(buf,ios::trunc);
 
     // First we log the starting Temperature and Cooling rate
@@ -488,7 +489,7 @@ int main(int argc,char **argv)
     {
     if(argc < 8)
 	{
-	cerr << argv[0] << " <source file> <plot file root> <temperature> <cooling> <anneal flag> <write frequency> <stop step> [<seed>]\n";
+	cerr << argv[0] << " <source file> <logfile> <temperature> <cooling> <anneal flag> <write frequency> <stop step> [<seed>]\n";
 	exit(1);
 	}
     CAnnealInfo info;
