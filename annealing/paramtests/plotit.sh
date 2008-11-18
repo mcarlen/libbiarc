@@ -15,7 +15,7 @@ fi
 
 string=""
 for i in $direc/log0*; do
-  string+=" \"$i\" with steps notitle,"
+  string+=" \"$i\" using [1:6] with points notitle,"
 done
 
 # gnuplot

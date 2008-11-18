@@ -18,8 +18,8 @@ cat <<EOF >$3
 #$ -S /bin/bash
 #$ -cwd
 #$ -N $1
-#$ -e /dev/null
-#$ -o /dev/null
+#$ -e $3.err
+#$ -o $3.out
 $2
 EOF
 }

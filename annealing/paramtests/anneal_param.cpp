@@ -106,26 +106,11 @@ void ShowStepSpread(CurveBundle<TVec> &c, ostream &os) {
 //       implement a routine that does that does the midpoint rule
 //       for a single biarc
 BOOL CheckTangent(int n, Curve<TVec> &c) {
-return (c[n].isProper() && c[n].getPrevious().isProper());
-/*
- if ((c[n].getPoint()-c.getPrevious(n).getPoint()).dot(c[n].getTangent()) <= 0)
-   return FALSE;
- if((c.getNext(n).getPoint()-c[n].getPoint()).dot(c[n].getTangent()) <= 0)
-   return FALSE;
- return TRUE;
-*/
+  return (c[n].isProper() && c[n].getPrevious().isProper());
 }
 
 BOOL CheckPoint(int n, Curve<TVec> &c) {
-return (c[n].isProper()&&c[n].getPrevious().isProper());
-/*
-  if (!CheckTangent(n,c)) return FALSE;
-  if((c[n].getPoint()-c.getPrevious(n).getPoint()).dot(c.getPrevious(n).getTangent()) <= 0)
-    return FALSE;
-  if((c.getNext(n).getPoint()-c[n].getPoint()).dot(c.getNext(n).getTangent()) <= 0)
-    return FALSE;
-  return TRUE;
-*/
+  return (c[n].isProper()&&c[n].getPrevious().isProper());
 }
 
 float Energy(CurveBundle<TVec> &rKnot) {
@@ -361,6 +346,18 @@ void WriteBest(CurveBundle<TVec> &rKnot) {
 #endif
 }
 
+// Log : step accepted(0/1) temperature L D L/D StepSize TangentStepSize
+void logAllParameters(int step, CAnnealInfo &info,
+                      CurveBundle<TVec> &rKnot,
+                      int accepted,
+                      ostream &out) {
+  rKnot.make_default();
+  double L = rKnot.length(), D = rKnot.thickness();
+  out << step << " " << accepted << " " << info.m_fTemperature
+      << " " << L << " " << D << " " << L/D << " " << info.m_dStepSize
+      << " " << info.m_dTStepSize << endl << flush;
+}
+
 void DoAnneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info)
     {
     int nGeneration=0;
@@ -370,6 +367,7 @@ rKnot.make_default(); // MC
     float dMinEnergy;
     float dLogMax,dLogMin;
     int nSuccess=0;
+    int accepted = 1;
 
     dMinEnergy=dLogMax=dLogMin=dEnergy;
     // Name (not directory) for logging!
@@ -429,7 +427,7 @@ rKnot.make_default(); // MC
 	    sprintf(buf,"%s/%08d",g_szPlotRoot,nGeneration);
 	    rKnot.writePKF(buf);
 #else
-            log << Energy(rKnot) << endl << flush;
+            logAllParameters(nGeneration, info, rKnot, accepted, log);
 #endif
 #ifdef VERBOSE
 	    cout << Energy(rKnot)
@@ -459,6 +457,7 @@ rKnot.make_default(); // MC
 	    {
 //rKnot.make_default();
 	    BOOL bStepped=AnnealAll(rKnot,info,dEnergy);
+            accepted = (int)bStepped;
 	    if(dEnergy < dMinEnergy)
 		{
 #ifdef LOG_BEST
