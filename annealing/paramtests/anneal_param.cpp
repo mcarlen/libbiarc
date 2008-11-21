@@ -373,6 +373,7 @@ rKnot.make_default(); // MC
     // Name (not directory) for logging!
     sprintf(buf,"%s",g_szPlotRoot);
     ofstream log(buf,ios::trunc);
+    log.precision(16);
 
     // First we log the starting Temperature and Cooling rate
 #ifndef LOG_BEST

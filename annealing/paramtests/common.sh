@@ -20,6 +20,7 @@ cat <<EOF >$3
 #$ -N $1
 #$ -e $3.err
 #$ -o $3.out
+source ${HOME}/.bashrc
 $2
 EOF
 }
