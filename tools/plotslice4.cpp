@@ -26,6 +26,8 @@ int main(int argc, char **argv) {
   Curve<Vector4> knot(argv[4]);
   knot.link(); knot.make_default();
 
+  for (int i=0;i<knot.nodes();++i) if (!knot[i].isProper()) cerr << i << " not proper\n";
+
   double thickness = knot.thickness();
   int N=atoi(argv[3]);
   double l = knot.length();
@@ -36,7 +38,7 @@ int main(int argc, char **argv) {
   for (int i=0;i<N;++i) {
     t = (double)i*fac;
     if (t>l) continue;
-    else if (t==l) t=0;
+    else if (fabs(t-l)<=1e-8) t=0;
     pt2 = knot.pointAt(t);
     if (mode==2)
       cout << t << " " << .5*thickness*knot.radius_pt(pt,tg,pt2) << endl;
