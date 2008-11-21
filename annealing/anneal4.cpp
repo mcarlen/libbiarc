@@ -130,6 +130,17 @@ return (c[n].isProper()&&c[n].getPrevious().isProper());
 }
 
 
+void CheckKnot(CurveBundle<TVec> &rKnot) {
+  for (int i=0;i<rKnot.curves();++i) {
+    for (int n=0;n<rKnot[i].nodes();++n) {
+      if (!(rKnot[i][n].isProper())) {
+        cerr << "Improper Biarc " << i << " " << n << endl;
+      }
+    }
+  }
+}
+
+
 /**
   1/Thickness + epsilon * (deviation from equidistant nodes)
 */
@@ -151,7 +162,7 @@ float ThicknessEnergy_e(CurveBundle<TVec> &rKnot) {
   // return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
 
   // On S^3 we maximize thickness
-  return 1./s_dMinSegDistance + 1e-4*(off_equi)/s_dMinSegDistance; // + rKnot.length());
+  return 1./s_dMinSegDistance + 1e-4*(off_equi)/s_dMinSegDistance + 1e-6*rKnot.length();
 }
 
 /**
@@ -161,7 +172,7 @@ float ThicknessEnergy_e(CurveBundle<TVec> &rKnot) {
 
 float LengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
   // s_dMinSegDistance=rKnot.MinSegDistanceCache();
-  const double minthickness = 1.0;
+  const double minthickness = 0.85;
   double off_equi, length;
   rKnot.make_default();
   s_dMinSegDistance = rKnot.thickness();
@@ -179,13 +190,18 @@ float LengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
 
   // On S^3 we maximize thickness
   return length 
-                + ((s_dMinSegDistance > minthickness )?0:(exp(5*(minthickness - s_dMinSegDistance))-1)) 
+                + ((s_dMinSegDistance > minthickness )?0:(exp(10*(minthickness - s_dMinSegDistance))-1)) 
                 + 1e-6*(off_equi)/s_dMinSegDistance;
 }
 
 
+#if 1
 #define Energy LengthEnergy_fixedThickness_e
 #define Energy_str "LengthEnergy_fixedThickness_e"
+#else
+#define Energy ThicknessEnergy_e
+#define Energy_str "ThicknessEnergy_e"
+#endif
 
 class CAnnealInfo {
 public:
@@ -366,18 +382,17 @@ shuffle_again:
     // Displace tangents
 #if 1
     for (b=rKnot[i].begin();b!=rKnot[i].end();++b) {
+      pnow = b->getPoint();
       tnow = b->getTangent();
-      d=info.m_dStepSize*(StepArray[n].Get(0));
+      d=info.m_dTStepSize*(StepArray[n].Get(0)); 
       // cout << "d = " << d << endl;
       // we calculate a random tangent vTan 
       TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1),
                        r(-d,d)*r(0,1), r(-d,d)*r(0,1));
-      // Project to normal plane, so vTan is tangent to S^3
-      pnow.normalize();
-      vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
-      // move point in direction of vTan and project back to S^3
-      pnow += d*vTan;
-      pnow.normalize();
+      tnow += d*vTan;
+      tnow -= tnow.dot(pnow)*(pnow);
+      tnow.normalize();
+
       b->setTangent(tnow);
       ++n;
     }
@@ -738,6 +753,7 @@ int main(int argc,char **argv)
       }
     }
     knot.make_default();
+    CheckKnot(knot);
 
 
 
