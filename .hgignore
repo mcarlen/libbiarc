@@ -20,6 +20,7 @@ tests/basic
 tests/test
 annealing/tmp/*
 annealing/r4tmp/*
+doc/
 
 syntax: regexp
 .*\#.*\#$
@@ -27,6 +28,7 @@ syntax: regexp
 
 syntax: glob
 annealing/anneal
+annealing/anneal4
 annealing/anneal4.sh
 annealing/dilate_on_sn_v.py
 annealing/inf/bla.rib
