@@ -63,7 +63,9 @@ int main(int argc, char **argv) {
     exit(0);
   }
   cb = new CurveBundle<Vector3>(argv[1]);
+  cb->link();
   cb->make_default();
+  cb->thickness();
 
   cout << "OK" << endl << flush;
 
