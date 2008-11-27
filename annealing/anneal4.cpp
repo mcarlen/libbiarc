@@ -190,8 +190,8 @@ float LengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
 
   // On S^3 we maximize thickness
   return length 
-                + ((s_dMinSegDistance > minthickness )?0:(exp(10*(minthickness - s_dMinSegDistance))-1)) 
-                + 1e-6*(off_equi)/s_dMinSegDistance;
+                + ((s_dMinSegDistance > minthickness )?0:(exp(10.0*(minthickness - s_dMinSegDistance))-1)) 
+                + 1e-8*(off_equi)/s_dMinSegDistance;
 }
 
 
@@ -354,8 +354,8 @@ BOOL AnnealAll(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
   CurveBundle<TVec> rCopy(rKnot);
   vector<Biarc<TVec> >::iterator b;
   TVec tnow,pnow;
-  int n;
-  float d;
+  int n; 
+  float d= min(rKnot[0].minSegDistance(), rKnot.thickness())/100.0;
 
   int again_counter = 0;
 shuffle_again:
@@ -364,14 +364,14 @@ shuffle_again:
     // Displace points
     for (b=rKnot[i].begin();b!=rKnot[i].end();b++) {
       pnow = b->getPoint();
-      d=info.m_dStepSize*(StepArray[n].Get(1));
+      // d=info.m_dStepSize*(StepArray[n].Get(1));
       // cout << "d = " << d << endl;
       // we calculate a random tangent vTan 
-      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1),
-                       r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+      TVec vTan = TVec(d*r(-1,1), d*r(-1,1),
+                       d*r(-1,1), d*r(-1,1));
       // Project to normal plane, so vTan is tangent to S^3
       pnow.normalize();
-      vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
+      vTan -= vTan.dot(pnow)*(pnow);
       // move point in direction of vTan and project back to S^3
       pnow += d*vTan;
       pnow.normalize();
@@ -384,11 +384,11 @@ shuffle_again:
     for (b=rKnot[i].begin();b!=rKnot[i].end();++b) {
       pnow = b->getPoint();
       tnow = b->getTangent();
-      d=info.m_dTStepSize*(StepArray[n].Get(0)); 
+      // d=info.m_dTStepSize*(StepArray[n].Get(0)); 
       // cout << "d = " << d << endl;
       // we calculate a random tangent vTan 
-      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1),
-                       r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+      TVec vTan = TVec(d*r(-1,1), d*r(-1,1),
+                       d*r(-1,1), d*r(-1,1));
       tnow += d*vTan;
       tnow -= tnow.dot(pnow)*(pnow);
       tnow.normalize();
