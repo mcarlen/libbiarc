@@ -13,6 +13,7 @@
 
 #include "main.h"
 
+#include <qapplication.h>
 #include <Inventor/details/SoPointDetail.h>
 #include <Inventor/details/SoLineDetail.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
@@ -626,6 +627,15 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
   float CamAngle; SbVec3f CamAxis, CamPos;
   SbRotation CamOrientation;
 
+  static int mx,my;
+  static int SPECIAL_MOUSE = 0;
+
+  if (SPECIAL_MOUSE && (anyevent->type()==QEvent::MouseMove)) {
+    QMouseEvent *mouse = (QMouseEvent*)anyevent;
+    cout << "RelMove : " << mouse->x()-mx << " "<< mouse->y()-my << endl;
+    mx = mouse->x(); my = mouse->y();
+  }
+
   if(anyevent->type()==QEvent::KeyPress) {
 
     children = scene->getChildren();
@@ -634,6 +644,10 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
     myKeyEvent = (QKeyEvent *) anyevent;
 
     switch(myKeyEvent->key()) {
+
+    case Qt::Key_G:
+      SPECIAL_MOUSE = !SPECIAL_MOUSE;
+      break;
 
     // Transparency changing
     case Qt::Key_F:

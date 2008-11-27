@@ -15,16 +15,29 @@
 #include "../include/CurveBundle.h"
 #include "../include/algo_helpers.h"
 
+void usage(const char* prog) {
+  cerr << "Usage : "<< prog <<" [-open] <pkf in>\n";
+  exit(0);
+}
+
 int main(int argc, char **argv) {
 
-  if (argc!=2) {
-    cerr << "Usage : "<<argv[0]<<" <pkf in>\n";
-    exit(0);
+  int fd = 1, CLOSED = 1;
+
+  if (argc==3) {
+    if (!strncmp(argv[1],"-open",5)) CLOSED = 0;
+    else usage(argv[0]);
+    fd = 2;
   }
+  else if (argc!=2)
+    usage(argv[0]);
+
+  if (argv[fd][0]=='-') usage(argv[0]);
 
   Vector3 from,to;
-  CurveBundle<Vector3> cb(argv[1]);
-  cb.link();
+  CurveBundle<Vector3> cb(argv[fd]);
+  if (CLOSED)
+    cb.link();
   cb.make_default();
 
   cout.precision(16);
@@ -32,8 +45,12 @@ int main(int argc, char **argv) {
 
   for (int i=0;i<cb.curves();i++) {
 
-    float L = cb[i].length();
-    float D = cb[i].thickness(&from,&to);
+    float L = cb[i].length(), D;
+    if (CLOSED)
+      D = cb[i].thickness(&from,&to);
+    else
+      D = cb[i].thickness_fast();
+
     cout << "Curve " << i+1 << endl;
     cout << "------------------\n";
     cout << "Number of data pts : " << cb[i].nodes() << endl;
@@ -42,7 +59,8 @@ int main(int argc, char **argv) {
     cout << "Thickness (D=2r)   : " << D << endl;
     cout << "Roplength (L/D)    : " << L/D << endl;
     cout << "L/r                : " << L/D*2 << endl;
-    cout << "Thickness between  : " << from << ", " << to << endl;
+    if (CLOSED)
+      cout << "Thickness between  : " << from << ", " << to << endl;
     cout << "==================\n";
 
   }

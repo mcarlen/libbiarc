@@ -1,16 +1,18 @@
 #!/bin/bash
 
 function usage {
-  echo "Usage : $0 [4] file.pkf out.html"
+  echo "Usage : $0 [open] file.pkf out.html"
   exit 0
 }
 
 D=""
+OPEN=""
 if [ "$#" == "3" ]; then
-  if [ "$1" != "4" ]; then
+  if [ "$1" != "open" ]; then
     usage
   fi 
-  D=4
+  echo "Consider an OPEN curve!"
+  OPEN=-open
   shift
 fi
 
@@ -24,6 +26,16 @@ function check {
     exit 1
   fi
 }
+
+# Do we have 3 or 4 dimensions?
+check $1
+arr=( $(grep "NODE" $1 | sed -n '1p') )
+if [ "${#arr[*]}" == "9" ]; then
+  echo "We're in 4D!"
+  D=4
+else
+  echo "We're in 3D!"
+fi
 
 knotfile=$1
 knot1=`basename $1`
@@ -69,11 +81,11 @@ EOF
 
 echo "pp/pt/tt plots"
 for i in pp pt tt; do
-  $plot -plot $i $1 >/dev/null
+  $plot $OPEN -plot $i $1 >/dev/null
   mv out.png $knot-$i.png
 done
 
-echo "Dump html"
+echo "Dump html to $2"
 cat <<EOF >$2
 <html>
   <h2>$name</h2>
@@ -88,3 +100,5 @@ cat <<EOF >$2
 </html>
 EOF
 
+# Clean-up
+rm -f $knot.curvature
