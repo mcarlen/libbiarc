@@ -24,11 +24,16 @@ Curve<TVec> *curve;
 float fromx,fromy,tox,toy;
 int HEIGHTMAP;
 
+// Global variable for open/closed curve
+// default is closed
+int CLOSED;
+
 void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
 
   curve = new Curve<TVec>(name);
   if (curve==NULL) exit(10);
-  curve->link();
+  if (CLOSED)
+    curve->link();
   curve->make_default();
   px = new unsigned char[3*w*h];
   if (px == NULL) {
@@ -192,6 +197,7 @@ void usage(char* prog) {
     cout << "\n  -plot type\ttype is either pp, pt or tt.\n"
          << "  -res N\tN is the resolution of the plot. Default 500\n"
          << "  -hm   \tHeighmap gradient (black&white)\n"
+         << "  -open \tdefault is closed curves. Treat it as open\n"
          << "  -h    \tThis help\n";
     exit(-1);
 }
@@ -205,6 +211,7 @@ int main(int argc,char **argv) {
   int Res = 500;
   char *cname = NULL;
   HEIGHTMAP = 0;
+  CLOSED = 1;
   PLOT_TYPE pType = PT_PLOT; 
   fromx = 0.0; tox = 1.0;
   fromy =0.0; toy = 1.0;
@@ -221,6 +228,10 @@ int main(int argc,char **argv) {
       else if (!strncmp(&argv[arg][1],"res",3)) {
         Res = atoi(argv[arg+1]);
         ++arg;
+        ++arg;
+      }
+      else if (!strncmp(&argv[arg][1],"open",4)) {
+        CLOSED = 0;
         ++arg;
       }
       else if (!strncmp(&argv[arg][1],"plot",4)) {

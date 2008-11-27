@@ -197,6 +197,17 @@ void CurveBundle<Vector>::newCurve(istream &in) {
 }
 
 /*!
+  Takes an already valid curve object pointer and
+  adds this as a component to the current Bundle
+*/
+template<class Vector>
+void CurveBundle<Vector>::newCurve(Curve<Vector>* c) {
+  newCurve(*c);
+}
+
+
+
+/*!
   Return a reference to the curve number \a c.
 */
 template<class Vector>

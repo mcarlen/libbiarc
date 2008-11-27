@@ -131,10 +131,19 @@ return (c[n].isProper()&&c[n].getPrevious().isProper());
 
 
 void CheckKnot(CurveBundle<TVec> &rKnot) {
+  TVec p, t;
   for (int i=0;i<rKnot.curves();++i) {
     for (int n=0;n<rKnot[i].nodes();++n) {
       if (!(rKnot[i][n].isProper())) {
         cerr << "Improper Biarc " << i << " " << n << endl;
+      }
+      p=rKnot[i][n].getPoint();
+      t=rKnot[i][n].getTangent();
+      if (abs(p.norm2()-1.0)>0.00001) {
+        cerr << "Node not on sphere" << i << " " << n << endl;
+      }
+      if (abs(p.dot(t))>0.00001) {
+        cerr << "Node-tangent not in T(sphere)" << i << " " << n << endl;
       }
     }
   }
@@ -195,7 +204,7 @@ float LengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
 }
 
 
-#if 1
+#if 0
 #define Energy LengthEnergy_fixedThickness_e
 #define Energy_str "LengthEnergy_fixedThickness_e"
 #else
@@ -621,6 +630,7 @@ rKnot.make_default(); // MC
     for( ; ; ++nGeneration)
 	{
 
+    if (nGeneration<10) cout << "Thick/Energ ("<<nGeneration<<") : " << rKnot.thickness() << " " << dEnergy << endl;
 // if (nGeneration == 100) exit(0);
 
 	if(nGeneration%info.m_nLogFrequency == 0)
