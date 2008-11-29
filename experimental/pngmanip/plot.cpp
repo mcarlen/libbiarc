@@ -197,6 +197,8 @@ void usage(char* prog) {
     cout << "\n  -plot type\ttype is either pp, pt or tt.\n"
          << "  -res N\tN is the resolution of the plot. Default 500\n"
          << "  -hm   \tHeighmap gradient (black&white)\n"
+         << "  -fromx x0 x1\tZoom in [x0,x1]\n"
+         << "  -fromy y0 y1\tZoom in [y0,y1]\n"
          << "  -open \tdefault is closed curves. Treat it as open\n"
          << "  -h    \tThis help\n";
     exit(-1);
@@ -249,6 +251,16 @@ int main(int argc,char **argv) {
           cout << "Unsuported or unknown plot type\n";
           usage(argv[0]);
         }
+      }
+      else if (!strncmp(&argv[arg][1],"xrange",6)) {
+        fromx = atof(argv[arg+1]);
+        tox   = atof(argv[arg+2]);
+        arg+=3;
+      }
+      else if (!strncmp(&argv[arg][1],"yrange",6)) {
+        fromy = atof(argv[arg+1]);
+        toy   = atof(argv[arg+2]);
+        arg+=3;
       }
       else {
         cout << "Wrong options.\n";

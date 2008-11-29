@@ -48,7 +48,8 @@ fi
 # u3d=$(mktmep)
 u3d=bla.u3d
 echo "idtf -> u3d"
-$idtf2u3d -en 1 -rzf 0 -pq 500 -input "$idtf" -output "$u3d" >/dev/null 2>&1
+echo $idtf2u3d -en 1 -rzf 0 -pq 500 -input "$idtf" -output "$u3d" # >/dev/null 2>&1
+$idtf2u3d -en 1 -rzf 0 -pq 500 -input "$idtf" -output "$u3d" # >/dev/null 2>&1
 check_return $?
 
 # latex file

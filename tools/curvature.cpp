@@ -21,8 +21,6 @@ int main(int argc, char **argv) {
   CurveBundle<Vector3> cb(argv[1]);
   cb.link();
   cb.make_default();
-  cb.normalize();
-  cb.make_default();
   //cb.normalize();
   //cb.make_default();
   
