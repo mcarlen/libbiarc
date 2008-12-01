@@ -66,6 +66,7 @@ class Vector3 {
 
   void print(ostream &out) const;
   friend ostream & operator << (ostream &out, const Vector3 &v);
+  friend istream & operator >> (istream &in, Vector3 &v);
 
 };
 
@@ -80,6 +81,11 @@ inline const float & Vector3::operator [](const int c) const {
 inline ostream & operator<< (ostream &out, const Vector3 &v) {
   v.print(out);
   return out;
+}
+
+inline istream & operator>> (istream &in, Vector3 &v) {
+  in >> v[0] >> v[1] >> v[2];
+  return in;
 }
 
 #endif	// _VECTOR3_H_

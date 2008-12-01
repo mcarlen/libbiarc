@@ -308,6 +308,27 @@ Matrix3& Matrix3::cay(const Vector3 &v) {
 
 
 /*!
+  Sets the current matrix to a rotation matrix.
+  Where the rotation is in the positive trigonometric direction
+  about the axis v by an angle alpha.
+*/
+Matrix3& Matrix3::rotAround(const Vector3 &v, float alpha) {
+  Vector3 ax = -v; ax.normalize();
+  float x  = ax[0], y  = ax[1], z  = ax[2];
+  float sa = sin(alpha), ca = cos(alpha);
+  _v[0][0]= ca + x*x * (1.-ca);
+  _v[0][1]=  x*y*(1.-ca) - z*sa;
+  _v[0][2]= z*x*(1.-ca) + y*sa;
+  _v[1][0]= x*y*(1.-ca) + z*sa;
+  _v[1][1]= ca + y*y * (1.-ca);
+  _v[1][2]= z*y*( 1.-ca) - x*sa;
+  _v[2][0]= x*z* (1.-ca) - y*sa;
+  _v[2][1]= y*z* (1.-ca) + x*sa;
+  _v[2][2]= ca + z*z*(1.-ca);
+  return (*this);
+}
+
+/*!
   Multiplies the current matrix on the right hand side by \a m and
   returns the result as a new Matrix3 instance.
 */
