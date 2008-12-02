@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <vector>
 
@@ -32,6 +33,14 @@ public:
   FourierKnot() {}
   ~FourierKnot() { clear(); }
 
+  void scale(float s) {
+    c0 *= s;
+    for (uint i=0;i<csin.size();++i) {
+      csin[i] *= s;
+      ccos[i] *= s;
+    }
+  }
+
   // We expect 2*n + 1 coefficient!
   FourierKnot(const char* file) {
     ifstream in(file);
@@ -60,7 +69,7 @@ public:
   void setCos(Coeffs lcos) { ccos = lcos; }
 
   // point at curve(s), s in (0,1)
-  Vector3 operator()(float t) {
+  virtual Vector3 operator()(float t) {
     float f;
     // Fourier constant term
     Vector3 r = this->c0/2.;
@@ -74,7 +83,7 @@ public:
   }
 
   // tangent at curve(t)
-  Vector3 prime(float t) {
+  virtual Vector3 prime(float t) {
     Vector3 r; float f;
     // XXX optimise/cache this
     for (uint i=0;i<csin.size();++i) {
@@ -87,7 +96,7 @@ public:
 
   // sample our fourier knot and put that in initialized
   // pointer to Curve curve
-  void toCurve(const int sampling, Curve<Vector3> *curve) {
+  virtual void toCurve(const int sampling, Curve<Vector3> *curve) {
     float isampling = 1./(float)sampling, s;
     for (int i=0;i<sampling;++i) {
       s = (float)i*isampling;
@@ -134,12 +143,10 @@ public:
 };
 
 inline ostream& operator<<(ostream &out, const FourierKnot &fk) {
-  int oldp = out.precision(16);
   out << fk.c0 << endl;
   assert(fk.ccos.size()==fk.csin.size());
   for (uint i=0;i<fk.ccos.size();++i)
-    out << fk.csin[i] << " " << fk.ccos[i] << endl;
-  out.precision(oldp);
+    out << fk.ccos[i] << " " << fk.csin[i] << endl;
   return out;
 }
 
@@ -162,7 +169,105 @@ inline istream& operator>>(istream &in, FourierKnot &fk) {
   return in;
 }
 
-#define TEST
+// Observation (for trefoil) : cos_y = 0, cos_z = 0, sin_x = 0
+// AND cos_x[i] = -sin_y[i], cos_x[i+1] = sin_y[i+1]
+//
+// 3/24 => 1/8 info needed
+// cosx cosy cosz sinx siny sinz
+// -A 0 0 0 A 0
+//  B 0 0 0 B 0
+//  0 0 0 0 0 C
+class TrefoilFourierKnot : public FourierKnot {
+public:
+  TrefoilFourierKnot() {}
+
+  TrefoilFourierKnot(const char* file) {
+    ifstream in(file);
+    if (in.good()) in >> *this;
+    else {
+      cerr << "TrefoilFourierKnot : Could not read " << file << endl;
+      exit(2);
+    }
+  }
+
+  // point at curve(s), s in (0,1)
+  Vector3 operator()(float t) {
+    float f1,f2,f3;
+    Vector3 r(0,0,0);
+    // XXX optimise/cache this (precompute cos(f1*t) ... and swap values 1<-2<-3, precomp 3 iterate
+    for (uint i=0;i<csin.size();++i) {
+      f1 = (float)(3*i+1)*(2.*M_PI);
+      f2 = (float)(3*i+2)*(2.*M_PI);
+      f3 = (float)(3*i+3)*(2.*M_PI);
+      // formula for cos(a)-sin(a)?
+      r += Vector3(-csin[i][0]*cos(f1*t)+csin[i][1]*cos(f2*t),
+                    csin[i][0]*sin(f1*t)+csin[i][1]*sin(f2*t),
+                    csin[i][2]*(sin(f3*t)));
+    }
+    return r;
+  }
+
+  // tangent at curve(t)
+  Vector3 prime(float t) {
+    Vector3 r; float f1,f2,f3;
+    // XXX optimise/cache this
+    for (uint i=0;i<ccos.size();++i) {
+      f1 = (float)(3*i+1)*(2.*M_PI);
+      f2 = (float)(3*i+2)*(2.*M_PI);
+      f3 = (float)(3*i+3)*(2.*M_PI);
+      // formula for cos(a)-sin(a)?
+      r += Vector3(f1*csin[i][0]*sin(f1*t)-f2*csin[i][1]*sin(f2*t),
+                   f1*csin[i][0]*cos(f1*t)+f2*csin[i][1]*cos(f2*t),
+                   f3*csin[i][2]*(cos(f3*t)));
+    }
+    r.normalize();
+    return r;
+  }
+ 
+  void scale(float s) {
+    c0 *= s;
+    for (uint i=0;i<csin.size();++i)
+      csin[i] *= s;
+  }
+
+
+  friend ostream& operator<<(ostream &out, const TrefoilFourierKnot &fk);
+  friend istream& operator>>(istream &in, TrefoilFourierKnot &fk);
+};
+
+inline ostream& operator<<(ostream &out, const TrefoilFourierKnot &fk) {
+  for (uint i=0;i<fk.csin.size();++i)
+    out << fk.csin[i] << endl;
+  return out;
+}
+
+// Read in a trefoil fourier coeff file
+// structure :
+// sin_y_i sin_y_{i+1} sin_z_{i+2}        // this is 3 rows in the standart fourier coeff file
+// ...
+inline istream& operator>>(istream &in, TrefoilFourierKnot &fk) {
+  // csin not used in a trefoil fourier knot
+  Coeff c;
+  while ((in >> c)) {
+    fk.csin.push_back(c);
+  }
+  if (in.fail() && !in.eof()) {
+    cerr << "istream (TrefoilFourierKnot) : Bad input!\n";
+    exit(1);
+  };
+  return in;
+}
+
+
+// Translate a normal coeff file to trefoil sparse coeff file
+void coeffs2fourier(const char* file) {
+  FourierKnot fk(file);
+  for (int i=0;i<fk.csin.size();i+=3)
+    cout << fk.csin[i][1] << " " << fk.csin[i+1][1] << " " << fk.csin[i+2][2] << endl;
+}
+
+
+// #define TEST
 #ifdef TEST
 int main(int argc, char** argv) {
   
@@ -195,12 +300,22 @@ int main(int argc, char** argv) {
 
   if (argc!=2) { cout << "Usage : " << argv[0] << " <coeff_file>\n"; exit(0); }
 
-  FourierKnot fk(argv[1]);
+//  coeffs2fourier(argv[1]);
+//  FourierKnot fk(argv[1]);
+  TrefoilFourierKnot fk(argv[1]);
+  fk.scale(4);
+  cout << "We have " << fk.csin.size() << " coeff lines.\n";
+
   Curve<Vector3> knot;
   fk.toCurve(200,&knot);
-  knot.header("fourier knot","coeff2pkf","H. Gerlach","");
+  knot.link();
+  knot.computeTangents();
+  knot.header("trefoil fourier knot","coeff2pkf","H. Gerlach","");
   knot.writePKF("test.pkf");
-
+knot.make_default();
+  float D = knot.thickness();
+  float L = knot.length();
+  cout << "D=" << D << ",L/D="<<L/D<<endl;
   return 0;
 }
 #endif
