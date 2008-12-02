@@ -271,8 +271,12 @@ void coeffs2fourier(const char* file, FourierKnot *fk) {
 }
 
 
+// #define MAIN
 // #define TEST
 #ifdef TEST
+  #ifdef MAIN
+    #undef MAIN
+  #endif
 int main(int argc, char** argv) {
   
   FourierKnot fk;
@@ -299,7 +303,7 @@ int main(int argc, char** argv) {
 
   return 0;
 }
-#else
+#elif MAIN
 int main(int argc, char** argv) {
 
   if (argc!=2) { cout << "Usage : " << argv[0] << " <coeff_file>\n"; exit(0); }
@@ -307,7 +311,7 @@ int main(int argc, char** argv) {
   TrefoilFourierKnot fk;
   coeffs2fourier(argv[1],&fk);
   fk.scale(4);
-  cout << fk.csin.size() << " coefficiant rows!\n";
+  cout << fk << endl;
 
   Curve<Vector3> knot;
   fk.toCurve(200,&knot);
