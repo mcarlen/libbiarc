@@ -211,7 +211,7 @@ public:
   Vector3 prime(float t) {
     Vector3 r; float f1,f2,f3;
     // XXX optimise/cache this
-    for (uint i=0;i<ccos.size();++i) {
+    for (uint i=0;i<csin.size();++i) {
       f1 = (float)(3*i+1)*(2.*M_PI);
       f2 = (float)(3*i+2)*(2.*M_PI);
       f3 = (float)(3*i+3)*(2.*M_PI);
@@ -260,10 +260,14 @@ inline istream& operator>>(istream &in, TrefoilFourierKnot &fk) {
 
 
 // Translate a normal coeff file to trefoil sparse coeff file
-void coeffs2fourier(const char* file) {
-  FourierKnot fk(file);
-  for (int i=0;i<fk.csin.size();i+=3)
-    cout << fk.csin[i][1] << " " << fk.csin[i+1][1] << " " << fk.csin[i+2][2] << endl;
+void coeffs2fourier(const char* file, FourierKnot *fk) {
+  FourierKnot tmp(file); Vector3 v;
+  fk->clear();
+  for (uint i=0;i<tmp.csin.size();i+=3) {
+    v.setValues(tmp.csin[i][1],tmp.csin[i+1][1],tmp.csin[i+2][2]);
+    // cout << v << endl;
+    fk->csin.push_back(v);
+  }
 }
 
 
@@ -300,22 +304,25 @@ int main(int argc, char** argv) {
 
   if (argc!=2) { cout << "Usage : " << argv[0] << " <coeff_file>\n"; exit(0); }
 
-//  coeffs2fourier(argv[1]);
-//  FourierKnot fk(argv[1]);
-  TrefoilFourierKnot fk(argv[1]);
+  TrefoilFourierKnot fk;
+  coeffs2fourier(argv[1],&fk);
   fk.scale(4);
-  cout << "We have " << fk.csin.size() << " coeff lines.\n";
+  cout << fk.csin.size() << " coefficiant rows!\n";
 
   Curve<Vector3> knot;
   fk.toCurve(200,&knot);
-  knot.link();
-  knot.computeTangents();
+
   knot.header("trefoil fourier knot","coeff2pkf","H. Gerlach","");
   knot.writePKF("test.pkf");
-knot.make_default();
+
+#ifdef THICKNESS
+  knot.link();
+  knot.make_default();
   float D = knot.thickness();
   float L = knot.length();
+
   cout << "D=" << D << ",L/D="<<L/D<<endl;
+#endif
   return 0;
 }
 #endif
