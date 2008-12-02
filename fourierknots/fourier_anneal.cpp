@@ -1,5 +1,10 @@
 #include "fourier_syn.h"
 #include "../include/algo_helpers.h"
+#include <iomanip>
+
+const int NODES = 83;
+float iNODES = 1./(float)NODES;
+float EPSILON;
 
 float adjust2(float x) {
   float s = 0.8;
@@ -13,13 +18,19 @@ float adjust(float x) {
 
 float ropelength(TrefoilFourierKnot &fk);
 
-const int NODES = 83;
-float iNODES = 1./(float)NODES;
-float EPSILON;
+void dump(TrefoilFourierKnot &fk, const char* filename) {
+  Curve<Vector3> curve;
+  fk.toCurve(adjust,NODES,&curve);
+  curve.link();
+  curve.make_default();
+  curve.normalize();
+  curve.writePKF(filename);
+}
 
 #define randint(from,to) (rand()%(to-from+1)+from)
-#define myrand() ((float)rand()/(float)RAND_MAX)
-#define randvec() Vector3(2.*myrand()-1.,2.*myrand()-1.,2.*myrand()-1.)
+#define myrand01() ((float)rand()/(float)RAND_MAX)
+#define myrand() (2.*(float)rand()/(float)RAND_MAX-1.)
+#define randvec() Vector3(myrand(),myrand(),myrand())
 
 void init() {
   srand(time(NULL));
@@ -95,6 +106,77 @@ void gradient_flow(TrefoilFourierKnot *knot) {
     cout << "grad -> :(\n";
 }
 
+const float STEP_CHANGE = 0.05;
+
+static void increase(Coeffs &c, int m, int d) {
+  c[m][d] *= (1.+STEP_CHANGE);
+}
+
+static void decrease(Coeffs &c, int m, int d) {
+  c[m][d] *= (1.-STEP_CHANGE);
+}
+
+void anneal(float Temp, float Cooling,
+            float stop, const char* filename) {
+
+  Coeffs step_size;
+  Coeff c;
+
+  TrefoilFourierKnot best(filename);
+  TrefoilFourierKnot knot(best);
+
+  float lTemp = Temp;
+  float best_rope = ropelength(best);
+  float curr_rope = best_rope, knot_rope = best_rope;
+
+  for (unsigned int m=0;m<knot.csin.size();++m) {
+    for (int d=0;d<3;++d) {
+      c[d] = knot.csin[m][d]*.1;
+      if (c[d]<1e-20) c[d] = 1e-6;
+    }
+    step_size.push_back(c);
+  }
+
+  // XXX stop condition
+  cout << setprecision(16);
+  int m, d, steps = 0; float csin_was;
+  while (lTemp > stop) {
+    if (steps++ % 100) {
+      cout << steps << " anneal : " <<  knot_rope << " temp " << lTemp 
+           << " XXX=" << best_rope - 16.3719 << endl;
+    }
+    m = rand()%knot.csin.size();
+    d = rand()%3;
+    csin_was = knot.csin[m][d];
+    knot.csin[m][d] += step_size[m][d]*myrand();
+  
+    knot_rope = ropelength(knot);
+    if (knot_rope < best_rope) {
+      gradient_flow(&knot);
+      knot_rope = ropelength(knot);
+      cout << "anneal : " << knot_rope << " -> :)\n";
+      best_rope = knot_rope;
+      curr_rope = knot_rope;
+      best = knot;
+      ofstream of(filename);
+      of << setprecision(16) << best;
+      of.close();
+      dump(best,"test.pkf");
+      increase(step_size,m,d);
+    }
+    else if (myrand01() <= exp(-(knot_rope-curr_rope)/lTemp)) {
+      curr_rope = knot_rope;
+      increase(step_size,m,d);
+    }
+    else {
+      knot.csin[m][d] = csin_was;
+      knot_rope = curr_rope;
+      decrease(step_size,m,d);
+    }
+    lTemp *= (1.-Cooling);
+  }
+}
+
 void cook(TrefoilFourierKnot &knot, float eps= 0.0001) {
 
   // ???
@@ -145,15 +227,6 @@ float ropelength(TrefoilFourierKnot &fk) {
   return L/D;
 }
 
-void dump(TrefoilFourierKnot &fk, const char* filename) {
-  Curve<Vector3> curve;
-  fk.toCurve(adjust,NODES,&curve);
-  curve.link();
-  curve.make_default();
-  curve.normalize();
-  curve.writePKF(filename);
-}
-
 void improve(const char *filename) {
 
   const int ITERATIONS = 100;
@@ -198,13 +271,15 @@ void improve(const char *filename) {
   // symmetrize(best);
   // XXX normalize best!!!
   ofstream of(filename);
-  of << best;
+  of << setprecision(16) << best;
   of.close();
   dump(best,"test.pkf");
 }
 
 int main() {
   init();
-  improve("mycoeffs.txt");
+//  improve("mycoeffs.txt");
+  float T = 0.0001, C = 1e-7, stop = 1e-12;
+  anneal(T,C,stop,"mycoeffs.txt");
   return 0;
 }

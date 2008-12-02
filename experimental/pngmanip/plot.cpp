@@ -197,8 +197,8 @@ void usage(char* prog) {
     cout << "\n  -plot type\ttype is either pp, pt or tt.\n"
          << "  -res N\tN is the resolution of the plot. Default 500\n"
          << "  -hm   \tHeighmap gradient (black&white)\n"
-         << "  -fromx x0 x1\tZoom in [x0,x1]\n"
-         << "  -fromy y0 y1\tZoom in [y0,y1]\n"
+         << "  -xrange x0 x1\tZoom in [x0,x1]\n"
+         << "  -yrange y0 y1\tZoom in [y0,y1]\n"
          << "  -open \tdefault is closed curves. Treat it as open\n"
          << "  -h    \tThis help\n";
     exit(-1);
