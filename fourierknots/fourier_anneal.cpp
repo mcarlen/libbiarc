@@ -131,11 +131,11 @@ void anneal(float Temp, float Cooling,
   float lTemp = Temp;
   float best_rope = ropelength(best);
   float curr_rope = best_rope, knot_rope = best_rope;
-  step_max = step_min = knot.csin[0][0]*.1;
+  step_max = step_min = fabs(knot.csin[0][0]*.1);
 
   for (unsigned int m=0;m<knot.csin.size();++m) {
     for (int d=0;d<3;++d) {
-      c[d] = knot.csin[m][d]*.1;
+      c[d] = fabs(knot.csin[m][d]*.1);
       if (c[d]<1e-20) c[d] = 1e-6;
 
       if (c[d]<step_min) step_min = c[d];
