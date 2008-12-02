@@ -107,13 +107,16 @@ void gradient_flow(TrefoilFourierKnot *knot) {
 }
 
 const float STEP_CHANGE = 0.05;
+float step_min, step_max;
 
 static void increase(Coeffs &c, int m, int d) {
   c[m][d] *= (1.+STEP_CHANGE);
+  if (c[m][d] > step_max) step_max = c[m][d];
 }
 
 static void decrease(Coeffs &c, int m, int d) {
   c[m][d] *= (1.-STEP_CHANGE);
+  if (c[m][d] < step_min) step_min = c[m][d];
 }
 
 void anneal(float Temp, float Cooling,
@@ -128,11 +131,15 @@ void anneal(float Temp, float Cooling,
   float lTemp = Temp;
   float best_rope = ropelength(best);
   float curr_rope = best_rope, knot_rope = best_rope;
+  step_max = step_min = knot.csin[0][0]*.1;
 
   for (unsigned int m=0;m<knot.csin.size();++m) {
     for (int d=0;d<3;++d) {
       c[d] = knot.csin[m][d]*.1;
       if (c[d]<1e-20) c[d] = 1e-6;
+
+      if (c[d]<step_min) step_min = c[d];
+      else if (c[d]>step_max) step_max = c[d];
     }
     step_size.push_back(c);
   }
@@ -141,9 +148,11 @@ void anneal(float Temp, float Cooling,
   cout << setprecision(16);
   int m, d, steps = 0; float csin_was;
   while (lTemp > stop) {
-    if (steps++ % 100) {
-      cout << steps << " anneal : " <<  knot_rope << " temp " << lTemp 
-           << " XXX=" << best_rope - 16.3719 << endl;
+    if (steps++ % 30 == 0) {
+      cout << "E=" << setprecision(8) << knot_rope << "  T=" << setprecision(4)
+           << lTemp << setprecision(8)
+           << "   smin=" << step_min << ",smax=" << step_max << setprecision(4)
+           << "  Diff=" << best_rope - 16.3719 << endl;
     }
     m = rand()%knot.csin.size();
     d = rand()%3;
@@ -152,9 +161,11 @@ void anneal(float Temp, float Cooling,
   
     knot_rope = ropelength(knot);
     if (knot_rope < best_rope) {
-      gradient_flow(&knot);
+      if (myrand01() < 0.01) {
+        gradient_flow(&knot);
+      }
       knot_rope = ropelength(knot);
-      cout << "anneal : " << knot_rope << " -> :)\n";
+      cout << "anneal : " << setprecision(10) << knot_rope << " -> :)\n";
       best_rope = knot_rope;
       curr_rope = knot_rope;
       best = knot;
@@ -279,7 +290,7 @@ void improve(const char *filename) {
 int main() {
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.0001, C = 1e-7, stop = 1e-12;
+  float T = 0.00009, C = 1e-7, stop = 1e-12;
   anneal(T,C,stop,"mycoeffs.txt");
   return 0;
 }
