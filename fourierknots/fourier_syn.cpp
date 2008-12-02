@@ -80,6 +80,22 @@ void FourierKnot::toCurve(const int sampling, Curve<Vector3> *curve) {
   }
 }
 
+/*!
+  Function pointer pt2func is used to change the speed of the
+  parametrization along the curve. This means, sample the curve
+  with sampling points using a speed function given by pt2func.
+  Write the result in the already initialized and clean curve.
+*/
+void FourierKnot::toCurve(float(*pt2func)(float), const int sampling,
+                          Curve<Vector3> *curve) {
+  float isampling = 1./(float)sampling, s;
+  for (int i=0;i<sampling;++i) {
+    s = pt2func((float)i*isampling);
+    // Tangent gets normalized in biarc constructor
+    curve->append((*this)(s),this->prime(s));
+  }
+}
+
 // Rotate coefficients around axis v by angle alpha.
 // This is equal to rotating the object in Euclidean space
 // XXX HG has this in the neg trigo direction!!!
@@ -125,6 +141,19 @@ TrefoilFourierKnot::TrefoilFourierKnot(const char* file) {
     exit(2);
   }
 }
+
+TrefoilFourierKnot::TrefoilFourierKnot(const TrefoilFourierKnot &tfk) {
+  clear();
+  csin = tfk.csin;
+}
+
+TrefoilFourierKnot& TrefoilFourierKnot::operator=(const TrefoilFourierKnot &tfk) {
+  clear();
+  csin = tfk.csin;
+  return *this;
+}
+
+
 
 // point at curve(s), s in (0,1)
 Vector3 TrefoilFourierKnot::operator()(float t) {

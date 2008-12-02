@@ -15,6 +15,8 @@ all: coeff2pkf
 .cpp.o:
 	$(CXX) $(FLAGS) -o $@ -c $<
 
+fourier_anneal: fourier_anneal.o fourier_syn.o
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fourier_anneal.o fourier_syn.o $(LIB)
 
 coeff2pkf: coeff2pkf.o fourier_syn.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) coeff2pkf.o fourier_syn.o $(LIB)
@@ -25,6 +27,7 @@ $(PROGS):
 
 clean :
 	@echo Cleaning `basename ${PWD}`
+	-rm -f *.o
 	@-rm -rf ii_files
 
 realclean :

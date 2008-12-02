@@ -42,6 +42,7 @@ public:
   virtual Vector3 operator()(float t);
   virtual Vector3 prime(float t);
   virtual void toCurve(const int sampling, Curve<Vector3> *curve);
+  virtual void toCurve(float(*pt2func)(float), const int sampling, Curve<Vector3> *curve);
   void rotate(Vector3 v,float alpha);
   void flip_dir(float sh = 0);
   void shift(float sh);
@@ -68,7 +69,9 @@ public:
   // Constructors
   TrefoilFourierKnot();
   TrefoilFourierKnot(const char* file);
+  TrefoilFourierKnot(const TrefoilFourierKnot &tfk);
 
+  TrefoilFourierKnot& operator=(const TrefoilFourierKnot &tfk);
   Vector3 operator()(float t);
   Vector3 prime(float t); 
   void scale(float s);
