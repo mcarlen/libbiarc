@@ -21,6 +21,10 @@ fourier_anneal: fourier_anneal.o fourier_syn.o
 coeff2pkf: coeff2pkf.o fourier_syn.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) coeff2pkf.o fourier_syn.o $(LIB)
 
+guess_coeffs: guess_coeffs.o fourier_syn.o
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) guess_coeffs.o fourier_syn.o $(LIB)
+
+
 $(PROGS):
 	@echo Build $@
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)

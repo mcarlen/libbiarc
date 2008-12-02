@@ -11,10 +11,11 @@ float adjust(float x) {
   return (x+0.95/(3.*2.*M_PI)*sin(3.*2.*M_PI*x));
 }
 
-const int NODES = 163;
+float ropelength(TrefoilFourierKnot &fk);
+
+const int NODES = 83;
 float iNODES = 1./(float)NODES;
 float EPSILON;
-int SAME;
 
 #define randint(from,to) (rand()%(to-from+1)+from)
 #define myrand() ((float)rand()/(float)RAND_MAX)
@@ -22,8 +23,7 @@ int SAME;
 
 void init() {
   srand(time(NULL));
-  EPSILON = pow(0.1,randint(3,6));
-  SAME = rand()%2+1;
+  EPSILON = pow(0.1,randint(3,7));
 }
 
 /*
@@ -32,6 +32,68 @@ float cut_off(float x,float c):
   return x;
 }
 */
+
+/*!
+  Compute the numerical gradient of the TrefoilFourierKnot
+  knot with epsilon eps. grad is a pointer to a list of
+  coefficients.
+
+  Caution : grad is cleared at the beginning of the function!
+*/
+void gradient(TrefoilFourierKnot &knot, Coeffs *grad,
+              float eps= 1e-10) {
+  Coeff c;
+  grad->clear();
+  float left, knot_rope = ropelength(knot);
+  float iforeps = 1./(4.*eps);
+  TrefoilFourierKnot current(knot);
+  for (uint i=0;i<current.csin.size();++i) {
+    for (int j=0;j<3;++j) {
+      current.csin[i][j] -= eps;
+      left = ropelength(current);
+      current.csin[i][j] += 2*eps;
+      // central difference grad
+      c[j] = (2*knot_rope -left - ropelength(current))*iforeps;
+      current.csin[i][j] = knot.csin[i][j];
+    }
+    cout << "c=" << c << endl;
+    grad->push_back(c);
+  }
+  return;
+}
+
+int line_search(TrefoilFourierKnot *knot, const Coeffs &grad,
+                 float delta, float stop) {
+  float knot_rope = ropelength(*knot);
+  float current_rope = knot_rope + 1;
+  float distance;
+
+  TrefoilFourierKnot current(*knot);
+
+  distance = delta;
+  while (distance > stop && current_rope > knot_rope) {
+    for (uint i=0;i<current.csin.size();++i) {
+      current.csin[i] = knot->csin[i] + distance*grad[i];
+    }
+    current_rope = ropelength(current);
+    cout << "line_search:" << current_rope << endl;
+    distance /= 2;
+  }
+  if (distance > stop || current_rope < knot_rope) {
+    *knot = current;
+    return 1;
+  }
+  return 0;
+}
+
+void gradient_flow(TrefoilFourierKnot *knot) {
+  Coeffs grad;
+  gradient(*knot,&grad);
+  if (line_search(knot, grad, 1e-2, 1e-15))
+    cout << "grad -> :)\n";
+  else
+    cout << "grad -> :(\n";
+}
 
 void cook(TrefoilFourierKnot &knot, float eps= 0.0001) {
 
@@ -44,7 +106,7 @@ void cook(TrefoilFourierKnot &knot, float eps= 0.0001) {
     n = rand()%knot.csin.size();
     // XXX scale correctly, since csin[n][0,1,2] are different harmonics
     fac = eps/pow(n+1,1.5);
-    v = randvec(); cout << fac << " : " << v << endl;
+    v = randvec();
     knot.csin[n] += fac*v;
   }
 }
@@ -111,13 +173,14 @@ void improve(const char *filename) {
   float best_ropelength = ropelength(best), new_ropelength;
   int improvements = 0;
   cout << best_ropelength << " ============= " << NODES
-       << " " << EPSILON << " " << SAME << endl;
+       << " " << EPSILON << endl;
 
   for (int i=0;i<ITERATIONS;++i) {
     cook(fk,EPSILON);
     new_ropelength = ropelength(fk);
-    cout << i << " " << new_ropelength << endl;
+//    cout << i << " " << new_ropelength << endl;
     if (new_ropelength < best_ropelength) {
+      gradient_flow(&fk);
       best = fk;
       best_ropelength = new_ropelength;
       improvements += 1;
@@ -126,11 +189,12 @@ void improve(const char *filename) {
     else {
       // restore best
       fk = best;
-      cout << " - ";
+//      cout << " - ";
     }
   }
   cout << "rope=" << best_ropelength << ", success=" << improvements
-       << ", rate=" << (float)improvements/(float)ITERATIONS << endl;
+       << ", rate=" << (float)improvements/(float)ITERATIONS 
+       << " XXX=" << best_ropelength - 16.3719 << endl;
   // symmetrize(best);
   // XXX normalize best!!!
   ofstream of(filename);
