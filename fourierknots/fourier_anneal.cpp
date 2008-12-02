@@ -111,12 +111,10 @@ float step_min, step_max;
 
 static void increase(Coeffs &c, int m, int d) {
   c[m][d] *= (1.+STEP_CHANGE);
-  if (c[m][d] > step_max) step_max = c[m][d];
 }
 
 static void decrease(Coeffs &c, int m, int d) {
   c[m][d] *= (1.-STEP_CHANGE);
-  if (c[m][d] < step_min) step_min = c[m][d];
 }
 
 void anneal(float Temp, float Cooling,
@@ -149,6 +147,15 @@ void anneal(float Temp, float Cooling,
   int m, d, steps = 0; float csin_was;
   while (lTemp > stop) {
     if (steps++ % 30 == 0) {
+
+      step_max = 0; step_min = 1e20;
+      for (unsigned int m=0;m<knot.csin.size();++m) {
+        for (int d=0;d<3;++d) {
+          if (step_size[m][d]<step_min) step_min = step_size[m][d];
+          else if (step_size[m][d]>step_max) step_max = step_size[m][d];
+        }
+      }
+
       cout << "E=" << setprecision(8) << knot_rope << "  T=" << setprecision(4)
            << lTemp << setprecision(8)
            << "   smin=" << step_min << ",smax=" << step_max << setprecision(4)
