@@ -27,6 +27,8 @@ coeff2pkf: coeff2pkf.o fourier_syn.o
 guess_coeffs: guess_coeffs.o fourier_syn.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) guess_coeffs.o fourier_syn.o $(LIB)
 
+test: test.o fourier_syn.o
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) test.o fourier_syn.o $(LIB)
 
 $(PROGS):
 	@echo Build $@

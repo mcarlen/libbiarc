@@ -112,8 +112,12 @@ void gradient_flow(FourierKnot *knot) {
 }
 
 void symmetrize_4_1(FourierKnot *fk) {
+
+   // symmetry group (?) : fm: mirror_y + rot(pi/2)_y   , fr: rot(pi)_y , 
+   //                      fmi:  mirror_y + rot(3*pi/2)_y
+
    cout << "symmetrize_4_1" << endl;
-   FourierKnot fr(*fk), fm(*fk);
+   FourierKnot fr(*fk), fm(*fk), fmi(*fk);
 
    // First symmetry
    fr.rotate(Vector3(0,1,0),M_PI);
@@ -123,8 +127,31 @@ void symmetrize_4_1(FourierKnot *fk) {
    fm.mirror(Vector3(0,1,0));
    fm.rotate(Vector3(0,1,0),M_PI/2);
    fm.shift(-.25);
+
+   // Third symmetry
+   fmi.mirror(Vector3(0,1,0));
+   fmi.rotate(Vector3(0,1,0),3*M_PI/2);
+   fmi.shift(.25);
   
-   *fk = (fr+fm+(*fk))/3.;
+   *fk = (fr+fm+fmi+(*fk))/4.;
+}
+
+void zero41coeffs(FourierKnot *fk) {
+  // XXX this has to go away !! only for 4.1 
+  for (int m=0;m<fk->csin.size();++m) {
+    for (int d=0;d<3;++d) {
+      for (int i = 0; i<2;++i) {
+        if (i==0 && (m+d)%2==1) {
+//          cout << knot.csin[m][d] << endl;
+          fk->csin[m][d] = 0; 
+        }
+        if (i==1 && (m+d)%2==1) {
+//          cout << knot.ccos[m][d] << endl;
+          fk->ccos[m][d] = 0; 
+        }
+      }
+    }
+  }
 }
 
 #define SIN 0
@@ -153,6 +180,8 @@ void anneal(float Temp, float Cooling,
   float lTemp = Temp;
   float best_rope = ropelength(best);
   float curr_rope = best_rope, knot_rope = best_rope;
+
+  zero41coeffs(&knot);
 
   step_max[SIN] = step_min[SIN] = fabs(knot.csin[0][0]*.1);
   step_max[COS] = step_min[COS] = fabs(knot.ccos[0][0]*.1);
@@ -196,9 +225,21 @@ void anneal(float Temp, float Cooling,
            << "  Diff=" << best_rope - 21.04472593 << endl;
     }
 
+// XXX this has to go away !! only for 4.1 
+again:
     m = rand()%knot.csin.size();
     d = rand()%3;
     i = rand()%2;
+    if (i==SIN && (m+d) % 2==1) {
+      knot.csin[m][d] = 0; 
+      goto again; 
+    }
+    if (i==COS && (m+d) % 2==1) {
+      knot.ccos[m][d] = 0; 
+      goto again; 
+    }
+//
+
     if (i==SIN) {
       coeff_was = knot.csin[m][d];
       knot.csin[m][d] += step_size[SIN][m][d]*myrand();
@@ -227,8 +268,10 @@ XXX gradient_flow not ready
       // dump(best,"test.pkf");
       increase(step_size[i],m,d);
 
-      if (myrand01() < 0.1)
+      if (myrand01() < 0.1) {
         symmetrize_4_1(&knot);
+        zero41coeffs(&knot);
+      }
 
     }
     else if (myrand01() <= exp(-(knot_rope-curr_rope)/lTemp)) {
