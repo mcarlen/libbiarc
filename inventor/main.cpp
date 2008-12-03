@@ -399,7 +399,7 @@ int main(int argc, char **argv) {
 */
     }
     // Mark beginning of curve!
-    materials[i]->diffuseColor.set1Value(0,ColorTable[1]);
+//    materials[i]->diffuseColor.set1Value(0,ColorTable[1]);
 
     materials[i]->transparency = transp;
 

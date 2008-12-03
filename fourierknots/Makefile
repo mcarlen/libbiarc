@@ -18,6 +18,9 @@ all: coeff2pkf
 fourier_anneal: fourier_anneal.o fourier_syn.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fourier_anneal.o fourier_syn.o $(LIB)
 
+fourier_anneal_generic: fourier_anneal_generic.o fourier_syn.o
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fourier_anneal_generic.o fourier_syn.o $(LIB)
+
 coeff2pkf: coeff2pkf.o fourier_syn.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) coeff2pkf.o fourier_syn.o $(LIB)
 

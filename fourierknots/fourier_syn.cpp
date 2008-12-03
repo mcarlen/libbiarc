@@ -43,6 +43,59 @@ void FourierKnot::setConst(Coeff constant) { c0 = constant; }
 void FourierKnot::setSin(Coeffs lsin) { csin = lsin; }
 void FourierKnot::setCos(Coeffs lcos) { ccos = lcos; }
 
+/*!
+  Scale FourierKnot coefficients by d.
+*/
+FourierKnot FourierKnot::operator*(const float d) const {
+  FourierKnot fk;
+  for (uint i=0;i<csin.size();++i) {
+    fk.csin.push_back(csin[i]*d);
+    fk.ccos.push_back(ccos[i]*d);
+  }
+  fk.c0 = c0*d;
+  return fk;
+}
+
+/*!
+  Scale FourierKnot coefficients by 1./d.
+*/
+FourierKnot FourierKnot::operator/(const float d) const {
+  if (d==0) cerr << "FourierKnot::operator/ : div by 0\n";
+  return (*this)*(1./d);
+}
+
+/*!
+  Sum of two FourierKnots. The summed FourierKnot's can have
+  different sized coefficient vectors.
+*/
+FourierKnot FourierKnot::operator+(const FourierKnot &fk) const {
+  FourierKnot sum;
+
+  int LocalSmaller = csin.size()<fk.csin.size();
+  int N=min(csin.size(),fk.csin.size());
+  int Nmax= max(fk.csin.size(),csin.size());
+
+  for (int i=0;i<N;++i) {
+    sum.csin.push_back(csin[i]+fk.csin[i]);
+    sum.ccos.push_back(ccos[i]+fk.ccos[i]);
+  }
+
+  if (LocalSmaller)
+    for (int i=N;i<Nmax;++i) {
+      sum.csin.push_back(fk.csin[i]);
+      sum.ccos.push_back(fk.ccos[i]);
+    }
+  else
+    for (int i=N;i<Nmax;++i) {
+      sum.csin.push_back(csin[i]);
+      sum.ccos.push_back(ccos[i]);
+    }
+
+  sum.c0 = c0 + fk.c0;
+
+  return sum;
+}
+
 // point at curve(s), s in (0,1)
 Vector3 FourierKnot::operator()(float t) {
   float f;
@@ -106,6 +159,18 @@ void FourierKnot::rotate(Vector3 v,float alpha) {
   for (uint i=0;i<csin.size();++i) {
     csin[i] = D*csin[i];
     ccos[i] = D*ccos[i];
+  }
+}
+
+/*!
+  Mirror image of the knot along the axis v
+*/
+void FourierKnot::mirror(Vector3 v) {
+  Vector3 v2 = v/v.norm();
+  c0 = c0 -2*v2.dot(c0)*v2;
+  for (uint i=0;i<csin.size();++i) {
+    csin[i] = csin[i]- 2*v2.dot(csin[i])*v2;
+    ccos[i] = ccos[i]- 2*v2.dot(ccos[i])*v2;
   }
 }
 

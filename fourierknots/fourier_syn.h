@@ -26,7 +26,7 @@ public:
 
   // Constructor / Destructor
   FourierKnot();
-  ~FourierKnot();
+  virtual ~FourierKnot();
   FourierKnot(const char* file);
   FourierKnot(Coeffs lsin, Coeffs lcos);
   FourierKnot(Coeff constant, Coeffs lsin, Coeffs lcos);
@@ -44,8 +44,13 @@ public:
   virtual void toCurve(const int sampling, Curve<Vector3> *curve);
   virtual void toCurve(float(*pt2func)(float), const int sampling, Curve<Vector3> *curve);
   void rotate(Vector3 v,float alpha);
+  void mirror(Vector3 v);
   void flip_dir(float sh = 0);
   void shift(float sh);
+
+  FourierKnot operator*(const float d) const;
+  FourierKnot operator/(const float d) const;
+  FourierKnot operator+(const FourierKnot &fk) const;
 
   // Friend classes
   friend istream& operator>>(istream &in, FourierKnot &fk);
@@ -81,13 +86,19 @@ public:
   friend istream& operator>>(istream &in, TrefoilFourierKnot &fk);
 };
 
-// (Trefoil)FourierKnot Classes I/O Friends
+inline Vector3 cut(Vector3 v) {
+  if (fabs(v[0])<1e-15) v[0] = 0;
+  if (fabs(v[1])<1e-15) v[1] = 0;
+  if (fabs(v[2])<1e-15) v[2] = 0;
+  return v;
+}
 
+// (Trefoil)FourierKnot Classes I/O Friends
 inline ostream& operator<<(ostream &out, const FourierKnot &fk) {
   assert(fk.ccos.size()==fk.csin.size());
   out << fk.c0 << endl;
   for (uint i=0;i<fk.ccos.size();++i)
-    out << fk.ccos[i] << " " << fk.csin[i] << endl;
+    out << cut(fk.ccos[i]) << " " << cut(fk.csin[i]) << endl;
   return out;
 }
 

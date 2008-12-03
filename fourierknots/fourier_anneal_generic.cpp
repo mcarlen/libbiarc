@@ -16,11 +16,13 @@ float adjust(float x) {
   return (x+0.95/(3.*2.*M_PI)*sin(3.*2.*M_PI*x));
 }
 
-float ropelength(TrefoilFourierKnot &fk);
+float ropelength(FourierKnot &fk);
 
-void dump(TrefoilFourierKnot &fk, const char* filename) {
+// XXX this is so slow!!!
+void dump(FourierKnot &fk, const char* filename) {
   Curve<Vector3> curve;
-  fk.toCurve(adjust,NODES,&curve);
+  // XXX no node adjustment
+  fk.toCurve(NODES,&curve);
   curve.link();
   curve.make_default();
   curve.normalize();
@@ -45,19 +47,20 @@ float cut_off(float x,float c):
 */
 
 /*!
-  Compute the numerical gradient of the TrefoilFourierKnot
+  Compute the numerical gradient of the FourierKnot
   knot with epsilon eps. grad is a pointer to a list of
   coefficients.
 
   Caution : grad is cleared at the beginning of the function!
 */
-void gradient(TrefoilFourierKnot &knot, Coeffs *grad,
+// XXX not adapted to FourierKnot
+void gradient(FourierKnot &knot, Coeffs *grad,
               float eps= 1e-10) {
   Coeff c;
   grad->clear();
   float left, knot_rope = ropelength(knot);
   float iforeps = 1./(4.*eps);
-  TrefoilFourierKnot current(knot);
+  FourierKnot current(knot);
   for (uint i=0;i<current.csin.size();++i) {
     for (int j=0;j<3;++j) {
       current.csin[i][j] -= eps;
@@ -73,13 +76,14 @@ void gradient(TrefoilFourierKnot &knot, Coeffs *grad,
   return;
 }
 
-int line_search(TrefoilFourierKnot *knot, const Coeffs &grad,
+// XXX not adapted to FourierKnot
+int line_search(FourierKnot *knot, const Coeffs &grad,
                  float delta, float stop) {
   float knot_rope = ropelength(*knot);
   float current_rope = knot_rope + 1;
   float distance;
 
-  TrefoilFourierKnot current(*knot);
+  FourierKnot current(*knot);
 
   distance = delta;
   while (distance > stop && current_rope > knot_rope) {
@@ -97,7 +101,8 @@ int line_search(TrefoilFourierKnot *knot, const Coeffs &grad,
   return 0;
 }
 
-void gradient_flow(TrefoilFourierKnot *knot) {
+// XXX not adapted to FourierKnot
+void gradient_flow(FourierKnot *knot) {
   Coeffs grad;
   gradient(*knot,&grad);
   if (line_search(knot, grad, 1e-2, 1e-15))
@@ -106,8 +111,27 @@ void gradient_flow(TrefoilFourierKnot *knot) {
     cout << "grad -> :(\n";
 }
 
+void symmetrize_4_1(FourierKnot *fk) {
+   cout << "symmetrize_4_1" << endl;
+   FourierKnot fr(*fk), fm(*fk);
+
+   // First symmetry
+   fr.rotate(Vector3(0,1,0),M_PI);
+   fr.shift(0.5);
+ 
+   // Second symmetry
+   fm.mirror(Vector3(0,1,0));
+   fm.rotate(Vector3(0,1,0),M_PI/2);
+   fm.shift(-.25);
+  
+   *fk = (fr+fm+(*fk))/3.;
+}
+
+#define SIN 0
+#define COS 0
+
 const float STEP_CHANGE = 0.05;
-float step_min, step_max;
+float step_min[2], step_max[2];
 
 static void increase(Coeffs &c, int m, int d) {
   c[m][d] *= (1.+STEP_CHANGE);
@@ -120,57 +144,78 @@ static void decrease(Coeffs &c, int m, int d) {
 void anneal(float Temp, float Cooling,
             float stop, const char* filename) {
 
-  Coeffs step_size;
-  Coeff c;
+  Coeffs step_size[2];
+  Coeff c[2];
 
-  TrefoilFourierKnot best(filename);
-  TrefoilFourierKnot knot(best);
+  FourierKnot best(filename);
+  FourierKnot knot(best);
 
   float lTemp = Temp;
   float best_rope = ropelength(best);
   float curr_rope = best_rope, knot_rope = best_rope;
-  step_max = step_min = fabs(knot.csin[0][0]*.1);
+
+  step_max[SIN] = step_min[SIN] = fabs(knot.csin[0][0]*.1);
+  step_max[COS] = step_min[COS] = fabs(knot.ccos[0][0]*.1);
 
   for (unsigned int m=0;m<knot.csin.size();++m) {
-    for (int d=0;d<3;++d) {
-      c[d] = fabs(knot.csin[m][d]*.1);
-      if (c[d]<1e-20) c[d] = 1e-6;
+    for (int i=0;i<2;++i) {
+      for (int d=0;d<3;++d) {
+        c[i][d] = (i==SIN?fabs(knot.csin[m][d]*.1):fabs(knot.ccos[m][d]*.1));
+        if (c[i][d]<1e-20) c[i][d] = 1e-6;
 
-      if (c[d]<step_min) step_min = c[d];
-      else if (c[d]>step_max) step_max = c[d];
+        if (c[i][d]<step_min[i]) step_min[i] = c[i][d];
+        else if (c[i][d]>step_max[i]) step_max[i] = c[i][d];
+      }
+      step_size[i].push_back(c[i]);
     }
-    step_size.push_back(c);
   }
 
   // XXX stop condition
   cout << setprecision(16);
-  int m, d, steps = 0; float csin_was;
+  int m, d, i, steps = 0; float coeff_was;
   while (lTemp > stop) {
-    if (steps++ % 30 == 0) {
+    if (steps++ % 100 == 0) {
 
-      step_max = 0; step_min = 1e20;
+      step_max[0] = step_max[1] = 0;
+      step_min[0] = step_min[1] = 1e20;
       for (unsigned int m=0;m<knot.csin.size();++m) {
         for (int d=0;d<3;++d) {
-          if (step_size[m][d]<step_min) step_min = step_size[m][d];
-          else if (step_size[m][d]>step_max) step_max = step_size[m][d];
+          for (int i=0;i<2;++i) {
+            if (step_size[i][m][d]<step_min[i])
+              step_min[i] = step_size[i][m][d];
+            else if (step_size[i][m][d]>step_max[i])
+              step_max[i] = step_size[i][m][d];
+          }
         }
       }
 
       cout << "E=" << setprecision(8) << knot_rope << "  T=" << setprecision(4)
-           << lTemp << setprecision(8)
-           << "   smin=" << step_min << ",smax=" << step_max << setprecision(4)
-           << "  Diff=" << best_rope - 16.3719 << endl;
+           << lTemp << setprecision(4)
+           << "  s=" << step_min[0] << "/" << step_max[0] << "-"
+           << step_min[1] << "/" << step_max[1]
+           << "  Diff=" << best_rope - 21.04472593 << endl;
     }
+
     m = rand()%knot.csin.size();
     d = rand()%3;
-    csin_was = knot.csin[m][d];
-    knot.csin[m][d] += step_size[m][d]*myrand();
+    i = rand()%2;
+    if (i==SIN) {
+      coeff_was = knot.csin[m][d];
+      knot.csin[m][d] += step_size[SIN][m][d]*myrand();
+    }
+    else { // COS
+      coeff_was = knot.ccos[m][d];
+      knot.ccos[m][d] += step_size[COS][m][d]*myrand();
+    }
   
     knot_rope = ropelength(knot);
     if (knot_rope < best_rope) {
+/*
+XXX gradient_flow not ready
       if (myrand01() < 0.01) {
         gradient_flow(&knot);
       }
+*/
       knot_rope = ropelength(knot);
       cout << "anneal : " << setprecision(10) << knot_rope << " -> :)\n";
       best_rope = knot_rope;
@@ -179,24 +224,31 @@ void anneal(float Temp, float Cooling,
       ofstream of(filename);
       of << setprecision(16) << best;
       of.close();
-      // XXX this is so slow
       // dump(best,"test.pkf");
-      increase(step_size,m,d);
+      increase(step_size[i],m,d);
+
+      if (myrand01() < 0.1)
+        symmetrize_4_1(&knot);
+
     }
     else if (myrand01() <= exp(-(knot_rope-curr_rope)/lTemp)) {
       curr_rope = knot_rope;
-      increase(step_size,m,d);
+      increase(step_size[i],m,d);
     }
     else {
-      knot.csin[m][d] = csin_was;
+      if (i==SIN)
+        knot.csin[m][d] = coeff_was;
+      else
+        knot.ccos[m][d] = coeff_was;
       knot_rope = curr_rope;
-      decrease(step_size,m,d);
+      decrease(step_size[i],m,d);
     }
     lTemp *= (1.-Cooling);
   }
 }
 
-void cook(TrefoilFourierKnot &knot, float eps= 0.0001) {
+// XXX not adapted to FourierKnot
+void cook(FourierKnot &knot, float eps= 0.0001) {
 
   // ???
   int m = randint(1, knot.csin.size());
@@ -236,9 +288,9 @@ def symmetrize(coeff):
      coeff[i] = (coeff[i] + f1f.coeff[i] + f2.coeff[i] + f2f.coeff[i] + f3.coeff[i] + f3f.coeff[i])/6.
 */
 
-float ropelength(TrefoilFourierKnot &fk) {
+float ropelength(FourierKnot &fk) {
   Curve<Vector3> curve;
-  fk.toCurve(adjust,NODES,&curve);
+  fk.toCurve(NODES,&curve);
   curve.link();
   curve.make_default();
   float D = curve.thickness();
@@ -246,6 +298,7 @@ float ropelength(TrefoilFourierKnot &fk) {
   return L/D;
 }
 
+// XXX not adapted to FourierKnot
 void improve(const char *filename) {
 
   const int ITERATIONS = 100;
@@ -260,7 +313,7 @@ void improve(const char *filename) {
       ]
 */
 
-  TrefoilFourierKnot fk(filename), best(filename);
+  FourierKnot fk(filename), best(filename);
 
   float best_ropelength = ropelength(best), new_ropelength;
   int improvements = 0;
@@ -295,10 +348,14 @@ void improve(const char *filename) {
   dump(best,"test.pkf");
 }
 
-int main() {
+int main(int argc, char** argv) {
+  if (argc!=2) {
+    cout << "Usage : " << argv[0] << " <generic_coeff_file>\n";
+    exit(0);
+  }
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.0009, C = 1e-6, stop = 1e-12;
-  anneal(T,C,stop,"mycoeffs.txt");
+  float T = 0.001, C = 1e-5, stop = 1e-12;
+  anneal(T,C,stop,argv[1]);
   return 0;
 }
