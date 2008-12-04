@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
   cb = new CurveBundle<Vector3>(argv[1]);
   cb->link();
   cb->make_default();
-  cb->thickness();
+//  cb->thickness();
 
   cout << "OK" << endl << flush;
 
@@ -102,6 +102,12 @@ int main(int argc, char **argv) {
       cout << "." << (*cb)[0].thickness() << endl;
       continue;
     }
+
+   if (token.compare("ropelength")==0) {
+      cout << "." << (*cb)[0].length()/(*cb)[0].thickness() << endl;
+      continue;
+    }
+
 
     if (token.compare("scale")==0) {
       token.assign(strtok(NULL,":"));

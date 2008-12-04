@@ -139,10 +139,10 @@ void CheckKnot(CurveBundle<TVec> &rKnot) {
       }
       p=rKnot[i][n].getPoint();
       t=rKnot[i][n].getTangent();
-      if (abs(p.norm2()-1.0)>0.00001) {
+      if (fabs(p.norm2()-1.0)>0.00001) {
         cerr << "Node not on sphere" << i << " " << n << endl;
       }
-      if (abs(p.dot(t))>0.00001) {
+      if (fabs(p.dot(t))>0.00001) {
         cerr << "Node-tangent not in T(sphere)" << i << " " << n << endl;
       }
     }
@@ -203,10 +203,33 @@ float LengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
                 + 1e-8*(off_equi)/s_dMinSegDistance;
 }
 
+float MaxLengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
+  // s_dMinSegDistance=rKnot.MinSegDistanceCache();
+  const double minthickness = 1.17556;
+  double off_equi, length;
+  rKnot.make_default();
+  s_dMinSegDistance = rKnot.thickness();
+  if (s_dMinSegDistance > 100) {
+    cout << "TOO BIG : " << s_dMinSegDistance << endl;
+    exit(12);
+  }
+  if (s_dMinSegDistance < 1e-6) {
+    cout << "NEG ENERGY! : " << s_dMinSegDistance << endl;
+    exit(11);
+  } //__qurick
+  off_equi = (rKnot[0].maxSegDistance() / rKnot[0].minSegDistance());
+  length = rKnot.length();
+  // return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
 
-#if 0
-#define Energy LengthEnergy_fixedThickness_e
-#define Energy_str "LengthEnergy_fixedThickness_e"
+  // On S^3 we maximize thickness
+  return 100. -length 
+                + ((s_dMinSegDistance > minthickness )?0:(exp(10.0*(minthickness - s_dMinSegDistance))-1)) 
+                + 1e-8*(off_equi)/s_dMinSegDistance;
+}
+
+#if 1 
+#define Energy MaxLengthEnergy_fixedThickness_e
+#define Energy_str "MaxLengthEnergy_fixedThickness_e"
 #else
 #define Energy ThicknessEnergy_e
 #define Energy_str "ThicknessEnergy_e"
