@@ -33,6 +33,7 @@ class Matrix3 {
   Matrix3& outer(const Vector3 &a, const Vector3 &b);
   Matrix3& vecCross(const Vector3 &v);
   Matrix3& cay(const Vector3 &v);
+  Matrix3& rotAround(const Vector3 &v, float angle);
 
   Matrix3 operator*(const Matrix3 &m);
   Vector3 operator*(const Vector3 &v);

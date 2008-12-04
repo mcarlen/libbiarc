@@ -68,6 +68,7 @@ class Vector4 {
 
   void print(ostream &out) const;
   friend ostream & operator << (ostream &out, const Vector4 &v);
+  friend istream & operator >> (istream &in, Vector4 &v);
 
 };
 
@@ -83,5 +84,11 @@ inline ostream & operator<< (ostream &out, const Vector4 &v) {
   v.print(out);
   return out;
 }
+
+inline istream & operator>> (istream &in, Vector4 &v) {
+  in >> v[0] >> v[1] >> v[2] >> v[3];
+  return in;
+}
+
 
 #endif	// _VECTOR4_H_

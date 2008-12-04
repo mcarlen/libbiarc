@@ -76,7 +76,7 @@ set title "Curvature/rho for $knot"
 plot [0:$L] [0:1] "$knot.curvature" using 3:4 with steps notitle, "$knot.curvature" using 3:5 with steps notitle
 set output "$knot-rho.png
 set title "rho for $knot"
-plot [0:$L] [.9:1] "$knot.curvature" using 3:5 with steps notitle
+plot [0:$L] [.99:1] "$knot.curvature" using 3:5 with steps notitle
 EOF
 
 echo "pp/pt/tt plots"
