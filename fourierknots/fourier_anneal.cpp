@@ -2,7 +2,8 @@
 #include "../include/algo_helpers.h"
 #include <iomanip>
 
-const int NODES = 301;
+const int NODES = 284; // 184;
+
 float iNODES = 1./(float)NODES;
 float EPSILON;
 
@@ -133,7 +134,7 @@ void anneal(float Temp, float Cooling,
 
   for (unsigned int m=0;m<knot.csin.size();++m) {
     for (int d=0;d<3;++d) {
-      c[d] = fabs(knot.csin[m][d]*.1);
+      c[d] = fabs(knot.csin[m][d]*.5);
       if (c[d]<1e-20) c[d] = 1e-6;
 
       if (c[d]<step_min) step_min = c[d];
@@ -298,7 +299,8 @@ void improve(const char *filename) {
 int main() {
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.001, C = 1e-5, stop = 1e-12;
+  float T = 0.00001, C = 2e-5, stop = 1e-12;
+
   anneal(T,C,stop,"mycoeffs.txt");
   return 0;
 }
