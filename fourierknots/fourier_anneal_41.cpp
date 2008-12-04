@@ -1,4 +1,4 @@
-#include "fourier_syn.h"
+#include "fourier_4_1.h"
 #include "../include/algo_helpers.h"
 #include <iomanip>
 
@@ -16,10 +16,10 @@ float adjust(float x) {
   return (x+0.95/(3.*2.*M_PI)*sin(3.*2.*M_PI*x));
 }
 
-float ropelength(FourierKnot &fk);
+float ropelength(K41FourierKnot &fk);
 
 // XXX this is so slow!!!
-void dump(FourierKnot &fk, const char* filename) {
+void dump(K41FourierKnot &fk, const char* filename) {
   Curve<Vector3> curve;
   // XXX no node adjustment
   fk.toCurve(NODES,&curve);
@@ -47,20 +47,20 @@ float cut_off(float x,float c):
 */
 
 /*!
-  Compute the numerical gradient of the FourierKnot
+  Compute the numerical gradient of the K41FourierKnot
   knot with epsilon eps. grad is a pointer to a list of
   coefficients.
 
   Caution : grad is cleared at the beginning of the function!
 */
-// XXX not adapted to FourierKnot
-void gradient(FourierKnot &knot, Coeffs *grad,
+// XXX not adapted to K41FourierKnot
+void gradient(K41FourierKnot &knot, Coeffs *grad,
               float eps= 1e-10) {
   Coeff c;
   grad->clear();
   float left, knot_rope = ropelength(knot);
   float iforeps = 1./(4.*eps);
-  FourierKnot current(knot);
+  K41FourierKnot current(knot);
   for (uint i=0;i<current.csin.size();++i) {
     for (int j=0;j<3;++j) {
       current.csin[i][j] -= eps;
@@ -76,14 +76,14 @@ void gradient(FourierKnot &knot, Coeffs *grad,
   return;
 }
 
-// XXX not adapted to FourierKnot
-int line_search(FourierKnot *knot, const Coeffs &grad,
+// XXX not adapted to K41FourierKnot
+int line_search(K41FourierKnot *knot, const Coeffs &grad,
                  float delta, float stop) {
   float knot_rope = ropelength(*knot);
   float current_rope = knot_rope + 1;
   float distance;
 
-  FourierKnot current(*knot);
+  K41FourierKnot current(*knot);
 
   distance = delta;
   while (distance > stop && current_rope > knot_rope) {
@@ -101,8 +101,8 @@ int line_search(FourierKnot *knot, const Coeffs &grad,
   return 0;
 }
 
-// XXX not adapted to FourierKnot
-void gradient_flow(FourierKnot *knot) {
+// XXX not adapted to K41FourierKnot
+void gradient_flow(K41FourierKnot *knot) {
   Coeffs grad;
   gradient(*knot,&grad);
   if (line_search(knot, grad, 1e-2, 1e-15))
@@ -111,34 +111,35 @@ void gradient_flow(FourierKnot *knot) {
     cout << "grad -> :(\n";
 }
 
-void symmetrize_4_1(FourierKnot *fk) {
+void symmetrize_4_1(K41FourierKnot *fk) {
 
-   // symmetry group (?) : fm: mirror_y + rot(pi/2)_y   , fr: rot(pi)_y , 
-   //                      fmi:  mirror_y + rot(3*pi/2)_y
+  // symmetry group (?) : fm: mirror_y + rot(pi/2)_y   , fr: rot(pi)_y , 
+  //                      fmi:  mirror_y + rot(3*pi/2)_y
 
-   cout << "symmetrize_4_1" << endl;
-   FourierKnot fr(*fk), fm(*fk), fmi(*fk);
+  cout << "symmetrize_4_1" << endl;
+  K41FourierKnot fr(*fk), fm(*fk), fmi(*fk);
 
-   // First symmetry
-   fr.rotate(Vector3(0,1,0),M_PI);
-   fr.shift(0.5);
+  // First symmetry
+  fr.rotate(Vector3(0,1,0),M_PI);
+  fr.shift(0.5);
  
-   // Second symmetry
-   fm.mirror(Vector3(0,1,0));
-   fm.rotate(Vector3(0,1,0),M_PI/2);
-   fm.shift(-.25);
+  // Second symmetry
+  fm.mirror(Vector3(0,1,0));
+  fm.rotate(Vector3(0,1,0),M_PI/2);
+  fm.shift(-.25);
 
-   // Third symmetry
-   fmi.mirror(Vector3(0,1,0));
-   fmi.rotate(Vector3(0,1,0),3*M_PI/2);
-   fmi.shift(.25);
+  // Third symmetry
+  fmi.mirror(Vector3(0,1,0));
+  fmi.rotate(Vector3(0,1,0),3*M_PI/2);
+  fmi.shift(.25);
   
-   *fk = (fr+fm+fmi+(*fk))/4.;
+  *fk = (fr+fm+fmi+(*fk));
+  (*fk)/=4.;
 }
 
-void zero41coeffs(FourierKnot *fk, Coeffs step_size[]) {
+void zero41coeffs(K41FourierKnot *fk, Coeffs step_size[]) {
   // XXX this has to go away !! only for 4.1 
-  for (int m=0;m<fk->csin.size();++m) {
+  for (unsigned int m=0;m<fk->csin.size();++m) {
     for (int d=0;d<3;++d) {
       for (int i = 0; i<2;++i) {
         if (i==0 && (m+d)%2==1) {
@@ -183,8 +184,8 @@ void anneal(float Temp, float Cooling,
   Coeffs step_size[2];
   Coeff c[2];
 
-  FourierKnot best(filename);
-  FourierKnot knot(best);
+  K41FourierKnot best(filename);
+  K41FourierKnot knot(best);
 
   float lTemp = Temp;
   float best_rope = ropelength(best);
@@ -318,7 +319,7 @@ XXX gradient_flow not ready
         knot.toCurve(NODES,&curve);
         curve.link();
         curve.make_default();
-        knot = knot/curve.length();
+        knot/=curve.length();
       }
 
     }
@@ -339,8 +340,8 @@ XXX gradient_flow not ready
   }
 }
 
-// XXX not adapted to FourierKnot
-void cook(FourierKnot &knot, float eps= 0.0001) {
+// XXX not adapted to K41FourierKnot
+void cook(K41FourierKnot &knot, float eps= 0.0001) {
 
   // ???
   int m = randint(1, knot.csin.size());
@@ -358,21 +359,21 @@ void cook(FourierKnot &knot, float eps= 0.0001) {
 
 /* TODO
 def symmetrize(coeff):
-   f1f = FourierKnot(coeff[:])
+   f1f = K41FourierKnot(coeff[:])
    f1f.rotate([1,0,0],math.pi)
    f1f.flip_dir()
 
-   f2 = FourierKnot(coeff[:])
+   f2 = K41FourierKnot(coeff[:])
    f2.shift(1./3.)
    f2.rotate([0,0,1],math.pi* 2./3.)
-   f2f = FourierKnot(f2.coeff[:])
+   f2f = K41FourierKnot(f2.coeff[:])
    f2f.rotate([-0.5, math.sqrt(3)/2., 0],math.pi)
    f2f.flip_dir(2./3.)
 
-   f3 = FourierKnot(coeff[:])
+   f3 = K41FourierKnot(coeff[:])
    f3.shift(2./3.)
    f3.rotate([0,0,1],math.pi* 4./3.)
-   f3f = FourierKnot(f3.coeff[:])
+   f3f = K41FourierKnot(f3.coeff[:])
    f3f.rotate([-0.5, -math.sqrt(3)/2., 0],math.pi)
    f3f.flip_dir(1./3.)
 
@@ -380,7 +381,7 @@ def symmetrize(coeff):
      coeff[i] = (coeff[i] + f1f.coeff[i] + f2.coeff[i] + f2f.coeff[i] + f3.coeff[i] + f3f.coeff[i])/6.
 */
 
-float ropelength(FourierKnot &fk) {
+float ropelength(K41FourierKnot &fk) {
   Curve<Vector3> curve;
   fk.toCurve(NODES,&curve);
   curve.link();
@@ -390,7 +391,7 @@ float ropelength(FourierKnot &fk) {
   return L/D;
 }
 
-// XXX not adapted to FourierKnot
+// XXX not adapted to K41FourierKnot
 void improve(const char *filename) {
 
   const int ITERATIONS = 100;
@@ -405,7 +406,7 @@ void improve(const char *filename) {
       ]
 */
 
-  FourierKnot fk(filename), best(filename);
+  K41FourierKnot fk(filename), best(filename);
 
   float best_ropelength = ropelength(best), new_ropelength;
   int improvements = 0;

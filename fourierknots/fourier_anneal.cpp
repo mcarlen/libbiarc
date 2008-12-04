@@ -1,8 +1,8 @@
-#include "fourier_syn.h"
+#include "fourier_3_1.h"
 #include "../include/algo_helpers.h"
 #include <iomanip>
 
-const int NODES = 83;
+const int NODES = 301;
 float iNODES = 1./(float)NODES;
 float EPSILON;
 
@@ -298,7 +298,7 @@ void improve(const char *filename) {
 int main() {
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.0009, C = 1e-6, stop = 1e-12;
+  float T = 0.001, C = 1e-5, stop = 1e-12;
   anneal(T,C,stop,"mycoeffs.txt");
   return 0;
 }

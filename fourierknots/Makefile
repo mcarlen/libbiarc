@@ -15,20 +15,24 @@ all: coeff2pkf
 .cpp.o:
 	$(CXX) $(FLAGS) -o $@ -c $<
 
-fourier_anneal: fourier_anneal.o fourier_syn.o
-	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fourier_anneal.o fourier_syn.o $(LIB)
+fourier_anneal: fourier_anneal.o fourier_syn.o fourier_3_1.o
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fourier_anneal.o fourier_syn.o fourier_3_1.o $(LIB)
 
 fourier_anneal_generic: fourier_anneal_generic.o fourier_syn.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fourier_anneal_generic.o fourier_syn.o $(LIB)
 
-coeff2pkf: coeff2pkf.o fourier_syn.o
-	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) coeff2pkf.o fourier_syn.o $(LIB)
+fourier_anneal_41: fourier_anneal_41.o fourier_syn.o fourier_4_1.o
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fourier_anneal_41.o fourier_4_1.o fourier_syn.o $(LIB)
+
+
+coeff2pkf: coeff2pkf.o fourier_syn.o fourier_3_1.o fourier_4_1.o
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) coeff2pkf.o fourier_3_1.o fourier_4_1.o fourier_syn.o $(LIB)
 
 guess_coeffs: guess_coeffs.o fourier_syn.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) guess_coeffs.o fourier_syn.o $(LIB)
 
-test: test.o fourier_syn.o
-	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) test.o fourier_syn.o $(LIB)
+test: test.o fourier_syn.o fourier_4_1.o
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) test.o fourier_syn.o fourier_4_1.o $(LIB)
 
 $(PROGS):
 	@echo Build $@

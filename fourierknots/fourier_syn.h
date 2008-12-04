@@ -1,3 +1,6 @@
+#ifndef __FOURIER_SYN__
+#define __FOURIER_SYN__
+
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
@@ -59,33 +62,6 @@ public:
 };
 
 
-// Observation (for trefoil) : cos_y = 0, cos_z = 0, sin_x = 0
-// AND cos_x[i] = -sin_y[i], cos_x[i+1] = sin_y[i+1]
-//
-// 3/24 => 1/8 info needed
-// cosx cosy cosz sinx siny sinz
-// -A 0 0 0 A 0
-//  B 0 0 0 B 0
-//  0 0 0 0 0 C
-class TrefoilFourierKnot : public FourierKnot {
-
-public:
-
-  // Constructors
-  TrefoilFourierKnot();
-  TrefoilFourierKnot(const char* file);
-  TrefoilFourierKnot(const TrefoilFourierKnot &tfk);
-
-  TrefoilFourierKnot& operator=(const TrefoilFourierKnot &tfk);
-  Vector3 operator()(float t);
-  Vector3 prime(float t); 
-  void scale(float s);
-
-  // Friend classes
-  friend ostream& operator<<(ostream &out, const TrefoilFourierKnot &fk);
-  friend istream& operator>>(istream &in, TrefoilFourierKnot &fk);
-};
-
 inline Vector3 cut(Vector3 v) {
   if (fabs(v[0])<1e-15) v[0] = 0;
   if (fabs(v[1])<1e-15) v[1] = 0;
@@ -93,7 +69,7 @@ inline Vector3 cut(Vector3 v) {
   return v;
 }
 
-// (Trefoil)FourierKnot Classes I/O Friends
+// FourierKnot Classes I/O Friends
 inline ostream& operator<<(ostream &out, const FourierKnot &fk) {
   assert(fk.ccos.size()==fk.csin.size());
   out << fk.c0 << endl;
@@ -121,26 +97,4 @@ inline istream& operator>>(istream &in, FourierKnot &fk) {
   return in;
 }
 
-inline ostream& operator<<(ostream &out, const TrefoilFourierKnot &fk) {
-  for (uint i=0;i<fk.csin.size();++i)
-    out << fk.csin[i] << endl;
-  return out;
-}
-
-// Read in a trefoil fourier coeff file
-// structure :
-// sin_y_i sin_y_{i+1} sin_z_{i+2}        // this is 3 rows in the standart fourier coeff file
-// ...
-inline istream& operator>>(istream &in, TrefoilFourierKnot &fk) {
-  // csin not used in a trefoil fourier knot
-  Coeff c;
-  while ((in >> c)) {
-    fk.csin.push_back(c);
-  }
-  if (in.fail() && !in.eof()) {
-    cerr << "istream (TrefoilFourierKnot) : Bad input!\n";
-    exit(1);
-  };
-  return in;
-}
-
+#endif // __FOURIER_SYN__
