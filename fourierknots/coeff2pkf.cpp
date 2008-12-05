@@ -1,15 +1,5 @@
 #include <fourier_syn.h>
 
-float adjust(float x) {
-  return x+0.9/(3.*2.*M_PI)*sin(3.*2.*M_PI*x);
-}
-
-float adjust2(float x) {
-  float s = 0.95;
-  return (x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x) +
-         s/(3.*2.*M_PI)*sin(3.*2.*M_PI*(x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x))));
-}
-
 /*!
   Given a path to a coefficient file, sample the Fourier Knot
   and write it to out.pkf.

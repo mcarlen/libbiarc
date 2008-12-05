@@ -2,25 +2,16 @@
 #include "../include/algo_helpers.h"
 #include <iomanip>
 
-const int NODES = 83;
+const int NODES = 308; // 184;
 float iNODES = 1./(float)NODES;
 float EPSILON;
 
-float adjust2(float x) {
-  float s = 0.8;
-  return x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x) +
-         s/(3.*2.*M_PI)*sin(3.*2.*M_PI*(x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x)));
-}
-
-float adjust(float x) {
-  return (x+0.95/(3.*2.*M_PI)*sin(3.*2.*M_PI*x));
-}
 
 float ropelength(TrefoilFourierKnot &fk);
 
 void dump(TrefoilFourierKnot &fk, const char* filename) {
   Curve<Vector3> curve;
-  fk.toCurve(adjust,NODES,&curve);
+  fk.toCurve(adjust3,NODES,&curve);
   curve.link();
   curve.make_default();
   curve.normalize();
@@ -124,7 +115,9 @@ void anneal(float Temp, float Cooling,
   Coeff c;
 
   TrefoilFourierKnot best(filename);
+  best.shift(0.01);
   TrefoilFourierKnot knot(best);
+  cout << "shift " << knot._shift << endl;
 
   float lTemp = Temp;
   float best_rope = ropelength(best);
@@ -133,7 +126,7 @@ void anneal(float Temp, float Cooling,
 
   for (unsigned int m=0;m<knot.csin.size();++m) {
     for (int d=0;d<3;++d) {
-      c[d] = fabs(knot.csin[m][d]*.1);
+      c[d] = fabs(knot.csin[m][d]*.5);
       if (c[d]<1e-20) c[d] = 1e-6;
 
       if (c[d]<step_min) step_min = c[d];
@@ -168,7 +161,7 @@ void anneal(float Temp, float Cooling,
   
     knot_rope = ropelength(knot);
     if (knot_rope < best_rope) {
-      if (myrand01() < 0.01) {
+      if (myrand01() < 0.001) {
         gradient_flow(&knot);
       }
       knot_rope = ropelength(knot);
@@ -237,7 +230,7 @@ def symmetrize(coeff):
 
 float ropelength(TrefoilFourierKnot &fk) {
   Curve<Vector3> curve;
-  fk.toCurve(adjust,NODES,&curve);
+  fk.toCurve(adjust3,NODES,&curve);
   curve.link();
   curve.make_default();
   float D = curve.thickness();
@@ -297,7 +290,7 @@ void improve(const char *filename) {
 int main() {
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.00009, C = 1e-7, stop = 1e-12;
+  float T = 0.00001, C = 2e-5, stop = 1e-12;
   anneal(T,C,stop,"mycoeffs.txt");
   return 0;
 }

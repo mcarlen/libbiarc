@@ -140,15 +140,18 @@ TrefoilFourierKnot::TrefoilFourierKnot(const char* file) {
     cerr << "TrefoilFourierKnot : Could not read " << file << endl;
     exit(2);
   }
+  _shift = 0.0;
 }
 
 TrefoilFourierKnot::TrefoilFourierKnot(const TrefoilFourierKnot &tfk) {
   clear();
+  _shift = tfk._shift;
   csin = tfk.csin;
 }
 
 TrefoilFourierKnot& TrefoilFourierKnot::operator=(const TrefoilFourierKnot &tfk) {
   clear();
+  _shift = 0.0;
   csin = tfk.csin;
   return *this;
 }
@@ -159,6 +162,7 @@ TrefoilFourierKnot& TrefoilFourierKnot::operator=(const TrefoilFourierKnot &tfk)
 Vector3 TrefoilFourierKnot::operator()(float t) {
   float f1,f2,f3;
   Vector3 r(0,0,0);
+  t += _shift;
   // XXX optimise/cache this (precompute cos(f1*t) ... and swap values 1<-2<-3, precomp 3 iterate
   for (uint i=0;i<csin.size();++i) {
     f1 = (float)(3*i+1)*(2.*M_PI);
@@ -175,6 +179,7 @@ Vector3 TrefoilFourierKnot::operator()(float t) {
 // tangent at curve(t)
 Vector3 TrefoilFourierKnot::prime(float t) {
   Vector3 r; float f1,f2,f3;
+  t += _shift;
   // XXX optimise/cache this
   for (uint i=0;i<csin.size();++i) {
     f1 = (float)(3*i+1)*(2.*M_PI);
@@ -195,6 +200,10 @@ void TrefoilFourierKnot::scale(float s) {
     csin[i] *= s;
 }
 
+void TrefoilFourierKnot::shift(float sh) {
+  _shift = sh;
+}
+
 
 // Translate a normal coeff file to trefoil sparse coeff file
 static void coeffs2fourier(const char* file, FourierKnot *fk) {
@@ -205,6 +214,44 @@ static void coeffs2fourier(const char* file, FourierKnot *fk) {
     // cout << v << endl;
     fk->csin.push_back(v);
   }
+}
+
+
+float adjusthelper(float x, float a1, float h1, float a2, float h2) {
+  const float C=1./6.;
+  float r = C - a1 -a2;
+  float hr = C - h1 - h2;
+  if (x < r) {
+    return x * hr/r;
+  }
+  if (x < r+a2) {
+    return hr+(x-r)*h2/a2;
+  }
+  if (x < C + a1) {
+    return hr+h2+(x-r-a2)*h1/a1;
+  }
+  if (x < C + a1 + a2) {
+    return hr+h2+2*h1+(x-C-a1)*h2/a2;
+  }
+  return hr+2*h2+2*h1+(x-C-a1-a2)*hr/r;
+}
+
+float adjust3(float x) {
+  float shift = 0.0;
+  while (x<0.) {x+=1./3.; shift-=1./3.; }
+  while (x>1./3.) {x-=1./3.; shift+=1./3.; }
+  return shift + adjusthelper(x);
+}
+
+float adjust2(float x) {
+  float s = 0.8;
+  return x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x) +
+         s/(3.*2.*M_PI)*sin(3.*2.*M_PI*(x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x)));
+}
+
+
+float adjust(float x) {
+  return (x+0.95/(3.*2.*M_PI)*sin(3.*2.*M_PI*x));
 }
 
 // #define TEST
