@@ -12,7 +12,7 @@ float ropelength(TrefoilFourierKnot &fk);
 
 void dump(TrefoilFourierKnot &fk, const char* filename) {
   Curve<Vector3> curve;
-  fk.toCurve(adjust3,NODES,&curve);
+  fk.toCurve(adjust,NODES,&curve);
   curve.link();
   curve.make_default();
   curve.normalize();
@@ -232,7 +232,7 @@ def symmetrize(coeff):
 
 float ropelength(TrefoilFourierKnot &fk) {
   Curve<Vector3> curve;
-  fk.toCurve(adjust3,NODES,&curve);
+  fk.toCurve(adjust,NODES,&curve);
   curve.link();
   curve.make_default();
   float D = curve.thickness();

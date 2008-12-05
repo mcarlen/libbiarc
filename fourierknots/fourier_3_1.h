@@ -58,7 +58,7 @@ inline istream& operator>>(istream &in, TrefoilFourierKnot &fk) {
 }
 
 
-float adjusthelper(float x, float a1=0.01, float h1=0.01, float a2=0.05, float h2=0.005);
+float adjusthelper(float x, float a1=0.01, float h1=0.01, float a2=0.07, float h2=0.005);
 float adjust3(float x);
 float adjust2(float x);
 float adjust(float x);

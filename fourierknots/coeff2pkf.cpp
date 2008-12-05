@@ -1,18 +1,6 @@
 #include "fourier_3_1.h"
 #include "fourier_4_1.h"
 
-float adjust(float x) {
-  // return x+0.9/(3.*2.*M_PI)*sin(3.*2.*M_PI*x);
-  float off = M_PI/2+.1;
-  return x+0.95/(3.*M_PI)*sin(3.*M_PI*x+off)*sin(3.*M_PI*x+off);
-}
-
-float adjust2(float x) {
-  float s = 0.95;
-  return (x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x) +
-         s/(3.*2.*M_PI)*sin(3.*2.*M_PI*(x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x))));
-}
-
 // This is clunky (3 funcs for doing the same)
 void genn(const int N, const char* infile, const char* outfile) {
   Curve<Vector3> knot;
