@@ -2,28 +2,29 @@
 #include "fourier_4_1.h"
 
 // This is clunky (3 funcs for doing the same)
-void genn(const int N, const char* infile, const char* outfile) {
+Curve<Vector3> genn(const int N, const char* infile, const char* outfile) {
   Curve<Vector3> knot;
   FourierKnot fk(infile);
   fk.toCurve(N,&knot);
   knot.header("fourier normal","coeff2pkf","","");
   knot.writePKF(outfile);
+  return knot;
 }
 
-void gen3(const int N, const char* infile, const char* outfile) {
+Curve<Vector3> gen3(const int N, const char* infile, const char* outfile) {
   Curve<Vector3> knot;
   TrefoilFourierKnot fk(infile);
   fk.toCurve(adjust,N,&knot);
   knot.header("fourier trefoil","coeff2pkf","","");
-  knot.writePKF(outfile);
+  return knot;
 }
 
-void gen4(const int N, const char* infile, const char* outfile) {
+Curve<Vector3> gen4(const int N, const char* infile, const char* outfile) {
   Curve<Vector3> knot;
   K41FourierKnot fk(infile);
   fk.toCurve(N,&knot);
   knot.header("fourier 4.1","coeff2pkf","","");
-  knot.writePKF(outfile);
+  return knot;
 }
 
 
@@ -43,15 +44,22 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
+  Curve<Vector3> knot;
   int N = atoi(argv[2]);
   char *infile = argv[3], *outfile = argv[4];
 
   switch(argv[1][0]) {
-  case 'n': genn(N,infile,outfile); break;
-  case '3': gen3(N,infile,outfile); break;
-  case '4': gen4(N,infile,outfile); break;
+  case 'n': knot=genn(N,infile,outfile); break;
+  case '3': knot=gen3(N,infile,outfile); break;
+  case '4': knot=gen4(N,infile,outfile); break;
   default:
     cerr << "Wrong Fourier Knot type (n/3/4)\n";
     exit(1);
   }
+  cout << "normalizing knot." << endl;
+  knot.link();
+  knot.make_default();
+  knot.normalize();
+
+  knot.writePKF(outfile);
 }
