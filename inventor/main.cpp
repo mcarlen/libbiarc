@@ -18,6 +18,7 @@
 #include <Inventor/details/SoLineDetail.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
 #include <Inventor/actions/SoWriteAction.h>
+#include <Inventor/nodes/SoOrthographicCamera.h>
 
 #ifdef RENDERMAN
 #include "ri.h"
@@ -64,6 +65,7 @@ char filename[50];
 SoSeparator **knot_node;
 SoKnot **knot_shape;
 TubeBundle<Vector3> *Knot;
+Tube<Vector3> tube_tmp;
 
 SoMaterialBinding **material_bindings;
 SoMaterial **materials;
@@ -399,7 +401,7 @@ int main(int argc, char **argv) {
 */
     }
     // Mark beginning of curve!
-    materials[i]->diffuseColor.set1Value(0,ColorTable[1]);
+//    materials[i]->diffuseColor.set1Value(0,ColorTable[1]);
 
     materials[i]->transparency = transp;
 
@@ -458,6 +460,7 @@ if (!(*Knot)[i].isClosed()) {
     myViewer->setBackgroundColor(SbColor(1,1,1));
 
   myViewer->setFeedbackVisibility(TRUE);
+  myViewer->setCameraType(SoOrthographicCamera::getClassTypeId());
 
   myViewer->setTitle("KnotViewer");
   myViewer->show();
@@ -626,6 +629,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
   float CamAngle; SbVec3f CamAxis, CamPos;
   SbRotation CamOrientation;
+  SbMatrix sbmat; Matrix3 mat3;
 
   static int mx,my;
   static int SPECIAL_MOUSE = 0;
@@ -784,7 +788,16 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     //
     case Qt::Key_W:
-      knot_shape[0]->getKnot()->writePKF("curve.pkf");
+
+      CamOrientation = myViewer->getCamera()->orientation.getValue();
+      CamOrientation.getValue(sbmat);
+      mat3[0][0] = sbmat[0][0]; mat3[0][1] = sbmat[1][0]; mat3[0][2] = sbmat[2][0];
+      mat3[1][0] = sbmat[0][1]; mat3[1][1] = sbmat[1][1]; mat3[1][2] = sbmat[2][1];
+      mat3[2][0] = sbmat[0][2]; mat3[2][1] = sbmat[1][2]; mat3[2][2] = sbmat[2][2];
+      
+      tube_tmp = *(knot_shape[0]->getKnot());
+      tube_tmp.apply(mat3).writePKF("curve.pkf");
+//      tube_tmp->apply(->writePKF("curve.pkf");
       cout << "Current curve state written to curve.pkf.\n";
       break;
 

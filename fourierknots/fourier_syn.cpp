@@ -43,6 +43,59 @@ void FourierKnot::setConst(Coeff constant) { c0 = constant; }
 void FourierKnot::setSin(Coeffs lsin) { csin = lsin; }
 void FourierKnot::setCos(Coeffs lcos) { ccos = lcos; }
 
+/*!
+  Scale FourierKnot coefficients by d.
+*/
+FourierKnot FourierKnot::operator*(const float d) const {
+  FourierKnot fk;
+  for (uint i=0;i<csin.size();++i) {
+    fk.csin.push_back(csin[i]*d);
+    fk.ccos.push_back(ccos[i]*d);
+  }
+  fk.c0 = c0*d;
+  return fk;
+}
+
+/*!
+  Scale FourierKnot coefficients by 1./d.
+*/
+FourierKnot FourierKnot::operator/(const float d) const {
+  if (d==0) cerr << "FourierKnot::operator/ : div by 0\n";
+  return (*this)*(1./d);
+}
+
+/*!
+  Sum of two FourierKnots. The summed FourierKnot's can have
+  different sized coefficient vectors.
+*/
+FourierKnot FourierKnot::operator+(const FourierKnot &fk) const {
+  FourierKnot sum;
+
+  int LocalSmaller = csin.size()<fk.csin.size();
+  int N=min(csin.size(),fk.csin.size());
+  int Nmax= max(fk.csin.size(),csin.size());
+
+  for (int i=0;i<N;++i) {
+    sum.csin.push_back(csin[i]+fk.csin[i]);
+    sum.ccos.push_back(ccos[i]+fk.ccos[i]);
+  }
+
+  if (LocalSmaller)
+    for (int i=N;i<Nmax;++i) {
+      sum.csin.push_back(fk.csin[i]);
+      sum.ccos.push_back(fk.ccos[i]);
+    }
+  else
+    for (int i=N;i<Nmax;++i) {
+      sum.csin.push_back(csin[i]);
+      sum.ccos.push_back(ccos[i]);
+    }
+
+  sum.c0 = c0 + fk.c0;
+
+  return sum;
+}
+
 // point at curve(s), s in (0,1)
 Vector3 FourierKnot::operator()(float t) {
   float f;
@@ -109,6 +162,18 @@ void FourierKnot::rotate(Vector3 v,float alpha) {
   }
 }
 
+/*!
+  Mirror image of the knot along the axis v
+*/
+void FourierKnot::mirror(Vector3 v) {
+  Vector3 v2 = v/v.norm();
+  c0 = c0 -2*v2.dot(c0)*v2;
+  for (uint i=0;i<csin.size();++i) {
+    csin[i] = csin[i]- 2*v2.dot(csin[i])*v2;
+    ccos[i] = ccos[i]- 2*v2.dot(ccos[i])*v2;
+  }
+}
+
 // Flips the paramtrization orientation of the curve
 void FourierKnot::flip_dir(float sh) {
   if (sh!=0)
@@ -131,128 +196,6 @@ void FourierKnot::shift(float sh) {
   }
 }
 
-TrefoilFourierKnot::TrefoilFourierKnot() {}
-
-TrefoilFourierKnot::TrefoilFourierKnot(const char* file) {
-  ifstream in(file);
-  if (in.good()) in >> *this;
-  else {
-    cerr << "TrefoilFourierKnot : Could not read " << file << endl;
-    exit(2);
-  }
-  _shift = 0.0;
-}
-
-TrefoilFourierKnot::TrefoilFourierKnot(const TrefoilFourierKnot &tfk) {
-  clear();
-  _shift = tfk._shift;
-  csin = tfk.csin;
-}
-
-TrefoilFourierKnot& TrefoilFourierKnot::operator=(const TrefoilFourierKnot &tfk) {
-  clear();
-  _shift = 0.0;
-  csin = tfk.csin;
-  return *this;
-}
-
-
-
-// point at curve(s), s in (0,1)
-Vector3 TrefoilFourierKnot::operator()(float t) {
-  float f1,f2,f3;
-  Vector3 r(0,0,0);
-  t += _shift;
-  // XXX optimise/cache this (precompute cos(f1*t) ... and swap values 1<-2<-3, precomp 3 iterate
-  for (uint i=0;i<csin.size();++i) {
-    f1 = (float)(3*i+1)*(2.*M_PI);
-    f2 = (float)(3*i+2)*(2.*M_PI);
-    f3 = (float)(3*i+3)*(2.*M_PI);
-    // formula for cos(a)-sin(a)?
-    r += Vector3(-csin[i][0]*cos(f1*t)+csin[i][1]*cos(f2*t),
-                  csin[i][0]*sin(f1*t)+csin[i][1]*sin(f2*t),
-                  csin[i][2]*(sin(f3*t)));
-  }
-  return r;
-}
-
-// tangent at curve(t)
-Vector3 TrefoilFourierKnot::prime(float t) {
-  Vector3 r; float f1,f2,f3;
-  t += _shift;
-  // XXX optimise/cache this
-  for (uint i=0;i<csin.size();++i) {
-    f1 = (float)(3*i+1)*(2.*M_PI);
-    f2 = (float)(3*i+2)*(2.*M_PI);
-    f3 = (float)(3*i+3)*(2.*M_PI);
-    // formula for cos(a)-sin(a)?
-    r += Vector3(f1*csin[i][0]*sin(f1*t)-f2*csin[i][1]*sin(f2*t),
-                 f1*csin[i][0]*cos(f1*t)+f2*csin[i][1]*cos(f2*t),
-                 f3*csin[i][2]*(cos(f3*t)));
-  }
-  r.normalize();
-  return r;
-}
- 
-void TrefoilFourierKnot::scale(float s) {
-  c0 *= s;
-  for (uint i=0;i<csin.size();++i)
-    csin[i] *= s;
-}
-
-void TrefoilFourierKnot::shift(float sh) {
-  _shift = sh;
-}
-
-
-// Translate a normal coeff file to trefoil sparse coeff file
-static void coeffs2fourier(const char* file, FourierKnot *fk) {
-  FourierKnot tmp(file); Vector3 v;
-  fk->clear();
-  for (uint i=0;i<tmp.csin.size();i+=3) {
-    v.setValues(tmp.csin[i][1],tmp.csin[i+1][1],tmp.csin[i+2][2]);
-    // cout << v << endl;
-    fk->csin.push_back(v);
-  }
-}
-
-
-float adjusthelper(float x, float a1, float h1, float a2, float h2) {
-  const float C=1./6.;
-  float r = C - a1 -a2;
-  float hr = C - h1 - h2;
-  if (x < r) {
-    return x * hr/r;
-  }
-  if (x < r+a2) {
-    return hr+(x-r)*h2/a2;
-  }
-  if (x < C + a1) {
-    return hr+h2+(x-r-a2)*h1/a1;
-  }
-  if (x < C + a1 + a2) {
-    return hr+h2+2*h1+(x-C-a1)*h2/a2;
-  }
-  return hr+2*h2+2*h1+(x-C-a1-a2)*hr/r;
-}
-
-float adjust3(float x) {
-  float shift = 0.0;
-  while (x<0.) {x+=1./3.; shift-=1./3.; }
-  while (x>1./3.) {x-=1./3.; shift+=1./3.; }
-  return shift + adjusthelper(x);
-}
-
-float adjust2(float x) {
-  float s = 0.8;
-  return x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x) +
-         s/(3.*2.*M_PI)*sin(3.*2.*M_PI*(x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x)));
-}
-
-
-float adjust(float x) {
-  return (x+0.95/(3.*2.*M_PI)*sin(3.*2.*M_PI*x));
-}
 
 // #define TEST
 #ifdef TEST

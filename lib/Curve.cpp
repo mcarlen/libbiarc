@@ -169,7 +169,7 @@ Curve<Vector>::Curve() { init(); }
   \sa operator=
 */
 template<class Vector>
-Curve<Vector>::Curve(const Curve<Vector> &curve) {
+Curve<Vector>::Curve(const Curve<Vector> &curve) : PKFmanip((const PKFmanip&)curve) {
   init();
   *this = curve;
 }
@@ -207,6 +207,9 @@ Curve<Vector>::Curve(istream &in) {
 */
 template<class Vector>
 Curve<Vector>& Curve<Vector>::operator= (const Curve<Vector> &c) {
+
+  *(PKFmanip*)(this) = ((const PKFmanip&)c);
+
   if (this->nodes()!=0) this->flush_all();
   _Biarcs.insert(_Biarcs.begin(),c._Biarcs.begin(),c._Biarcs.end());
   if (c.isClosed())

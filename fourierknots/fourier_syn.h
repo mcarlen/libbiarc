@@ -1,3 +1,6 @@
+#ifndef __FOURIER_SYN__
+#define __FOURIER_SYN__
+
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
@@ -26,7 +29,7 @@ public:
 
   // Constructor / Destructor
   FourierKnot();
-  ~FourierKnot();
+  virtual ~FourierKnot();
   FourierKnot(const char* file);
   FourierKnot(Coeffs lsin, Coeffs lcos);
   FourierKnot(Coeff constant, Coeffs lsin, Coeffs lcos);
@@ -44,8 +47,13 @@ public:
   virtual void toCurve(const int sampling, Curve<Vector3> *curve);
   virtual void toCurve(float(*pt2func)(float), const int sampling, Curve<Vector3> *curve);
   void rotate(Vector3 v,float alpha);
+  void mirror(Vector3 v);
   void flip_dir(float sh = 0);
   void shift(float sh);
+
+  FourierKnot operator*(const float d) const;
+  FourierKnot operator/(const float d) const;
+  FourierKnot operator+(const FourierKnot &fk) const;
 
   // Friend classes
   friend istream& operator>>(istream &in, FourierKnot &fk);
@@ -54,43 +62,19 @@ public:
 };
 
 
-// Observation (for trefoil) : cos_y = 0, cos_z = 0, sin_x = 0
-// AND cos_x[i] = -sin_y[i], cos_x[i+1] = sin_y[i+1]
-//
-// 3/24 => 1/8 info needed
-// cosx cosy cosz sinx siny sinz
-// -A 0 0 0 A 0
-//  B 0 0 0 B 0
-//  0 0 0 0 0 C
-class TrefoilFourierKnot : public FourierKnot {
+inline Vector3 cut(Vector3 v) {
+  if (fabs(v[0])<1e-15) v[0] = 0;
+  if (fabs(v[1])<1e-15) v[1] = 0;
+  if (fabs(v[2])<1e-15) v[2] = 0;
+  return v;
+}
 
-public:
-  // Members
-  float _shift;
-
-  // Constructors
-  TrefoilFourierKnot();
-  TrefoilFourierKnot(const char* file);
-  TrefoilFourierKnot(const TrefoilFourierKnot &tfk);
-
-  TrefoilFourierKnot& operator=(const TrefoilFourierKnot &tfk);
-  Vector3 operator()(float t);
-  Vector3 prime(float t); 
-  void scale(float s);
-  void shift(float sh);
-
-  // Friend classes
-  friend ostream& operator<<(ostream &out, const TrefoilFourierKnot &fk);
-  friend istream& operator>>(istream &in, TrefoilFourierKnot &fk);
-};
-
-// (Trefoil)FourierKnot Classes I/O Friends
-
+// FourierKnot Classes I/O Friends
 inline ostream& operator<<(ostream &out, const FourierKnot &fk) {
   assert(fk.ccos.size()==fk.csin.size());
   out << fk.c0 << endl;
   for (uint i=0;i<fk.ccos.size();++i)
-    out << fk.ccos[i] << " " << fk.csin[i] << endl;
+    out << cut(fk.ccos[i]) << " " << cut(fk.csin[i]) << endl;
   return out;
 }
 
@@ -113,30 +97,4 @@ inline istream& operator>>(istream &in, FourierKnot &fk) {
   return in;
 }
 
-inline ostream& operator<<(ostream &out, const TrefoilFourierKnot &fk) {
-  for (uint i=0;i<fk.csin.size();++i)
-    out << fk.csin[i] << endl;
-  return out;
-}
-
-// Read in a trefoil fourier coeff file
-// structure :
-// sin_y_i sin_y_{i+1} sin_z_{i+2}        // this is 3 rows in the standart fourier coeff file
-// ...
-inline istream& operator>>(istream &in, TrefoilFourierKnot &fk) {
-  // csin not used in a trefoil fourier knot
-  Coeff c;
-  while ((in >> c)) {
-    fk.csin.push_back(c);
-  }
-  if (in.fail() && !in.eof()) {
-    cerr << "istream (TrefoilFourierKnot) : Bad input!\n";
-    exit(1);
-  };
-  return in;
-}
-
-float adjusthelper(float x, float a1=0.01, float h1=0.01, float a2=0.05, float h2=0.005);
-float adjust3(float x);
-float adjust2(float x);
-float adjust(float x);
+#endif // __FOURIER_SYN__

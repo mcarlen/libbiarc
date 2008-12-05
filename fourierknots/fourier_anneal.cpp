@@ -1,8 +1,9 @@
-#include "fourier_syn.h"
+#include "fourier_3_1.h"
 #include "../include/algo_helpers.h"
 #include <iomanip>
 
-const int NODES = 308; // 184;
+const int NODES = 284; // 184;
+
 float iNODES = 1./(float)NODES;
 float EPSILON;
 
@@ -172,7 +173,8 @@ void anneal(float Temp, float Cooling,
       ofstream of(filename);
       of << setprecision(16) << best;
       of.close();
-      dump(best,"test.pkf");
+      // XXX this is so slow
+      // dump(best,"test.pkf");
       increase(step_size,m,d);
     }
     else if (myrand01() <= exp(-(knot_rope-curr_rope)/lTemp)) {
@@ -291,6 +293,7 @@ int main() {
   init();
 //  improve("mycoeffs.txt");
   float T = 0.00001, C = 2e-5, stop = 1e-12;
+
   anneal(T,C,stop,"mycoeffs.txt");
   return 0;
 }
