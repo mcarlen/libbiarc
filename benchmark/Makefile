@@ -10,13 +10,16 @@ PROF=-O2
 #-g -pg
 KNOTLIB=${HOME}/work/links-knots
 
-all: bench benchben
+all: bench benchben thickness_gprof
 
 bench: bench.cpp
-	$(LINKER) ${PROF} -I../include -o $@ -L../lib bench.cpp ../lib/libbiarc.a -lrt
+	$(LINKER) ${PROF} ${INCLUDE} -o $@ ${LIB_INC} bench.cpp ../lib/libbiarc.a -lrt
 
 benchben: bench.cpp
 	$(LINKER) ${PROF} -DBENCH_BEN -DLINUX -I${KNOTLIB}/include -o $@ bench.cpp ${KNOTLIB}/lib/libknot.a -lrt
+
+thickness_gprof: thickness_gprof.cpp
+	$(CXX) ${FLAGS} -o $@ $< -pg ${LIB_INC} -lbiarc
 
 clean:
 	@-rm -f bench benchben
