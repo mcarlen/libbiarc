@@ -209,8 +209,6 @@ void anneal(float Temp, float Cooling,
     }
   }
 
-  zero41coeffs(&knot, step_size);
-
   // XXX stop condition
   cout << setprecision(16);
   int m, d, sc, steps = 0, success = 0; 
@@ -312,9 +310,6 @@ XXX gradient_flow not ready
       success++;
 
       if (myrand01() < 0.1) {
-        // symmetrize_4_1(&knot);
-        // zero41coeffs(&knot,step_size);
-
         Curve<Vector3> curve;
         knot.toCurve(NODES,&curve);
         curve.link();
@@ -448,7 +443,7 @@ int main(int argc, char** argv) {
   }
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.00001, C = 1e-5, stop = 1e-12;
+  float T = 0.001, C = 1e-5, stop = 1e-12;
   anneal(T,C,stop,argv[1]);
   return 0;
 }

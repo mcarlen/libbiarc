@@ -159,7 +159,7 @@ void zero41coeffs(FourierKnot *fk, Coeffs step_size[]) {
 #define SIN 0
 #define COS 1
 
-const float STEP_CHANGE = 0.01;
+const float STEP_CHANGE = 0.05;
 float step_min[2], step_max[2];
 
 /*
@@ -208,8 +208,6 @@ void anneal(float Temp, float Cooling,
     }
   }
 
-  zero41coeffs(&knot, step_size);
-
   // XXX stop condition
   cout << setprecision(16);
   int m, d, sc, steps = 0, success = 0; 
@@ -253,12 +251,15 @@ void anneal(float Temp, float Cooling,
     }
 
 // XXX this has to go away !! only for 4.1 
+/*
 again:
+*/
     m = rand()%knot.csin.size();
     d = rand()%3;
     sc = rand()%2;
+/*
     if (step_size[sc][m][d] == 0.0) goto again;
-//
+*/
 
     if (sc==SIN) {
       coeff_was = knot.csin[m][d];
@@ -311,9 +312,6 @@ XXX gradient_flow not ready
       success++;
 
       if (myrand01() < 0.1) {
-        // symmetrize_4_1(&knot);
-        // zero41coeffs(&knot,step_size);
-
         Curve<Vector3> curve;
         knot.toCurve(NODES,&curve);
         curve.link();
@@ -447,7 +445,7 @@ int main(int argc, char** argv) {
   }
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.00001, C = 1e-5, stop = 1e-12;
+  float T = 0.0001, C = 1e-5, stop = 1e-12;
   anneal(T,C,stop,argv[1]);
   return 0;
 }

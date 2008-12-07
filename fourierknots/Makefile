@@ -18,6 +18,11 @@ all: coeff2pkf
 fourier_anneal: fourier_anneal.o fourier_syn.o fourier_3_1.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fourier_anneal.o fourier_syn.o fourier_3_1.o $(LIB)
 
+profile: clean
+	$(CXX) $(FLAGS) -DPROFILING -o profile $(LIB_INC) fourier_anneal.cpp fourier_syn.cpp fourier_3_1.cpp -pg $(LIB)
+	./profile
+	gprof -b profile
+
 fourier_anneal_generic: fourier_anneal_generic.o fourier_syn.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fourier_anneal_generic.o fourier_syn.o $(LIB)
 
@@ -33,6 +38,9 @@ guess_coeffs: guess_coeffs.o fourier_syn.o
 
 test: test.o fourier_syn.o fourier_4_1.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) test.o fourier_syn.o fourier_4_1.o $(LIB)
+
+sym: sym.o fourier_syn.o
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) sym.o fourier_syn.o $(LIB)
 
 $(PROGS):
 	@echo Build $@

@@ -1,6 +1,8 @@
 #include "fourier_syn.h"
 #include "../include/Curve.h"
 
+#define check(v) {if (curve[0].getPoint()[0]>1e10) {cout << v << endl;}}
+
 int main(int argc, char** argv) {
 
   if (argc!=5) {
@@ -15,10 +17,10 @@ int main(int argc, char** argv) {
   Vector3 vsin, vcos;
 
   curve.link();
-  curve.make_default();
+  curve.make_default(); 
   curve.resample(Samples);
+  curve.make_default(); 
   curve.normalize();
-  curve.make_default();
 
   vector<Biarc<Vector3> >::iterator it;
   float dx = 2*M_PI/(float)Samples, x;

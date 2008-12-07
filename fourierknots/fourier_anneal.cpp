@@ -2,7 +2,13 @@
 #include "../include/algo_helpers.h"
 #include <iomanip>
 
+#include "/home/carlen/coding/numeric_algos/cubicspline.h"
+
+#ifdef PROFILING
+const int NODES = 83;
+#else
 const int NODES = 284; // 184;
+#endif
 
 float iNODES = 1./(float)NODES;
 float EPSILON;
@@ -147,6 +153,9 @@ void anneal(float Temp, float Cooling,
   cout << setprecision(16);
   int m, d, steps = 0; float csin_was;
   while (lTemp > stop) {
+#ifdef PROFILING
+    if (steps==100) { cout << "Profiling asks for exit!\n"; exit(0); }
+#endif
     if (steps++ % 30 == 0) {
 
       step_max = 0; step_min = 1e20;
@@ -240,6 +249,7 @@ def symmetrize(coeff):
 float ropelength(TrefoilFourierKnot &fk) {
   Curve<Vector3> curve;
   fk.toCurve(adjust,NODES,&curve);
+//  fk.toCurve(adjust_with_spline,NODES,&curve);
   curve.link();
   curve.make_default();
   float D = curve.thickness();

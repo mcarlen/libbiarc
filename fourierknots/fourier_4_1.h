@@ -29,34 +29,12 @@ public:
   K41FourierKnot& operator*=(const float d);
   K41FourierKnot& operator/=(const float d);
 
-  // Friend classes, we use the same structure as the normal coeff file (with constant 0 0 0)
-//  friend ostream& operator<<(ostream &out, const K41FourierKnot &fk);
-//  friend istream& operator>>(istream &in, K41FourierKnot &fk);
+  /*
+     I/O classes not overloaded!
+     We use the same structure as the normal coeff file
+     (with constant 0 0 0). This means we can use the
+     parent classe's operator<< and operator>>.
+  */
 };
-
-/*
-inline ostream& operator<<(ostream &out, const K41FourierKnot &fk) {
-  for (uint i=0;i<fk.csin.size();++i)
-    out << fk.ccos[i] << " " << fk.csin[i] << endl;
-  return out;
-}
-
-// Read in a figure eight fourier coeff file
-// structure :
-// sin_y_i sin_y_{i+1} sin_z_{i+2}        // this is 3 rows in the standart fourier coeff file
-// ...
-inline istream& operator>>(istream &in, K41FourierKnot &fk) {
-  // csin not used in a trefoil fourier knot
-  Coeff c;
-  while ((in >> c)) {
-    fk.csin.push_back(c);
-  }
-  if (in.fail() && !in.eof()) {
-    cerr << "istream (K41FourierKnot) : Bad input!\n";
-    exit(1);
-  };
-  return in;
-}
-*/
 
 #endif // __FOURIER_4_1__

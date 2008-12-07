@@ -1,10 +1,10 @@
 #include "fourier_3_1.h"
 #include "fourier_4_1.h"
 
+#include "/home/carlen/coding/numeric_algos/cubicspline.h"
+
 float adjust(float x) {
-  // return x+0.9/(3.*2.*M_PI)*sin(3.*2.*M_PI*x);
-  float off = M_PI/2+.1;
-  return x+0.95/(3.*M_PI)*sin(3.*M_PI*x+off)*sin(3.*M_PI*x+off);
+  return x+0.9/(3.*2.*M_PI)*sin(3.*2.*M_PI*x);
 }
 
 float adjust2(float x) {
@@ -26,6 +26,7 @@ void gen3(const int N, const char* infile, const char* outfile) {
   Curve<Vector3> knot;
   TrefoilFourierKnot fk(infile);
   fk.toCurve(adjust,N,&knot);
+//  fk.toCurve(adjust_with_spline,N,&knot);
   knot.header("fourier trefoil","coeff2pkf","","");
   knot.writePKF(outfile);
 }
