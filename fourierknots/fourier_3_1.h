@@ -14,6 +14,8 @@
 class TrefoilFourierKnot : public FourierKnot {
 
 public:
+  // Members
+  float _shift;
 
   // Constructors
   TrefoilFourierKnot();
@@ -24,6 +26,7 @@ public:
   Vector3 operator()(float t);
   Vector3 prime(float t); 
   void scale(float s);
+  void shift(float sh);
 
   // Friend classes
   friend ostream& operator<<(ostream &out, const TrefoilFourierKnot &fk);
@@ -53,5 +56,11 @@ inline istream& operator>>(istream &in, TrefoilFourierKnot &fk) {
   };
   return in;
 }
+
+
+float adjusthelper(float x, float a1=0.01, float h1=0.01, float a2=0.07, float h2=0.005);
+float adjust3(float x);
+float adjust2(float x);
+float adjust(float x);
 
 #endif // __FOURIER_3_1__

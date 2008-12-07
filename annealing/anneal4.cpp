@@ -139,10 +139,10 @@ void CheckKnot(CurveBundle<TVec> &rKnot) {
       }
       p=rKnot[i][n].getPoint();
       t=rKnot[i][n].getTangent();
-      if (abs(p.norm2()-1.0)>0.00001) {
+      if (fabs(p.norm2()-1.0)>0.00001) {
         cerr << "Node not on sphere" << i << " " << n << endl;
       }
-      if (abs(p.dot(t))>0.00001) {
+      if (fabs(p.dot(t))>0.00001) {
         cerr << "Node-tangent not in T(sphere)" << i << " " << n << endl;
       }
     }
@@ -199,14 +199,37 @@ float LengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
 
   // On S^3 we maximize thickness
   return length 
-                + ((s_dMinSegDistance > minthickness )?0:(exp(10*(minthickness - s_dMinSegDistance))-1)) 
-                + 1e-6*(off_equi)/s_dMinSegDistance;
+                + ((s_dMinSegDistance > minthickness )?0:(exp(10.0*(minthickness - s_dMinSegDistance))-1)) 
+                + 1e-8*(off_equi)/s_dMinSegDistance;
 }
 
+float MaxLengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
+  // s_dMinSegDistance=rKnot.MinSegDistanceCache();
+  const double minthickness = 1.17556;
+  double off_equi, length;
+  rKnot.make_default();
+  s_dMinSegDistance = rKnot.thickness();
+  if (s_dMinSegDistance > 100) {
+    cout << "TOO BIG : " << s_dMinSegDistance << endl;
+    exit(12);
+  }
+  if (s_dMinSegDistance < 1e-6) {
+    cout << "NEG ENERGY! : " << s_dMinSegDistance << endl;
+    exit(11);
+  } //__qurick
+  off_equi = (rKnot[0].maxSegDistance() / rKnot[0].minSegDistance());
+  length = rKnot.length();
+  // return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
 
-#if 0
-#define Energy LengthEnergy_fixedThickness_e
-#define Energy_str "LengthEnergy_fixedThickness_e"
+  // On S^3 we maximize thickness
+  return 100. -length 
+                + ((s_dMinSegDistance > minthickness )?0:(exp(10.0*(minthickness - s_dMinSegDistance))-1)) 
+                + 1e-8*(off_equi)/s_dMinSegDistance;
+}
+
+#if 1 
+#define Energy MaxLengthEnergy_fixedThickness_e
+#define Energy_str "MaxLengthEnergy_fixedThickness_e"
 #else
 #define Energy ThicknessEnergy_e
 #define Energy_str "ThicknessEnergy_e"
@@ -363,8 +386,8 @@ BOOL AnnealAll(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
   CurveBundle<TVec> rCopy(rKnot);
   vector<Biarc<TVec> >::iterator b;
   TVec tnow,pnow;
-  int n;
-  float d;
+  int n; 
+  float d= min(rKnot[0].minSegDistance(), rKnot.thickness())/100.0;
 
   int again_counter = 0;
 shuffle_again:
@@ -373,14 +396,14 @@ shuffle_again:
     // Displace points
     for (b=rKnot[i].begin();b!=rKnot[i].end();b++) {
       pnow = b->getPoint();
-      d=info.m_dStepSize*(StepArray[n].Get(1));
+      // d=info.m_dStepSize*(StepArray[n].Get(1));
       // cout << "d = " << d << endl;
       // we calculate a random tangent vTan 
-      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1),
-                       r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+      TVec vTan = TVec(d*r(-1,1), d*r(-1,1),
+                       d*r(-1,1), d*r(-1,1));
       // Project to normal plane, so vTan is tangent to S^3
       pnow.normalize();
-      vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
+      vTan -= vTan.dot(pnow)*(pnow);
       // move point in direction of vTan and project back to S^3
       pnow += d*vTan;
       pnow.normalize();
@@ -393,11 +416,11 @@ shuffle_again:
     for (b=rKnot[i].begin();b!=rKnot[i].end();++b) {
       pnow = b->getPoint();
       tnow = b->getTangent();
-      d=info.m_dTStepSize*(StepArray[n].Get(0)); 
+      // d=info.m_dTStepSize*(StepArray[n].Get(0)); 
       // cout << "d = " << d << endl;
       // we calculate a random tangent vTan 
-      TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1),
-                       r(-d,d)*r(0,1), r(-d,d)*r(0,1));
+      TVec vTan = TVec(d*r(-1,1), d*r(-1,1),
+                       d*r(-1,1), d*r(-1,1));
       tnow += d*vTan;
       tnow -= tnow.dot(pnow)*(pnow);
       tnow.normalize();

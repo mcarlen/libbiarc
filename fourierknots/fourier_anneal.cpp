@@ -13,15 +13,6 @@ const int NODES = 284; // 184;
 float iNODES = 1./(float)NODES;
 float EPSILON;
 
-float adjust2(float x) {
-  float s = 0.8;
-  return x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x) +
-         s/(3.*2.*M_PI)*sin(3.*2.*M_PI*(x+s/(3.*2.*M_PI)*sin(3.*2.*M_PI*x)));
-}
-
-float adjust(float x) {
-  return (x+0.95/(3.*2.*M_PI)*sin(3.*2.*M_PI*x));
-}
 
 float ropelength(TrefoilFourierKnot &fk);
 
@@ -131,7 +122,9 @@ void anneal(float Temp, float Cooling,
   Coeff c;
 
   TrefoilFourierKnot best(filename);
+  best.shift(0.01);
   TrefoilFourierKnot knot(best);
+  cout << "shift " << knot._shift << endl;
 
   float lTemp = Temp;
   float best_rope = ropelength(best);
@@ -178,7 +171,7 @@ void anneal(float Temp, float Cooling,
   
     knot_rope = ropelength(knot);
     if (knot_rope < best_rope) {
-      if (myrand01() < 0.01) {
+      if (myrand01() < 0.001) {
         gradient_flow(&knot);
       }
       knot_rope = ropelength(knot);
