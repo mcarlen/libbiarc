@@ -46,8 +46,9 @@ public:
   virtual Vector3 prime(float t);
   virtual void toCurve(const int sampling, Curve<Vector3> *curve);
   virtual void toCurve(float(*pt2func)(float), const int sampling, Curve<Vector3> *curve);
-  void rotate(Vector3 v,float alpha);
-  void mirror(Vector3 v);
+  void rotate(const Vector3 v,float alpha);
+  void apply(Matrix3 &m);
+  void mirror(const Vector3 v);
   void flip_dir(float sh = 0);
   void shift(float sh);
 

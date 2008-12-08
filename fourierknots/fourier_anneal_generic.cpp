@@ -111,49 +111,27 @@ void gradient_flow(FourierKnot *knot) {
     cout << "grad -> :(\n";
 }
 
-void symmetrize_4_1(FourierKnot *fk) {
+void symmetrize_5_1(FourierKnot *fk) {
 
-   // symmetry group (?) : fm: mirror_y + rot(pi/2)_y   , fr: rot(pi)_y , 
-   //                      fmi:  mirror_y + rot(3*pi/2)_y
-
-   cout << "symmetrize_4_1" << endl;
-   FourierKnot fr(*fk), fm(*fk), fmi(*fk);
+   cout << "symmetrize_5_1" << endl;
+   FourierKnot sym1(*fk), sym2(*fk);
 
    // First symmetry
-   fr.rotate(Vector3(0,1,0),M_PI);
-   fr.shift(0.5);
- 
+   sym1.rotate(Vector3(0,1,0),M_PI);
+   sym1.flip_dir();
+
    // Second symmetry
-   fm.mirror(Vector3(0,1,0));
-   fm.rotate(Vector3(0,1,0),M_PI/2);
-   fm.shift(-.25);
+/*
+   sym2.rotate(Vector3(1,0,0),M_PI);
+   sym2 = sym1*(-1); // point sym
+   sym2.mirror(Vector3(0,0,1));
+   sym2.flip_dir();
+   sym2.shift(.162);
+*/
 
-   // Third symmetry
-   fmi.mirror(Vector3(0,1,0));
-   fmi.rotate(Vector3(0,1,0),3*M_PI/2);
-   fmi.shift(.25);
+   // Third symmetry ??? missing so far
   
-   *fk = (fr+fm+fmi+(*fk))/4.;
-}
-
-void zero41coeffs(FourierKnot *fk, Coeffs step_size[]) {
-  // XXX this has to go away !! only for 4.1 
-  for (int m=0;m<fk->csin.size();++m) {
-    for (int d=0;d<3;++d) {
-      for (int i = 0; i<2;++i) {
-        if (i==0 && (m+d)%2==1) {
-//          cout << knot.csin[m][d] << endl;
-          fk->csin[m][d] = 0; 
-          (*step_size)[m][d] = 0;
-        }
-        if (i==1 && (m+d)%2==1) {
-//          cout << knot.ccos[m][d] << endl;
-          fk->ccos[m][d] = 0; 
-          (*(step_size+1))[m][d] = 0;
-        }
-      }
-    }
-  }
+   *fk = (sym1+(*fk))/2.;
 }
 
 #define SIN 0
@@ -162,18 +140,6 @@ void zero41coeffs(FourierKnot *fk, Coeffs step_size[]) {
 const float STEP_CHANGE = 0.05;
 float step_min[2], step_max[2];
 
-/*
-static void increase(Coeffs &c, int m, int d) {
-  if (fabs(c[m][d]) > 1e+2) {
-    cout << "Huge step_size: " << c[m][d] << " m=" << m << " d="<< d << endl;
-  }
-  c[m][d] *= (1.+STEP_CHANGE);
-}
-
-static void decrease(Coeffs &c, int m, int d) {
-  c[m][d] *= (1.-STEP_CHANGE);
-}
-*/
 #define increase(c,m,d) (c[m][d] *= (1.+STEP_CHANGE))
 #define decrease(c,m,d) (c[m][d] *= (1.-STEP_CHANGE))
 
@@ -199,6 +165,10 @@ void anneal(float Temp, float Cooling,
       for (int d=0;d<3;++d) {
         c[i][d] = (i==SIN?fabs(knot.csin[m][d]*.1):fabs(knot.ccos[m][d]*.1));
         if (c[i][d]<1e-20) c[i][d] = 1e-6;
+
+        // 5.1 sym
+        if (i==COS && (d==0 ||d==2)) c[i][d] = 0;
+        if (i==SIN && (d==1)) c[i][d] = 0;
  
        // XXX not set in first round
        // if (c[i][d]<step_min[i]) step_min[i] = c[i][d];
@@ -245,21 +215,17 @@ void anneal(float Temp, float Cooling,
            << lTemp << setprecision(4)
            << "  s=" << step_min[0] << "/" << step_max[0] << "-"
            << step_min[1] << "/" << step_max[1]
-           << "  Diff=" << best_rope - 21.04472593 
+           << "  Diff=" << best_rope - 23.59963519144936
            << " S=" << (float) success / 100. << endl; 
       success = 0;
     }
 
 // XXX this has to go away !! only for 4.1 
-/*
 again:
-*/
     m = rand()%knot.csin.size();
     d = rand()%3;
     sc = rand()%2;
-/*
     if (step_size[sc][m][d] == 0.0) goto again;
-*/
 
     if (sc==SIN) {
       coeff_was = knot.csin[m][d];
@@ -317,6 +283,12 @@ XXX gradient_flow not ready
         curve.link();
         curve.make_default();
         knot = knot/curve.length();
+/*
+        symmetrize_5_1(&knot);
+        curve.flush_all();
+        knot.toCurve(NODES,&curve);
+        curve.writePKF("sym51.pkf");
+*/
       }
 
     }
@@ -445,7 +417,7 @@ int main(int argc, char** argv) {
   }
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.0001, C = 1e-5, stop = 1e-12;
+  float T = 0.0004, C = 1e-5, stop = 1e-12;
   anneal(T,C,stop,argv[1]);
   return 0;
 }
