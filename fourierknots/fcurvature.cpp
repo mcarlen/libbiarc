@@ -8,9 +8,9 @@ void gen3(const int N, const char* infile) {
   TrefoilFourierKnot fk(infile);
 
   float isampling = 1./(float)N, t;
-  Vector3 r; float f1,f2,f3;
+  Vector3 rp,rpp; float f1,f2,f3,d,n;
   for (int i=0;i<N;++i) {
-    r.zero();
+    rpp.zero(); rp.zero();
     t = adjust((float)i*isampling);
     // XXX optimise/cache this
     for (uint i=0;i<fk.csin.size();++i) {
@@ -18,11 +18,14 @@ void gen3(const int N, const char* infile) {
       f2 = (float)(3*i+2)*(2.*M_PI);
       f3 = (float)(3*i+3)*(2.*M_PI);
       // formula for cos(a)-sin(a)?
-      r += Vector3( f1*f1*fk.csin[i][0]*cos(f1*t)-f2*f2*fk.csin[i][1]*cos(f2*t),
+      rpp += Vector3( f1*f1*fk.csin[i][0]*cos(f1*t)-f2*f2*fk.csin[i][1]*cos(f2*t),
                    -f1*f1*fk.csin[i][0]*sin(f1*t)-f2*f2*fk.csin[i][1]*sin(f2*t),
                    -f3*f3*fk.csin[i][2]*(sin(f3*t)));
     }
-    cout << t << " " << r.norm() << endl;
+    rp = fk.prime(t);
+    d = pow(rp.norm(),3.0);
+    n = rp.cross(rpp).norm();
+    cout << t << " " << n/d << " " << n << " " << d << endl;
   }
 
 //  fk.toCurve(adjust_with_spline,N,&knot);

@@ -82,7 +82,7 @@ set output "$knot-fcurvature.png"
 set title "Fourier curvature for $knot"
 set xlabel "t"
 set ylabel "D/(2.*fourier''(t))"
-plot "$knot.fcurvature" using 1:($D/(2.*\$2)) with steps notitle
+plot [0:1] [0:1] "$knot.fcurvature" using 1:($D/2.*\$2) with steps notitle
 EOF
 
 echo "pp/pt/tt plots"
