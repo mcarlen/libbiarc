@@ -68,7 +68,7 @@ void TrefoilFourierKnot::scale(float s) {
 }
 
 void TrefoilFourierKnot::shift(float sh) {
-  _shift = sh;
+  _shift += sh;
 }
 
 // Translate a normal coeff file to trefoil sparse coeff file

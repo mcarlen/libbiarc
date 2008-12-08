@@ -2,8 +2,6 @@
 #include "../include/algo_helpers.h"
 #include <iomanip>
 
-#include "/home/carlen/coding/numeric_algos/cubicspline.h"
-
 #ifdef PROFILING
 const int NODES = 83;
 #else
@@ -122,9 +120,7 @@ void anneal(float Temp, float Cooling,
   Coeff c;
 
   TrefoilFourierKnot best(filename);
-  best.shift(0.01);
   TrefoilFourierKnot knot(best);
-  cout << "shift " << knot._shift << endl;
 
   float lTemp = Temp;
   float best_rope = ropelength(best);
@@ -142,7 +138,6 @@ void anneal(float Temp, float Cooling,
     step_size.push_back(c);
   }
 
-  // XXX stop condition
   cout << setprecision(16);
   int m, d, steps = 0; float csin_was;
   while (lTemp > stop) {
@@ -302,7 +297,7 @@ void improve(const char *filename) {
 int main() {
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.00001, C = 2e-5, stop = 1e-12;
+  float T = 0.000001, C = 3e-5, stop = 1e-30;
 
   anneal(T,C,stop,"mycoeffs.txt");
   return 0;
