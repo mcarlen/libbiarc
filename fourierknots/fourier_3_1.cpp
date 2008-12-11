@@ -81,7 +81,7 @@ Vector3 TrefoilFourierKnot::prime(float t) {
                  f1*csin[i][0]*cos(f1*t)+f2*csin[i][1]*cos(f2*t),
                  f3*csin[i][2]*(cos(f3*t)));
   }
-  r.normalize();
+//  r.normalize();
   return r;
 }
  

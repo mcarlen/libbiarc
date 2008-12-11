@@ -142,7 +142,6 @@ Vector3 K41FourierKnot::prime(float t) {
                  -f1*ccos[i][1]*sin(f1*t) - f3*csin[i][2]*sin(f3*t)
                  +f1*ccos[i][0]*cos(f1*t) - f3*csin[i][1]*cos(f3*t)); 
   }
-  r.normalize();
   return r;
 }
  

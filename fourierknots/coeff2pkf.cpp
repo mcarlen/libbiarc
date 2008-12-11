@@ -7,14 +7,13 @@ Curve<Vector3> genn(const int N, const char* infile, const char* outfile) {
   FourierKnot fk(infile);
   fk.toCurve(N,&knot);
   knot.header("fourier normal","coeff2pkf","","");
-  knot.writePKF(outfile);
   return knot;
 }
 
 Curve<Vector3> gen3(const int N, const char* infile, const char* outfile) {
   Curve<Vector3> knot;
   TrefoilFourierKnot fk(infile);
-  fk.toCurve(adjust,N,&knot);
+  fk.toCurve(adjust3,N,&knot);
 //  fk.toCurve(adjust_with_spline,N,&knot);
   knot.header("fourier trefoil","coeff2pkf","","");
   return knot;
@@ -57,10 +56,12 @@ int main(int argc, char **argv) {
     cerr << "Wrong Fourier Knot type (n/3/4)\n";
     exit(1);
   }
+#if 0
   cout << "normalizing knot." << endl;
   knot.link();
   knot.make_default();
   knot.normalize();
+#endif
 
   knot.writePKF(outfile);
 }

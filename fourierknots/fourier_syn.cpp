@@ -152,7 +152,7 @@ void FourierKnot::toCurve(float(*pt2func)(float), const int sampling,
 // Rotate coefficients around axis v by angle alpha.
 // This is equal to rotating the object in Euclidean space
 // XXX HG has this in the neg trigo direction!!!
-void FourierKnot::rotate(Vector3 v,float alpha) {
+void FourierKnot::rotate(const Vector3 v,float alpha) {
   // This rotation matrix has a trigo pos orientation!
   Matrix3 D; D.rotAround(v,alpha);
   c0 = D*c0;
@@ -162,10 +162,24 @@ void FourierKnot::rotate(Vector3 v,float alpha) {
   }
 }
 
+/*
+  Apply the matrix m to all the coefficients.
+  Corresponds to a change of basis (i.e. rotation).
+*/
+void FourierKnot::apply(Matrix3 &m) {
+  // This rotation matrix has a trigo pos orientation!
+  c0 = m*c0;
+  for (uint i=0;i<csin.size();++i) {
+    csin[i] = m*csin[i];
+    ccos[i] = m*ccos[i];
+  }
+}
+
+
 /*!
   Mirror image of the knot along the axis v
 */
-void FourierKnot::mirror(Vector3 v) {
+void FourierKnot::mirror(const Vector3 v) {
   Vector3 v2 = v/v.norm();
   c0 = c0 -2*v2.dot(c0)*v2;
   for (uint i=0;i<csin.size();++i) {
