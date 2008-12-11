@@ -25,6 +25,30 @@ TrefoilFourierKnot& TrefoilFourierKnot::operator=(const TrefoilFourierKnot &tfk)
   return *this;
 }
 
+FourierKnot TrefoilFourierKnot::toFourierKnot() {
+  // -A 0 0 0 A 0
+  //  B 0 0 0 B 0
+  //  0 0 0 0 0 C
+  Coeff c;
+  Coeffs lsin, lcos;
+  for (uint i=0;i<csin.size();++i) {
+    c[0]= -csin[i][0]; c[1]=0;           c[2]=0;
+    lcos.push_back(c);
+    c[0]=  0;          c[1]= csin[i][0]; c[2]=0;
+    lsin.push_back(c);
+    c[0]= csin[i][1]; c[1]=0;           c[2]=0;
+    lcos.push_back(c);
+    c[0]=  0;         c[1]= csin[i][1]; c[2]=0;
+    lsin.push_back(c);
+    c[0]= 0;          c[1]=0;           c[2]=0;
+    lcos.push_back(c);
+    c[0]=  0;         c[1]=0;           c[2]=csin[i][2];
+    lsin.push_back(c);
+  }
+  c[0]= 0;          c[1]=0;           c[2]=0;
+  return FourierKnot(c,lsin,lcos);
+}
+
 // point at curve(s), s in (0,1)
 Vector3 TrefoilFourierKnot::operator()(float t) {
   float f1,f2,f3;
