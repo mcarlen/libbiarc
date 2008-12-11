@@ -22,6 +22,7 @@ public:
   K41FourierKnot(const K41FourierKnot &tfk);
 
   K41FourierKnot& operator=(const K41FourierKnot &fk);
+  FourierKnot toFourierKnot();
   Vector3 operator()(float t);
   Vector3 prime(float t); 
 

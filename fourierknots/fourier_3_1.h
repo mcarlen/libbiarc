@@ -23,6 +23,7 @@ public:
   TrefoilFourierKnot(const TrefoilFourierKnot &tfk);
 
   TrefoilFourierKnot& operator=(const TrefoilFourierKnot &tfk);
+  FourierKnot toFourierKnot();
   Vector3 operator()(float t);
   Vector3 prime(float t); 
   void scale(float s);

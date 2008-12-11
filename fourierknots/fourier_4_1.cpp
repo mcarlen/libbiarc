@@ -77,6 +77,37 @@ K41FourierKnot& K41FourierKnot::operator/=(const float d) {
   return ((*this)*=(1./d));
 }
 
+FourierKnot K41FourierKnot::toFourierKnot() {
+//  A 0 B -B 0  A
+//  0 C 0  0 D  0   
+//  E 0 F  F 0 -E
+//  0 0 0  0 0  0    
+// Let's try : A B C D E F  as coeff file
+
+  Coeff c;
+  Coeffs lsin, lcos;
+  for (uint i=0;i<csin.size();++i) {
+    c[0]= ccos[i][0]; c[1]=0;           c[2]=ccos[i][1];
+    lcos.push_back(c);
+    c[0]= -ccos[i][1]; c[1]=0 ; c[2]=ccos[i][0];
+    lsin.push_back(c);
+    c[0]= 0; c[1]=ccos[i][2];           c[2]=0;
+    lcos.push_back(c);
+    c[0]=  0;         c[1]= csin[i][0]; c[2]=0;
+    lsin.push_back(c);
+    c[0]= csin[i][1];          c[1]=0;           c[2]=csin[i][2];
+    lcos.push_back(c);
+    c[0]= csin[i][2];          c[1]=0;           c[2]=-csin[i][1];
+    lsin.push_back(c);
+    c[0]= 0;          c[1]=0;           c[2]=0;
+    lcos.push_back(c);
+    lsin.push_back(c);
+  }
+  c[0]= 0;          c[1]=0;           c[2]=0;
+  return FourierKnot(c,lsin,lcos);
+}
+
+
 // point at curve(s), s in (0,1)
 Vector3 K41FourierKnot::operator()(float t) {
   float f1,f2,f3;

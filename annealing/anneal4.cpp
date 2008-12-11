@@ -223,8 +223,8 @@ float MaxLengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
 
   // On S^3 we maximize thickness
   return 100. -length 
-                + ((s_dMinSegDistance > minthickness )?0:(exp(10.0*(minthickness - s_dMinSegDistance))-1)) 
-                + 1e-8*(off_equi)/s_dMinSegDistance;
+                + ((s_dMinSegDistance > minthickness )?0:(exp(10.0*(minthickness - s_dMinSegDistance))-1)) ;
+  //              + 1e-8*(off_equi)/s_dMinSegDistance;
 }
 
 #if 1 
@@ -387,7 +387,9 @@ BOOL AnnealAll(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
   vector<Biarc<TVec> >::iterator b;
   TVec tnow,pnow;
   int n; 
-  float d= min(rKnot[0].minSegDistance(), rKnot.thickness())/100.0;
+  float aaa=rKnot[0].minSegDistance();
+  float bbb = rKnot.thickness_fast();
+  float d=min(aaa, bbb)/100.0;
 
   int again_counter = 0;
 shuffle_again:
@@ -652,8 +654,6 @@ rKnot.make_default(); // MC
     float random_dilate_prob= 100.0, anneal_all_prob=100.0, anneal_prob=100.0, dance_prob=100.0; // 1000.0 based
     for( ; ; ++nGeneration)
 	{
-
-    if (nGeneration<10) cout << "Thick/Energ ("<<nGeneration<<") : " << rKnot.thickness() << " " << dEnergy << endl;
 // if (nGeneration == 100) exit(0);
 
 	if(nGeneration%info.m_nLogFrequency == 0)
@@ -694,6 +694,7 @@ rKnot.make_default(); // MC
 	    }
 	if(info.m_bAnneal)
 	    {
+       //cout << __LINE__ << endl << flush;
 //rKnot.make_default();
             float total_prob = random_dilate_prob + anneal_all_prob + anneal_prob + dance_prob;
 	    double move_proba = drand48();
@@ -713,8 +714,7 @@ rKnot.make_default(); // MC
               bStepped=random_dilate(rKnot,info,dEnergy);
               adjust_prob(random_dilate_prob, bStepped);
             }
-	    if(dEnergy < dMinEnergy)
-		{
+	    if(dEnergy < dMinEnergy) {
 		WriteBest(rKnot);
 		dMinEnergy=dEnergy;
 		}
