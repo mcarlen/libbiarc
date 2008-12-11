@@ -50,7 +50,7 @@ FourierKnot TrefoilFourierKnot::toFourierKnot() {
 }
 
 // point at curve(s), s in (0,1)
-Vector3 TrefoilFourierKnot::operator()(float t) {
+Vector3 TrefoilFourierKnot::operator()(float t) const {
   float f1,f2,f3;
   Vector3 r(0,0,0);
   t += _shift;
@@ -68,7 +68,7 @@ Vector3 TrefoilFourierKnot::operator()(float t) {
 }
 
 // tangent at curve(t)
-Vector3 TrefoilFourierKnot::prime(float t) {
+Vector3 TrefoilFourierKnot::prime(float t) const {
   Vector3 r; float f1,f2,f3;
   // XXX optimise/cache this
   t += _shift;
@@ -85,6 +85,21 @@ Vector3 TrefoilFourierKnot::prime(float t) {
   return r;
 }
  
+// second derivative at t of the curve
+Vector3 TrefoilFourierKnot::primeprime(float t) const {
+  Vector3 rpp; float f1,f2,f3;
+  for (uint i=0;i<csin.size();++i) {
+    f1 = (float)(3*i+1)*(2.*M_PI);
+    f2 = (float)(3*i+2)*(2.*M_PI);
+    f3 = (float)(3*i+3)*(2.*M_PI);
+    // formula for cos(a)-sin(a)?
+    rpp += Vector3( f1*f1*csin[i][0]*cos(f1*t)-f2*f2*csin[i][1]*cos(f2*t),
+                   -f1*f1*csin[i][0]*sin(f1*t)-f2*f2*csin[i][1]*sin(f2*t),
+                   -f3*f3*csin[i][2]*(sin(f3*t)));
+  }
+  return rpp;
+}
+
 void TrefoilFourierKnot::scale(float s) {
   c0 *= s;
   for (uint i=0;i<csin.size();++i)

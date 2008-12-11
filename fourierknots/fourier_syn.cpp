@@ -31,8 +31,7 @@ FourierKnot::FourierKnot(Coeffs lsin, Coeffs lcos) {
 }
 
 FourierKnot::FourierKnot(Coeff constant, Coeffs lsin, Coeffs lcos) {
-  FourierKnot(lsin,lcos);
-  c0 = constant;
+  set(constant,lsin,lcos);
 }
 
 void FourierKnot::set(Coeff c, Coeffs lsin, Coeffs lcos) {
@@ -97,7 +96,7 @@ FourierKnot FourierKnot::operator+(const FourierKnot &fk) const {
 }
 
 // point at curve(s), s in (0,1)
-Vector3 FourierKnot::operator()(float t) {
+Vector3 FourierKnot::operator()(float t) const {
   float f;
   // Fourier constant term
   Vector3 r = this->c0/2.;
@@ -110,8 +109,21 @@ Vector3 FourierKnot::operator()(float t) {
   return r;
 }
 
+// return curvature kappa(t)
+float FourierKnot::curvature(float t) const {
+  Vector3 rpp, rp;
+  float d, n;
+
+  rpp = primeprime(t);
+  rp = prime(t);
+  d = pow(rp.norm(),3.0);
+  n = rp.cross(rpp).norm();
+
+  return n/d;
+}
+
 // tangent at curve(t)
-Vector3 FourierKnot::prime(float t) {
+Vector3 FourierKnot::prime(float t) const {
   Vector3 r; float f;
   // XXX optimise/cache this
   for (uint i=0;i<csin.size();++i) {
@@ -120,6 +132,17 @@ Vector3 FourierKnot::prime(float t) {
     r += ( f*cos(f*t))*csin[i];
   }
   return r;
+}
+
+// second derivative at t
+Vector3 FourierKnot::primeprime(float t) const {
+  Vector3 rpp; float f;
+  for (uint i=0;i<csin.size();++i) {
+    f = (float)(i+1)*(2.*M_PI);
+    rpp += (-f*f*cos(f*t))*ccos[i];
+    rpp += (-f*f*sin(f*t))*csin[i];
+  }
+  return rpp;
 }
 
 // sample our fourier knot and put that in initialized

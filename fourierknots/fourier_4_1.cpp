@@ -104,12 +104,13 @@ FourierKnot K41FourierKnot::toFourierKnot() {
     lsin.push_back(c);
   }
   c[0]= 0;          c[1]=0;           c[2]=0;
+
   return FourierKnot(c,lsin,lcos);
 }
 
 
 // point at curve(s), s in (0,1)
-Vector3 K41FourierKnot::operator()(float t) {
+Vector3 K41FourierKnot::operator()(float t) const {
   float f1,f2,f3;
   Vector3 r(0,0,0);
   // XXX optimise/cache this (precompute cos(f1*t) ... and swap values 1<-2<-3, precomp 3 iterate
@@ -128,7 +129,7 @@ Vector3 K41FourierKnot::operator()(float t) {
 }
 
 // tangent at curve(t)
-Vector3 K41FourierKnot::prime(float t) {
+Vector3 K41FourierKnot::prime(float t) const {
   Vector3 r; float f1,f2,f3;
   // XXX optimise/cache this
   for (uint i=0;i<csin.size();++i) {

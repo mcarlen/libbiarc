@@ -24,8 +24,10 @@ public:
 
   TrefoilFourierKnot& operator=(const TrefoilFourierKnot &tfk);
   FourierKnot toFourierKnot();
-  Vector3 operator()(float t);
-  Vector3 prime(float t); 
+  Vector3 operator()(float t) const;
+  Vector3 prime(float t) const; 
+  Vector3 primeprime(float t) const;
+
   void scale(float s);
   void shift(float sh);
 

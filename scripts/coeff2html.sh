@@ -69,7 +69,7 @@ echo "Generate curvature plots"
 $curv $knotfile >$knot.curvature
 $fcurv $style $res $coeff > $knot.fcurvature
 maxfcurv=$(cut -d" " -f2 $knot.fcurvature | sort -n | tail -n 1)
-echo $maxfcurv
+
 gnuplot <<EOF
 set term png
 set output "$knot-curvature.png"
@@ -82,7 +82,7 @@ set output "$knot-fcurvature.png"
 set title "Fourier curvature for $knot"
 set xlabel "t"
 set ylabel "D/(2.*fourier''(t))"
-plot [0:1] [0:1] "$knot.fcurvature" using 1:($D/2.*\$2) with steps notitle
+plot [0:1] [0:1] "$knot.fcurvature" using 1:($D/2.*\$2) with lines notitle
 EOF
 
 echo "pp/pt/tt plots"

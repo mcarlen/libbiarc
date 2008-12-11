@@ -36,8 +36,8 @@ coeff2pkf: coeff2pkf.o fourier_syn.o fourier_3_1.o fourier_4_1.o
 guess_coeffs: guess_coeffs.o fourier_syn.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) guess_coeffs.o fourier_syn.o $(LIB)
 
-fcurvature: fcurvature.o fourier_3_1.o fourier_syn.o
-	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fcurvature.o fourier_3_1.o fourier_syn.o $(LIB)
+fcurvature: fcurvature.o fourier_syn.o fourier_3_1.o fourier_4_1.o
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) fcurvature.o fourier_syn.o fourier_3_1.o fourier_4_1.o $(LIB)
 
 
 test: test.o fourier_syn.o fourier_4_1.o

@@ -42,8 +42,11 @@ public:
   void setSin(Coeffs lsin);
   void setCos(Coeffs lcos);
 
-  virtual Vector3 operator()(float t);
-  virtual Vector3 prime(float t);
+  virtual Vector3 operator()(float t) const;
+  virtual Vector3 prime(float t) const;
+  virtual Vector3 primeprime(float t) const;
+  virtual float curvature(float t) const;
+
   virtual void toCurve(const int sampling, Curve<Vector3> *curve);
   virtual void toCurve(float(*pt2func)(float), const int sampling, Curve<Vector3> *curve);
   void rotate(const Vector3 v,float alpha);
