@@ -252,11 +252,11 @@ void anneal(float Temp, float Cooling,
     }
 
 // XXX this has to go away !! only for 4.1 
-again:
+//again:
     m = rand()%knot.csin.size();
     d = rand()%3;
     sc = rand()%2;
-    if (step_size[sc][m][d] == 0.0) goto again;
+//    if (step_size[sc][m][d] == 0.0) goto again;
 //
 
     if (sc==SIN) {
@@ -443,7 +443,7 @@ int main(int argc, char** argv) {
   }
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.001, C = 1e-5, stop = 1e-12;
+  float T = 0.00003, C = 1e-6, stop = 1e-12;
   anneal(T,C,stop,argv[1]);
   return 0;
 }

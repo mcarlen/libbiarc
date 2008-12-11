@@ -5,7 +5,7 @@
 #ifdef PROFILING
 const int NODES = 83;
 #else
-const int NODES = 284; // 184;
+const int NODES = 512; // 184;
 #endif
 
 float iNODES = 1./(float)NODES;
@@ -93,13 +93,17 @@ int line_search(TrefoilFourierKnot *knot, const Coeffs &grad,
   return 0;
 }
 
-void gradient_flow(TrefoilFourierKnot *knot) {
+int gradient_flow(TrefoilFourierKnot *knot) {
   Coeffs grad;
   gradient(*knot,&grad);
-  if (line_search(knot, grad, 1e-2, 1e-15))
+  if (line_search(knot, grad, 1e-2, 1e-15)) {
     cout << "grad -> :)\n";
-  else
+    return 1;
+  }
+  else {
     cout << "grad -> :(\n";
+    return 0;
+  }
 }
 
 const float STEP_CHANGE = 0.05;
@@ -120,6 +124,11 @@ void anneal(float Temp, float Cooling,
   Coeff c;
 
   TrefoilFourierKnot best(filename);
+  best.shift(0.01);
+
+  // init_grad_flow
+  gradient_flow(&best);
+
   TrefoilFourierKnot knot(best);
 
   float lTemp = Temp;
@@ -140,6 +149,7 @@ void anneal(float Temp, float Cooling,
 
   cout << setprecision(16);
   int m, d, steps = 0; float csin_was;
+
   while (lTemp > stop) {
 #ifdef PROFILING
     if (steps==100) { cout << "Profiling asks for exit!\n"; exit(0); }
@@ -159,14 +169,15 @@ void anneal(float Temp, float Cooling,
            << "   smin=" << step_min << ",smax=" << step_max << setprecision(4)
            << "  Diff=" << best_rope - 16.3719 << endl;
     }
+
     m = rand()%knot.csin.size();
     d = rand()%3;
     csin_was = knot.csin[m][d];
     knot.csin[m][d] += step_size[m][d]*myrand();
-  
+
     knot_rope = ropelength(knot);
     if (knot_rope < best_rope) {
-      if (myrand01() < 0.001) {
+      if (myrand01() < 0.01) {
         gradient_flow(&knot);
       }
       knot_rope = ropelength(knot);
@@ -297,7 +308,7 @@ void improve(const char *filename) {
 int main() {
   init();
 //  improve("mycoeffs.txt");
-  float T = 0.000001, C = 3e-5, stop = 1e-30;
+  float T = 0.0000005, C = 2e-5, stop = 1e-12;
 
   anneal(T,C,stop,"mycoeffs.txt");
   return 0;
