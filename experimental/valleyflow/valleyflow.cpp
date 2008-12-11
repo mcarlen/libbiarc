@@ -221,27 +221,29 @@ void plot(const char* name, float ptmax = 1.0) {
 }
 
 void grad_field1() {
-  float x,y;
+  float x,y,gradmax = 0;
   for (int i=0;i<Res;++i) {
     x = (float)i/(float)Res*2.-1.;
     for (int j=0;j<Res;++j) {
       y = (float)j/(float)Res;
       pttable[i][j] = (x-.1*sin(4.*M_PI*y))*(x-.1*sin(4.*M_PI*y))+1-y;
+      if (pttable[i][j]>gradmax) gradmax = pttable[i][j];
     }
   }
-  plot("field1.png",2);
+  plot("field1.png",gradmax);
 }
 
 void grad_field2() {
-  float x,y;
+  float x,y,gradmax = 0;
   for (int i=0;i<Res;++i) {
     x = (float)i/(float)Res*2-1;
     for (int j=0;j<Res;++j) {
       y = (float)j/(float)Res;
       pttable[i][j] = x*x+1-y;
+      if (pttable[i][j]>gradmax) gradmax = pttable[i][j];
     }
   }
-  plot("field2.png",2);
+  plot("field2.png",gradmax);
 }
 
 void init_table() {

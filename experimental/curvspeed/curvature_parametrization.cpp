@@ -74,8 +74,6 @@ int main(int argc, char** argv) {
   }
 
   local_conv(curv,conv,2*N,.5,sigma);
-  local_conv(conv,curv,2*N,.5,sigma);
-  local_conv(curv,conv,2*N,.5,sigma);
 
   // Integrate :)
   for (int i=1;i<2*N;++i) {
