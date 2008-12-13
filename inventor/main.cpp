@@ -13,7 +13,7 @@
 
 #include "main.h"
 
-#include <qapplication.h>
+#include <QApplication>
 #include <Inventor/details/SoPointDetail.h>
 #include <Inventor/details/SoLineDetail.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
@@ -49,6 +49,7 @@ void addBezierCurve(SoSeparator *root, Tube<Vector3>* t);
 #define _SCREEN_H_ 600
 
 QWidget *myWindow;
+
 //SoQtExaminerViewer *myViewer;
 SoSeparator *root, *interaction, *scene;
 SoSeparator *circles;
@@ -70,7 +71,7 @@ Tube<Vector3> tube_tmp;
 SoMaterialBinding **material_bindings;
 SoMaterial **materials;
 // Color index used for material assignment
-static uint ColorIdx = 0;
+// static uint ColorIdx = 0;
 // Number of colors in ColorTable
 const uint ColorNum = 7;
 SbColor ColorTable[ColorNum];
@@ -300,14 +301,14 @@ SoSeparator* drawCircle(Vector3 p0, Vector3 t0, Vector3 p1) {
 
 VVV *myViewer;
 
-ImageIconProvider* iip = NULL;
 Aux2DPlotWindow *pl_win = NULL;
 
 int main(int argc, char **argv) {
 
   // Set parameters according to command line args
-
+  cout << "Parse ..." << flush;
   if(!parse(argc,argv)) usage(argv[0]);
+  cout << " [OK]\n" << flush;
 
   // FIXME Center somhow the whole knot bundle ...
   //  Knot->center();
@@ -469,23 +470,23 @@ if (!(*Knot)[i].isClosed()) {
 
   if (PT_PLOT) {
     if (!pl_win) {
-      pl_win = new Aux2DPlotWindow(NULL,"2dwindow",Qt::WNoAutoErase);
-      pl_win->setCaption("2D Window");
+      pl_win = new Aux2DPlotWindow(NULL,"2dwindow");
+      pl_win->setAttribute(Qt::WA_NoBackground);
+      pl_win->setWindowTitle("2D Window");
       pl_win->setGeometry(_SCREEN_W_+8,0,200,200);
-      iip = new ImageIconProvider;
-      QFileDialog::setIconProvider(iip);
       QObject::connect(pl_win,SIGNAL(pos_changed(float,float,float,float)),
                        myViewer,SLOT(update_picked(float,float,float,float)));
 
     }
     if (pl_win->loadImage(ptplot_file)) {
       pl_win->repaint();
-      if (pl_win->isShown()) pl_win->hide();
+      if (pl_win->isVisible()) pl_win->hide();
       else pl_win->show();
     }
     else  {
       pl_win->hide();
-      cerr << "[Warning] Could not load " << ptplot_file << ". Skipped\n";
+      cerr << "[Warning] Could not load "
+           << ptplot_file.data() << ". Skipped\n";
     }
   }
 
@@ -558,7 +559,7 @@ int parse(int argc, char** argv) {
       else if (!strncmp(&argv[i][1],"ptplot",6)) {
         PT_PLOT = 1;
         ptplot_file = QString(argv[i+1]); i++;
-        cout << "We got a pt plot : " << ptplot_file << endl;
+        cout << "We got a pt plot : " << ptplot_file.data() << endl;
       }
       else {
         cerr << "Unknown option : " << argv[i][1] << endl;
@@ -627,7 +628,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
   int child_len;
   Tube<Vector3>* bez_tub;
 
-  float CamAngle; SbVec3f CamAxis, CamPos;
+  SbVec3f CamAxis, CamPos;
   SbRotation CamOrientation;
   SbMatrix sbmat; Matrix3 mat3;
 
@@ -844,16 +845,15 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     case Qt::Key_P:
       if (!pl_win) {
-        pl_win = new Aux2DPlotWindow(NULL,"2dwindow",Qt::WNoAutoErase);
-        pl_win->setCaption("2D Window");
+        pl_win = new Aux2DPlotWindow(NULL,"2dwindow");
+        pl_win->setAttribute(Qt::WA_NoBackground);
+        pl_win->setWindowTitle("2D Window");
         pl_win->setGeometry(_SCREEN_W_+8,0,200,200);
-        iip = new ImageIconProvider;
-        QFileDialog::setIconProvider(iip);
         QObject::connect(pl_win,SIGNAL(pos_changed(float,float,float,float)),
                          myViewer,SLOT(update_picked(float,float,float,float)));
 
       }
-      if (pl_win->isShown()) pl_win->hide();
+      if (pl_win->isVisible()) pl_win->hide();
       else pl_win->show();    
       break;
 
@@ -1258,7 +1258,7 @@ void addBezierCurve(SoSeparator *root, Tube<Vector3>* t) {
   float KSequence[KLength];
   KSequence[0] = KSequence[1] = KSequence[2] = 0;
   KSequence[KLength-1] = KSequence[KLength-2] = KSequence[KLength-3] = 1;  
-  if (Kknots==0|KLength==0) {cout<<"KnotVector empty\n";return;}
+  if ((Kknots==0)||(KLength==0)) {cout<<"KnotVector empty\n";return;}
   int ctrlpts = (Kknots-1)/2;   // Number of Weighted Control Points
   int counter = 1;
   if (ctrlpts==1) return;
