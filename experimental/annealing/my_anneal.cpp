@@ -1,7 +1,6 @@
-/*
-import random;
-from math import exp,sqrt;
-*/
+#ifndef _ANNEAL_H_
+#define _ANNEAL_H_
+
 
 #include <iostream>
 #include <fstream>
@@ -107,7 +106,9 @@ public:
 
   void move() {
     old_value = *node;
+    // cout << "Before:" << *node << endl;
     *node += step_size * (2.*rand01()-1.);
+    // cout << "After:" << *node << endl << flush;
   }
 
   void reject() {
@@ -259,7 +260,7 @@ public:
   }
  
   virtual void get_minmax(float *_min, float *_max) {
-    float lmin = 1e22, lmax = 0;
+    float lmin = 1e99, lmax = -1e99;
     for (int i=0;i<possible_moves.size();++i) {
       lmin = min(possible_moves[i]->step_size,lmin);
       lmax = max(possible_moves[i]->step_size,lmax);
@@ -293,12 +294,6 @@ public:
     curr_energy      = best_energy;
     candidate_energy = best_energy;
 
-// XXX
-    log();
-    best_found();
-    exit(0);
-// XXX
-
     while (!stop()) {
       if (log_counter % log_freq == 0) log();
       ++log_counter;
@@ -324,6 +319,7 @@ public:
       }
       Temp *= (1.-Cooling);
     }
+    cout << "Done" << endl << flush;
   }
 };
 
@@ -413,6 +409,7 @@ if __name__ == "__main__":
    main(int(sys.argv[1]))
 */
 
+/*
 int main(int argc, char** argv) {
 
   SampleAnneal* sa;
@@ -427,4 +424,5 @@ int main(int argc, char** argv) {
   sa->do_anneal();
 
   return 0;
-}
+*/
+#endif //_ANNEAL_H_
