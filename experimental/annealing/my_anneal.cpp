@@ -141,6 +141,8 @@ public:
 class BasicAnneal {
 public:
 
+  float min_step, max_step;
+  int   min_move, max_move;
   float Temp, Cooling;
   float best_energy, curr_energy, candidate_energy;
 
@@ -170,7 +172,9 @@ public:
   /*!
     Parse params string and initialize defaults.
   */
-  void std_init(const char* params = "", int echo = 1) {
+  void std_init(const char* params = "") {
+    min_step=max_step = 666;
+    min_move=max_move = 666;
     Temp = 0.1;
     Cooling = 0.00001;
 
@@ -192,11 +196,18 @@ public:
     extract_f2(Cooling,"C",param_map);
     extract_i2(log_freq,"logfreq",param_map);
     extract(best_filename,param_map);
+  }
 
-/*
-    if (echo)
-      echo_params();
-*/
+  /*!
+    Show the configuration parameters.
+  */
+  virtual ostream & show_config(ostream &out) {
+    out << "Current Energy: " << curr_energy << endl
+         << "Temperature (T): " << Temp << endl
+         << "Cooling (C): " << Cooling << endl
+         << "Log frequency (logfreq): " << log_freq << endl
+         << "best_filename: "<< best_filename << endl;
+    return out;
   }
 
   /*!
@@ -264,24 +275,29 @@ public:
     cout << "!" << best_energy << "!";
   }
  
-  virtual void get_minmax(float *_min, float *_max) {
-    float lmin = 1e99, lmax = -1e99;
-    for (uint i=0;i<possible_moves.size();++i) {
-      lmin = min(possible_moves[i]->step_size,lmin);
-      lmax = max(possible_moves[i]->step_size,lmax);
+  virtual void update_minmax_step() {
+    min_step = max_step = possible_moves[0]->step_size;
+    min_move = max_move = 0;
+    for (uint i=1;i<possible_moves.size();++i) {
+      if (possible_moves[i]->step_size < min_step) {
+        min_step = possible_moves[i]->step_size;
+        min_move =i;
+      }
+      if (possible_moves[i]->step_size > max_step) {
+        max_step = possible_moves[i]->step_size;
+        max_move =i;
+      }
     }
-    *_min = lmin; *_max = lmax;
   }
 
   virtual ostream& logline(ostream &out) {
-    float _min, _max;
-    get_minmax(&_min,&_max);
+    update_minmax_step(); 
     out << log_counter
         << " T=" << Temp
         << " E=" << curr_energy
         << " Emin=" << best_energy
         << " S=" << (float) success/(float) trys
-        << " min/max=" << _min << "/" << _max;
+        << " min/max=" << min_step << "/" << max_step;
     trys = 1;
     success = 0;
 
@@ -294,10 +310,10 @@ public:
   }
 
   virtual void do_anneal() {
-
     best_energy      = energy();
     curr_energy      = best_energy;
     candidate_energy = best_energy;
+    show_config(cout) << flush;
 
     while (!stop()) {
       if (log_counter % log_freq == 0) log();

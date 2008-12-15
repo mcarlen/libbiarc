@@ -10,18 +10,15 @@ template <class FK>
 class FKAnneal: public BasicAnneal {
 
 public:
-
-  float ropelength(FK &fk) {
+  virtual float ropelength(FK &fk) {
     Curve<Vector3> curve;
-    fk.toCurve(adjust,NODES,&curve);
-    //  fk.toCurve(adjust_with_spline,NODES,&curve);
+    fk.toCurve(NODES,&curve);
     curve.link();
     curve.make_default();
     float D = curve.thickness();
     float L = curve.length();
     return L/D;
   }
-
 
   int NODES;
   float step_size_factor;
@@ -59,12 +56,15 @@ public:
     extract_f(step_size_factor,param_map);
   }
 
-/*
-  virtual bool stop() {
-    cout << __LINE__ << endl << flush;
-    return false;
+  virtual ostream & show_config(ostream &out) {
+    BasicAnneal::show_config(out) << "NODES: " << NODES << endl
+        << "step_size_factor: " << step_size_factor << endl ;
+    return out;
   }
-*/
+
+  virtual bool stop() {
+    return (max_step < 1e-15);
+  }
 
   void best_found() {
     BasicAnneal::best_found();
@@ -100,6 +100,18 @@ public:
       }
     }
   }
+
+  virtual float ropelength(TrefoilFourierKnot &fk) {
+    Curve<Vector3> curve;
+    fk.toCurve(adjust,NODES,&curve);
+    curve.link();
+    curve.make_default();
+    float D = curve.thickness();
+    float L = curve.length();
+    return L/D;
+  }
+
+
 };
 
 int main(int argc, char** argv) {
