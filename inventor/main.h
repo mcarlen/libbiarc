@@ -1,3 +1,6 @@
+#ifndef _MAIN_H_
+#define _MAIN_H_
+
 #include "../include/TubeBundle.h"
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
@@ -44,7 +47,6 @@
 /* new new new */
 #include "Widgets.h"
 
-#include <qwidget.h>
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 
@@ -58,20 +60,28 @@ class SoMaterial;
 class SbColor;
 */
 extern SoMaterial** materials;
+extern const uint ColorNum;
 extern SbColor ColorTable[];
 
-class VVV : public QObject, public SoQtExaminerViewer {
-  Q_OBJECT
-  SOQT_OBJECT_HEADER(VVV, SoQtExaminerViewer);
-public:
-  VVV(QWidget *parent=NULL, const char *name=NULL, SbBool embed=TRUE, SoQtFullViewer::BuildFlag flag=BUILD_ALL, SoQtViewer::Type type=BROWSER);
-// : SoQtExaminerViewer(parent,name,embed,flag,type) { oldx = oldy = -1; }
-  ~VVV();
-private:
-  int oldx,oldy,oldx2,oldy2;
-public slots:
-  void update_picked(float u,float v,float u2,float v2);
+/*!
+  Global variables, configuration and
+  viewer setings structure.
+*/
+struct ViewerInfo {
+
+  // Flags
+  int ResamplePartFlag;
+  int FirstPoint;
+  int BackGroundFlag;
+  
+  // Other Flags
+  uint TEXTURES, IV_SCENE;
+  uint PT_PLOT;
+  
+  // Qt
+  QString ptplot_file, texture_file, iv_file;
 };
 
-SoSeparator* drawCircle(Vector3 p0, Vector3 t0, Vector3 p1);
+typedef ViewerInfo ViewerInfo;
 
+#endif /* _MAIN_H_ */

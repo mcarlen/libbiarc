@@ -54,9 +54,9 @@ xyzview: xyzview.o SoKnot.o
 	@echo Link ${<:.o=}
 	@$(LINKER) $(FLAGS) -o xyzview $(INC_LIB) $? $(LIBS)
 
-main: SoKnot.o main.o Widgets.o moc_Widgets.o moc_main.o
+main: SoKnot.o main.o Widgets.o moc_Widgets.o moc_viewer.o qrc_application.o viewer.o utils.o
 	@echo Link $@
-	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o Widgets.o moc_Widgets.o moc_main.o $(LIBS)
+	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o Widgets.o moc_Widgets.o moc_viewer.o qrt_application.o viewer.o utils.o main.o $(LIBS)
 
 plotzoom: plotzoom.o moc_plotzoom.o
 	@echo Link $@
@@ -67,7 +67,11 @@ animate: SoKnot.o animate.o
 	@echo Link $@
 	$(LINKER) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
 
-moc_main.cpp: main.h
+qrc_application.cpp: application.qrc
+	rcc -o $@ $<
+moc_mainwindow.cpp: mainwindow.h
+	moc -o $@ $<
+moc_viewer.cpp: viewer.h
 	moc -o $@ $<
 moc_Widgets.cpp: Widgets.h
 	moc -o $@ $<
