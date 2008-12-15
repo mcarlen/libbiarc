@@ -61,6 +61,7 @@ public:
     this->step_size = step_size;
     this->STEP_CHANGE = STEP_CHANGE;
   }  
+  virtual ~BasicMove() {}
 
   /*!
     Perform the move.
@@ -103,6 +104,8 @@ public:
     this->node = node; 
     this->old_value = *node;
   }
+
+  virtual ~SimpleFloatMove() {}
 
   void move() {
     old_value = *node;
@@ -152,6 +155,8 @@ public:
   BasicAnneal(const char *params = "") {
     this->std_init(params);
   }  
+
+  virtual ~BasicAnneal() {}
 
   static void str2hash(string str, map<string,string> &params) {
     vector<string> tokens;
@@ -261,7 +266,7 @@ public:
  
   virtual void get_minmax(float *_min, float *_max) {
     float lmin = 1e99, lmax = -1e99;
-    for (int i=0;i<possible_moves.size();++i) {
+    for (uint i=0;i<possible_moves.size();++i) {
       lmin = min(possible_moves[i]->step_size,lmin);
       lmax = max(possible_moves[i]->step_size,lmax);
     }

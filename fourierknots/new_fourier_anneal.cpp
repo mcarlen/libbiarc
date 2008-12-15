@@ -31,13 +31,16 @@ public:
     std_init(params);
     knot = FK(knot_filename);
     best_knot = knot;
-    for (int i=0; i<knot.csin.size(); ++i) {
-      for (int j=0; j<3; ++j) { 
+    for (uint i=0; i<knot.csin.size(); ++i) {
+      for (uint j=0; j<3; ++j) { 
         if (fabs(knot.csin[i][j]) < 1e-8)
           possible_moves.push_back(new SimpleFloatMove(&(knot.csin[i][j]), step_size_factor*(1e-8)));
         else
           possible_moves.push_back(new SimpleFloatMove(&(knot.csin[i][j]), step_size_factor*fabs(knot.csin[i][j])));
-
+      }
+    }
+    for (uint i=0; i<knot.ccos.size(); ++i) {
+      for (uint j=0; j<3; ++j) { 
         if (fabs(knot.ccos[i][j]) < 1e-8)
           possible_moves.push_back(new SimpleFloatMove(&(knot.ccos[i][j]), step_size_factor*(1e-8)));
         else
@@ -77,17 +80,48 @@ public:
 };
 
 
+class TrefFKAnneal: public FKAnneal<TrefoilFourierKnot> {
+
+public:
+
+  TrefFKAnneal(const char* knot_filename, const char* params = ""):FKAnneal<TrefoilFourierKnot>(knot_filename, params) {
+    std_init(params);
+    knot = TrefoilFourierKnot(knot_filename);
+    best_knot = knot;
+    for (uint i=0; possible_moves.size(); ++i)
+      delete possible_moves[i];
+    possible_moves.clear();
+    for (uint i=0; i<knot.csin.size(); ++i) {
+      for (uint j=0; j<3; ++j) { 
+        if (fabs(knot.csin[i][j]) < 1e-8)
+          possible_moves.push_back(new SimpleFloatMove(&(knot.csin[i][j]), step_size_factor*(1e-8)));
+        else
+          possible_moves.push_back(new SimpleFloatMove(&(knot.csin[i][j]), step_size_factor*fabs(knot.csin[i][j])));
+      }
+    }
+  }
+};
+
 int main(int argc, char** argv) {
-
-  FKAnneal<FourierKnot> * a;
-  const char* def = "T=0.001,NODES=200,best_filename=best.txt";
-
-  if (argc>2) a = new FKAnneal<FourierKnot>(argv[1],argv[2]);
-  else {
-    cout << "Usage:  bla filename params: " << def << endl;
+  FKAnneal<FourierKnot> *a;
+  TrefFKAnneal* t;
+  if (argc != 4) {
+    cout << "Usage: " << argv[0] << "  [n|3|4] filename params " << endl;
     exit(1);
   }
-  a-> do_anneal();
-
+  switch(argv[1][0]) {
+  case 'n': a=new FKAnneal<FourierKnot>(argv[2],argv[3]); 
+            a->do_anneal();
+            break;
+  case '3': t=new TrefFKAnneal(argv[2],argv[3]); 
+            t->do_anneal();
+            break;
+  case '4': a=new FKAnneal<FourierKnot>(argv[2],argv[3]);
+            a->do_anneal();
+            break;
+  default:
+    cerr << "Wrong Fourier Knot type [n|3|4]\n";
+    exit(1);
+  }
   return 0;
 }
