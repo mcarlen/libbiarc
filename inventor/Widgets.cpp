@@ -21,7 +21,7 @@ Aux2DPlotWindow::Aux2DPlotWindow(QWidget *parent, const char *name, Qt::WindowFl
   quitAct = new QAction(tr("E&xit"), this);
   quitAct->setShortcut(tr("Ctrl+Q"));
   quitAct->setStatusTip(tr("Quit"));
-  connect(quitAct, SIGNAL(triggered()), this, SLOT(quit()));
+  connect(quitAct, SIGNAL(triggered()), this, SLOT(close()));
 
   // Menubar
   menubar = new QMenuBar(this);

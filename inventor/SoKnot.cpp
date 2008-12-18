@@ -85,6 +85,7 @@ SoKnot::SoKnot(void) {
 SoKnot::~SoKnot() {
   if (sogl_tube_texcoords!=NULL) delete[] sogl_tube_texcoords;
   if (original != NULL) { delete original; original = NULL; }
+  // XXX depending from where this knot comes, this might be EVIL, muahaha ;)
   if (knot != NULL) { delete knot; knot = NULL; }
 }
 

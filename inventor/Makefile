@@ -54,9 +54,9 @@ xyzview: xyzview.o SoKnot.o
 	@echo Link ${<:.o=}
 	@$(LINKER) $(FLAGS) -o xyzview $(INC_LIB) $? $(LIBS)
 
-main: SoKnot.o main.o Widgets.o moc_Widgets.o moc_viewer.o qrc_application.o viewer.o utils.o
+main: SoKnot.o main.o Widgets.o moc_Widgets.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o
 	@echo Link $@
-	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o Widgets.o moc_Widgets.o moc_viewer.o qrt_application.o viewer.o utils.o main.o $(LIBS)
+	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o Widgets.o moc_Widgets.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o $(LIBS)
 
 plotzoom: plotzoom.o moc_plotzoom.o
 	@echo Link $@

@@ -54,45 +54,104 @@ public:
   SoSeparator *graph_node;
 
 public slots:
-  int load();
   int save();
   int exportIV();
   int exportRIB();
   int exportPOV();
 
-public:
-  
-  void clear() {
-    int Tubes = info.Knot->tubes();
-    if (Tubes>0) {
-      graph_node->unref();
-      if (materials[0]) cerr << "Should no longer exist!\n";
-      if (info.Knot) { delete info.Knot; info.Knot = NULL; }
+  void decreaseTransparency() {
+    float transp = materials[0]->transparency[0] + 0.05;
+    if (transp>1.0) transp = 1.0;
+    for (int i=0;i<info.Knot->tubes();i++) {
+      materials[i]->transparency = transp;
     }
   }
+
+  void increaseTransparency() {
+    float transp = materials[0]->transparency[0] - 0.05;
+    if (transp<0.0) transp = 0.0;
+    for (int i=0;i<info.Knot->tubes();i++) {
+      materials[i]->transparency = transp;
+    }
+  }
+
+  void increaseRadius() {
+    for (int i=0;i<info.Knot->tubes();i++)
+      knot_shape[i]->radius = knot_shape[i]->radius.getValue()*1.1;
+//    cout << "Radius : " << knot_shape[0]->radius.getValue() << endl;
+  }
+
+  void decreaseRadius() {
+    for (int i=0;i<info.Knot->tubes();i++)
+      knot_shape[i]->radius = knot_shape[i]->radius.getValue()*0.9;
+//    cout << "Radius : " << knot_shape[0]->radius.getValue() << endl;
+  }
+
+  void increaseSegments() {
+    int tS = knot_shape[0]->segments.getValue()+1;
+    if (tS>120) {
+      cerr << "Warning : more than 120 segments requested. Set to 120!\n";
+      tS = 120;
+    }
+    for (int i=0;i<info.Knot->tubes();i++)
+      knot_shape[i]->segments.setValue(tS);
+    // cout << "Segments : " << tS << endl;
+  }
+
+  void decreaseSegments() {
+    int tS = knot_shape[0]->segments.getValue()-1;
+    if (tS<3) {
+      cerr << "Warning : more than 120 segments requested. Set to 120!\n";
+      tS = 3;
+    }
+    for (int i=0;i<info.Knot->tubes();i++)
+      knot_shape[i]->segments.setValue(tS);
+    // cout << "Segments : " << tS << endl;
+  }
+
+  void setNumberOfNodes(int N) {
+    for (int i=0;i<info.Knot->tubes();i++)
+      knot_shape[i]->nodes.setValue(N);
+  }
+
+public:
+  
+  void clear() { info.Knot = NULL; }
 
   /*!
      Construct the meshes for all pkf curves currently loaded.
      Close them if requested.
   */
   void makeMesh() {
-    cout << "Generate mesh for all curves"<<flush;
+    // cout << "Generate mesh for all curves"<<flush;
     if (info.Closed)
        for (int i=0;i<info.Knot->tubes();++i)
          (*(info.Knot))[i].link();
     info.Knot->makeMesh(info.N,info.S,info.R,info.Tol);
-    cout << "\t[OK]\n";
+    // cout << "\t[OK]\n";
   }
 
   /*!
     Load a set of pkf curves. We expect the filenames list in
     info to contain the files to be loaded.
   */  
-  SoSeparator* load(float transp) {
+  SoSeparator* load() {
     clear();
+    if (info.Knot==NULL) info.Knot = new TubeBundle<Vector3>;
+
     for (int i = 0; i < info.filenames.size(); ++i) {
       cout << "Read file : " << info.filenames.at(i).toLocal8Bit().constData() << endl;
-      info.Knot->readPKF((const char*)(info.filenames.at(i).toLocal8Bit().constData()));
+      // Guess PKF or VECT
+      if (info.filenames.at(i).endsWith(".pkf") ||
+          info.filenames.at(i).endsWith(".PKF"))
+        info.Knot->readPKF((const char*)(info.filenames.at(i).toLocal8Bit().constData()));
+      else if (info.filenames.at(i).endsWith(".xyz") ||
+               info.filenames.at(i).endsWith(".XYZ"))
+        info.Knot->readXYZ((const char*)(info.filenames.at(i).toLocal8Bit().constData()));
+      else {
+        cerr << "[Warn] Unknown filetype. Skip!\n";
+        continue;
+      }
     }
     
     // FIXME
@@ -103,7 +162,7 @@ public:
       info.N = (*(info.Knot))[0].nodes();
 
     makeMesh();
-    return curveSeparator(transp);
+    return curveSeparator();
   }
     
   void dumpInfo() {
@@ -123,43 +182,34 @@ public:
     cout << "Files : ";
     for (int i = 0; i < info.filenames.size(); ++i)
        cout << info.filenames.at(i).toLocal8Bit().constData()
-            << (info.filenames.size()==i+1?", ":"");
+            << (info.filenames.size()==i+1?"":", ");
     cout << endl;
   }
   
-  SoSeparator* curveSeparator(float transp) {
-    cout << "curveSeparator start\n" << flush;
+  SoSeparator* curveSeparator() {
     if (graph_node) {
       cout << "CurveInterface::curveSeparator : [Warn]"
-           << " There seems to be an already existing curve graph node! Doing nothing.\n";
+           << " There seems to be an already existing "
+           << "curve graph node! Doing nothing.\n";
       return graph_node;
     }
     
-    cout << "Let's see\n" << flush;
-    
     this->graph_node = new SoSeparator;
-    cout << "nope\n" << flush;
+
     // Prepare texture for for knot(s)
-    #if 0
     if (info.TEXTURES) {
       knot_texture = new SoTexture2;
-      knot_texture->filename.setValue((const char*)info.texture_file.constData());
+      knot_texture->filename.setValue((const char*)info.texture_file.toLocal8Bit().constData());
       graph_node->addChild(knot_texture);
-      cout << "Texture node added (" << info.texture_file.data() << ")\n";
+      cout << "Texture node added (" << info.texture_file.toLocal8Bit().constData() << ")\n";
     }
-    #endif
     
-    cout << "hmmm" << endl << flush;
-    
-    cout << "Create " << info.Knot->tubes() << " SoKnot objects";
+    // cout << "Create " << info.Knot->tubes() << " SoKnot objects";
     knot_shape = new SoKnot*[info.Knot->tubes()];
     knot_node = new SoSeparator*[info.Knot->tubes()];
     materials = new SoMaterial*[info.Knot->tubes()];
     material_bindings = new SoMaterialBinding*[info.Knot->tubes()];
 
-    return NULL;
-
-    // FIXME : we need an own SoSeparator for each SoKnot instance!!!
     for (int i=0;i<info.Knot->tubes();i++) {
       (*(info.Knot))[i].make_default();
       knot_shape[i] = new SoKnot;
@@ -181,7 +231,7 @@ public:
         // Mark beginning of curve!
     //    materials[i]->diffuseColor.set1Value(0,ColorTable[1]);
 
-      materials[i]->transparency = transp;
+//      materials[i]->transparency = transp;
 
       if (1) {
         // Material bundle

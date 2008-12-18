@@ -13,8 +13,8 @@
 
 #include "main.h"
 #include "utils.h"
-// #include "gui.h"
-#include "viewer.h"
+#include "gui.h"
+// #include "viewer.h"
 
 #include <QApplication>
 #include <Inventor/details/SoPointDetail.h>
@@ -43,8 +43,8 @@ vector<Biarc<Vector3> >::iterator FirstBiarc;
 QWidget *myWindow;
 
 //SoQtExaminerViewer *myViewer;
-SoSeparator *root, *interaction, *scene;
-SoSeparator *circles;
+// SoSeparator *root, *interaction, *scene;
+// SoSeparator *circles;
 
 char filename[50];
 
@@ -55,94 +55,80 @@ Tube<Vector3> tube_tmp;
 const uint ColorNum = 7;
 SbColor ColorTable[ColorNum];
 
-static float transp = 0.0;
-
-enum VIEW_MODE { SOLID_VIEW = 1, WIRE_VIEW, BIARC_VIEW };
-static VIEW_MODE view_mode = SOLID_VIEW;
-
-void swap_view() {
-  switch(view_mode) {
-  case SOLID_VIEW: view_mode = WIRE_VIEW; break;
-  case WIRE_VIEW: view_mode = BIARC_VIEW; break;
-  case BIARC_VIEW: view_mode = SOLID_VIEW; break;
-  default: view_mode = SOLID_VIEW; break;
-  }
-}
-
 ViewerInfo viewer_info;
 CurveInterface curve_interface;
-VVV *myViewer;
+MainWindow *myViewer;
 
 Aux2DPlotWindow *pl_win = NULL;
 
-void init(ViewerInfo *vi, CurveInterface *ci) {
+void init(MainWindow *viewer) {
 
-    // Generate ColorTable
-    ColorTable[0] = SbColor(1,0,0);
-    ColorTable[1] = SbColor(0,1,0);
-    ColorTable[2] = SbColor(0,0,1);
-    ColorTable[3] = SbColor(1,1,0);
-    ColorTable[4] = SbColor(1,0,1);
-    ColorTable[5] = SbColor(0,1,1);
-    ColorTable[6] = SbColor(.4,.4,.4);
+  // Generate ColorTable
+  ColorTable[0] = SbColor(1,0,0);
+  ColorTable[1] = SbColor(0,1,0);
+  ColorTable[2] = SbColor(0,0,1);
+  ColorTable[3] = SbColor(1,1,0);
+  ColorTable[4] = SbColor(1,0,1);
+  ColorTable[5] = SbColor(0,1,1);
+  ColorTable[6] = SbColor(.4,.4,.4);
 
-    ci->load(transp);
-    ci->dumpInfo();
+  /*
+    First time initialization. The filenames to read
+    have been set in "parse"! Read them in the CurveInterface
+    structure, construct meshes and the graph structure.
+  */
+  if (viewer->ci->info.filenames.size()>0) {
+    viewer->ci->load();
+    viewer->ci->dumpInfo();
+  }
+  else
+    cout << "[Info] No files to be loaded!\n";
 
-exit(0);
-
-    myWindow = SoQt::init("KnotViewer");
-    if (myWindow == NULL) exit(2);
-
-    // init my class
-    SoKnot::initClass();
-
-    root = new SoSeparator; root->ref();
-    circles = new SoSeparator; circles->ref();
-    interaction = new SoSeparator; interaction->ref();
-    scene = new SoSeparator; scene->ref();
-
-    if (vi->IV_SCENE) {
-      SoInput iv_in;
-      if (iv_in.openFile((char*)(vi->iv_file.data()))) {
-        SoSeparator *external_iv = SoDB::readAll(&iv_in);
-        if (external_iv) root->addChild(external_iv);
-        iv_in.closeFile();
-      }
-      else {
-        cerr << "[Warning] " << vi->iv_file.data() << " IV file Problem. Skipped\n";
-      }
+  if (viewer->vi->IV_SCENE) {
+    SoInput iv_in;
+    cout << "Read file " << viewer->vi->iv_file.toLocal8Bit().constData() << endl;
+    if (iv_in.openFile((char*)(viewer->vi->iv_file.toLocal8Bit().constData()))) {
+      SoSeparator *external_iv = SoDB::readAll(&iv_in);
+      if (external_iv) viewer->root->addChild(external_iv);
+      iv_in.closeFile();
     }
+    else {
+      cerr << "[Warning] " << viewer->vi->iv_file.toLocal8Bit().constData() << " IV file Problem. Skipped\n";
+    }
+  }
 
-    // root->addChild(interaction);
-    root->addChild(scene);
-    root->addChild(circles);
-    /*
-      First time initialization. The filenames to read
-      have been set in "parse"! Read them in the CurveInterface
-      structure, construct meshes and the graph structure.
-    */
-    if (ci->info.Knot->tubes()>0)
-      root->addChild(ci->curveSeparator(transp));
+  // root->addChild(interaction);
+  viewer->root->addChild(viewer->scene);
+  viewer->root->addChild(viewer->circles);
+  if (viewer->ci->info.Knot->tubes()>0)
+    viewer->scene->addChild(viewer->ci->graph_node);
 
-    cout << "\t[OK]\n";  
-  
+  // root->removeChild(ci->graph_node);
+  // ci->graph_node = NULL;
+  // root->addChild(ci->graph_node);
 }
 
 int main(int argc, char **argv) {
 
   // Q_INIT_RESOURCE(application);
 
+  myWindow = SoQt::init("libbiarc viewer");
+  if (!myWindow) { cerr << "[Err] SoQt::init failed!\n"; exit(2); }
+  SoKnot::initClass();
+
+  // Setup viewer (main window)
+  cout << "Viewer ..." << flush;
+  myViewer = new MainWindow(myWindow,"libbiarc viewer",TRUE,
+                            SoQtFullViewer::BUILD_ALL,
+                            SoQtViewer::BROWSER);
+  cout << " [OK]\n";
+
   // Set parameters according to command line args
   cout << "Parse ..." << flush;
-  if(!parse(argc,argv,&viewer_info,&(curve_interface.info))) usage(argv[0]);
-  cout << " [OK]\n" << flush;
+  if(!parse(argc,argv,myViewer->vi,&(myViewer->ci->info))) usage(argv[0]);
+  cout << " [OK]\n";
 
-  init(&viewer_info, &curve_interface);
-
- // myViewer=new SoQtExaminerViewer(myWindow);
-  myViewer = new VVV(myWindow,"viewer",TRUE,SoQtFullViewer::BUILD_ALL,SoQtViewer::BROWSER);
-  MainWindow mainwindow(myWindow);
+  init(myViewer);
 
   // Create event handler for mouse
 /*
@@ -156,13 +142,13 @@ int main(int argc, char **argv) {
   root->addChild(motionEvent);
 */
 
-  myViewer->setSceneGraph(root);
+  myViewer->setSceneGraph(myViewer->root);
   myViewer->setSize(SbVec2s(_SCREEN_W_,_SCREEN_H_));
 
-//  myViewer->setEventCallback(myAppEventHandler,myViewer);
+  myViewer->setEventCallback(myAppEventHandler,myViewer);
   myViewer->setTransparencyType(SoGLRenderAction::SORTED_OBJECT_SORTED_TRIANGLE_BLEND);
 
-  if (viewer_info.BackGroundFlag)
+  if (myViewer->vi->BackGroundFlag)
     myViewer->setBackgroundColor(SbColor(1,1,1));
 
   myViewer->setFeedbackVisibility(TRUE);
@@ -172,14 +158,14 @@ int main(int argc, char **argv) {
 
   // myViewer->setTitle("KnotViewer");
   // myViewer->show();
-  SoQt::setWidgetSize(&mainwindow,SbVec2s(_SCREEN_W_,_SCREEN_H_));
+  SoQt::setWidgetSize(myViewer,SbVec2s(_SCREEN_W_,_SCREEN_H_));
   //SoQt::setWidgetSize(&mainwindow,SbVec2s(_SCREEN_W_,_SCREEN_H_));
   //mainwindow.setGeomtery(50,50,200,200);
   //myWindow->setGeometry(20,20,100,100);
   //SoQt::setWidgetSize(myWindow,SbVec2s(50,50));
-  SoQt::show(&mainwindow); // myWindow);
+  SoQt::show(myViewer); // myWindow);
 
-  if (viewer_info.PT_PLOT) {
+  if (myViewer->vi->PT_PLOT) {
     if (!pl_win) {
       pl_win = new Aux2DPlotWindow(NULL,"2dwindow");
       pl_win->setAttribute(Qt::WA_NoBackground);
@@ -189,7 +175,7 @@ int main(int argc, char **argv) {
                        myViewer,SLOT(update_picked(float,float,float,float)));
 
     }
-    if (pl_win->loadImage((const char*)(viewer_info.ptplot_file.data()))) {
+    if (pl_win->loadImage((const char*)(myViewer->vi->ptplot_file.toLocal8Bit().constData()))) {
       pl_win->repaint();
       if (pl_win->isVisible()) pl_win->hide();
       else pl_win->show();
@@ -197,10 +183,11 @@ int main(int argc, char **argv) {
     else  {
       pl_win->hide();
       cerr << "[Warning] Could not load "
-           << viewer_info.ptplot_file.data() << ". Skipped\n";
+           << myViewer->vi->ptplot_file.toLocal8Bit().constData() << ". Skipped\n";
     }
   }
 
+  cout << "Start main loop\n" << flush;
   SoQt::mainLoop();
 
 }

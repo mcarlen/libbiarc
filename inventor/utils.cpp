@@ -9,10 +9,11 @@ int parse(int argc, char** argv, ViewerInfo *vi, CurveInfo *ci) {
   vi->ResamplePartFlag = 0;
   vi->FirstPoint = 0;
   vi->BackGroundFlag = 0;
-  vi->TEXTURES = 0;
   vi->IV_SCENE = 0;
+  vi->PT_PLOT = 0;
 
   // default values
+  ci->TEXTURES = 0;
   ci->N = 0;
   ci->S = 12;
   ci->R = 0.0083; // experimental knot value
@@ -24,9 +25,8 @@ int parse(int argc, char** argv, ViewerInfo *vi, CurveInfo *ci) {
 
     if (argv[i][0] == '-') {
       if (pkf_knots>0) return 0;
-      if (!strncmp(&argv[i][1],"N=",2)) {
+      if (!strncmp(&argv[i][1],"N=",2))
         ci->N = atoi(&argv[i][3]);
-      }
       else if (!strncmp(&argv[i][1],"S=",2))
         ci->S = atoi(&argv[i][3]);
       else if (!strncmp(&argv[i][1],"R=",2))
@@ -49,7 +49,6 @@ int parse(int argc, char** argv, ViewerInfo *vi, CurveInfo *ci) {
       else if (!strncmp(&argv[i][1],"ptplot",6)) {
         vi->PT_PLOT = 1;
         vi->ptplot_file = QString(argv[i+1]); i++;
-        cout << "We got a pt plot : " << vi->ptplot_file.data() << endl;
       }
       else {
         cerr << "Unknown option : " << argv[i][1] << endl;

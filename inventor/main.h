@@ -25,6 +25,7 @@
 #include <Inventor/misc/SoChildList.h>
 #include <Inventor/nodes/SoTexture2.h>
 #include <Inventor/nodes/SoMaterialBinding.h>
+#include <Inventor/nodes/SoSwitch.h>
 
 /*
  * Inventor interaction struff
@@ -35,7 +36,6 @@
 //#include <Inventor/events/SoEvent.h>
 #include <Inventor/events/SoKeyboardEvent.h>
 
-/* new new new */
 //#include <Inventor/events/SoMouseMotionEvent.h>
 #include <Inventor/events/SoMouseButtonEvent.h>
 #include <Inventor/events/SoLocation2Event.h>
@@ -44,7 +44,6 @@
 #include <Inventor/projectors/SbPlaneProjector.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 
-/* new new new */
 #include "Widgets.h"
 
 #include <Inventor/Qt/SoQt.h>
@@ -80,6 +79,7 @@ struct ViewerInfo {
   
   // Qt
   QString ptplot_file, texture_file, iv_file;
+
 };
 
 typedef ViewerInfo ViewerInfo;

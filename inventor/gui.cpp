@@ -1,17 +1,17 @@
 #include "gui.h"
+#include "mainwindow.h"
+#include <Inventor/nodes/SoSwitch.h>
+
+extern Aux2DPlotWindow* pl_win;
 
 SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
-  //  SoQtRenderArea *myRenderArea = (SoQtRenderArea *) userData;
   QKeyEvent *myKeyEvent;
-  //SbBool handled = TRUE;
+  MainWindow *viewer = (MainWindow*)userData;
 
-  int tS, tN;
-  //  SoQtViewer::DrawStyle DStyle;
-
-  SoChildList *children = new SoChildList(scene);
+  SoChildList *children = new SoChildList(viewer->scene);
   int child_len;
-  Tube<Vector3>* bez_tub;
+  Tube<Vector3>* bez_tub, tube_tmp;
 
   SbVec3f CamAxis, CamPos;
   SbRotation CamOrientation;
@@ -28,7 +28,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
   if(anyevent->type()==QEvent::KeyPress) {
 
-    children = scene->getChildren();
+    children = viewer->scene->getChildren();
     child_len = children->getLength();
 
     myKeyEvent = (QKeyEvent *) anyevent;
@@ -41,133 +41,85 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     // Transparency changing
     case Qt::Key_F:
-      transp+=0.05;
-      if (transp>1.0) transp = 1.0;
-      for (int i=0;i<Knot->tubes();i++)
-        materials[i]->transparency = transp;
+      viewer->ci->increaseTransparency();
       break;
 
     case Qt::Key_V:
-      transp-=0.05;
-      if (transp<0.0) transp = 0.0;
-      for (int i=0;i<Knot->tubes();i++)
-        materials[i]->transparency = transp;
+      viewer->ci->decreaseTransparency();
       break;
 
     case Qt::Key_A:
-      for (int i=0;i<Knot->tubes();i++)
-	knot_shape[i]->radius = knot_shape[i]->radius.getValue()*1.1;
-      cout << "Radius : " << knot_shape[0]->radius.getValue() << endl;
+      viewer->ci->increaseRadius();
       break;
 
     case Qt::Key_Y:
     case Qt::Key_Z:
-      for (int i=0;i<Knot->tubes();i++)
-	knot_shape[i]->radius = knot_shape[i]->radius.getValue()*0.9;
-      cout << "Radius : " << knot_shape[0]->radius.getValue() << endl;
+      viewer->ci->decreaseRadius();
       break;
 
     case Qt::Key_S:
-      tS = knot_shape[0]->segments.getValue()+1;
-      if (tS>120) {
-	cerr << "Warning : more than 120 segments requested. Set to 120!\n";
-	tS = 120;
-      }
-      for (int i=0;i<Knot->tubes();i++)
-	knot_shape[i]->segments.setValue(tS);
-      cout << "Segments : " << tS << endl;
+      viewer->ci->increaseSegments();
       break;
 
     case Qt::Key_X:
-      tS = knot_shape[0]->segments.getValue()-1;
-      if (tS<3) {
-	cerr << "Warning : less than 3 segments not allowed. Set to 3!\n";
-	tS = 3;
-      }
-      for (int i=0;i<Knot->tubes();i++)
-	knot_shape[i]->segments.setValue(tS);
-      cout << "Segments : " << tS << endl;
+      viewer->ci->decreaseSegments();
       break;
 
     case Qt::Key_D:
-      tN = knot_shape[0]->nodes.getValue()+10;
-      for (int i=0;i<Knot->tubes();i++) {
-	knot_shape[i]->nodes.setValue(tN);
-	if (view_mode==BIARC_VIEW)
-	  children->remove(0);
+      viewer->ci->setNumberOfNodes(viewer->ci->knot_shape[0]->nodes.getValue()+10);
+    	if (viewer->view_mode==BIARC_VIEW) {
+	      children->remove(1);
+	      for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
+	        bez_tub = viewer->ci->knot_shape[i]->getKnot();
+	        bez_tub->make_default();
+	        bez_tub->resample(viewer->ci->knot_shape[0]->nodes.getValue());
+	        bez_tub->make_default();
+	        addBezierCurve((SoSeparator*)(viewer->scene),bez_tub);
+	      }
       }
 
-      if (view_mode==BIARC_VIEW) {
-	for (int i=0;i<Knot->tubes();i++) {
-	  bez_tub = knot_shape[i]->getKnot();
-	  bez_tub->make_default();
-	  bez_tub->resample(tN);
-	  bez_tub->make_default();
-	  addBezierCurve(scene,bez_tub);
-	}
-      }
-
-      cout << "Nodes : " << tN << endl;
       break;
 
     case Qt::Key_C:
-      tN = knot_shape[0]->nodes.getValue()-10;
-      if (tN<3) {
-	cerr << "Warning : less than 3 nodes requested. Set to 3!\n";
-	tN=3;
+      viewer->ci->setNumberOfNodes(viewer->ci->knot_shape[0]->nodes.getValue()-10);
+    	if (viewer->view_mode==BIARC_VIEW) {
+	      children->remove(1);
+	      for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
+	        bez_tub = viewer->ci->knot_shape[i]->getKnot();
+	        bez_tub->make_default();
+	        bez_tub->resample(viewer->ci->knot_shape[0]->nodes.getValue());
+	        bez_tub->make_default();
+	        addBezierCurve((SoSeparator*)(viewer->scene),bez_tub);
+	      }
       }
-      for (int i=0;i<Knot->tubes();i++) {
-	knot_shape[i]->nodes.setValue(tN);
-	if (view_mode==BIARC_VIEW)
-	  children->remove(0);
-      }
-
-      if (view_mode==BIARC_VIEW) {
-	for (int i=0;i<Knot->tubes();i++) {
-	  bez_tub = knot_shape[i]->getKnot();
-	  bez_tub->make_default();
-	  bez_tub->resample(tN);
-	  bez_tub->make_default();
-	  addBezierCurve(scene,bez_tub);
-	}
-      }
-
-      cout << "Nodes : " << tN << endl;
       break;
 
     case Qt::Key_Space:
-      swap_view();
-      switch(view_mode) {
+      viewer->swap_view();
+      switch(viewer->view_mode) {
       case SOLID_VIEW: 
-
-	for (int i=0;i<child_len;i++) children->remove(0);
-	for (int i=0;i<Knot->tubes();i++)
-	  scene->addChild(knot_node[i]);
-
-	myViewer->setDrawStyle(SoQtViewer::STILL,
-			       SoQtViewer::VIEW_AS_IS);
-
-	break;
-      case WIRE_VIEW: myViewer->setDrawStyle(SoQtViewer::STILL,
-					     SoQtViewer::VIEW_HIDDEN_LINE);
-	break;
+      	viewer->scene->whichChild.setValue(0);  // 0 is mesh curve
+	      viewer->setDrawStyle(SoQtViewer::STILL,
+		                         SoQtViewer::VIEW_AS_IS);
+        break;
+      case WIRE_VIEW:
+	      viewer->setDrawStyle(SoQtViewer::STILL,
+	                           SoQtViewer::VIEW_HIDDEN_LINE);
+	      break;
       case BIARC_VIEW:
-	myViewer->setDrawStyle(SoQtViewer::STILL,
-			       SoQtViewer::VIEW_AS_IS);
+	      viewer->setDrawStyle(SoQtViewer::STILL,
+	                           SoQtViewer::VIEW_AS_IS);
+        // XXX rebuild bezier curve only if N or S changed!!
+        if (child_len==2)
+          viewer->scene->removeChild(1);
+      	for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
+	        bez_tub = viewer->ci->knot_shape[i]->getKnot();
+      	  bez_tub->make_default();
+	        addBezierCurve((SoSeparator*)(viewer->scene),bez_tub);
+      	}
+	      viewer->scene->whichChild.setValue(1); // is biarc curve
+	      break;
 
-	for (int i=0;i<child_len;i++) children->remove(0);
-	for (int i=0;i<Knot->tubes();i++) {
-//cerr << "knot " << i << ":\n"<<flush;
-	  bez_tub = knot_shape[i]->getKnot();
-//cerr << *bez_tub <<endl;
-//cerr << "get ok\n" << flush;
-	  bez_tub->make_default();
-//cerr << "make_def ok\n" << flush;
-	  addBezierCurve(scene,bez_tub);
-//cerr << "add ok\n" << flush;
-	}
-
-	break;
       default: cerr << "View Mode problem. Should not happen\n"; exit(3);
       }
       break;
@@ -175,15 +127,14 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
     //
     case Qt::Key_W:
 
-      CamOrientation = myViewer->getCamera()->orientation.getValue();
+      CamOrientation = viewer->getCamera()->orientation.getValue();
       CamOrientation.getValue(sbmat);
       mat3[0][0] = sbmat[0][0]; mat3[0][1] = sbmat[1][0]; mat3[0][2] = sbmat[2][0];
       mat3[1][0] = sbmat[0][1]; mat3[1][1] = sbmat[1][1]; mat3[1][2] = sbmat[2][1];
       mat3[2][0] = sbmat[0][2]; mat3[2][1] = sbmat[1][2]; mat3[2][2] = sbmat[2][2];
       
-      tube_tmp = *(knot_shape[0]->getKnot());
+      tube_tmp = *(viewer->ci->knot_shape[0]->getKnot());
       tube_tmp.apply(mat3).writePKF("curve.pkf");
-//      tube_tmp->apply(->writePKF("curve.pkf");
       cout << "Current curve state written to curve.pkf.\n";
       break;
 
@@ -192,13 +143,14 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
     case Qt::Key_E:
       // FIXME get camera and lighting info and pass to RIB export
       cout << "Export RIB File (knot.rib)" << flush;
-      CamPos = myViewer->getCamera()->position.getValue();
-      CamOrientation = myViewer->getCamera()->orientation.getValue();
+      CamPos = viewer->getCamera()->position.getValue();
+      CamOrientation = viewer->getCamera()->orientation.getValue();
       CamOrientation.getValue(CamAxis,CamAngle);
-      knot_shape[0]->getKnot()->exportRIBFile("knot.rib",320,240,
-                                              (Vector3)&CamPos[0],
-                                              (Vector3)&CamAxis[0],CamAngle,
-             (Vector3)&(myViewer->getHeadlight()->direction.getValue())[0]);
+      viewer->ci->knot_shape[0]->getKnot()
+                               ->exportRIBFile("knot.rib",320,240,
+                                               (Vector3)&CamPos[0],
+                                               (Vector3)&CamAxis[0],CamAngle,
+             (Vector3)&(viewer->getHeadlight()->direction.getValue())[0]);
       cout << " [OK]\n";
       break;
 #else
@@ -211,8 +163,8 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
        This is only working in BIARC_VIEW
     */
     case Qt::Key_R:
-      if (view_mode == BIARC_VIEW) {
-        ResamplePartFlag = 1;
+      if (viewer->view_mode == BIARC_VIEW) {
+        viewer->vi->ResamplePartFlag = 1;
         cout << "Resample a part of the curve!\n";
       }
       break;
@@ -222,20 +174,22 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       cout << "[Not Implemented] Current curve is exported to a Povray file knot.pov.\n";
       break;
       
-
+/*
     case Qt::Key_I:
       cout << "Export curve.iv file\n";
       exportIV();
       break;
+ */
 
     case Qt::Key_P:
       if (!pl_win) {
         pl_win = new Aux2DPlotWindow(NULL,"2dwindow");
         pl_win->setAttribute(Qt::WA_NoBackground);
         pl_win->setWindowTitle("2D Window");
-        pl_win->setGeometry(_SCREEN_W_+8,0,200,200);
+        // XXX Screen width hardcoded!
+        pl_win->setGeometry(800+8,0,200,200);
         QObject::connect(pl_win,SIGNAL(pos_changed(float,float,float,float)),
-                         myViewer,SLOT(update_picked(float,float,float,float)));
+                         viewer,SLOT(update_picked(float,float,float,float)));
 
       }
       if (pl_win->isVisible()) pl_win->hide();
@@ -254,6 +208,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
   return FALSE;
 }
 
+#if XXX // to end
 
 //Mouse motion callback
 static void motionfunc(void *data, SoEventCallback *eventCB) {
@@ -461,3 +416,4 @@ static void mousefunc(void *data, SoEventCallback *eventCB) {
     eventCB->setHandled();
   }
 }
+#endif
