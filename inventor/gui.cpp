@@ -2,7 +2,116 @@
 #include "mainwindow.h"
 #include <Inventor/nodes/SoSwitch.h>
 
+#include "../fourierknots/fourier_syn.h"
+
 extern Aux2DPlotWindow* pl_win;
+
+SoSeparator* frenet_frame(Tube<Vector3>* t) {
+  
+  FourierKnot fk;
+  Curve<Vector3> curve((*t));
+  int Samples = 1000;
+  int N = (*t).nodes();
+  Vector3 vsin, vcos;
+  float scale;
+
+  curve.link();
+  curve.make_default(); 
+  
+  scale = .75*curve.maxSegDistance();
+
+  curve.resample(Samples);
+  curve.make_default(); 
+
+  vector<Biarc<Vector3> >::iterator it;
+  float dx = 2*M_PI/(float)Samples, x;
+  for (int n=1;n<=N;++n) {
+    vsin.zero(); vcos.zero(); x = 0.0;
+    for (it=curve.begin();it!=curve.end();++it) {
+      vsin += it->getPoint()*sin(n*x);
+      vcos += it->getPoint()*cos(n*x);
+      x += dx;
+    }
+    fk.csin.push_back(vsin);
+    fk.ccos.push_back(vcos);
+  }
+
+  // Constant term
+  /*
+  for (it=curve.begin();it!=curve.end();++it) {
+    fk.c0 += it->getPoint();
+  }
+  */
+
+  /*
+  Curve<Vector3> curve2;
+  fk.toCurve(200,&curve2);
+  curve2.make_default();
+  float iL = 1./curve2.length();
+  for (unsigned int i=0;i<fk.csin.size();++i) {
+    fk.csin[i] *= iL;
+    fk.ccos[i] *= iL;
+  }
+  fk.c0 *= iL;
+  */
+
+  // Construct Frenet Frame using fourier representation
+  SoSeparator *frenet = new SoSeparator;
+  SoSeparator *sep_tangents  = new SoSeparator;
+  SoSeparator *sep_normals   = new SoSeparator;
+  SoSeparator *sep_binormals = new SoSeparator;
+  frenet->addChild(sep_tangents);
+  frenet->addChild(sep_normals);
+  frenet->addChild(sep_binormals);
+
+  // Materials
+  SoMaterial *ma_t = new SoMaterial, *ma_n = new SoMaterial, *ma_b = new SoMaterial;
+  ma_t->diffuseColor.setValue(1,0,0); sep_tangents->addChild(ma_t);
+  ma_n->diffuseColor.setValue(0,1,0); sep_normals->addChild(ma_n);
+  ma_b->diffuseColor.setValue(0,0,1); sep_binormals->addChild(ma_b);
+
+  Vector3 pt, tan, nor, bin;
+  SoCoordinate3 *co_tangents  = new SoCoordinate3;
+  SoCoordinate3 *co_normals   = new SoCoordinate3; 
+  SoCoordinate3 *co_binormals = new SoCoordinate3;
+
+  SoLineSet *ls_tangents  = new SoLineSet;
+  SoLineSet *ls_normals   = new SoLineSet;
+  SoLineSet *ls_binormals = new SoLineSet;
+
+  sep_tangents->addChild(co_tangents);   sep_tangents->addChild(ls_tangents);
+  sep_normals->addChild(co_normals);     sep_normals->addChild(ls_normals);
+  sep_binormals->addChild(co_binormals); sep_binormals->addChild(ls_binormals);
+
+  float s = 0, iN = 1./(float)N;
+  cout << "Scale : " << scale << endl;
+  Vector3 vec;
+  SbVec3f sbvec;
+  for (int i=0;i<N;++i) {
+    s = (float)i*iN;
+    pt  = (*t)[i].getPoint();
+    tan = fk.prime(s);      tan.normalize();
+    nor = fk.primeprime(s); nor.normalize();
+    bin = nor.cross(tan);   bin.normalize();
+
+    co_tangents->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
+    vec = pt+scale*tan;
+    co_tangents->point.set1Value(2*i+1,SbVec3f(vec[0],vec[1],vec[2]));
+
+    co_normals->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
+    vec = pt+scale*nor;
+    co_normals->point.set1Value(2*i+1,SbVec3f(vec[0],vec[1],vec[2]));
+
+    co_binormals->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
+    vec = pt+scale*bin;
+    co_binormals->point.set1Value(2*i+1,SbVec3f(vec[0],vec[1],vec[2]));
+
+    ls_tangents->numVertices.set1Value(i,2);
+    ls_normals->numVertices.set1Value(i,2);
+    ls_binormals->numVertices.set1Value(i,2);
+  }
+  return frenet;
+}
 
 SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
@@ -92,6 +201,15 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 	        addBezierCurve((SoSeparator*)(viewer->scene),bez_tub);
 	      }
       }
+      break;
+
+    case Qt::Key_1:
+      // XXX we need a frame separator. now if there's more than 1 curve => boum!
+      //     if the biarc view curve is already in the graph, boum again
+      cout << "Frenet Frame\n";
+      for (int i=0;i<viewer->ci->info.Knot->tubes();++i)
+        viewer->scene->addChild(frenet_frame(viewer->ci->knot_shape[i]->getKnot()));
+      viewer->scene->whichChild.setValue(SO_SWITCH_ALL); // only frenet frame
       break;
 
     case Qt::Key_Space:
