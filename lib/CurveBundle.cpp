@@ -461,6 +461,30 @@ int CurveBundle<Vector>::writePKF(ostream &out) {
   return 1;
 }
 
+
+/*!
+  Read data from a XYZ file \a infile. More details
+  are in the class Curve documentation. This class
+  can store more than 1 curve!
+
+  Returns 1 if all went well, zero otherwise.
+
+  \sa writePKF(),Curve::readPKF(),Curve::writePKF()
+*/
+template<class Vector>
+int CurveBundle<Vector>::readXYZ(const char *infile) {
+  ifstream in(infile, ios::in);
+  if (!in.good()) {
+    cerr<<"CurveBundle::readXYZ() : could not read " << infile <<endl;
+    return 0;
+  }
+  Curve<Vector> c;
+  int B = c.readXYZ(in);
+  in.close();
+  newCurve(c);
+  return B;
+}
+
 /*!
   This function reads the curve data from a file \a infile.
   The file structure is a list of x,y,z coordinates. The default

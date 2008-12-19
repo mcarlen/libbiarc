@@ -1815,9 +1815,44 @@ ostream& Curve<Vector>::writeSinglePKF(ostream &out) {
 */
 template<class Vector>
 int Curve<Vector>::readData(istream &in, const char* delimiter) {
-  readSingleData(in,delimiter);
+  return readSingleData(in,delimiter);
+}
+
+/*!
+  This function reads the curve data from a file \a infile.
+  The file structure is a list of x,y,z coordinates. Delimiter
+  is space " "
+
+  Returns 1 if all went well, zero otherwise.
+
+  \sa readPKF(), readData()
+*/
+template<class Vector>
+int Curve<Vector>::readXYZ(istream &in) {
+  return readSingleXYZ(in);
+}
+
+
+/*!
+  Read the curve data (only x,y,z coordinates) from a file \a
+  filename, where the delimiter can be any char*. The
+  delimiter is a space.
+*/
+template<class Vector>
+int Curve<Vector>::readXYZ(const char* filename) {
+  ifstream ifs(filename,ios::in);
+  if (!ifs.good()) {
+    cerr << "Curve::readXYZ() : Could not read from " << filename << ".\n";
+    return 0;
+  }
+  if (!readXYZ(ifs)) {
+    cerr << "Curve::readXYZ() : Could not read data from "
+	 <<filename<<".\n";
+    return 0;
+  }
   return 1;
 }
+
 
 /*!
   Read the curve data (only x,y,z coordinates) from a file \a
@@ -1838,6 +1873,26 @@ int Curve<Vector>::readData(const char* filename, const char* delimiter) {
   }
   return 1;
 }
+
+/*!
+  Read in xyz data. First line is the number of data points.
+  Then the x y z coordinates. Tangents are interpolated using
+  these points.
+
+  \sa readPKF(), readData()
+*/
+template<class Vector>
+int Curve<Vector>::readSingleXYZ(istream &in) {
+  Vector p;
+  while ( (in >> p) ) {
+    if (in.bad()) return 0;
+    append(p,Vector());
+  }
+  if (in.bad()) return 0;
+  computeTangents();
+  return 1;
+}
+
 
 /*!
   Read in the curve data for a single curve given

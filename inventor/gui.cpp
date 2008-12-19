@@ -90,8 +90,12 @@ SoSeparator* frenet_frame(Tube<Vector3>* t) {
   for (int i=0;i<N;++i) {
     s = (float)i*iN;
     pt  = (*t)[i].getPoint();
-    tan = fk.prime(s);      tan.normalize();
-    nor = fk.primeprime(s); nor.normalize();
+    // Fourier
+   // tan = fk.prime(s);      tan.normalize();
+   // nor = fk.primeprime(s); nor.normalize();
+    // Standard
+    tan = (*t)[i].getTangent();
+    nor = t->normalVector(i); nor.normalize();
     bin = nor.cross(tan);   bin.normalize();
 
     co_tangents->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
