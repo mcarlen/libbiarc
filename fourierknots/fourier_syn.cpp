@@ -211,7 +211,7 @@ void FourierKnot::toCurveOnS3(const int sampling, Curve<Vector4> *curve) {
     // Tangent gets normalized in biarc constructor
     p=(*this)(s);
     t=this->prime(s);
-    curve->append(point_to_S3(p), tangent_to_S3(p,t));
+    curve->append(point_to_S3(p).normalize(), tangent_to_S3(p,t));
   }
 }
 
