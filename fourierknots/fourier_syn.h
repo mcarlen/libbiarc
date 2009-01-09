@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <Vector3.h>
+#include <Vector4.h>
 #include <Matrix3.h>
 #include <Curve.h>
 
@@ -49,6 +50,7 @@ public:
 
   virtual void toCurve(const int sampling, Curve<Vector3> *curve);
   virtual void toCurve(float(*pt2func)(float), const int sampling, Curve<Vector3> *curve);
+  virtual void toCurveOnS3(const int sampling, Curve<Vector4> *curve);
   void rotate(const Vector3 v,float alpha);
   void apply(Matrix3 &m);
   void mirror(const Vector3 v);

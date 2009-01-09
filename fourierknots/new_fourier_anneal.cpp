@@ -74,7 +74,7 @@ public:
     out.close();
   }
 
-  float energy() {
+  virtual float energy() {
     return ropelength(knot);
   }
 };
@@ -114,6 +114,8 @@ public:
 
 };
 
+// FIXME: (HG) Yes! I'm ashemed of the NOMAIN-construction. ;)
+#ifndef NOMAIN
 int main(int argc, char** argv) {
   FKAnneal<FourierKnot> *a;
   TrefFKAnneal* t;
@@ -137,3 +139,4 @@ int main(int argc, char** argv) {
   }
   return 0;
 }
+#endif
