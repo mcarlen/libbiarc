@@ -64,6 +64,25 @@ void FourierKnot::setCos(Coeffs lcos) { ccos = lcos; }
 /*!
   Scale FourierKnot coefficients by d.
 */
+void FourierKnot::mul(const float d) {
+  for (uint i=0;i<csin.size();++i) {
+    csin[i]*=d;
+    csin[i]*=d;
+  }
+  c0*=d;
+}
+
+/*!
+  Scale FourierKnot coefficients by 1./d.
+*/
+void FourierKnot::div(const float d) {
+  mul(1./d);
+}
+
+
+/*!
+  Scale FourierKnot coefficients by d.
+*/
 FourierKnot FourierKnot::operator*(const float d) const {
   FourierKnot fk;
   for (uint i=0;i<csin.size();++i) {

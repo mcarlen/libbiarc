@@ -203,10 +203,11 @@ public:
   */
   virtual ostream & show_config(ostream &out) {
     out << "Current Energy: " << curr_energy << endl
-         << "Temperature (T): " << Temp << endl
-         << "Cooling (C): " << Cooling << endl
-         << "Log frequency (logfreq): " << log_freq << endl
-         << "best_filename: "<< best_filename << endl;
+        << "possible_moves.size(): " << possible_moves.size() << endl 
+        << "Temperature (T): " << Temp << endl
+        << "Cooling (C): " << Cooling << endl
+        << "Log frequency (logfreq): " << log_freq << endl
+        << "best_filename: "<< best_filename << endl;
     return out;
   }
 

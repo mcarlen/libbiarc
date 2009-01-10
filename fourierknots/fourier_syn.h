@@ -57,6 +57,9 @@ public:
   void flip_dir(float sh = 0);
   void shift(float sh);
 
+  virtual void mul(const float d);
+  virtual void div(const float d);
+
   FourierKnot operator*(const float d) const;
   FourierKnot operator/(const float d) const;
   FourierKnot operator+(const FourierKnot &fk) const;
