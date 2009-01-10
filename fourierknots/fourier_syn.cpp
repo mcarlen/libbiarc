@@ -2,31 +2,21 @@
 
 
 /*!
-  Project a single point from R^3 to S^3 = {x | |X|=1} \subset R^4
+  Project a single point tangent pair from R^3 to S^3 = {x | |X|=1} \subset R^4
   (0,0,0) is maped to the south pole (0,0,0,-1) and 
   (\inf,\inf,\inf) is mapped to the north pole (0,0,0,1)
 */
-Vector4 point_to_S3(Vector3 p){
+void project_to_S3(Vector3 p, Vector3 t, Vector4 &y, Vector4 &g){
    /* Make an inversion at the ball B_2( (0,0,0,2) ) and substract (0,0,0,1) */
-   const Vector4 a(0,0,0,2), s(0,0,0,1);
    const float r=2.0;
-   Vector4 x(p[0],p[1],p[2],0), result;
-   result = a + (r*r / (x-a).norm2())*(x-a) - s;
-   return result;
-}
-
-/*!
-  Project a tangent t at p from R^3 to S^3.
-  \sa point_to_S3.
-*/
-
-Vector4 tangent_to_S3(Vector3 p, Vector3 t){
-   const Vector4 a(0,0,0,2);
-   Vector4 x(p[0],p[1],p[2],0), h(t[0],t[1],t[2],0), result;
-   const float r=2.0;
-   result = (r*r / (x-a).norm2())*h -2*(r*r / (x-a).norm2())*(x-a).dot(h)*(x-a);
-   result.normalize();
-   return result;
+   Vector4 x(p[0], p[1], p[2], -1.0), h(t[0], t[1], t[2], 0);
+   float x2 = x.norm2();
+   y = (r*r / x2)*x;
+   g = (r*r / x2)*h - 2.0*(r*r / x2*x2)*x.dot(h)*x;
+   // Make sure we are in S^3
+   y.normalize();
+   g.normalize();
+   g = g-g.dot(y)*y;
 }
 
 void FourierKnot::clear() {
@@ -205,13 +195,12 @@ void FourierKnot::toCurve(float(*pt2func)(float), const int sampling,
 // pointer to Curve curve 
 void FourierKnot::toCurveOnS3(const int sampling, Curve<Vector4> *curve) {
   float isampling = 1./(float)sampling, s;
-  Vector3 p,t;
+  Vector4 p,t;
   for (int i=0;i<sampling;++i) {
     s = (float)i*isampling;
     // Tangent gets normalized in biarc constructor
-    p=(*this)(s);
-    t=this->prime(s);
-    curve->append(point_to_S3(p).normalize(), tangent_to_S3(p,t));
+    project_to_S3((*this)(s), this->prime(s), p, t);
+    curve->append(p,t);
   }
 }
 

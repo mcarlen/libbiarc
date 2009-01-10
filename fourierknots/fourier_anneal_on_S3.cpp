@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
   FKAnnealOnS3 * fk;
   if (argc != 4) {
     cout << "Usage: " << argv[0] << " [n|3|4] filename params " << endl;
-    cout << "    only 3 supported " << endl;
+    cout << "    only n supported " << endl;
     exit(1);
   }
   switch(argv[1][0]) {
