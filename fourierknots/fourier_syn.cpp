@@ -7,13 +7,16 @@
   (\inf,\inf,\inf) is mapped to the north pole (0,0,0,1)
 */
 void project_to_S3(Vector3 p, Vector3 t, Vector4 &y, Vector4 &g){
-   /* Make an inversion at the ball B_2( (0,0,0,2) ) and substract (0,0,0,1) */
-   const float r=2.0;
+   /* Embed R^3 with x4=-1 and make an inversion at 
+      the ball B_2( (0,0,0,1) ) */
+   const Vector4 center_v = Vector4(0,0,0,1);
+   const float radius=2.0;
    Vector4 x(p[0], p[1], p[2], -1.0), h(t[0], t[1], t[2], 0);
-   float x2 = x.norm2();
-   y = (r*r / x2)*x;
-   g = (r*r / x2)*h - 2.0*(r*r / x2*x2)*x.dot(h)*x;
-   // Make sure we are in S^3
+   Vector4 x_minus_center = x - center_v;
+   float factor = radius*radius/x_minus_center.norm2();
+   y = center_v + factor*x_minus_center;
+   g = factor*h - (2*factor/x_minus_center.norm2() * h.dot(x_minus_center))*(x-center_v);
+   // make sure we are on S^3 
    y.normalize();
    g.normalize();
    g = g-g.dot(y)*y;

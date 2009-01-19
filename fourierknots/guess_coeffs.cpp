@@ -20,7 +20,8 @@ int main(int argc, char** argv) {
   curve.make_default(); 
   curve.resample(Samples);
   curve.make_default(); 
-  curve.normalize();
+  // FIXME: (HG) Please don't normalize without reason/warning !!!
+  // curve.normalize();
 
   vector<Biarc<Vector3> >::iterator it;
   float dx = 2*M_PI/(float)Samples, x;
@@ -41,15 +42,15 @@ int main(int argc, char** argv) {
   }
 
   Curve<Vector3> curve2;
-  fk.toCurve(200,&curve2);
+  fk.toCurve(Samples,&curve2);
   curve2.make_default();
-  float iL = 1./curve2.length();
+  // FIXME: This is a dirty trick to fix the scaling.
+  float iL = curve.length()/curve2.length();
   for (unsigned int i=0;i<fk.csin.size();++i) {
     fk.csin[i] *= iL;
     fk.ccos[i] *= iL;
   }
   fk.c0 *= iL;
-
   ofstream of(argv[4]);
   of << fk;
   of.close();
