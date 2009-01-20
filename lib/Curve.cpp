@@ -1248,8 +1248,13 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
     next = begin();
   else
     next = b+1;
+// XXX normal viz looks weird using the midpoints
+/*
   Vector v = (b->getMidPoint()-b->getPoint())-
              (b->getPoint()-prev->getMidPoint());
+*/
+  Vector v = (next->getPoint()-b->getPoint())-
+             (b->getPoint()-prev->getPoint());
 // XXX not normalize, this way we indirectly recovert the
 //     local curvature
 //  v.normalize();

@@ -40,7 +40,7 @@ class CurveInterface {
   
 public:
   
-  CurveInterface() {}
+  CurveInterface() : graph_node(0) {}
   
   struct CurveInfo info;
   
@@ -262,6 +262,7 @@ public:
 #endif
       graph_node->addChild(knot_node[i]);
     }
+    cout << "graph_node : " << graph_node << endl;
     return graph_node;
   }
 };

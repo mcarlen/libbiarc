@@ -262,12 +262,13 @@ bool MainWindow::maybeSave() {/*
 }
 
 void MainWindow::loadFile(const QStringList fileNames) {
-  ci->info.filenames = fileNames;
   if (ci->graph_node!=NULL) {
-    root->removeChild(ci->graph_node);
+    scene->removeAllChildren();
     ci->graph_node = NULL;
   }
-  root->addChild(ci->load());
+  ci->info.filenames = fileNames;
+  ci->graph_node = ci->load();
+  scene->addChild(ci->graph_node);
   this->getCamera()->viewAll(root, getViewportRegion());
 /*
   if (!file.open(QFile::ReadOnly | QFile::Text)) {

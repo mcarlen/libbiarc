@@ -8,18 +8,22 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+// #define FOURIER_REPRESENTATION
+
 #include "../include/Curve.h"
 #include "../include/algo_helpers.h"
-#include "../fourierknots/fourier_syn.h"
+#ifdef FOURIER_REPRESENTATION
+  #include "../fourierknots/fourier_syn.h"
+#endif
 
 #define b3 vector<Biarc<Vector3> >::iterator
-#define FOURIER_REPRESENTATION
 
 int th_cond(float d,Vector3& p0, Vector3 &p1, float tol) {
   if ( fabsf((p0-p1).norm()-d)<d*tol ) return 1;
   return 0;
 }
 
+#ifdef FOURIER_REPRESENTATION
 void curve2fourier(const Curve<Vector3>& c, FourierKnot* fk) {
 
   Curve<Vector3> curve(c);
@@ -45,6 +49,7 @@ void curve2fourier(const Curve<Vector3>& c, FourierKnot* fk) {
     fk->ccos.push_back(vcos);
   }
 }
+#endif
 
 float arclength(Curve<Vector3> &c, int n) {
   float s = 0;
@@ -87,8 +92,10 @@ int main(int argc, char **argv) {
   int N = c.nodes();
 
   // Use fourier representation for normals
+#ifdef FOURIER_REPRESENTATION
   FourierKnot fk;
   curve2fourier(c,&fk);
+#endif
   cerr <<  "Nodes " << c.nodes() << endl;
 
   /*
@@ -106,13 +113,14 @@ int main(int argc, char **argv) {
     p = c[i%c.nodes()].getPoint();
     // XXX can't use point coming from Fourier, cause scaling is off!!!
     //     however scaling doesn't matter for tangents and normals!
+    //     but they seem wrong too ... shift?
     // p   = fk(slen);
 #ifdef FOURIER_REPRESENTATION
     tan = fk.prime(slen);      tan.normalize();
     nor = fk.primeprime(slen); nor.normalize();
 #else
+    tan = c[i%c.nodes()].getTangent(); tan.normalize();
     nor = c.normalVector(i%c.nodes()); nor.normalize();
-    tan = c[i%c.nodes()].getTangent();
 #endif
     for (b3 it=c.begin();it!=c.end();++it) {
       if (it==(c.begin()+i)) continue;

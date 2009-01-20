@@ -4,9 +4,11 @@
 
 #include "../fourierknots/fourier_syn.h"
 
+#define FOURIER_REPRESENTATION
+
 extern Aux2DPlotWindow* pl_win;
 
-SoSeparator* frenet_frame(Tube<Vector3>* t) {
+SoSeparator* frenet_frame(Tube<Vector3>* t, int FOURIER = 1) {
   
   FourierKnot fk;
   Curve<Vector3> curve((*t));
@@ -66,9 +68,17 @@ SoSeparator* frenet_frame(Tube<Vector3>* t) {
 
   // Materials
   SoMaterial *ma_t = new SoMaterial, *ma_n = new SoMaterial, *ma_b = new SoMaterial;
+  if (FOURIER) {
   ma_t->diffuseColor.setValue(1,0,0); sep_tangents->addChild(ma_t);
   ma_n->diffuseColor.setValue(0,1,0); sep_normals->addChild(ma_n);
   ma_b->diffuseColor.setValue(0,0,1); sep_binormals->addChild(ma_b);
+  }
+  else {
+  ma_t->diffuseColor.setValue(1,1,0); sep_tangents->addChild(ma_t);
+  ma_n->diffuseColor.setValue(0,1,1); sep_normals->addChild(ma_n);
+  ma_b->diffuseColor.setValue(1,0,1); sep_binormals->addChild(ma_b);
+  }
+
 
   Vector3 pt, tan, nor, bin;
   SoCoordinate3 *co_tangents  = new SoCoordinate3;
@@ -85,17 +95,28 @@ SoSeparator* frenet_frame(Tube<Vector3>* t) {
 
   float s = 0, iN = 1./(float)N;
   cout << "Scale : " << scale << endl;
+
   Vector3 vec;
   SbVec3f sbvec;
   for (int i=0;i<N;++i) {
     s = (float)i*iN;
-    pt  = (*t)[i].getPoint();
+    // can't use fourier points. scaling is off
+    // pt  = fk(s);
+    pt = (*t)[i].getPoint();
     // Fourier
-   // tan = fk.prime(s);      tan.normalize();
-   // nor = fk.primeprime(s); nor.normalize();
+// #ifdef FOURIER_REPRESENTATION
+    if (FOURIER) {
+      tan = fk.prime(s);      tan.normalize();
+      nor = fk.primeprime(s); nor.normalize();
+    }
     // Standard
-    tan = (*t)[i].getTangent();
-    nor = t->normalVector(i); nor.normalize();
+// #else
+    else {
+      tan = (*t)[i].getTangent();
+      nor = t->normalVector(i);
+      nor.normalize();
+    }
+// #endif
     bin = nor.cross(tan);   bin.normalize();
 
     co_tangents->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
@@ -211,8 +232,12 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       // XXX we need a frame separator. now if there's more than 1 curve => boum!
       //     if the biarc view curve is already in the graph, boum again
       cout << "Frenet Frame\n";
-      for (int i=0;i<viewer->ci->info.Knot->tubes();++i)
-        viewer->scene->addChild(frenet_frame(viewer->ci->knot_shape[i]->getKnot()));
+      for (int i=0;i<viewer->ci->info.Knot->tubes();++i) {
+        // Fourier Repr.
+        viewer->scene->addChild(frenet_frame(viewer->ci->knot_shape[i]->getKnot(),1));
+        // Normal Repr
+//        viewer->scene->addChild(frenet_frame(viewer->ci->knot_shape[i]->getKnot(),0));
+      }
       viewer->scene->whichChild.setValue(SO_SWITCH_ALL); // only frenet frame
       break;
 
