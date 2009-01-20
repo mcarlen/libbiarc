@@ -83,14 +83,17 @@ public:
   }
 
   virtual float energy() {
+    float penalty = 0;
     Curve<Vector4> curve;
     knot.toCurveOnS3(NODES,&curve);
     curve.link();
-    curve.make_default();
+    curve.make_default(); 
+    if (length_penalty != 0.0) 
+      penalty += length_penalty*curve.length();
     if (thickness_fast)
-      return 1./curve.thickness_fast();
+      return 1./curve.thickness_fast() + penalty;
     else
-      return 1./curve.thickness();
+      return 1./curve.thickness() + penalty;
   }
 };
 

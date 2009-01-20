@@ -145,6 +145,7 @@ public:
   int   min_move, max_move;
   float Temp, Cooling;
   float best_energy, curr_energy, candidate_energy;
+  float log_optimum;
 
   vector<BasicMove*> curr_moves, possible_moves;
 
@@ -186,16 +187,18 @@ public:
 
     log_counter = 0;
     log_freq = 10000;
+    log_optimum = 0;
 
     best_filename = string("bla.bla");
 
     map<string,string> param_map;
     str2hash(params, param_map);
 
-    extract_f2(Temp,"T",param_map);
-    extract_f2(Cooling,"C",param_map);
-    extract_i2(log_freq,"logfreq",param_map);
-    extract(best_filename,param_map);
+    extract_f2(Temp, "T", param_map);
+    extract_f2(Cooling, "C", param_map);
+    extract_i2(log_freq, "logfreq", param_map);
+    extract_f(log_optimum, param_map);
+    extract(best_filename, param_map);
   }
 
   /*!
@@ -207,6 +210,7 @@ public:
         << "Temperature (T): " << Temp << endl
         << "Cooling (C): " << Cooling << endl
         << "Log frequency (logfreq): " << log_freq << endl
+        << "log_optimum: " << log_optimum << endl
         << "best_filename: "<< best_filename << endl;
     return out;
   }
@@ -299,6 +303,8 @@ public:
         << " Emin=" << best_energy
         << " S=" << (float) success/(float) trys
         << " min/max=" << min_step << "/" << max_step;
+    if (log_optimum !=0.)
+      out << " diff="  << best_energy - log_optimum;
     trys = 1;
     success = 0;
 
