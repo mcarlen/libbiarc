@@ -19,6 +19,15 @@ Curve<Vector3> gen3(const int N, const char* infile, const char* outfile) {
   return knot;
 }
 
+Curve<Vector4> genn_on_s3(const int N, const char* infile, const char* outfile) {
+  Curve<Vector4> knot;
+  FourierKnot fk(infile);
+  fk.toCurveOnS3(N,&knot);
+  knot.header("fourier normal","coeff2pkf","","");
+  return knot;
+}
+
+
 Curve<Vector3> gen4(const int N, const char* infile, const char* outfile) {
   Curve<Vector3> knot;
   K41FourierKnot fk(infile);
@@ -51,6 +60,7 @@ int main(int argc, char **argv) {
   switch(argv[1][0]) {
   case 'n': knot=genn(N,infile,outfile); break;
   case '3': knot=gen3(N,infile,outfile); break;
+  case 'X': genn_on_s3(N,infile,outfile).writePKF(outfile); exit(0); break;
   case '4': knot=gen4(N,infile,outfile); break;
   default:
     cerr << "Wrong Fourier Knot type (n/3/4)\n";

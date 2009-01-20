@@ -106,7 +106,7 @@ int gradient_flow(TrefoilFourierKnot *knot) {
   }
 }
 
-const float STEP_CHANGE = 0.05;
+const float STEP_CHANGE = 0.09;
 float step_min, step_max;
 
 static void increase(Coeffs &c, int m, int d) {
@@ -138,7 +138,7 @@ void anneal(float Temp, float Cooling,
 
   for (unsigned int m=0;m<knot.csin.size();++m) {
     for (int d=0;d<3;++d) {
-      c[d] = fabs(knot.csin[m][d]*.5);
+      c[d] = fabs(knot.csin[m][d]*.2);
       if (c[d]<1e-20) c[d] = 1e-6;
 
       if (c[d]<step_min) step_min = c[d];

@@ -1,5 +1,24 @@
 #include "fourier_syn.h"
 
+
+/*!
+  Project a single point tangent pair from R^3 to S^3 = {x | |X|=1} \subset R^4
+  (0,0,0) is maped to the south pole (0,0,0,-1) and 
+  (\inf,\inf,\inf) is mapped to the north pole (0,0,0,1)
+*/
+void project_to_S3(Vector3 p, Vector3 t, Vector4 &y, Vector4 &g){
+   /* Make an inversion at the ball B_2( (0,0,0,2) ) and substract (0,0,0,1) */
+   const float r=2.0;
+   Vector4 x(p[0], p[1], p[2], -1.0), h(t[0], t[1], t[2], 0);
+   float x2 = x.norm2();
+   y = (r*r / x2)*x;
+   g = (r*r / x2)*h - 2.0*(r*r / x2*x2)*x.dot(h)*x;
+   // Make sure we are in S^3
+   y.normalize();
+   g.normalize();
+   g = g-g.dot(y)*y;
+}
+
 void FourierKnot::clear() {
   csin.clear(); ccos.clear(); c0.setValues(0,0,0);
 }
@@ -41,6 +60,25 @@ void FourierKnot::set(Coeff c, Coeffs lsin, Coeffs lcos) {
 void FourierKnot::setConst(Coeff constant) { c0 = constant; }
 void FourierKnot::setSin(Coeffs lsin) { csin = lsin; }
 void FourierKnot::setCos(Coeffs lcos) { ccos = lcos; }
+
+/*!
+  Scale FourierKnot coefficients by d.
+*/
+void FourierKnot::mul(const float d) {
+  for (uint i=0;i<csin.size();++i) {
+    csin[i]*=d;
+    csin[i]*=d;
+  }
+  c0*=d;
+}
+
+/*!
+  Scale FourierKnot coefficients by 1./d.
+*/
+void FourierKnot::div(const float d) {
+  mul(1./d);
+}
+
 
 /*!
   Scale FourierKnot coefficients by d.
@@ -169,6 +207,19 @@ void FourierKnot::toCurve(float(*pt2func)(float), const int sampling,
     s = pt2func((float)i*isampling);
     // Tangent gets normalized in biarc constructor
     curve->append((*this)(s),this->prime(s));
+  }
+}
+
+// sample fourier knot, project to S^3 and put that in initialized
+// pointer to Curve curve 
+void FourierKnot::toCurveOnS3(const int sampling, Curve<Vector4> *curve) {
+  float isampling = 1./(float)sampling, s;
+  Vector4 p,t;
+  for (int i=0;i<sampling;++i) {
+    s = (float)i*isampling;
+    // Tangent gets normalized in biarc constructor
+    project_to_S3((*this)(s), this->prime(s), p, t);
+    curve->append(p,t);
   }
 }
 
