@@ -87,7 +87,10 @@ public:
     knot.toCurveOnS3(NODES,&curve);
     curve.link();
     curve.make_default();
-    return 1./curve.thickness();
+    if (thickness_fast)
+      return 1./curve.thickness_fast();
+    else
+      return 1./curve.thickness();
   }
 };
 

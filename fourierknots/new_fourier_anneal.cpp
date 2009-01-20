@@ -10,19 +10,24 @@ template <class FK>
 class FKAnneal: public BasicAnneal {
 
 public:
+  bool thickness_fast;
+  int NODES;
+  float step_size_factor;
+  FK knot, best_knot;
+
   virtual float ropelength(FK &fk) {
     Curve<Vector3> curve;
     fk.toCurve(NODES,&curve);
     curve.link();
     curve.make_default();
-    float D = curve.thickness();
+    float D; 
+    if (thickness_fast)
+      D = curve.thickness_fast();
+    else
+      D = curve.thickness();
     float L = curve.length();
     return L/D;
   }
-
-  int NODES;
-  float step_size_factor;
-  FK knot, best_knot;
 
   FKAnneal(const char* knot_filename, const char* params = "") {
     std_init(params);
@@ -49,16 +54,19 @@ public:
   void std_init(const char* params) {
     BasicAnneal::std_init(params);
     NODES = 200;
-    step_size_factor=0.1;
+    step_size_factor = 0.1;
+    thickness_fast = 0;
     map<string,string> param_map;
     str2hash(params, param_map);
     extract_i(NODES,param_map);
     extract_f(step_size_factor,param_map);
+    extract_i(thickness_fast,param_map);
   }
 
   virtual ostream & show_config(ostream &out) {
     BasicAnneal::show_config(out) << "NODES: " << NODES << endl
-        << "step_size_factor: " << step_size_factor << endl ;
+        << "step_size_factor: " << step_size_factor << endl 
+        << "thickness_fast: " << thickness_fast << endl;
     return out;
   }
 
