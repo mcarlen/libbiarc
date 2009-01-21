@@ -227,7 +227,7 @@ float MaxLengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
   //              + 1e-8*(off_equi)/s_dMinSegDistance;
 }
 
-#if 1 
+#if 0 
 #define Energy MaxLengthEnergy_fixedThickness_e
 #define Energy_str "MaxLengthEnergy_fixedThickness_e"
 #else
@@ -651,7 +651,7 @@ rKnot.make_default(); // MC
     // Creates the Step Size arrays in each component
     // MC rKnot.InitSteps();
 
-    float random_dilate_prob= 100.0, anneal_all_prob=100.0, anneal_prob=100.0, dance_prob=100.0; // 1000.0 based
+    float random_dilate_prob= 100.0, anneal_all_prob=0.0, anneal_prob=100.0, dance_prob=100.0; // 1000.0 based
     for( ; ; ++nGeneration)
 	{
 // if (nGeneration == 100) exit(0);
