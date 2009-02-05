@@ -28,14 +28,24 @@ template<class Vector>
 class Candi {
 public:
   ArcInfo<Vector> a,b;
+  float s0, s1;
+  float l0, l1;
   float d;
 
   Candi(const Vector &a0,const Vector &a1,const Vector &a2,
-        const Vector &b0,const Vector &b1,const Vector &b2);
+        const Vector &b0,const Vector &b1,const Vector &b2,
+        float s0, float s1, float len0, float len1);
   Candi(const Vector &a0,const Vector &a1,const Vector &a2,
         const float &a_err,const float &a_ferr,
         const Vector &b0,const Vector &b1,const Vector &b2,
-        const float &b_err,const float &b_ferr);
+        const float &b_err,const float &b_ferr,
+        float s0, float s1, float len0, float len1);
+  bool check(float min_rad) {
+    float s = s1 - s0;
+//    if (l -s < s) s = l - s;
+    if (s+1e-10 >= min_rad*M_PI) return true;
+    return false;
+  }
 };
 
 template<class Vector>
