@@ -65,7 +65,7 @@ clean :
 
 realclean :
 	@echo Purge `basename ${PWD}`
-	@rm -f $(OBJ_FLOAT) $(STATIC_LIB)
+	@rm -f $(OBJ_FLOAT) $(LIB_FLOAT) $(STATIC_LIB)
 	@rm -f $(OBJ_DOUBLE) $(LIB_DOUBLE) $(STATIC_LIB_DOUBLE)
 	@rm -f *~ *% .*~ .*% core
 	@rm -rf ii_file

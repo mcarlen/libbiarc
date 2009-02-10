@@ -81,9 +81,7 @@ public:
 
 
 class TrefFKAnneal: public FKAnneal<TrefoilFourierKnot> {
-
 public:
-
   TrefFKAnneal(const char* knot_filename, const char* params = ""):FKAnneal<TrefoilFourierKnot>(knot_filename, params) {
     std_init(params);
     knot = TrefoilFourierKnot(knot_filename);
@@ -114,11 +112,54 @@ public:
 
 };
 
+class K41FKAnneal: public FKAnneal<K41FourierKnot> {
+
+public:
+
+  K41FKAnneal(const char* knot_filename, const char* params = ""):FKAnneal<K41FourierKnot>(knot_filename, params) {
+    std_init(params);
+    knot = K41FourierKnot(knot_filename);
+    best_knot = knot;
+    for (uint i=0; possible_moves.size(); ++i)
+      delete possible_moves[i];
+    possible_moves.clear();
+
+    for (uint i=0; i<knot.csin.size(); ++i) {
+      for (uint j=0; j<3; ++j) { 
+        if (fabs(knot.csin[i][j]) < 1e-8)
+          possible_moves.push_back(new SimpleFloatMove(&(knot.csin[i][j]), step_size_factor*(1e-8)));
+        else
+          possible_moves.push_back(new SimpleFloatMove(&(knot.csin[i][j]), step_size_factor*fabs(knot.csin[i][j])));
+      }
+    }
+    for (uint i=0; i<knot.ccos.size(); ++i) {
+      for (uint j=0; j<3; ++j) { 
+        if (fabs(knot.ccos[i][j]) < 1e-8)
+          possible_moves.push_back(new SimpleFloatMove(&(knot.ccos[i][j]), step_size_factor*(1e-8)));
+        else
+          possible_moves.push_back(new SimpleFloatMove(&(knot.ccos[i][j]), step_size_factor*fabs(knot.ccos[i][j])));
+      }
+    }
+  }
+
+  virtual float ropelength(K41FourierKnot &fk) {
+    Curve<Vector3> curve;
+    fk.toCurve(adjust,NODES,&curve);
+    curve.link();
+    curve.make_default();
+    float D = curve.thickness();
+    float L = curve.length();
+    return L/D;
+  }
+};
+
+
 // FIXME: (HG) Yes! I'm ashemed of the NOMAIN-construction. ;)
 #ifndef NOMAIN
 int main(int argc, char** argv) {
   FKAnneal<FourierKnot> *a;
   TrefFKAnneal* t;
+  K41FKAnneal* k41;
   if (argc != 4) {
     cout << "Usage: " << argv[0] << "  [n|3|4] filename params " << endl;
     exit(1);
@@ -130,8 +171,8 @@ int main(int argc, char** argv) {
   case '3': t=new TrefFKAnneal(argv[2],argv[3]); 
             t->do_anneal();
             break;
-  case '4': a=new FKAnneal<FourierKnot>(argv[2],argv[3]);
-            a->do_anneal();
+  case '4': k41=new K41FKAnneal(argv[2],argv[3]);
+            k41->do_anneal();
             break;
   default:
     cerr << "Wrong Fourier Knot type [n|3|4]\n";

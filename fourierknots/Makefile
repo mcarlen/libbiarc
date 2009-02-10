@@ -16,8 +16,8 @@ all: coeff2pkf
 	$(CXX) $(FLAGS) -o $@ -c $<
 
 
-new_fourier_anneal: new_fourier_anneal.o fourier_syn.o fourier_3_1.o ../experimental/annealing/my_anneal.cpp
-	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) new_fourier_anneal.o fourier_syn.o fourier_3_1.o $(LIB)
+new_fourier_anneal: new_fourier_anneal.o fourier_syn.o fourier_3_1.o fourier_4_1.o ../experimental/annealing/my_anneal.cpp
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) new_fourier_anneal.o fourier_syn.o fourier_3_1.o fourier_4_1.o $(LIB)
 
 tref_fourier_anneal_on_S3: tref_fourier_anneal_on_S3.o new_fourier_anneal.cpp fourier_syn.o fourier_3_1.o ../experimental/annealing/my_anneal.cpp
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) tref_fourier_anneal_on_S3.o fourier_syn.o fourier_3_1.o $(LIB)
@@ -63,6 +63,6 @@ clean :
 	-rm -f *.o
 	@-rm -rf ii_files
 
-realclean :
+realclean : clean
 	@echo Purge `basename ${PWD}`
 	@-rm -f $(PROGS) *~ *% .*~ .*% core *.pkf ii_files
