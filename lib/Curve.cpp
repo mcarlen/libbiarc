@@ -1279,7 +1279,8 @@ float Curve<Vector>::torsion(int n) {
   // not too sure if this is accurate
   // since the h is the arclength between biarc n and biarc n+1
 
-  Biarc<Vector> *current = accessBiarc(n), *current_h;
+//  Biarc<Vector> *current = accessBiarc(n), *current_h;
+  biarc_it current = _Biarcs.begin()+n, current_h;
   float h, sin_phi;
   Vector d_0,t_0,d_h,t_h;
 
@@ -1287,27 +1288,29 @@ float Curve<Vector>::torsion(int n) {
    * First treat the closed curve case
    */
   if (_Closed) {
-    current_h = current->getNext();
+    current_h = current+1; // ->getNext();
+    if (current_h == _Biarcs.end()) current_h = _Biarcs.begin();
     h = current->biarclength();
-
   }
   else {
     if (n>=(nodes()-2)) {
       // FIXME : end of non-closed curve problem
       return 0.0;
-      current = accessBiarc(n-2);
-      current_h = accessBiarc(n-1);
+//      current = accessBiarc(n-2);
+//      current_h = accessBiarc(n-1);
+      current = _Biarcs.begin()+n-2;
+      current_h = _Biarcs.begin()+n-1;
       h = current->biarclength();
     }
     else {
-      current_h = current->getNext();
+      current_h = current + 1; // current->getNext();
       h = current->biarclength();
     }
   }
 
   d_0 = current_h->getPoint() - current->getPoint();
   t_0 = current->getTangent();
-  d_h = current_h->getNext()->getPoint() - current_h->getPoint();
+  d_h = (current_h+1)->getPoint() - current_h->getPoint();
   t_h = current_h->getTangent();
 
   Vector v_0 = t_0.cross(d_0);
@@ -1344,14 +1347,18 @@ float Curve<Vector>::torsion2(int n) {
   if ((n==0||n==(nodes()-1))&&!_Closed)
     return 0.0;
 
-  Biarc<Vector> *current = accessBiarc(n);
+ // Biarc<Vector> *current = accessBiarc(n);
+  biarc_it current = _Biarcs.begin()+n;
+  biarc_it previous = current - 1;
+  if (current == _Biarcs.begin()) previous = _Biarcs.end() - 1;
 
-  float h = current->getPrevious()->arclength1() + current->arclength0();
+//  float h = current->getPrevious()->arclength1() + current->arclength0();
+  float h = previous->arclength1() + current->arclength0();
 
   Vector d_0,t_0,d_h,t_h;
 
-  d_0 = current->getPoint() - current->getPrevious()->getMidPoint();
-  t_0 = current->getPrevious()->getMidTangent();
+  d_0 = current->getPoint() - previous->getMidPoint();
+  t_0 = previous->getMidTangent();
   d_h = current->getMidPoint() - current->getPoint();
   t_h = current->getMidTangent();
 

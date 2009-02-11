@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function usage {
-  echo "Usage : $0 3/4/n N file.coeff out.html"
+  echo "Usage : $0 3/4/5/n N file.coeff out.html"
   exit 0
 }
 
@@ -28,6 +28,7 @@ knot=${knot1%.coeff}
 source ~/.bashrc
 plot=$LIBBIARC/experimental/pngmanip/plot$D
 curv=$LIBBIARC/tools/curvature$D
+tors=$LIBBIARC/tools/torsion$D
 info=$LIBBIARC/tools/info$D
 coeff2pkf=$LIBBIARC/fourierknots/coeff2pkf
 fcurv=$LIBBIARC/fourierknots/fcurvature
@@ -35,6 +36,7 @@ fcurv=$LIBBIARC/fourierknots/fcurvature
 check $coeff
 check $plot
 check $curv
+check $tors
 check $info
 check $coeff2pkf
 check $fcurv
@@ -68,13 +70,14 @@ fi
 echo "Generate curvature plots"
 $curv $knotfile >$knot.curvature
 $fcurv $style $res $coeff > $knot.fcurvature
+$tors $knotfile >$knot.torsion
 maxfcurv=$(cut -d" " -f2 $knot.fcurvature | sort -n | tail -n 1)
 
 gnuplot <<EOF
 set term png
 set output "$knot-curvature.png"
-set title "Curvature/rho for $knot"
-plot [0:$L] [0:1] "$knot.curvature" using 3:4 with steps notitle, "$knot.curvature" using 3:5 with steps notitle
+set title "Curvature/rho and arclengthparam for $knot"
+plot [0:$L] [0:1] "$knot.curvature" using 3:4 with steps notitle, "$knot.curvature" using 3:5 with steps notitle, "$knot.curvature" using (\$0/(2*$N)):3 with lines notitle
 set output "$knot-rho.png
 set title "rho for $knot"
 plot [0:$L] [.999:1] "$knot.curvature" using 3:5 with steps notitle
@@ -83,6 +86,11 @@ set title "Fourier curvature for $knot"
 set xlabel "t"
 set ylabel "D/(2.*fourier''(t))"
 plot [0:1] [0:1] "$knot.fcurvature" using 1:($D/2.*\$2) with lines notitle
+set output "$knot-torsion.png"
+set title "Torsion for $knot"
+set xlabel "arclength"
+set ylabel "Torsion(arclength)"
+plot "$knot.torsion" using 3:5 with lines notitle
 EOF
 
 echo "pp/pt/tt plots"
@@ -99,6 +107,7 @@ cat <<EOF >$4
   <TABLE><TR>
     <TD>D/(2*radius_of_curvature) <IMG SRC='$knot-curvature.png'></TD>
     <TD>D/(2*rad_fourier_curv) <IMG SRC='$knot-fcurvature.png'></TD>
+    <TD>Torsion <IMG SRC='$knot-torsion.png'></TD>
     <TD>2pp/D <IMG SRC='$knot-pp.png'></TD>
     <TD>D/2pt <IMG SRC='$knot-pt.png'></TD>
     <TD>D/2tt <IMG SRC='$knot-tt.png'></TD>

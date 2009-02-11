@@ -11,7 +11,14 @@ float alen(biarc_it, biarc_it, int, int);
 
 class ThicknessTest : public CxxTest::TestSuite {
 public:
-  void testCircle() {
+
+#ifdef LOCAL_CURVATURE_BOUND_TEST
+#define what testCircle
+#else
+#define what Circle
+#endif
+
+  void what() {
     Curve<Vector3> c; float a, thick; Vector3 p, t;
     for (int i=0;i<4;++i) {
       a = (float)i/(float)4*2.*M_PI;
@@ -65,7 +72,11 @@ public:
     l = (b1p-b0p).norm()/2./cosa;
 
     Vector3 yyy = b0p+l*bt0p;
-    C.push_back(Candi<Vector3>(a0p,xxx,a1p,b0p,yyy,b1p,0,0,0,0));
+    C.push_back(Candi<Vector3>(a0p,xxx,a1p,b0p,yyy,b1p
+#ifdef LOCAL_CURVATURE_BOUND_TEST
+                ,0,0,0,0
+#endif
+                ));
 
     Vector3 ttt1, ttt2;
     ttt1 = (xxx-a0p); ttt1.normalize();
@@ -77,7 +88,11 @@ public:
 
     TS_ASSERT_EQUALS(double_critical_test(a0p,a1p,ttt1,ttt2,b0p,b1p,btt1,btt2),0);
     TS_ASSERT_EQUALS(double_critical_test_v2(a0p,xxx,a1p,b0p,yyy,b1p),0);
-    dbl_crit_filter(C,CC,1e22,1e22);
+    dbl_crit_filter(C,CC
+#ifdef LOCAL_CURVATURE_BOUND_TEST
+                    ,1e22,1e22
+#endif
+                    );
     TS_ASSERT_EQUALS(CC.size(),0);
   }
 
