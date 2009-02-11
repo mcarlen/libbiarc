@@ -152,7 +152,7 @@ public:
 
   int success, trys;
 
-  int log_counter, log_freq;
+  int log_counter, log_freq, last_best_log;
 
   string best_filename;
 
@@ -186,7 +186,7 @@ public:
     success = 0;
     trys    = 1;
 
-    log_counter = 0;
+    last_best_log = log_counter = 0;
     log_freq = 10000;
     log_optimum = 0;
     energy_precision = 6;
@@ -280,6 +280,7 @@ public:
     best energy.
   */
   virtual void best_found() {
+    last_best_log = log_counter;
     cout << "!" << setprecision(energy_precision) << best_energy << "!";
   }
  
@@ -305,7 +306,8 @@ public:
         << " E=" << setprecision(energy_precision) << curr_energy
         << " Emin=" << best_energy
         << " S=" << (float) success/(float) trys
-        << " min/max=" << min_step << "/" << max_step;
+        << " min/max=" << min_step << "/" << max_step
+        << " lb=" << (log_counter-last_best_log) ;
     if (log_optimum !=0.)
       out << " diff="  << best_energy - log_optimum;
     trys = 1;

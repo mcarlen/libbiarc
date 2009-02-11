@@ -3,15 +3,16 @@
 #include "new_fourier_anneal.cpp"
 #undef NOMAIN
 
+template <class FK>
 class ScaleMove : public BasicMove {
 public:
   float old_value;
-  FourierKnot *knot;
+  FK *knot;
 
   /*!
     knot - address of the knot in anneal.
   */
-  ScaleMove(FourierKnot *knot, float step_size = 1e-6, float STEP_CHANGE = 0.01) :
+  ScaleMove(FK *knot, float step_size = 1e-6, float STEP_CHANGE = 0.01) :
     BasicMove(step_size, STEP_CHANGE) {
     this->knot = knot; 
     this->old_value = 1.0;
@@ -66,7 +67,7 @@ public:
       }
     }
 
-    if (enable_scale_moves) possible_moves.push_back(new ScaleMove(&knot, step_size_factor*(1e-5)));
+    if (enable_scale_moves) possible_moves.push_back(new ScaleMove<FourierKnot>(&knot, step_size_factor*(1e-5)));
   }
 
   void std_init(const char* params) {
@@ -97,20 +98,48 @@ public:
   }
 };
 
+
+
+class TrefFKAnnealOnS3: public TrefFKAnneal {
+public:
+  TrefFKAnnealOnS3(const char* knot_filename, const char* params = ""):TrefFKAnneal(knot_filename, params) {
+  }
+
+  virtual float energy() {
+    float penalty = 0;
+    Curve<Vector4> curve;
+    knot.toCurveOnS3(NODES,&curve);
+    curve.link();
+    curve.make_default(); 
+    if (length_penalty != 0.0) 
+      penalty += length_penalty*curve.length();
+    if (thickness_fast)
+      return 1./curve.thickness_fast() + penalty;
+    else
+      return 1./curve.thickness() + penalty;
+  }
+};
+
+
+
 int main(int argc, char** argv) {
-  FKAnnealOnS3 * fk;
   if (argc != 4) {
     cout << "Usage: " << argv[0] << " [n|3|4] filename params " << endl;
     cout << "    only n supported " << endl;
     exit(1);
   }
   switch(argv[1][0]) {
-  case 'n': fk= new FKAnnealOnS3(argv[2],argv[3]); 
-            fk->do_anneal();
+  case 'n': FKAnnealOnS3 * fkn;
+            fkn= new FKAnnealOnS3(argv[2],argv[3]); 
+            fkn->do_anneal();
+            break;
+  case '3': TrefFKAnnealOnS3 * fk3;
+            fk3= new TrefFKAnnealOnS3(argv[2],argv[3]); 
+            fk3->do_anneal();
             break;
   default:
     cerr << "Wrong Fourier Knot type [n|3|4]\n";
-    cerr << "    only n supported " << endl;
+    cerr << "    only n,3 supported " << endl;
     exit(1);
   }
   return 0;
