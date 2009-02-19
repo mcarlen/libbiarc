@@ -6,6 +6,7 @@
 
 #ifdef COMPUTE_IN_R4
 #include "Vector4.h"
+#include "Matrix4.h"
 #define TVec Vector4
 #else
 #define TVec Vector3
@@ -93,6 +94,9 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
   }
 
   if (ptype==PT_PLOT) {
+    // We explicitly compute the pt stuff
+    // here for perfomance. Using curve->radius_pt
+    // would be to slow!
     cout << "pt plot\n";
     for (int j=0;j<h;j++) {
       for (int i=0;i<w;i++) {
@@ -151,6 +155,70 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
       }
     }
   }
+#else
+  else if (ptype==TT_PLOT) {
+    float z,n,tt2;
+    for (int j=0;j<h;j++) {
+      for (int i=0;i<w;i++) {
+
+        TVec P1 = Pts_i[i], T1 = Tg_i[i];
+        TVec P2 = Pts_j[j], T2 = Tg_j[j];
+        TVec E = P1-P2;
+        E.normalize();
+        Matrix4 R;
+        for (int k=0;k<4;k++)
+          for (int l=0;l<4;l++)
+            R[k][l] = 2.*E[k]*E[l] - (k==l?1.:0.);
+        
+        // z = T1.cross(T2).dot(E); z=z*z;
+
+        // The grammien is given by G = M^T*M, where M = [ T1 T2 E ]
+        // is the matrix with T1, T2 and E as column vecs.
+        // The triple product in R^3 is the volume of a ||-epipede,
+        // so is sqrt ( det G ), which gives us what we need in R^4
+        float M[4][3];
+        for (int nn=0;nn<4;++nn) {
+          M[nn][0] = T1[nn];
+          M[nn][1] = T2[nn];
+          M[nn][2] = E[nn];
+        }
+        Matrix3 G; G.zero();
+        for (int row=0;row<3;++row)
+          for (int col=0;col<3;++col)
+            for (int nn=0;nn<4;++nn)
+              G[col][row] += M[nn][row]*M[nn][col];
+
+/*
+        cout << "M = \n";
+        for (int kk=0;kk<4;++kk) {
+          for (int nn=0;nn<3;++nn)
+            cout << M[kk][nn] << " ";
+          cout << endl;
+        }
+        cout << G << endl;
+*/
+        z = G.det(); z = z*z;
+
+        n = (((P1-P2).norm()*(P1-P2).norm()) *
+             (1.0-(T2.dot(R*T1))*(T2.dot(R*T1))));
+        if (T2.dot(R*T1)*T2.dot(R*T1) >= 1.0 )
+          tt2 = 0;
+        else
+          tt2 = z/n;
+        cur = sqrt(tt2)*thickness;
+
+        // FIXME clamp tt plot to [0,1]
+        // I didn't think about it, but it fixes the plot ...
+        if (cur<0.) cur=0.;
+        if (cur>1.) cur=1.;
+
+        ptmin = (cur<ptmin?cur:ptmin);
+        ptmax = (cur>ptmax?cur:ptmax);
+
+        pttable[i][j] = cur;
+      }
+    }
+  }
 #endif
   else if (ptype==PP_PLOT) {
     for (int j=0;j<h;j++) {
@@ -179,6 +247,7 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
     for (int i=0;i<w;i++) {
       if (!HEIGHTMAP)
         map_color_sine_end(&c,pttable[i][j],0.0,ptmax);
+//        map_color_sine_acc(&c,pttable[i][j],0.0,ptmax);
       else
         height_map(&c,pttable[i][j],0.,ptmax);
       *src++ = c.r; *src++ = c.g; *src++ = c.b;

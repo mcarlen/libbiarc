@@ -135,6 +135,38 @@ if (t3<0.) t3 = 1.+t3;
   }
 }
 
+inline void map_color_rainbow_fast(RGB* c, float val, float min, float max) {
+  // blue low, red hight, linear in between
+  float lval = val;
+  if (val>max) lval = max;
+  if (val<min) lval = min;
+  float t = (lval-min)/(max-min),t2;
+
+  const float num_reps = 10;
+
+  while (t>1./num_reps) {
+    t -= 1./num_reps;
+  }
+  t *= num_reps;
+  map_color_rainbow_cycle(c, t, 0, 1);
+}
+
+inline void map_color_sine_acc(RGB* c, float val, float min, float max) {
+  // blue low, red hight, linear in between
+  float lval = val;
+  if (val>max) lval = max;
+  if (val<min) lval = min;
+  float t = (lval-min)/(max-min);
+
+  const float num_reps = 80;
+
+  set_rgb(c,(unsigned char)(255.*(sin(num_reps*M_PI*t*t+M_PI)*.5+.5)),
+            (unsigned char)(255.*(sin(num_reps*2*M_PI*t*t*t)*.5+.5)),
+            (unsigned char)(255.*t*t));
+}
+
+
+
 // Black and white scale from 0 (black) to 1 (white)
 inline void height_map(RGB* c, float val, float min, float max) {
   // blue low, red hight, linear in between
