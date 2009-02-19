@@ -52,6 +52,7 @@ int main(int argc, char** argv) {
   float *t = new float[2*N];
   float *curv = new float[2*N];
   float *conv = new float[2*N];
+  float *conv2 = new float[2*N];
 
   t[0] = 0;
   float D, maxcurv = 0, maxconv = 0;
@@ -74,6 +75,8 @@ int main(int argc, char** argv) {
   }
 
   local_conv(curv,conv,2*N,.5,sigma);
+  local_conv(conv,conv2,2*N,.5,sigma);
+  local_conv(conv2,conv,2*N,.5,sigma);
 
   // Integrate :)
   for (int i=1;i<2*N;++i) {
