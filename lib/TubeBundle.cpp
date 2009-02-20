@@ -394,4 +394,24 @@ int TubeBundle<Vector>::readData(const char* infile, const char* delimiter) {
   return 1;
 }
 
+/*!
+  Read XYZ file.
+
+  \sa Curve::readXYZ()
+*/
+template <class Vector>
+int TubeBundle<Vector>::readXYZ(const char* infile) {
+  ifstream in(infile, ios::in);
+  if (!in.good()) {
+    cerr<<"TubeBundle::readXYZ() : could not read " << infile <<endl;
+    return 0;
+  }
+  Tube<Vector> t;
+  int B = t.readXYZ(in);
+  in.close();
+  newTube(t);
+  return B;
+}
+
+
 #endif // __TUBE_BUNDLE_SRC__

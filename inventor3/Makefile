@@ -6,15 +6,15 @@ include ../Makefile.config
 
 COIN=`coin-config --prefix`
 SOQT=`soqt-config --prefix`
-INCLUDE  = -I../include -I$(COIN)/include -I$(SOQT)/include -I/usr/X11R6/include
-INC_LIB = `soqt-config --ldflags` -L../lib -L$(COIN)/lib -L$(SOQT)/lib -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib
+INCLUDE  = -I../include -I$(COIN)/include -I$(SOQT)/include -D_REENTRANT -I${QT_INC} -I/usr/X11R6/include
+INC_LIB = -L../lib -L$(COIN)/lib -L$(SOQT)/lib -L/usr/lib -L/usr/local/lib -L${QT_LIB} -L/usr/X11R6/lib
 ######### LIBRARIES  #########################
 
 LIBS = `soqt-config --libs` -lbiarc_float
 
 ######### FLAGS      #########################
 
-FLAGS = $(INCLUDE) `soqt-config --cflags` `pkg-config --cflags QtCore QtGui` `soqt-config --cxxflags` $(CXXFLAGS) -DDEBUG -DPRECISION_HACK -Wall # -D_USE_QT_  -D__debug__
+FLAGS = $(INCLUDE) `soqt-config --cxxflags` $(CXXFLAGS) -DDEBUG -DPRECISION_HACK -Wall # -D_USE_QT_  -D__debug__
 
 ifeq ($(RENDERMAN),YES)
 INCLUDE+= -I${PIXIEHOME}/include
@@ -54,13 +54,9 @@ xyzview: xyzview.o SoKnot.o
 	@echo Link ${<:.o=}
 	@$(LINKER) $(FLAGS) -o xyzview $(INC_LIB) $? $(LIBS)
 
-fourier_syn.o: ../fourierknots/fourier_syn.cpp
-	@echo Compile $<
-	$(CXX) ${FLAGS} -o $@ -c $<
-
-main: SoKnot.o main.o Widgets.o moc_Widgets.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o
+main: SoKnot.o main.o Widgets.o moc_Widgets.o moc_main.o
 	@echo Link $@
-	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o Widgets.o moc_Widgets.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o $(LIBS)
+	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o Widgets.o moc_Widgets.o moc_main.o $(LIBS)
 
 plotzoom: plotzoom.o moc_plotzoom.o
 	@echo Link $@
@@ -71,11 +67,7 @@ animate: SoKnot.o animate.o
 	@echo Link $@
 	$(LINKER) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
 
-qrc_application.cpp: application.qrc
-	rcc -o $@ $<
-moc_mainwindow.cpp: mainwindow.h
-	moc -o $@ $<
-moc_viewer.cpp: viewer.h
+moc_main.cpp: main.h
 	moc -o $@ $<
 moc_Widgets.cpp: Widgets.h
 	moc -o $@ $<

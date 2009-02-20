@@ -1,0 +1,38 @@
+#Inventor V2.1 ascii
+Separator {
+
+  Complexity {
+    value 1
+  }
+
+  Separator {
+
+    Material {
+      diffuseColor 0 .4 .4
+      transparency 0.3
+    }
+
+    Translation {
+      translation 0 1.2 0
+    }
+    Sphere {
+      radius 1
+    }
+  }
+
+  Separator {
+
+    Material {
+      diffuseColor .4 .4 0
+      transparency 0.3
+    }
+
+    Translation {
+      translation 0 -1.2 0
+    }
+    Sphere {
+      radius 1
+    }
+  }
+
+}

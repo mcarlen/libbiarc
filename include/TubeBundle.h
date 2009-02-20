@@ -56,6 +56,7 @@ class TubeBundle : public PKFmanip {
   */
 
   int readPKF(const char* infile);
+  int readXYZ(const char* infile);
   int readPKF(istream& in);
   int readData(const char* infile, const char* delimiter = " ");
 

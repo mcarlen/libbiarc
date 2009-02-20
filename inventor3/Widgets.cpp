@@ -1,40 +1,37 @@
 #include "Widgets.h"
+#include <qmenubar.h>
+#include <qfiledialog.h>
+#include <qmessagebox.h>
+#include <qpopupmenu.h>
+#include <qlabel.h>
+#include <qpainter.h>
+#include <qapplication.h>
+#include <qimage.h>
 
-Aux2DPlotWindow::Aux2DPlotWindow(QWidget *parent, const char *name, Qt::WindowFlags wFlags)
-    : QWidget( parent, wFlags ),
+#include <iostream>
+
+Aux2DPlotWindow::Aux2DPlotWindow(QWidget *parent, const char *name, int wFlags)
+    : QWidget( parent, name, wFlags ),
       pop_info( 0 )
 {
 
-  std::cout << "init aux2dplot\n" << std::flush;
+std::cout << "init aux2dplot\n" << std::flush;
   pickx = -1; pickx = -1;
   clickx = -1; clicky = -1;
   releasex = -1; releasey = -1;
 
-  // Init Menu Actions
-  // File open
-  openFileAct = new QAction(tr("&Open..."), this);
-  openFileAct->setShortcut(tr("Ctrl+O"));
-  openFileAct->setStatusTip(tr("Open file"));
-  connect(openFileAct, SIGNAL(triggered()), this, SLOT(openFile()));
-
-  // Exit action
-  quitAct = new QAction(tr("E&xit"), this);
-  quitAct->setShortcut(tr("Ctrl+Q"));
-  quitAct->setStatusTip(tr("Quit"));
-  connect(quitAct, SIGNAL(triggered()), this, SLOT(close()));
-
-  // Menubar
   menubar = new QMenuBar(this);
-  menubar->addSeparator();
+  menubar->setSeparator(QMenuBar::InWindowsStyle);
 
-  // File Menu
-  file = menubar->addMenu(tr("&File"));
-  file->addAction(openFileAct);
-  file->addSeparator();
-  file->addAction(quitAct);
+  file = new QPopupMenu( menubar );
+  menubar->insertItem( "&File", file );
+  //file->insertItem( "&New window", this,  SLOT(newWindow()), CTRL+Key_N );
+  file->insertItem( "&Open...", this,  SLOT(openFile()), CTRL+Key_O );
+  //si = file->insertItem( "Save image", saveimage );
+  //sp = file->insertItem( "Save pixmap", savepixmap );
+  file->insertSeparator();
+  file->insertItem( "E&xit", qApp,  SLOT(quit()), CTRL+Key_Q );
 
-  // Extras Menu
-/*
   extras =  new QPopupMenu( menubar );
   menubar->insertItem( "&Extras", extras );
   e1 = extras->insertItem( "Extra 1" );
@@ -43,29 +40,18 @@ Aux2DPlotWindow::Aux2DPlotWindow(QWidget *parent, const char *name, Qt::WindowFl
   extras->insertSeparator();
   oe1 = extras->insertItem( "Other Extra 1" );
   oe2 = extras->insertItem( "Other Extra 2" );
-*/
+  //extras->setCheckable( TRUE );
+  //setMenuItemFlags();
+
+  //menubar->insertSeparator();
 
   status = new QLabel(this);
   status->setFrameStyle(QFrame::WinPanel|QFrame::Sunken);
   status->setFixedHeight(fontMetrics().height()+4);
 
-  // Own file dialog
-#ifdef WITH_ICON_PROVIDER
-  iip = new ImageIconProvider;
-#endif
-
-  fd = new QFileDialog(this);
-  fd->setViewMode(QFileDialog::Detail);
-  fd->setFileMode(QFileDialog::ExistingFile);
-  fd->setNameFilter(tr("Image Files (*.png *.jpg *.bmp)"));
-  fd->setDirectory("$LIBBIARC");
-#ifdef WITH_ICON_PROVIDER
-  fd->setIconProvider(iip);
-#endif
-
   setMouseTracking(TRUE);
 
-  std::cout << "done\n" << std::flush;
+std::cout << "done\n" << std::flush;
 }
 
 Aux2DPlotWindow::~Aux2DPlotWindow() {
@@ -140,12 +126,11 @@ void Aux2DPlotWindow::updateStatus() {
 }
 
 void Aux2DPlotWindow::openFile() {
-  QStringList newfilenames;
-  if (fd->exec())
-    newfilenames = fd->selectedFiles();
-
-  if ( !newfilenames.isEmpty() ) {
-    loadImage(newfilenames.at(0)) ;
+  QString newfilename = QFileDialog::getOpenFileName(QString::null,
+                                                     QString::null,
+                                                     this);
+  if ( !newfilename.isEmpty() ) {
+    loadImage(newfilename) ;
     repaint();
   }
 }
@@ -154,7 +139,7 @@ bool Aux2DPlotWindow::loadImage(const QString & fileName) {
   filename = fileName;
   bool ok = FALSE;
   if (!filename.isEmpty()) {
-    QApplication::setOverrideCursor( QCursor(Qt::WaitCursor) );
+    QApplication::setOverrideCursor(waitCursor);
     ok = image.load(filename, 0);
     pickx = -1; picky = -1;
     clickx = -1; clicky = -1;
@@ -165,7 +150,7 @@ bool Aux2DPlotWindow::loadImage(const QString & fileName) {
     //}
 
     if ( ok ) {
-      setWindowTitle( filename );
+      setCaption( filename );
       int w = image.width();
       int h = image.height();
 
@@ -248,7 +233,7 @@ void Aux2DPlotWindow::mouseReleaseEvent( QMouseEvent *e) {
     for (int i=sx;i<=tx;i++){
       for (int j=sy;j<=ty;j++) {
         QColor c(image.pixel(i,j));
-        image.setPixel(i,j,c.dark().rgb());
+        image.setPixel(i,j,c.dark().pixel());
       }
     }
 
@@ -310,7 +295,7 @@ void Aux2DPlotWindow::setImage(const QImage& newimage) {
   pickx = -1; picky = -1;
   clickx = -1; clicky = -1;
   releasex = -1; releasey = -1;
-  setWindowTitle( filename );
+  setCaption( filename );
   int w = image.width();
   int h = image.height();
   if ( !w )
@@ -328,8 +313,7 @@ void Aux2DPlotWindow::setImage(const QImage& newimage) {
   resize( w, h );
 
   // reconvertImage();
-//  repaint( image.hasAlphaBuffer() );
-  repaint();
+  repaint( image.hasAlphaBuffer() );
   updateStatus();
 //  setMenuItemFlags();
 
@@ -352,9 +336,8 @@ bool Aux2DPlotWindow::reconvertImage() {
   }
 */
 
-  QApplication::setOverrideCursor( QCursor(Qt::WaitCursor) );
-  pm = QPixmap::fromImage(image);
-  if ( 1 ) //, conversion_flags) )
+  QApplication::setOverrideCursor( waitCursor ); // this might take time
+  if ( pm.convertFromImage(image)) //, conversion_flags) )
   {
 /*
     pmScaled = QPixmap();
@@ -363,7 +346,7 @@ bool Aux2DPlotWindow::reconvertImage() {
 */
     success = TRUE;                         // load successful
   } else {
-    pm = QPixmap(0,0);                         // couldn't load image
+    pm.resize(0,0);                         // couldn't load image
   }
   updateStatus();
   // setMenuItemFlags();
@@ -409,7 +392,6 @@ void Aux2DPlotWindow::popcoords() {
   }
 }
 
-#ifdef WITH_ICON_PROVIDER
 /* XPM */
 static const char *image_xpm[] = {
 "17 15 9 1",
@@ -440,23 +422,22 @@ static const char *image_xpm[] = {
 };
 
 ImageIconProvider::ImageIconProvider( QWidget *parent, const char *name ) :
-    QFileIconProvider( ),
+    QFileIconProvider( parent, name ),
     imagepm(image_xpm)
 {
-    fmts = QImageReader::supportedImageFormats();
+    fmts = QImage::inputFormats();
 }
 
 ImageIconProvider::~ImageIconProvider()
 {
 }
 
-QIcon ImageIconProvider::icon( const QFileInfo &fi ) const
+const QPixmap * ImageIconProvider::pixmap( const QFileInfo &fi )
 {
-    QByteArray ext = fi.suffix().toUpper().toUtf8();
+    QString ext = fi.extension().upper();
     if ( fmts.contains(ext) ) {
-	return imagepm;
+	return &imagepm;
     } else {
-	return QFileIconProvider::icon(fi);
+	return QFileIconProvider::pixmap(fi);
     }
 }
-#endif

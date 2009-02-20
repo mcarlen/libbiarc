@@ -28,14 +28,34 @@ template<class Vector>
 class Candi {
 public:
   ArcInfo<Vector> a,b;
+#ifdef LOCAL_CURVATURE_BOUND_TEST
+  float s0, s1;
+  float l0, l1;
+#endif
   float d;
 
   Candi(const Vector &a0,const Vector &a1,const Vector &a2,
-        const Vector &b0,const Vector &b1,const Vector &b2);
+        const Vector &b0,const Vector &b1,const Vector &b2
+#ifdef LOCAL_CURVATURE_BOUND_TEST
+        , float s0, float s1, float len0, float len1
+#endif
+        );
   Candi(const Vector &a0,const Vector &a1,const Vector &a2,
         const float &a_err,const float &a_ferr,
         const Vector &b0,const Vector &b1,const Vector &b2,
-        const float &b_err,const float &b_ferr);
+        const float &b_err,const float &b_ferr
+#ifdef LOCAL_CURVATURE_BOUND_TEST
+        , float s0, float s1, float len0, float len1
+#endif
+        );
+#ifdef LOCAL_CURVATURE_BOUND_TEST
+  bool check(float min_rad) {
+    float s = s1 - s0;
+//    if (l -s < s) s = l - s;
+    if (s+1e-10 >= min_rad*M_PI) return true;
+    return false;
+  }
+#endif
 };
 
 template<class Vector>
@@ -67,7 +87,11 @@ template<class Vector>
 void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC);
 
 template<class Vector>
-void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC);
+void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC
+#ifdef LOCAL_CURVATURE_BOUND_TEST
+                     ,float min_rad, float l
+#endif
+                     );
 
 template<class Vector>
 void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, float &ub, float &err, candi_it &min_candi);

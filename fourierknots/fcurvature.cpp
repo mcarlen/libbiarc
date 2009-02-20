@@ -1,5 +1,6 @@
 #include "fourier_3_1.h"
 #include "fourier_4_1.h"
+#include "fourier_5_1.h"
 
 void curvature(const FourierKnot &fk, const int N) {
   float isampling = 1./(float)N, t;
@@ -32,6 +33,10 @@ int main(int argc, char **argv) {
   }
   else if (argv[1][0]=='4') {
     K41FourierKnot fk(infile);
+    curvature(fk.toFourierKnot(),N);
+  }
+  else if (argv[1][0]=='5') {
+    K51FourierKnot fk(infile);
     curvature(fk.toFourierKnot(),N);
   }
   else {

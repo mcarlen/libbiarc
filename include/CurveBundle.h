@@ -49,6 +49,7 @@ class CurveBundle : public PKFmanip {
   int readPKF(istream& in);
   int writePKF(const char *outfile);
   int writePKF(ostream& out);
+  int readXYZ(const char* infile);
   int readData(const char* infile, const char* delimiter = " ");
   int writeData(const char* outfile, const char* delimiter = " ",
 		int tangents_flag = 0);

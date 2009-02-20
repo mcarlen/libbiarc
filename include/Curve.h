@@ -52,6 +52,7 @@ class Curve : public PKFmanip {
   int readSingleData(istream &in, const char* delimiter);
   ostream& writeSingleData(ostream &out, const char* delimiter,
 		      int tangents_flag);
+  int readSingleXYZ(istream &in);
 
  public:
 
@@ -161,6 +162,8 @@ class Curve : public PKFmanip {
   int readPKF(istream &in);
   int writePKF(const char* filename, int Header = 1);
   int writePKF(ostream &out, int Header = 1);
+  int readXYZ(const char* filename);
+  int readXYZ(istream &in);
   int readData(const char* filename, const char* delimiter);
   int readData(istream &in, const char* delimiter);
   int writeData(const char* filename, const char* delimiter,

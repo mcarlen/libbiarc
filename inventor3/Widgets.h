@@ -1,41 +1,21 @@
 #ifndef __QT_WIDGETS_H__
 #define __QT_WIDGETS_H__
 
-#include <QObject>
-#include <QApplication>
-#include <QWidget>
-#include <QImage>
-#include <QMenuBar>
-#include <QMenu>
-#include <QFileDialog>
-#include <QStringList>
-#include <QPixmap>
-#include <QMessageBox>
-#include <QFileIconProvider>
-#include <QLabel>
+#include <qwidget.h>
+#include <qimage.h>
+#include <qpopupmenu.h>
+#include <qfiledialog.h>
+#include <qstrlist.h>
+#include <qpixmap.h>
+#include <qmessagebox.h>
 
-#include <QPainter>
-#include <QPaintEvent>
-#include <QImageReader>
-
-#include <iostream>
-
-#ifdef WITH_ICON_PROVIDER
-class ImageIconProvider : public QFileIconProvider {
-Q_OBJECT
-  QList<QByteArray> fmts;
-  QIcon imagepm;
-public:
-  ImageIconProvider( QWidget *parent=0, const char *name=0 );
-  ~ImageIconProvider();
-  QIcon icon( const QFileInfo &fi ) const;
-};
-#endif
+class QLabel;
+class QMenuBar;
 
 class Aux2DPlotWindow: public QWidget {
-Q_OBJECT
+  Q_OBJECT
 public:
-  Aux2DPlotWindow(QWidget *parent=0, const char *name=0, Qt::WindowFlags wFlags=0);
+  Aux2DPlotWindow(QWidget *parent=0, const char *name=0, int wFlags=0);
   ~Aux2DPlotWindow();
   bool loadImage(const QString &);
 protected:
@@ -51,16 +31,9 @@ private:
   QPixmap pm;
   
   QMenuBar *menubar;
-  QMenu *file; // ,extras;
-  
-  QAction *openFileAct, *quitAct;
-
+  QPopupMenu *file;
+  QPopupMenu *extras;
   int e1,e2,e3,oe1,oe2;
-
-  QFileDialog *fd;
-#ifdef WITH_ICON_PROVIDER
-  ImageIconProvider *iip;
-#endif
 
   QMessageBox *pop_info;
 
@@ -78,6 +51,16 @@ private slots:
   void popcoords();
 signals:
   void pos_changed(float,float,float,float);
+};
+
+class ImageIconProvider : public QFileIconProvider {
+  Q_OBJECT
+    QStrList fmts;
+  QPixmap imagepm;
+public:
+  ImageIconProvider( QWidget *parent=0, const char *name=0 );
+  ~ImageIconProvider();
+  const QPixmap * pixmap( const QFileInfo &fi );
 };
 
 #endif // __QT_WIDGETS_H__
