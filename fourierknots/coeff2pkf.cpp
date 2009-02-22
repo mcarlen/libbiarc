@@ -54,6 +54,15 @@ Curve<Vector3> gen5(const int N, const char* infile, const char* outfile) {
   return knot;
 }
 
+Curve<Vector4> gen5_on_s3(const int N, const char* infile, const char* outfile) {
+  Curve<Vector4> knot;
+  K51FourierKnot fk(infile);
+  fk.toCurveOnS3(N,&knot);
+  knot.header("fourier 5.1","coeff2pkf","","");
+  return knot;
+}
+
+
 
 /*!
   Given a path to a coefficient file, sample the Fourier Knot
@@ -78,12 +87,18 @@ int main(int argc, char **argv) {
   switch(argv[1][0]) {
   case 'n': knot=genn(N,infile,outfile); break;
   case 'X': genn_on_s3(N,infile,outfile).writePKF(outfile); exit(0); break;
+
   case '3': knot=gen3(N,infile,outfile); break;
-  case 'Y': gen3_on_s3(N,infile,outfile).writePKF(outfile); exit(0); break;
+  case 'E': gen3_on_s3(N,infile,outfile).writePKF(outfile); exit(0); break;
+  /* 'E' is the letter below 3 on kb */
+
   case '4': knot=gen4(N,infile,outfile); break;
+
   case '5': knot=gen5(N,infile,outfile); break;
+  case 'T': gen5_on_s3(N,infile,outfile).writePKF(outfile); exit(0); break;
+  /* 'T' is the letter below 5 on kb */
   default:
-    cerr << "Wrong Fourier Knot type (n/3/4/5/X)\n";
+    cerr << "Wrong Fourier Knot type (n/X/3/E/4/5/T/)\n";
     exit(1);
   }
 #if 0

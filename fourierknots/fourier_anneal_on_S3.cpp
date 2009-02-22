@@ -121,11 +121,31 @@ public:
 };
 
 
+class K51FKAnnealOnS3: public K51FKAnneal {
+public:
+  K51FKAnnealOnS3(const char* knot_filename, const char* params = ""):K51FKAnneal(knot_filename, params) {
+  }
+
+  virtual float energy() {
+    float penalty = 0;
+    Curve<Vector4> curve;
+    knot.toCurveOnS3(NODES,&curve);
+    curve.link();
+    curve.make_default(); 
+    if (length_penalty != 0.0) 
+      penalty += length_penalty*curve.length();
+    if (thickness_fast)
+      return 1./curve.thickness_fast() + penalty;
+    else
+      return 1./curve.thickness() + penalty;
+  }
+};
+
+
 
 int main(int argc, char** argv) {
   if (argc != 4) {
-    cout << "Usage: " << argv[0] << " [n|3|4] filename params " << endl;
-    cout << "    only n supported " << endl;
+    cout << "Usage: " << argv[0] << " [n|3|5] filename params " << endl;
     exit(1);
   }
   switch(argv[1][0]) {
@@ -137,9 +157,12 @@ int main(int argc, char** argv) {
             fk3= new TrefFKAnnealOnS3(argv[2],argv[3]); 
             fk3->do_anneal();
             break;
+  case '5': K51FKAnnealOnS3 * fk5;
+            fk5= new K51FKAnnealOnS3(argv[2],argv[3]); 
+            fk5->do_anneal();
+            break;
   default:
-    cerr << "Wrong Fourier Knot type [n|3|4]\n";
-    cerr << "    only n,3 supported " << endl;
+    cerr << "Wrong Fourier Knot type [n|3|5]\n" << endl;
     exit(1);
   }
   return 0;
