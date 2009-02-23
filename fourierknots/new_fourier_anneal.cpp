@@ -11,19 +11,12 @@ template <class FK>
 class FKAnneal: public BasicAnneal {
 
 public:
-  virtual float ropelength(FK &fk) {
-    Curve<Vector3> curve;
-    fk.toCurve(NODES,&curve);
-    curve.link();
-    curve.make_default();
-    float D = curve.thickness();
-    float L = curve.length();
-    return L/D;
-  }
-
+  bool thickness_fast;
   int NODES;
   float step_size_factor;
+  float length_penalty;
   FK knot, best_knot;
+
 
   FKAnneal(const char* knot_filename, const char* params = "") {
     std_init(params);
@@ -50,16 +43,22 @@ public:
   void std_init(const char* params) {
     BasicAnneal::std_init(params);
     NODES = 200;
-    step_size_factor=0.1;
+    step_size_factor = 0.1;
+    thickness_fast = 0;
+    length_penalty = 0;
     map<string,string> param_map;
     str2hash(params, param_map);
     extract_i(NODES,param_map);
     extract_f(step_size_factor,param_map);
+    extract_i(thickness_fast,param_map);
+    extract_f(length_penalty,param_map);
   }
 
   virtual ostream & show_config(ostream &out) {
     BasicAnneal::show_config(out) << "NODES: " << NODES << endl
-        << "step_size_factor: " << step_size_factor << endl ;
+        << "step_size_factor: " << step_size_factor << endl 
+        << "length_penalty: " << length_penalty << endl 
+        << "thickness_fast: " << thickness_fast << endl;
     return out;
   }
 
@@ -76,7 +75,20 @@ public:
   }
 
   virtual float energy() {
-    return ropelength(knot);
+    /* here: ropelength */
+    float penalty = 0;
+    float L,D;
+    Curve<Vector3> curve;
+    knot.toCurve(NODES,&curve);
+    curve.link();
+    curve.make_default();
+    L = curve.length();
+    penalty += length_penalty*L;
+    if (thickness_fast)
+      D = curve.thickness_fast() + penalty;
+    else
+      D = curve.thickness() + penalty;
+    return L/D;
   }
 };
 
@@ -100,17 +112,17 @@ public:
     }
   }
 
-  virtual float ropelength(TrefoilFourierKnot &fk) {
+  virtual float energy() {
+    float penalty = 0;
     Curve<Vector3> curve;
-    fk.toCurve(adjust,NODES,&curve);
+    knot.toCurve(adjust,NODES,&curve);
     curve.link();
     curve.make_default();
     float D = curve.thickness();
     float L = curve.length();
-    return L/D;
+    penalty += length_penalty*L;
+    return L/D + penalty;
   }
-
-
 };
 
 class K41FKAnneal: public FKAnneal<K41FourierKnot> {

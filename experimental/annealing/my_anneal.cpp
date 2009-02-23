@@ -143,14 +143,16 @@ public:
 
   float min_step, max_step;
   int   min_move, max_move;
+  int energy_precision;
   float Temp, Cooling;
   float best_energy, curr_energy, candidate_energy;
+  float log_optimum;
 
   vector<BasicMove*> curr_moves, possible_moves;
 
   int success, trys;
 
-  int log_counter, log_freq;
+  int log_counter, log_freq, last_best_log;
 
   string best_filename;
 
@@ -184,18 +186,21 @@ public:
     success = 0;
     trys    = 1;
 
-    log_counter = 0;
+    last_best_log = log_counter = 0;
     log_freq = 10000;
-
+    log_optimum = 0;
+    energy_precision = 6;
     best_filename = string("bla.bla");
 
     map<string,string> param_map;
     str2hash(params, param_map);
 
-    extract_f2(Temp,"T",param_map);
-    extract_f2(Cooling,"C",param_map);
-    extract_i2(log_freq,"logfreq",param_map);
-    extract(best_filename,param_map);
+    extract_f2(Temp, "T", param_map);
+    extract_f2(Cooling, "C", param_map);
+    extract_i2(log_freq, "logfreq", param_map);
+    extract_f(log_optimum, param_map);
+    extract_i(energy_precision, param_map);
+    extract(best_filename, param_map);
   }
 
   /*!
@@ -207,6 +212,8 @@ public:
         << "Temperature (T): " << Temp << endl
         << "Cooling (C): " << Cooling << endl
         << "Log frequency (logfreq): " << log_freq << endl
+        << "log_optimum: " << log_optimum << endl
+        << "energy_precision: " << energy_precision << endl
         << "best_filename: "<< best_filename << endl;
     return out;
   }
@@ -273,7 +280,8 @@ public:
     best energy.
   */
   virtual void best_found() {
-    cout << "!" << best_energy << "!";
+    last_best_log = log_counter;
+    cout << "!" << setprecision(energy_precision) << best_energy << "!";
   }
  
   virtual void update_minmax_step() {
@@ -295,10 +303,13 @@ public:
     update_minmax_step(); 
     out << log_counter
         << " T=" << Temp
-        << " E=" << curr_energy
+        << " E=" << setprecision(energy_precision) << curr_energy
         << " Emin=" << best_energy
         << " S=" << (float) success/(float) trys
-        << " min/max=" << min_step << "/" << max_step;
+        << " min/max=" << min_step << "/" << max_step
+        << " lb=" << (log_counter-last_best_log) ;
+    if (log_optimum !=0.)
+      out << " diff="  << best_energy - log_optimum;
     trys = 1;
     success = 0;
 
