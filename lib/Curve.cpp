@@ -248,10 +248,8 @@ inline float Curve<Vector>::length() {
 
   float L = 0.0;
 
-  int N = this->nodes();
-  if (!_Closed) N--;
-
-  for (biarc_it it=_Biarcs.begin();it!=_Biarcs.end();it++)
+  biarc_it stop = _Biarcs.end()-(_Closed?0:-1);
+  for (biarc_it it=_Biarcs.begin();it!=stop;it++)
     L += (it->biarclength());
 
   return L;
