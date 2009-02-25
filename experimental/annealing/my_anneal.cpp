@@ -1,7 +1,6 @@
 #ifndef _ANNEAL_H_
 #define _ANNEAL_H_
 
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -431,7 +430,7 @@ if __name__ == "__main__":
    main(int(sys.argv[1]))
 */
 
-/*
+#ifdef MAIN
 int main(int argc, char** argv) {
 
   SampleAnneal* sa;
@@ -445,6 +444,24 @@ int main(int argc, char** argv) {
 
   sa->do_anneal();
 
+  // we're done? set center of mass at 0,0
+	float x = 0, y = 0;
+	for (int i=0;i<sa->no_of_nodes/2;++i) {
+    x += sa->nodes[2*i];
+		y += sa->nodes[2*i+1];
+	}
+	x /= (float)(sa->no_of_nodes/2);
+	y /= (float)(sa->no_of_nodes/2);
+
+	for (int i=0;i<sa->no_of_nodes/2;++i) {
+    sa->nodes[2*i]   = sa->nodes[2*i]   - x;
+		sa->nodes[2*i+1] = sa->nodes[2*i+1] - y;
+	}
+
+	sa->best_found();
+
   return 0;
-*/
+}
+#endif
+
 #endif //_ANNEAL_H_
