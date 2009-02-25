@@ -71,6 +71,7 @@ public:
     BasicAnneal::best_found();
     best_knot = knot;
     ofstream out(best_filename.c_str());
+    out.precision(12);
     out << knot; 
     out.close();
   }

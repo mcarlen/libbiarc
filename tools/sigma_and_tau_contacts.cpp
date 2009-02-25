@@ -90,6 +90,8 @@ int main(int argc, char **argv) {
   Curve<Vector3> c(argv[1]);
   c.link();
   c.make_default();
+  c.normalize();
+  c.make_default();
 
   float thick = c.thickness();
   float L = c.length();
@@ -158,7 +160,7 @@ int main(int argc, char **argv) {
       }
 
     }
-    assert(ContactN>1);
+    // assert(ContactN>1);
     // write s vs "closer along arc"
     float ss0 = s_close0/L, ss1 = s_close1/L;
     if (ss0<slen) ss0 += 1;
