@@ -10,8 +10,6 @@
 
 #define ITERATE
 
-static int ITERATION;
-
 template<class Vector>
 class ArcInfo{
 public:
@@ -28,34 +26,14 @@ template<class Vector>
 class Candi {
 public:
   ArcInfo<Vector> a,b;
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-  float s0, s1;
-  float l0, l1;
-#endif
   float d;
 
   Candi(const Vector &a0,const Vector &a1,const Vector &a2,
-        const Vector &b0,const Vector &b1,const Vector &b2
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-        , float s0, float s1, float len0, float len1
-#endif
-        );
+        const Vector &b0,const Vector &b1,const Vector &b2);
   Candi(const Vector &a0,const Vector &a1,const Vector &a2,
         const float &a_err,const float &a_ferr,
         const Vector &b0,const Vector &b1,const Vector &b2,
-        const float &b_err,const float &b_ferr
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-        , float s0, float s1, float len0, float len1
-#endif
-        );
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-  bool check(float min_rad) {
-    float s = s1 - s0;
-//    if (l -s < s) s = l - s;
-    if (s+1e-10 >= min_rad*M_PI) return true;
-    return false;
-  }
-#endif
+        const float &b_err,const float &b_ferr);
 };
 
 template<class Vector>
@@ -84,42 +62,46 @@ template<class Vector>
 float check_local_curvature(Curve<Vector>* c);
 
 template<class Vector>
-void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC);
+void initial_dbl_crit_filter(Curve<Vector>* c, vector<Candi<Vector> > &CritC,
+                             float dCurrentMin);
 
 template<class Vector>
-void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-                     ,float min_rad, float l
-#endif
-                     );
+void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC, float dCurrentMin);
 
 template<class Vector>
 void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, float &ub, float &err, candi_it &min_candi);
 
 template<class Vector>
-void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered);
+void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered, const float dCurrMin);
 
 template<class Vector>
 float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL);
 
 template<class Vector>
-float mindist_between_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
-                           const Vector &b0,const Vector &b1,const Vector &b2,
+float mindist_between_bezier_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
+                                  const Vector &b0,const Vector &b1,const Vector &b2,
+                                  const float dCurrMin, Vector* from, Vector* to);
+
+template<class Vector>
+float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrMin,
                            Vector* from, Vector* to);
 
 template<class Vector>
-float mindist_between_arcs(const Candi<Vector> &pair_of_arcs,
-                           Vector* from, Vector* to);
+float mindist_between_arcs(const Vector &q00,const Vector &q01,const Vector &t0,
+                           const Vector &q10,const Vector &q11,const Vector &b1,
+                           const float dCurrMin, Vector* from, Vector* to);
 
 template<class Vector>
 int double_critical_test(const Vector &a0, const Vector &a1,
                          const Vector &t0a,const Vector &t1a,
                          const Vector &b0, const Vector &b1,
-                         const Vector &t0b,const Vector &t1b);
+                         const Vector &t0b,const Vector &t1b,
+                         float dCurrentMin = 1e22);
 
 template<class Vector>
 int double_critical_test_v2(const Vector &a0,const Vector &a1,const Vector &a2,
-                            const Vector &b0,const Vector &b1,const Vector &b2);
+                            const Vector &b0,const Vector &b1,const Vector &b2,
+                            float dCurrentMin = 1e22);
 
 /*
    This comes from David Eberly www.geometrictools.com

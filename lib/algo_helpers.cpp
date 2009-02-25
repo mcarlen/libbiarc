@@ -1,6 +1,7 @@
 // XXX Doc
 
 #include "../include/algo_helpers.h"
+#include <stdlib.h>
 
 #ifndef __ALGO_SRC__
 #define __ALGO_SRC__
@@ -41,15 +42,8 @@ ArcInfo<Vector>::ArcInfo(const Vector &a0,const Vector &a1,const Vector &a2,
 
 template<class Vector>
 Candi<Vector>::Candi(const Vector &a0,const Vector &a1,const Vector &a2,
-             const Vector &b0,const Vector &b1,const Vector &b2
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-             ,float s0, float s1, float len0, float len1
-#endif
-             )
+             const Vector &b0,const Vector &b1,const Vector &b2)
   : a(a0,a1,a2), b(b0,b1,b2)
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-    , s0(s0), s1(s1), l0(len0), l1(len1)
-#endif
 {
   static float dum1,dum2;
   d = min_seg_dist(a0,a2,b0,b2,dum1,dum2);
@@ -59,15 +53,8 @@ template<class Vector>
 Candi<Vector>::Candi(const Vector &a0,const Vector &a1,const Vector &a2,
              const float &a_err,const float &a_ferr,
              const Vector &b0,const Vector &b1,const Vector &b2,
-             const float &b_err,const float &b_ferr
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-             , float s0, float s1, float len0, float len1
-#endif
-             )
+             const float &b_err,const float &b_ferr)
   : a(a0,a1,a2,a_err,a_ferr), b(b0,b1,b2,b_err,b_ferr)
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-    , s0(s0), s1(s1), l0(len0), l1(len1)
-#endif
 {
   static float dum1,dum2;
   d = min_seg_dist(a0,a2,b0,b2,dum1,dum2);
@@ -167,134 +154,52 @@ float check_local_curvature(Curve<Vector>* c) {
   pushed to a Candi vector CritC.
 */
 template<class Vector>
-void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-                             , float min_rad
-#endif
-                             ) {
+void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC,
+                             float dCurrentMin) {
 
   CritC.clear();
 
   Vector a0,am,a1,b0,bm,b1,t0a,tma,t1a,t0b,tmb,t1b;
   // Temporary Bezier points
   Vector Ba0,Ba1,Ba2,Bb0,Bb1,Bb2;
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-  float alen0, alen[4], len0, len1;
-  for (biarc_it i=c->begin();i!=c->end()-1;i++) {
-    biarc_it cur = c->begin();
-    alen0 = 0;
-    while (cur!=i) {
-      alen0 += cur->biarclength();
-      cur++;
-    }
-    for (biarc_it j=i+1;j!=c->end();j++) {
 
-      // XXX XXX XXX XXX
-      // Compute arclength between the pairs of arcs
-      // if arclength(p0, p1) < min_rad_curv * M_PI : then reject that pair
-      //
-      // alen = 0;
-      // for (arc1 to arc2) alen += alen(sthing) ; if alen >= min_rad_curv*M_PI : then accept the pair
-      // do the same starting at arc2 and going to arc1 if curve is closed!
-      float l = 0;
-      cur = i;
-      while (cur!=j) {
-        l += cur->biarclength();
-        cur++;
-      }
-
-      alen[0] = alen0 + i->arclength0()*.5;
-      alen[1] = alen0 + i->arclength0() + i->arclength1()*.5;
-      alen[2] = alen0 + l + j->arclength0()*.5;
-      alen[3] = alen0 + l + j->arclength0() + j->arclength1()*.5;
-#else
   for (biarc_it i=c->begin();i!=c->end()-1;i++) {
     for (biarc_it j=i+1;j!=c->end();j++) {
-#endif
+
       i->getBezierArc0(Ba0,Ba1,Ba2);
       j->getBezierArc0(Bb0,Bb1,Bb2);
  
       // Now double criticle all 4 possibilities
       // excluding next neighbors
       // arc a1 - b1
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-      float s = alen[2] - alen[0];
-      float eps = 1e-10;
-      len0 = i->arclength0(); len1 = j->arclength0();
-      if (c->length()-s<s) s= c->length()-s;
-      if (s+eps >= min_rad*M_PI) {
-#endif
-      if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2)) {
+      if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,dCurrentMin)) {
         CritC.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-                        ,alen[0],alen[2],len0,len1
-#endif
                         ));
       }
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-      }
-#endif
 
       j->getBezierArc1(Bb0,Bb1,Bb2);
       // arc a1 - b2
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-      s = alen[3] - alen[0];
-      len0 = i->arclength0(); len1 = j->arclength1();
-      if (c->length()-s<s) s= c->length()-s;
-      if (s+eps >= min_rad*M_PI) {
-#endif
       if (!(i==c->begin() && j==(c->end()-1))) {
-        if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2)) {
+        if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,dCurrentMin)) {
           CritC.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-          ,alen[0],alen[3],len0,len1
-#endif
           ));
         }
       }
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-      }
-#endif
 
       i->getBezierArc1(Ba0,Ba1,Ba2);
       // arc a2 - b2
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-      s = alen[3] - alen[1];
-      len0 = i->arclength1(); len1 = j->arclength1();
-      if (c->length()-s<s) s = c->length()-s;
-      if (s+eps >= min_rad*M_PI) {
-#endif
-      if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2)) {
+      if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,dCurrentMin)) {
         CritC.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-        ,alen[1],alen[3],len0,len1
-#endif
         ));
       }
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-      }
-#endif
-
       // arc a2 - b1
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-      s = alen[2] - alen[1];
-      len0 = i->arclength1(); len1 = j->arclength0();
-      if (c->length()-s<s) s = c->length()-s;
-      if (s+eps >= min_rad*M_PI) {
-#endif
       if (j!=i+1) {
         j->getBezierArc0(Bb0,Bb1,Bb2);
-        if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2)) {
+        if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,dCurrentMin)) {
           CritC.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-          ,alen[1],alen[2],len0,len1
-#endif
           ));
         }
       }
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-      }
-#endif
     }
   }
 }
@@ -307,11 +212,7 @@ void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC
   vector CritC. The reference to CritC is cleared at the beginning!
 */
 template<class Vector>
-void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-                     , float min_rad, float l
-#endif
-                     ) {
+void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC, const float dCurrentMin) {
 
   // Double Critical Test
   CritC.clear();
@@ -323,75 +224,37 @@ void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC
   // example if we need the left sub arc of a0,a1,a2,m
   // subarc Bezier points are given by a0,(a0+a1)/2,m !!!
     // arc a1 - b1
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-    float alen[4], s, len0, len1;
-    len0 = i->l0*.5; len1 = i->l1*.5;
-
-    alen[0] = i->s0 - i->l0*.25;
-    alen[1] = i->s0 + i->l0*.25;
-    alen[2] = i->s1 - i->l1*.25;
-    alen[3] = i->s1 + i->l1*.25;
-
-    s = alen[2] - alen[0];
-    if (l-s < s) s = l-s;
-    if (s+1e-10 >= min_rad*M_PI)
-#endif
     if (double_critical_test_v2(i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,
-                                i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m)) {
+                                i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,dCurrentMin)) {
        CritC.push_back(Candi<Vector>(
          i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,i->a.err/i->a.ferr,i->a.ferr,
          i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,i->b.err/i->b.ferr,i->b.ferr
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-         ,alen[0],alen[2],len0,len1
-#endif
                                     ));
     }
     // arc a1 - b2
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-    s = alen[3] - alen[0];
-    if (l-s < s) s = l-s;
-    if (s+1e-10 >= min_rad*M_PI)
-#endif
     if (double_critical_test_v2(i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,
-                                i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2)) {
+                                i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,dCurrentMin)) {
       CritC.push_back(Candi<Vector>(
         i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,i->a.err/i->a.ferr,i->a.ferr,
         i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,i->b.err/i->b.ferr,i->b.ferr
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-         ,alen[0],alen[3],len0,len1
-#endif
                                    ));
     }
     // arc a2 - b1
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-    s = alen[2] - alen[1];
-    if (l-s < s) s = l-s;
-    if (s+1e-10 >= min_rad*M_PI)
-#endif
     if (double_critical_test_v2(i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,
-                                i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m)) {
+                                i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,
+                                dCurrentMin)) {
       CritC.push_back(Candi<Vector>(
         i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,i->a.err/i->a.ferr,i->a.ferr,
         i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,i->b.err/i->b.ferr,i->b.ferr
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-         ,alen[1],alen[2],len0,len1
-#endif
                                    ));
     }
     // arc a2 - b2
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-    s = alen[3] - alen[1];
-    if (l-s < s) s = l-s;
-    if (s+1e-10 >= min_rad*M_PI)
-#endif
     if (double_critical_test_v2(i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,
-                                i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2)) {
+                                i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,
+                                dCurrentMin)) {
       CritC.push_back(Candi<Vector>(
         i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,i->a.err/i->a.ferr,i->a.ferr,
         i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,i->b.err/i->b.ferr,i->b.ferr
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-         ,alen[1],alen[3],len0,len1
-#endif
                                    ));
     }
   }
@@ -444,9 +307,8 @@ void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, flo
   to the vector Cfiltered. Cfiltered is cleared first!
 */
 template<class Vector>
-void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered) {
-  //cout << "Distance Test\n";
-  float d_b = 1e8, tmpf;
+void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered, const float dCurrMin = 1e22) {
+  float d_b = dCurrMin, tmpf;
   if (Cfiltered.size()!=0)
     Cfiltered.clear();
   for (candi_it i=C.begin();i!=C.end();i++) {
@@ -459,112 +321,29 @@ void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered
       Cfiltered.push_back(*i);
     }
   }
-  //cout << "Distance Candidates : " << Cfiltered.size() << endl;
 }
 
 template<class Vector>
 float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL) {
-  const float rel_err_tol = 1e-12;
 
-  int LocalActive = 0;
-  biarc_it current, var;
-  // Vector *tmp, *tmpmin; static int cbiarc = 0;
-  // float tmpf;
-  float min_diam = 1e99;
-  min_diam = check_local_curvature(c);
-
-  // Double critical candidates
-  // Distance check passed candidates
-  vector<Candi<Vector> > CritC, DistC;
+  float min_diam = check_local_curvature(c);
+  vector<Candi<Vector> > tmp, candidates;
 
   // Initial double critical test
-  initial_dbl_crit_filter(c,CritC
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-                          ,min_diam*.5
-#endif
-                          );
+  initial_dbl_crit_filter(c, tmp, min_diam);
+  distance_filter(tmp,candidates,min_diam);
 
-  // Initial Distance Test
-  distance_filter(CritC,DistC);
-
-  // Initial Thickness Bounds
-  float D_lb = 1e99, D_ub = 1e99;
-  float max_err = 0, rel_err;
-  candi_it min_candi;
-  compute_thickness_bounds(DistC,min_diam,D_lb,D_ub,max_err,min_candi);
-  rel_err = max_err/D_lb*2.;
-
-  ITERATION = 0;
-
-#ifdef ITERATE
-
-  // Bisection loop while relative error larger than our given
-  // tolerance and while D_lb smaller than the minimal 2*radius
-  // if (min_diam <= D_lb) cout << "Curvature active!\n";
-  if (min_diam <= D_lb) {
-    // cout << "Smallest radius\n";
-    LocalActive = 1;
-  }
-  while(rel_err > rel_err_tol && min_diam > D_lb) {
-    ++ITERATION;
-
-    // Bisect Candidates
-    dbl_crit_filter(DistC,CritC
-#ifdef LOCAL_CURVATURE_BOUND_TEST
-                    , min_diam*.5, c->length()
-#endif
-                    );   
-
-    if (CritC.size()==0) {
-      // cout << "CritIter : CritC is empty (curvature active?)\n";
-      // LocalActive = 1;
-      // D_lb = D_ub = min_diam;
-      break;
-    }
-
-    // Bounds
-    compute_thickness_bounds(CritC,min_diam,D_lb,D_ub,max_err,min_candi);
-
-    // Distance Test
-    distance_filter(CritC,DistC);
-
-    // Thickness Bounds
-    if (DistC.size()==0) {
-      // cout << "BoundsIter : DistC is empty (curvature active?)\n";
-      // LocalActive = 1;
-      // D_lb = D_ub = min_diam;
-      break;
-    }
-
-    // Bounds
-    compute_thickness_bounds(DistC,min_diam,D_lb,D_ub,max_err,min_candi);
-
-    rel_err = max_err/D_lb*2.;
-  }
-
-#endif // ITERATE
-
-  //cout << "Number of iterations : " << ITERATION << endl;
-  //cout << "Thick upper bound    : " << D_ub << endl;
-  //cout << "Thick lower bound    : " << D_lb << endl;
-  if (!LocalActive) {
-    if (from!=NULL && to!=NULL) {
-      float param_s,param_t;
-      Vector a0 = min_candi->a.b0, a2 = min_candi->a.b2;
-      Vector b0 = min_candi->b.b0, b2 = min_candi->b.b2;
-
-      (void)min_seg_dist(a0,a2,b0,b2,param_s,param_t);
-
-      *from = a0+(a2-a0)*param_s;
-      *to   = b0+(b2-b0)*param_t;
+  float global_min = min_diam, curr_min;
+  Vector lFrom, lTo;
+  for (unsigned int i=0;i<candidates.size();++i) {
+    curr_min = mindist_between_arcs(candidates[i],global_min,&lFrom,&lTo);
+    if (curr_min<global_min) {
+      global_min = curr_min;
+      if (from!=NULL) *from = lFrom;
+      if (to!=NULL)   *to = lTo;
     }
   }
-  else {
-//    cout << "Local curvature active!\n";
-  }
-
-  CritC.clear(); DistC.clear();
-  return D_lb;
+  return global_min;
 }
 
 /*!
@@ -574,13 +353,45 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
   \a from and \a to.
 */
 template<class Vector>
-float mindist_between_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
-                           const Vector &b0,const Vector &b1,const Vector &b2,
+float mindist_between_bezier_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
+                                  const Vector &b0,const Vector &b1,const Vector &b2,
+                                  const float dCurrMin = 1e22,
+                                  Vector* from = NULL,
+                                  Vector* to = NULL) {
+  Candi<Vector> arcs(a0,a1,a2,b0,b1,b2);
+  return mindist_between_arcs(arcs,dCurrMin,from,to);
+}
+
+/*!
+  Compute the closest distance between two arcs of circles
+  given by the arcs endpoints q00 and q01, resp q10 and q11
+  and the tangents at the first point (t0 at q00, resp t1 at q10).
+  Returns as well the two points corresponding to the closest distance
+  \a from and \a to.
+*/
+template<class Vector>
+float mindist_between_arcs(const Vector &q00,const Vector &q01,const Vector &t0,
+                           const Vector &q10,const Vector &q11,const Vector &t1,
+                           const float dCurrMin = 1e22,
                            Vector* from = NULL,
                            Vector* to = NULL) {
+  Vector a0 = q00, a2 = q10;
+  Vector b0 = q10, b2 = q11;
+
+  // Compute bezier points a1 and b1
+  Vector d = q01 - q00;
+  float l = d.norm2()*.5/d.dot(t0);
+  Vector a1 = q00 + t0*l;
+
+  d = q11 - q10;
+  l = d.norm2()*.5/d.dot(t1);
+  Vector b1 = q10 + t1*l;
+
   Candi<Vector> arcs(a0,a1,a2,b0,b1,b2);
-  return mindist_between_arcs(arcs,from,to);
+  return mindist_between_arcs(arcs,dCurrMin,from,to);
+
 }
+
 
 /*!
   Compute the closest distance between two arcs of circles
@@ -589,7 +400,7 @@ float mindist_between_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
   and \a to.
 */
 template<class Vector>
-float mindist_between_arcs(const Candi<Vector> &pair_of_arcs,
+float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrMin = 1e22,
                    Vector* from = NULL,
                    Vector* to = NULL) {
 
@@ -606,30 +417,19 @@ float mindist_between_arcs(const Candi<Vector> &pair_of_arcs,
   while(rel_err > rel_err_tol) {
 
     // Bisect Candidates
-    dbl_crit_filter(DistC,CritC,1e22);   
+    dbl_crit_filter(DistC,CritC,dCurrMin);   
    // dump_candi(CritC);  
 
-    if (CritC.size()==0) {
-      cout << "CritIter : CritC is empty (curvature active?)\n";
-      D_lb = D_ub = -1;
-      break;
-    }
-
-    // Bounds
-    compute_thickness_bounds(CritC,1e99,D_lb,D_ub,max_err,min_candi);
+    if (CritC.size()==0) return 1e22;
 
     // Distance Test
-    distance_filter(CritC,DistC);
+    distance_filter(CritC,DistC,dCurrMin);
 
     // Thickness Bounds
-    if (DistC.size()==0) {
-      cout << "BoundsIter : DistC is empty (curvature active?)\n";
-      D_lb = D_ub = -1;
-      break;
-    }
+    if (DistC.size()==0) return 1e22;
 
     // Bounds
-    compute_thickness_bounds(DistC,1e99,D_lb,D_ub,max_err,min_candi);
+    compute_thickness_bounds(DistC,dCurrMin,D_lb,D_ub,max_err,min_candi);
 
     rel_err = max_err/D_lb*2.;
   }
@@ -656,7 +456,8 @@ template<class Vector>
 int double_critical_test(const Vector &a0, const Vector &a1,
                          const Vector &t0a,const Vector &t1a,
                          const Vector &b0, const Vector &b1,
-                         const Vector &t0b,const Vector &t1b) {
+                         const Vector &t0b,const Vector &t1b,
+                         const float dCurrentMin) {
 
   Vector w = (a0+a1-b0-b1);
   float denum = w.norm();
@@ -669,11 +470,14 @@ int double_critical_test(const Vector &a0, const Vector &a1,
   // assert(denum > val0+val1);
 
   // do balls intersect?
-  if (denum<=(val0+val1)) return 1;
+  if (denum<=(val0+val1)) {
+    cout << "Balls intersect\n";
+    exit(1);
+    return 1;
+  }
 
-  // XXX
-  // Ben has this
-  // if ((denum - val0 - val1)*.5 > dCurrentMin) return 0;
+  // Ben has this and it works ;)
+  if ( dCurrentMin < 1e12 && (denum - val0 - val1)*.5 > dCurrentMin) return 0;
 
   float sina = (val0+val1)/denum;
   w.normalize();
@@ -689,7 +493,8 @@ int double_critical_test(const Vector &a0, const Vector &a1,
 template<class Vector>
 int double_critical_test_v2(
              const Vector &a0,const Vector &a1,const Vector &a2,
-             const Vector &b0,const Vector &b1,const Vector &b2
+             const Vector &b0,const Vector &b1,const Vector &b2,
+             const float dCurrentMin
                            ) {
   // XXX :
   // Possible optimization : since the Bezier triangles are
@@ -704,7 +509,7 @@ int double_critical_test_v2(
   return double_critical_test(a0,a2,
                               ta0,ta2,
                               b0,b2,
-                              tb0,tb2);
+                              tb0,tb2,dCurrentMin);
 }
 
 // segment/segment distance computation
