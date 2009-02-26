@@ -47,6 +47,7 @@ public:
   Box() { ang = 0; }
 
   void bbox(Vec2 *bl, Vec2 *ur) const {
+
     // vertex bottom left
     Vec2 v[4];
     v[0] = Vec2(-.5,-.5);
@@ -167,7 +168,9 @@ public:
 */
 
   bool stop() {
-    if (Temp < 0.0001/N) return true;
+		// XXX I need a better criterium
+		//     if 2 boxes are stuck (let's say finished)
+    if (Temp < 0.001/N) return true;
     if (min_step<1e-8 || max_step > 10 ) return true;
     return false;
   }
@@ -209,11 +212,19 @@ public:
 
   float energy() {
     Vec2 bl, ur, bb1, bb2;
+		
+		while (nodes[0].ang>M_PI) nodes[0].ang -= M_PI;
+		while (nodes[0].ang<-M_PI) nodes[0].ang += M_PI;
+
     nodes[0].bbox(&bl, &ur);
     for (int i=1;i<N;++i) {
+
+	  	while (nodes[i].ang>M_PI)  nodes[i].ang -= M_PI;
+		  while (nodes[i].ang<-M_PI) nodes[i].ang += M_PI;
+
       nodes[i].bbox(&bb1, &bb2);
-      if (bb1.x < bb1.x) bl.x = bb1.x;
-      if (bb2.x > ur.x)  ur.x = bb2.x;
+      if (bb1.x < bl.x) bl.x = bb1.x;
+      if (bb2.x > ur.x) ur.x = bb2.x;
       if (bb1.y < bl.y) bl.y = bb1.y;
       if (bb2.y > ur.y) ur.y = bb2.y;
     }
@@ -225,13 +236,18 @@ public:
 			     << dl.x << " " << dl.y << "\n";
 			exit(0);
 		}
-    if (e>5*N) { cout << "Energy too big\n"; exit(0); }
+		/*
+    if (e>10*N) {
+			write_boxes(nodes);
+		  cout << "Energy too big : " << e << '\n';
+			exit(0);
+		}
 
     static int cccc = 0;
-		if (cccc%100==0)
+		if (cccc%400==0)
 		write_boxes(nodes);
 		cccc++;
-
+		*/
     
 		return e;
   }
@@ -249,7 +265,7 @@ void write_boxes(const vector<Box>& boxes) {
 	v[2] = Vec2( .5, .5);
 	v[3] = Vec2(-.5, .5);
 
-  char name[1024]; sprintf(name,"box_%08d.txt",box_write_count++);
+  char name[1024]; sprintf(name,"%08d.txt",box_write_count++);
   ofstream out(name,ios::out);
 	for (int c=0;c<5;++c) {
     for (uint i=0;i<boxes.size();++i) {
@@ -263,7 +279,7 @@ void write_boxes(const vector<Box>& boxes) {
 int main(int argc, char** argv) {
 
   BoxAnneal* ba;
-  const char* def = "T=0.001,N=2,best_filename=best.txt";
+  const char* def = "T=0.01,N=2,best_filename=best.txt";
 
   if (argc>1) ba = new BoxAnneal(argv[1]);
   else {
@@ -307,6 +323,8 @@ int main() {
 
   if (b1.overlap(b2)) cout << "Overlap\n";
   else cout << "No overlap\n";
+
+  // bbox
 
   return 0;
 }
