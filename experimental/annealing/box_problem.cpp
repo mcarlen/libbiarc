@@ -88,8 +88,10 @@ public:
     
     // are centers further apart than 2 sqrt(2) ?
 		// if yes, stop (no overlap)
-		Vec2 cc(b.c-c);
-		if (cc.x*cc.x+cc.y*cc.y > 2.*M_SQRT2) return 0;
+		Vec2 cc(b.c-c); float d = cc.x*cc.x+cc.y*cc.y;
+		if (d > 2.*M_SQRT2) return 0;
+		// closer than 1?
+		if (d < 1.) return 1;
 
     Vec2 v[4];
     v[0] = v0(); v[1] = v1();
@@ -170,8 +172,8 @@ public:
   bool stop() {
 		// XXX I need a better criterium
 		//     if 2 boxes are stuck (let's say finished)
-    if (Temp < 0.001/N) return true;
-    if (min_step<1e-8 || max_step > 10 ) return true;
+    if (Temp < 0.0001/N) return true;
+    if (min_step<1e-10 || max_step > 10 ) return true;
     return false;
   }
 
@@ -277,6 +279,8 @@ void write_boxes(const vector<Box>& boxes) {
 }
 
 int main(int argc, char** argv) {
+
+  srand(time(NULL));
 
   BoxAnneal* ba;
   const char* def = "T=0.01,N=2,best_filename=best.txt";
