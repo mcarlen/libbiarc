@@ -471,8 +471,8 @@ int double_critical_test(const Vector &a0, const Vector &a1,
 
   // do balls intersect?
   if (denum<=(val0+val1)) {
-    cout << "Balls intersect\n";
-    exit(1);
+    cout << "Balls intersect " << denum << " <= " << val0 << " + " << val1 << "\n";
+    // exit(1);
     return 1;
   }
 

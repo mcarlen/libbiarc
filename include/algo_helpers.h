@@ -16,6 +16,7 @@ public:
   Vector b0,b1,b2;
   Vector m; // Midpoint
   float err,ferr,omega;
+  ArcInfo() {}
   ArcInfo(const Vector &a0,const Vector &a1,const Vector &a2);
   ArcInfo(const Vector &a0,const Vector &a1,const Vector &a2,
           const float &Err, const float &FErr);
@@ -28,6 +29,7 @@ public:
   ArcInfo<Vector> a,b;
   float d;
 
+  Candi() {};
   Candi(const Vector &a0,const Vector &a1,const Vector &a2,
         const Vector &b0,const Vector &b1,const Vector &b2);
   Candi(const Vector &a0,const Vector &a1,const Vector &a2,

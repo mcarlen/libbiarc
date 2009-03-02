@@ -37,8 +37,9 @@ void getContacts(Curve<Vector3>& curve, vector<contact>& stcontacts, vector<CStr
   vector<contact>::iterator it;
   CStrut strut;
   for (it=stcontacts.begin();it!=stcontacts.end();++it) {
+		cout << "c : " << it->s << " " << it->t << endl;
     strut.p0 = curve.pointAt(it->s);
-    if (it->t > 1)
+    if (it->t >= 1)
       strut.p1 = curve.pointAt(it->t-1);
     else
       strut.p1 = curve.pointAt(it->t);
@@ -219,23 +220,26 @@ int main(int argc, char **argv) {
   for (unsigned int i=0;i<raw.size();i++) {
     c.s = raw[i].s;
     c.t = raw[i].sigma;
+		if (c.s > c.t) c.t += 1.0;
     final.push_back(c);
 
-/*
     c.s = raw[i].tau;
     c.t = raw[i].s;
+		if (c.s > c.t) c.t += 1.0;
     final.push_back(c);
-*/
   }
 
   // sort final by s
-//  sort(final.begin(),final.end(),compare);
+  sort(final.begin(),final.end(),compare);
 
   float ot = final[0].t, os = final[0].s;
   float s, t, val;
   c.s = os; c.t = ot;
   final2.push_back(c);
   cerr << os << " " << ot << endl;
+
+  cout << "Ot : " << final[1].t - ot << endl;
+	float ttol = (final[1].t - ot)*100;
 
   for (unsigned int i=1;i<final.size();i++) {
 
@@ -244,26 +248,34 @@ int main(int argc, char **argv) {
 //    if (s>t) t += 1;
 
     val = (os-s)*(os-s) + (ot-t)*(ot-t);
+    if (val < 0.0001) continue;
 
+/*
+    cout << "s=" << s <<",t="<<t <<endl;
+    if (fabsf(ot-t) > ttol) {
+			cout << "Filter " << ot << " " << t << " ( " << ot-t << " / " << ttol << ")\n";
+			continue;
+		}
+*/
     // We want a monotone function
     if (ot>t) {
       cout << "Not monotonic s=" << s << ",t=" << t << ",ot=" << ot << '\n';
       continue;
     }
 
-    if (val < 0.0001) continue;
 
-      cerr << s << " " << t << endl;
+    cerr << s << " " << t << endl;
       
-      c.s = final[i].s; c.t = final[i].t;
-      final2.push_back(c);
+    c.s = final[i].s; c.t = final[i].t;
+    final2.push_back(c);
       
-      os = s;
-      ot = t;
+    os = s;
+    ot = t;
   }
 
   // Dump iv surface
   Curve<Vector3>* k = new Curve<Vector3>(argv[1]);
+	k->link();
   k->make_default();
   k->normalize();
   k->make_default();

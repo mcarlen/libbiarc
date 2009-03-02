@@ -36,8 +36,8 @@ int main(int argc,char** argv) {
 
   int N = (*tb)[0].nodes();
   int S = 36;
-  float R = (*tb)[0].thickness_fast()*.25;
-  if (R<0.01) R = 0.01;
+  float R = (*tb)[argc-2].thickness_fast();
+//  if (R<0.01) R = 0.01;
   cout << "Radius " << R << endl;
   float Tol = 1e-2;
 

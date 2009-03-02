@@ -144,8 +144,14 @@ public:
 
     Box b;
     for (int i=0;i<no_of_nodes;++i) {
+			/*
       b.c = Vec2(i*2*N,0); // i*2*N-.5*i);
       b.ang = (i%2==1?M_PI/8:0);
+			*/
+			again:
+      b.c = Vec2((2.*rand01()-.5)*N,(2.*rand01()-.5)*N);
+			b.ang = rand01()*M_PI_2;
+      for (int i=0;i<nodes.size();++i) if (nodes[i].overlap(b)) goto again;
       nodes.push_back(b);
     }
 
@@ -158,7 +164,7 @@ public:
     for (int i=0;i<no_of_nodes;++i) {
       possible_moves.push_back(new SimpleFloatMove(&(nodes[i].c.x),0.01));
       possible_moves.push_back(new SimpleFloatMove(&(nodes[i].c.y),0.01));
-      possible_moves.push_back(new SimpleFloatMove(&(nodes[i].ang),0.001));
+      possible_moves.push_back(new SimpleFloatMove(&(nodes[i].ang),0.01));
     }
 
   }
@@ -172,8 +178,8 @@ public:
   bool stop() {
 		// XXX I need a better criterium
 		//     if 2 boxes are stuck (let's say finished)
-    if (Temp < 0.0001/N) return true;
-    if (min_step<1e-10 || max_step > 10 ) return true;
+    if (Temp < 0.00001/N) return true;
+    // if (min_step<1e-12 || max_step > 1e12 ) return true;
     return false;
   }
 
@@ -210,6 +216,11 @@ public:
     for (int i=0;i<N;++i)
       out << nodes[i].c.x << " " << nodes[i].c.y << " " << nodes[i].ang << endl;
     out.close();
+
+		// Fix the step sizes if it gets tooo large
+		for (uint i=0;i<possible_moves.size();++i) {
+      if (possible_moves[i]->step_size > 100) possible_moves[i]->step_size = 100;
+		}
   }
 
   float energy() {
