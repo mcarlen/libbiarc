@@ -338,13 +338,13 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
   if (hint_i>=0 && hint_j>=0) {
 
     vector<Candi<Vector> > CritC;
-    Vector3 a0,am,a1,b0,bm,b1,t0a,tma,t1a,t0b,tmb,t1b;
+    Vector a0,am,a1,b0,bm,b1,t0a,tma,t1a,t0b,tmb,t1b;
     // Temporary Bezier points
-    Vector3 Ba0,Ba1,Ba2,Bb0,Bb1,Bb2; 
+    Vector Ba0,Ba1,Ba2,Bb0,Bb1,Bb2; 
 
 //    cerr << "HINT : " << hint_i << " " << hint_j << " : ";
-    vector<Biarc<Vector3> >::iterator i = c->begin()+hint_i;
-    vector<Biarc<Vector3> >::iterator j = c->begin()+hint_j;
+    typename vector< Biarc<Vector> >::iterator i = c->begin() + hint_i;
+    typename vector< Biarc<Vector> >::iterator j = c->begin() + hint_j;
 
     i->getBezierArc0(Ba0,Ba1,Ba2); j->getBezierArc0(Bb0,Bb1,Bb2);
 
@@ -352,25 +352,25 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
     // excluding next neighbors
     // arc a1 - b1
     if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,global_min))
-      CritC.push_back(Candi<Vector3>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+      CritC.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
 
     j->getBezierArc1(Bb0,Bb1,Bb2);
     // arc a1 - b2
     if (!(i==c->begin() && j==(c->end()-1))) {
       if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,global_min))
-        CritC.push_back(Candi<Vector3>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+        CritC.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
     }
 
     i->getBezierArc1(Ba0,Ba1,Ba2);
     // arc a2 - b2
     if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,global_min))
-      CritC.push_back(Candi<Vector3>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+      CritC.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
 
     // arc a2 - b1
     if (j!=i+1) {
       j->getBezierArc0(Bb0,Bb1,Bb2);
       if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,global_min))
-        CritC.push_back(Candi<Vector3>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+        CritC.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
     }
 
     for (unsigned int i=0;i<CritC.size();++i) {

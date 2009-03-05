@@ -13,8 +13,6 @@ protected:
   int hinti, hintj;
 public:
   bool thickness_fast;
-    curve.set_hint(hinti,hintj);
-    curve.get_hint(&hinti,&hintj);
   int NODES;
   float step_size_factor;
   float length_penalty;
@@ -91,10 +89,12 @@ public:
     curve.make_default();
     L = curve.length();
     penalty += length_penalty*L;
+    curve.set_hint(hinti,hintj);
     if (thickness_fast)
       D = curve.thickness_fast() + penalty;
     else
       D = curve.thickness() + penalty;
+    curve.get_hint(&hinti,&hintj);
     return L/D;
   }
 };

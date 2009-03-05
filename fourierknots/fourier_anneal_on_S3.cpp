@@ -84,17 +84,20 @@ public:
   }
 
   virtual float energy() {
-    float penalty = 0;
+    float penalty = 0.0, e = 0.0;
     Curve<Vector4> curve;
     knot.toCurveOnS3(NODES,&curve);
     curve.link();
     curve.make_default(); 
     if (length_penalty != 0.0) 
       penalty += length_penalty*curve.length();
+    curve.set_hint(hinti, hintj);
     if (thickness_fast)
-      return 1./curve.thickness_fast() + penalty;
+      e = 1./curve.thickness_fast() + penalty;
     else
-      return 1./curve.thickness() + penalty;
+      e = 1./curve.thickness() + penalty;
+    curve.get_hint(&hinti, &hintj);
+    return e;
   }
 };
 
@@ -106,17 +109,20 @@ public:
   }
 
   virtual float energy() {
-    float penalty = 0;
+    float penalty = 0, e=0.0 ;
     Curve<Vector4> curve;
     knot.toCurveOnS3(NODES,&curve);
     curve.link();
     curve.make_default(); 
     if (length_penalty != 0.0) 
       penalty += length_penalty*curve.length();
+    curve.set_hint(hinti, hintj);
     if (thickness_fast)
-      return 1./curve.thickness_fast() + penalty;
+      e = 1./curve.thickness_fast() + penalty;
     else
-      return 1./curve.thickness() + penalty;
+      e = 1./curve.thickness() + penalty;
+    curve.get_hint(&hinti, &hintj);
+    return e;
   }
 };
 
@@ -127,17 +133,20 @@ public:
   }
 
   virtual float energy() {
-    float penalty = 0;
+    float penalty = 0, e=0.0;
     Curve<Vector4> curve;
     knot.toCurveOnS3(NODES,&curve);
     curve.link();
     curve.make_default(); 
     if (length_penalty != 0.0) 
       penalty += length_penalty*curve.length();
+    curve.set_hint(hinti, hintj);
     if (thickness_fast)
-      return 1./curve.thickness_fast() + penalty;
+      e = 1./curve.thickness_fast() + penalty;
     else
-      return 1./curve.thickness() + penalty;
+      e = 1./curve.thickness() + penalty;
+    curve.get_hint(&hinti, &hintj);
+    return e;
   }
 };
 
