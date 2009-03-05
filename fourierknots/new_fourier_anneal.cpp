@@ -9,9 +9,12 @@
 
 template <class FK>
 class FKAnneal: public BasicAnneal {
-
+protected:
+  int hinti, hintj;
 public:
   bool thickness_fast;
+    curve.set_hint(hinti,hintj);
+    curve.get_hint(&hinti,&hintj);
   int NODES;
   float step_size_factor;
   float length_penalty;
@@ -52,6 +55,9 @@ public:
     extract_f(step_size_factor,param_map);
     extract_i(thickness_fast,param_map);
     extract_f(length_penalty,param_map);
+
+    // Set the hint values to -1
+    hinti = hintj = -1;
   }
 
   virtual ostream & show_config(ostream &out) {
@@ -70,6 +76,7 @@ public:
     BasicAnneal::best_found();
     best_knot = knot;
     ofstream out(best_filename.c_str());
+    out.precision(12);
     out << knot; 
     out.close();
   }
@@ -118,7 +125,12 @@ public:
     knot.toCurve(adjust,NODES,&curve);
     curve.link();
     curve.make_default();
+
+    // Get/Set hint for thickness
+    curve.set_hint(hinti,hintj);
     float D = curve.thickness();
+    curve.get_hint(&hinti,&hintj);
+
     float L = curve.length();
     penalty += length_penalty*L;
     return L/D + penalty;
@@ -158,7 +170,12 @@ public:
     fk.toCurve(adjust,NODES,&curve);
     curve.link();
     curve.make_default();
+
+    // Get/Set hint for thickness
+    curve.set_hint(hinti,hintj);
     float D = curve.thickness();
+    curve.get_hint(&hinti,&hintj);
+
     float L = curve.length();
     return L/D;
   }
@@ -198,7 +215,12 @@ public:
     fk.toCurve(adjust,NODES,&curve);
     curve.link();
     curve.make_default();
+
+    // Get/Set hint for thickness
+    curve.set_hint(hinti,hintj);
     float D = curve.thickness();
+    curve.get_hint(&hinti,&hintj);
+
     float L = curve.length();
     return L/D;
   }

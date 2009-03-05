@@ -2,6 +2,13 @@
 #include "fourier_4_1.h"
 #include "fourier_5_1.h"
 
+float adjust51(float x) {
+  float shift = 0.2;
+  float lx = x + shift;
+  if (lx>1.0) lx -= 1.0;
+  return (lx+0.7/(5.*2.*M_PI)*cos(5.*2.*M_PI*lx));
+}
+
 // This is clunky (3 funcs for doing the same)
 Curve<Vector3> genn(const int N, const char* infile, const char* outfile) {
   Curve<Vector3> knot;
@@ -49,7 +56,7 @@ Curve<Vector3> gen4(const int N, const char* infile, const char* outfile) {
 Curve<Vector3> gen5(const int N, const char* infile, const char* outfile) {
   Curve<Vector3> knot;
   K51FourierKnot fk(infile);
-  fk.toCurve(adjust,N,&knot);
+  fk.toCurve(adjust51,N,&knot);
   knot.header("fourier 5.1","coeff2pkf","","");
   return knot;
 }

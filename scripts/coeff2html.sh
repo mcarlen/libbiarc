@@ -91,13 +91,13 @@ set output "$knot-fcurvature.png"
 set title "Fourier curvature for $knot"
 set xlabel "t"
 set ylabel "D/(2.*fourier''(t))"
-plot [0:1] [0:1] "$knot.fcurvature" using 1:($D/2.*\$2) with lines notitle
+plot [0:$L] [0:1] "$knot.fcurvature" using 1:($D/2.*\$2) with lines notitle
 set output "$knot-torsion.png"
 set output "$knot-angles.png"
 set title "Angles between principal normal and contact chords"
 set xlabel "arclength"
 set ylabel "angle (rad)"
-plot "$knot.angles" using 1:((\$2*2)-1)*pi/2 notitle
+plot [0:$L] [-pi:pi] "$knot.angles" using 1:((\$2*2)-1)*pi notitle
 EOF
 
 echo "pp/pt/tt plots"

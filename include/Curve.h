@@ -37,6 +37,7 @@ template<class Vector>
 class Curve : public PKFmanip {
 
   void init();
+  int _hint_i, _hint_j;
 
  protected:
 
@@ -115,7 +116,11 @@ class Curve : public PKFmanip {
   float radius_global(Biarc<Vector>& at);
 
   float thickness_fast();
-  float thickness(Vector *from, Vector *to);
+  float thickness(Vector *from = NULL, Vector *to = NULL);
+
+  void get_hint(int *i, int *j) const;
+  void set_hint(const int i, const int j);
+
   float minSegDistance();
   float maxSegDistance();
   float distEnergy();

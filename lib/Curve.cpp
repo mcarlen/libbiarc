@@ -145,6 +145,8 @@ inline biarc_ref Curve<Vector>::operator[](int c) {
 template<class Vector>
 void Curve<Vector>::init() {
   _Closed = 0;
+  _hint_i = -1;
+  _hint_j = -1;
 }
 
 /*!
@@ -214,6 +216,10 @@ Curve<Vector>& Curve<Vector>::operator= (const Curve<Vector> &c) {
   _Biarcs.insert(_Biarcs.begin(),c._Biarcs.begin(),c._Biarcs.end());
   if (c.isClosed())
     link();
+
+  // If we had a thickness hint, copy it!
+  this->_hint_i = c._hint_i;
+  this->_hint_j = c._hint_j;
 
   // Fix the biarcs' curve pointers!!
   for (biarc_it it=begin();it!=end();it++)
@@ -826,11 +832,34 @@ float Curve<Vector>::radius_global(Biarc<Vector> &at) {
   crossing. This function implements the subdivision
   scheme as proposed in the thesis of Jana Smutny.
 
+  The arguments from and to give the exact position of
+  the contact corresponding to thickness (if not NULL).
+
   \sa radius_pt(), thickness_fast()
 */
 template<class Vector>
-float Curve<Vector>::thickness(Vector *from = NULL, Vector *to = NULL) {
-  return compute_thickness(this,from,to);
+float Curve<Vector>::thickness(Vector *from, Vector *to) {
+  Vector lfrom, lto;
+
+  // Check that the hints are not the same biarc
+  if (_hint_i==_hint_j) { _hint_i = -1; _hint_j = -1; }
+
+  float d = compute_thickness(this,&lfrom,&lto,_hint_i,_hint_j);
+  
+  // Change hint values according to from and to.
+  // XXX this part of finding the biarcs should be made smarter!
+  float dfrom = 1e22, dto = 1e22, tmp;
+  for (biarc_it it=this->begin();it!=this->end();++it) {
+    tmp = (it->getPoint()-lfrom).norm2();
+    if (tmp < dfrom) { dfrom = tmp; _hint_i = it->id(); }
+    tmp = (it->getPoint()-lto).norm2();
+    if (tmp < dto) { dto = tmp; _hint_j = it->id(); }
+  }
+
+  if (from!=NULL) *from = lfrom;
+  if (to!=NULL) *to = lto;
+
+  return d;
 }
 
 /*!
@@ -864,6 +893,31 @@ float Curve<Vector>::thickness_fast() {
   }
   return 2*minrad;
 }  
+
+/*!
+  Get the thickness hint. This can speed up the thickness computation
+  if executed several times with changing only a little the curve.
+  As for example in annealing.
+
+  \sa set_hint()
+*/
+template<class Vector>
+void Curve<Vector>::get_hint(int *i, int *j) const {
+  *i = _hint_i; *j = _hint_j;
+}
+
+/*!
+  Set the thickness hint. This can speed up the thickness computation
+  if executed several times with changing only a little the curve.
+  As for example in annealing.
+
+  \sa get_hint()
+
+*/
+template<class Vector>
+void Curve<Vector>::set_hint(const int i, const int j) {
+  _hint_i = i; _hint_j = j;
+}
 
 /*!
   Returns the length of the longest biarc in the

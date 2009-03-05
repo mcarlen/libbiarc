@@ -2,7 +2,7 @@ include ../Makefile.config
 
 INCLUDE+=-I. -I../include 
 LIB_INC+=-L. -L../lib
-LIB+=-lbiarc
+LIB+=-lbiarc -lrt
 FLAGS=${INCLUDE} ${CXXFLAGS}
 PROGS=$(SRC:.cpp=)
 
@@ -18,6 +18,9 @@ all: coeff2pkf
 
 new_fourier_anneal: new_fourier_anneal.o fourier_syn.o fourier_3_1.o fourier_4_1.o fourier_5_1.o ../experimental/annealing/my_anneal.cpp
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) new_fourier_anneal.o fourier_syn.o fourier_3_1.o fourier_4_1.o fourier_5_1.o $(LIB)
+
+new_fourier_anneal_fast: new_fourier_anneal_fast.o fourier_syn.o fourier_3_1.o fourier_4_1.o fourier_5_1.o ../experimental/annealing/my_anneal.cpp
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) new_fourier_anneal_fast.o fourier_syn.o fourier_3_1.o fourier_4_1.o fourier_5_1.o $(LIB) -lrt
 
 tref_fourier_anneal_on_S3: tref_fourier_anneal_on_S3.o new_fourier_anneal.cpp fourier_syn.o fourier_3_1.o ../experimental/annealing/my_anneal.cpp
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) tref_fourier_anneal_on_S3.o fourier_syn.o fourier_3_1.o $(LIB)
