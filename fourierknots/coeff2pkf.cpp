@@ -23,7 +23,7 @@ Curve<Vector4> genn_on_s3(const int N, const char* infile, const char* outfile) 
 Curve<Vector3> gen3(const int N, const char* infile, const char* outfile) {
   Curve<Vector3> knot;
   TrefoilFourierKnot fk(infile);
-  fk.toCurve(adjust3,N,&knot);
+  fk.toCurve(adjust,N,&knot);
 //  fk.toCurve(adjust_with_spline,N,&knot);
   knot.header("fourier trefoil","coeff2pkf","","");
   return knot;
