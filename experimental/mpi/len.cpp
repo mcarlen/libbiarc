@@ -8,6 +8,12 @@
 #include "../../include/algo_helpers.h"
 #include "../../include/Curve.h"
 
+#ifdef TIMING
+#include "../../include/utils/timer.h"
+#endif
+
+#define BATCH 2
+
 // FIXME : this is specialized for 3D!
 // res contains at the end the serialized version of Candi<> c
 // however res[0] is reserved!
@@ -98,9 +104,14 @@ int main(int argc, char *argv[]) {
 
   int next_candidate_id = 0;
   int num_received     = 0;
-	double serial[24];
+	double serial[BATCH][24];
 
 	MPI_Init(&argc,&argv); /* all MPI programs start with MPI_Init; all 'N' processes exist thereafter */
+
+  MPI_Datatype newtype;
+  MPI_Type_contiguous(24, MPI_DOUBLE, &newtype);
+	MPI_Type_commit(&newtype);
+
 	MPI_Comm_size(MPI_COMM_WORLD,&numprocs); /* find out how big the SPMD world is */
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank); /* and this processes' rank is */
 
@@ -115,6 +126,10 @@ int main(int argc, char *argv[]) {
 		curve.make_default();
 //	  curve.normalize();
 //		curve.make_default();
+
+#ifdef TIMING
+  float mytime = start_time();
+#endif
 
 	  double dval;
 		double min_diam = check_local_curvature(&curve);
@@ -131,9 +146,15 @@ int main(int argc, char *argv[]) {
 
 	  for(int i=1;i<numprocs;i++)	{
 		  if (next_candidate_id>=candidates.size()) break;
-      pack_candidate(candidates[next_candidate_id],gDmin,serial);
-	  	MPI_Send(serial, 24, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
-			next_candidate_id++;
+
+			for (int j=0;j<BATCH;++j) {
+			// XXX lol, if everything is sent, send the same pair again ;)
+			  if (next_candidate_id>=candidates.size()) next_candidate_id--;
+        pack_candidate(candidates[next_candidate_id],gDmin,serial[j]);
+	  		next_candidate_id++;
+			}
+
+	  	MPI_Send(serial, BATCH, newtype, i, TAG, MPI_COMM_WORLD);
 		}
 
 
@@ -141,7 +162,7 @@ int main(int argc, char *argv[]) {
 			for(int i=1;i<numprocs;i++)	{
 				if (num_received<candidates.size()) {
   				MPI_Recv(&dval, 1, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD, &stat);
-	  			num_received++;
+	  			num_received+=BATCH;
 
   				if (dval<gDmin)
 	  				gDmin = dval;
@@ -149,9 +170,15 @@ int main(int argc, char *argv[]) {
           if (next_candidate_id>=candidates.size())
   		  		if (num_received>=candidates.size()) { done = true; break; }
           if (next_candidate_id<candidates.size()) {
-            pack_candidate(candidates[next_candidate_id],gDmin,serial);
-	      	  MPI_Send(serial, 24, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
-		    	  next_candidate_id++;
+
+			for (int j=0;j<BATCH;++j) {
+			// XXX lol, if everything is sent, send the same pair again ;)
+			  if (next_candidate_id>=candidates.size()) next_candidate_id--;
+        pack_candidate(candidates[next_candidate_id],gDmin,serial[j]);
+	  		next_candidate_id++;
+			}
+
+	      	  MPI_Send(serial, BATCH, newtype, i, TAG, MPI_COMM_WORLD);
 				  }
 
 //			printf("ROOT : Node %d sends %f\n", i, dval);
@@ -159,36 +186,44 @@ int main(int argc, char *argv[]) {
 			else done = true;
 		}
   }
-//    printf("ROOT : all done send STOP to children\n");
+    printf("ROOT : all done send STOP to children\n");
 
 		// Tell the children, that we're done
-		serial[0] = -1;
+		serial[0][0] = -1;
 		for(int i=1;i<numprocs;i++)
-			MPI_Send(serial, 24, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
+			MPI_Send(serial, BATCH, newtype, i, TAG, MPI_COMM_WORLD);
 
     printf("Rope : %f\n", curve.length()/gDmin);
+#ifdef TIMING
+		cerr << stop_time(mytime) << endl;
+#endif
 
 	}
 	else {
 		while (true) {
 			double curr_best, curr_min;
 			/* receive from rank 0: */
-			MPI_Recv(serial, 24, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, &stat);
-			if (serial[0]<0) {
+			MPI_Recv(serial, BATCH, newtype, 0, TAG, MPI_COMM_WORLD, &stat);
+			if (serial[0][0]<0) {
 //				printf("Node %d : DONE!\n", rank);
 				break; // we're done
 			}
 
-      Candi<Vector3> candi;
-      unpack_candidate(serial, &candi, &curr_best);
+      Candi<Vector3> candi[BATCH];
+			for (int j=0;j<BATCH;++j)
+        unpack_candidate(serial[j], &(candi[j]), &curr_best);
 
 //      printf("Node %d : received currently best : %f\n", rank, curr_best);
 
-      curr_min = mindist_between_arcs(candi, curr_best, (Vector3*)NULL, (Vector3*)NULL);
+      for (int j=0;j<BATCH;++j) {
+        curr_min = mindist_between_arcs(candi[j], curr_best, (Vector3*)NULL, (Vector3*)NULL);
+			  if (curr_min<curr_best) curr_best = curr_min;
+			}
 //			printf("Node %d : computed val %f\n", rank, curr_min);
 
 			/* send to rank 0: */
-			MPI_Send(&curr_min, 1, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD);
+//			cout << "Node " << rank << " sending back answer " <<curr_best <<endl;
+			MPI_Send(&curr_best, 1, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD);
 		}
 	}
 

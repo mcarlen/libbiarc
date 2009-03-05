@@ -7,9 +7,14 @@ int main(int argc, char** argv) {
 		exit(0);
 	}
 
+  
 	Curve<Vector3> c(argv[1]);
 	c.link();
+  float maket = start_time();
 	c.make_default();
+	cout << "Time make  : " << stop_time(maket) << endl;
+	float tht = start_time();
 	cout << c.length()/c.thickness() << endl;
+	cout << "Time thick : " << stop_time(tht) << endl;
 	return 0;
 }
