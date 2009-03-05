@@ -74,19 +74,19 @@ template<class Vector>
 void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, float &ub, float &err, candi_it &min_candi);
 
 template<class Vector>
-void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered, const float dCurrMin);
+void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered, const float dCurrMin = 1e22);
 
 template<class Vector>
-float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL);
+float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL, const int hint_i = -1, const int hint_j = -1);
 
 template<class Vector>
 float mindist_between_bezier_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
                                   const Vector &b0,const Vector &b1,const Vector &b2,
-                                  const float dCurrMin, Vector* from, Vector* to);
+                                  const float dCurrMin = 1e22, Vector* from = NULL, Vector* to = NULL);
 
 template<class Vector>
-float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrMin,
-                           Vector* from, Vector* to);
+float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrMin = 1e22,
+                           Vector* from = NULL, Vector* to = NULL);
 
 template<class Vector>
 float mindist_between_arcs(const Vector &q00,const Vector &q01,const Vector &t0,

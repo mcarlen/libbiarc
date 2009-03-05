@@ -51,7 +51,7 @@ $(LIB_DOUBLE): ${OBJ_DOUBLE}
 
 $(STATIC_LIB_DOUBLE): ${OBJ_DOUBLE}
 	@echo Build static lib $(STATIC_LIB_DOUBLE)
-	@ar crs $(STATIC_LIB_DOUBLE) ${DOUBLE}
+	@ar crs $(STATIC_LIB_DOUBLE) ${OBJ_DOUBLE}
 
 
 ###--------------###

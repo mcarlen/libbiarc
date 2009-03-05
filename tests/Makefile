@@ -2,7 +2,7 @@ include ../Makefile.config
 
 INCLUDE=-I. -I../include 
 LIB_INC=-L. -L../lib
-LIB= -lbiarc
+LIB= -lbiarc -lrt
 # LIB= ../lib/libbiarc.a      # static linking
 FLAGS=${INCLUDE} ${CXXFLAGS}
 

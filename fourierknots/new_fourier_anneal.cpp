@@ -9,14 +9,17 @@
 
 template <class FK>
 class FKAnneal: public BasicAnneal {
-
+protected:
+  int hinti, hintj;
 public:
   virtual float ropelength(FK &fk) {
     Curve<Vector3> curve;
     fk.toCurve(NODES,&curve);
     curve.link();
     curve.make_default();
+    curve.set_hint(hinti,hintj);
     float D = curve.thickness();
+    curve.get_hint(&hinti,&hintj);
     float L = curve.length();
     return L/D;
   }
@@ -55,6 +58,9 @@ public:
     str2hash(params, param_map);
     extract_i(NODES,param_map);
     extract_f(step_size_factor,param_map);
+
+    // Set the hint values to -1
+    hinti = hintj = -1;
   }
 
   virtual ostream & show_config(ostream &out) {
@@ -106,7 +112,12 @@ public:
     fk.toCurve(adjust,NODES,&curve);
     curve.link();
     curve.make_default();
+
+    // Get/Set hint for thickness
+    curve.set_hint(hinti,hintj);
     float D = curve.thickness();
+    curve.get_hint(&hinti,&hintj);
+
     float L = curve.length();
     return L/D;
   }
@@ -147,7 +158,12 @@ public:
     fk.toCurve(adjust,NODES,&curve);
     curve.link();
     curve.make_default();
+
+    // Get/Set hint for thickness
+    curve.set_hint(hinti,hintj);
     float D = curve.thickness();
+    curve.get_hint(&hinti,&hintj);
+
     float L = curve.length();
     return L/D;
   }
@@ -187,7 +203,12 @@ public:
     fk.toCurve(adjust,NODES,&curve);
     curve.link();
     curve.make_default();
+
+    // Get/Set hint for thickness
+    curve.set_hint(hinti,hintj);
     float D = curve.thickness();
+    curve.get_hint(&hinti,&hintj);
+
     float L = curve.length();
     return L/D;
   }

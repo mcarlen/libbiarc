@@ -2,6 +2,7 @@
 
 #include "../include/algo_helpers.h"
 #include <stdlib.h>
+#include "../include/utils/timer.h"
 
 #ifndef __ALGO_SRC__
 #define __ALGO_SRC__
@@ -118,7 +119,7 @@ int rhopt(Vector p, Vector b0,Vector b1,Vector b2,float r,Vector &v) {
   Write all the candidate segment pairs to cerr
 */
 template<class Vector>
-void dump_candidates(vector<Candi<Vector > > *C,int iter = 0) {
+void dump_candidates(vector<Candi<Vector > > *C,int iter) {
   for (candi_it i=C->begin();i!=C->end();++i)
     cerr << iter << " " << (*i) << endl;
 }
@@ -307,7 +308,7 @@ void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, flo
   to the vector Cfiltered. Cfiltered is cleared first!
 */
 template<class Vector>
-void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered, const float dCurrMin = 1e22) {
+void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered, const float dCurrMin) {
   float d_b = dCurrMin, tmpf;
   if (Cfiltered.size()!=0)
     Cfiltered.clear();
@@ -324,16 +325,68 @@ void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered
 }
 
 template<class Vector>
-float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL) {
+float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hint_i, const int hint_j) {
+
+  double myt = start_time();
 
   float min_diam = check_local_curvature(c);
   vector<Candi<Vector> > tmp, candidates;
+  float global_min = min_diam, curr_min;
+
+  // If we got a hint, compute first these pairs to get a good initial guess for global_min
+  // We might compute the same pair twice, but that's ok
+  if (hint_i>=0 && hint_j>=0) {
+
+    vector<Candi<Vector> > CritC;
+    Vector3 a0,am,a1,b0,bm,b1,t0a,tma,t1a,t0b,tmb,t1b;
+    // Temporary Bezier points
+    Vector3 Ba0,Ba1,Ba2,Bb0,Bb1,Bb2; 
+
+//    cerr << "HINT : " << hint_i << " " << hint_j << " : ";
+    vector<Biarc<Vector3> >::iterator i = c->begin()+hint_i;
+    vector<Biarc<Vector3> >::iterator j = c->begin()+hint_j;
+
+    i->getBezierArc0(Ba0,Ba1,Ba2); j->getBezierArc0(Bb0,Bb1,Bb2);
+
+    // Now double criticle all 4 possibilities
+    // excluding next neighbors
+    // arc a1 - b1
+    if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,global_min))
+      CritC.push_back(Candi<Vector3>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+
+    j->getBezierArc1(Bb0,Bb1,Bb2);
+    // arc a1 - b2
+    if (!(i==c->begin() && j==(c->end()-1))) {
+      if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,global_min))
+        CritC.push_back(Candi<Vector3>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+    }
+
+    i->getBezierArc1(Ba0,Ba1,Ba2);
+    // arc a2 - b2
+    if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,global_min))
+      CritC.push_back(Candi<Vector3>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+
+    // arc a2 - b1
+    if (j!=i+1) {
+      j->getBezierArc0(Bb0,Bb1,Bb2);
+      if (double_critical_test_v2(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2,global_min))
+        CritC.push_back(Candi<Vector3>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+    }
+
+    for (unsigned int i=0;i<CritC.size();++i) {
+      curr_min = mindist_between_arcs(CritC[i],global_min);
+      if (curr_min < global_min) global_min = curr_min;
+    }
+//    cerr << "Init guess " << global_min;
+    if (from!=NULL) *from = Vector(); (*from)[0] = 69;
+    if (to!=NULL) *to = Vector(); (*to)[0] = 96;
+  }
+//  else cerr << "NO HINT : ";
 
   // Initial double critical test
-  initial_dbl_crit_filter(c, tmp, min_diam);
-  distance_filter(tmp,candidates,min_diam);
+  initial_dbl_crit_filter(c, tmp, global_min);
+  distance_filter(tmp, candidates, global_min);
 
-  float global_min = min_diam, curr_min;
   Vector lFrom, lTo;
   for (unsigned int i=0;i<candidates.size();++i) {
     curr_min = mindist_between_arcs(candidates[i],global_min,&lFrom,&lTo);
@@ -343,6 +396,8 @@ float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL
       if (to!=NULL)   *to = lTo;
     }
   }
+//  cerr << ", final D=" << global_min << endl;
+//  cerr << stop_time(myt) << endl;
   return global_min;
 }
 
@@ -372,9 +427,7 @@ float mindist_between_bezier_arcs(const Vector &a0,const Vector &a1,const Vector
 template<class Vector>
 float mindist_between_arcs(const Vector &q00,const Vector &q01,const Vector &t0,
                            const Vector &q10,const Vector &q11,const Vector &t1,
-                           const float dCurrMin = 1e22,
-                           Vector* from = NULL,
-                           Vector* to = NULL) {
+                           const float dCurrMin, Vector* from, Vector* to) {
   Vector a0 = q00, a2 = q10;
   Vector b0 = q10, b2 = q11;
 
@@ -400,9 +453,8 @@ float mindist_between_arcs(const Vector &q00,const Vector &q01,const Vector &t0,
   and \a to.
 */
 template<class Vector>
-float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrMin = 1e22,
-                   Vector* from = NULL,
-                   Vector* to = NULL) {
+float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrMin,
+                   Vector* from, Vector* to) {
 
   const float rel_err_tol = 1e-12;
   float D_lb,D_ub;
