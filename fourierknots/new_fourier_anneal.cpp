@@ -7,6 +7,13 @@
 #include <iomanip>
 
 
+float adjust51(float x) {
+  float shift = 0.2;
+  float lx = x + shift;
+  if (lx>1.0) lx -= 1.0;
+  return (lx+0.7/(5.*2.*M_PI)*cos(5.*2.*M_PI*lx));
+}
+
 template <class FK>
 class FKAnneal: public BasicAnneal {
 protected:
@@ -74,7 +81,7 @@ public:
     BasicAnneal::best_found();
     best_knot = knot;
     ofstream out(best_filename.c_str());
-    out.precision(12);
+    out.precision(16);
     out << knot; 
     out.close();
   }
@@ -165,9 +172,9 @@ public:
     }
   }
 
-  virtual float ropelength(K41FourierKnot &fk) {
+  virtual float energy() { // ropelength(K41FourierKnot &fk) {
     Curve<Vector3> curve;
-    fk.toCurve(adjust,NODES,&curve);
+    knot.toCurve(adjust,NODES,&curve);
     curve.link();
     curve.make_default();
 
@@ -210,9 +217,9 @@ public:
     }
   }
 
-  virtual float ropelength(K51FourierKnot &fk) {
+  virtual float energy() {
     Curve<Vector3> curve;
-    fk.toCurve(adjust,NODES,&curve);
+    knot.toCurve(adjust51,NODES,&curve);
     curve.link();
     curve.make_default();
 

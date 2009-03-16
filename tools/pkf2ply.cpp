@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
   }
   cout << "Process all curves in PKF :\n";
   for (int i=0;i<knot.tubes();i++) {
-    knot[i].scale(10000.);
+    // knot[i].scale(10000.);
     knot[i].link();
     if (knot[i].nodes()!=N) {
       cout << "Resample curve " << i+1 << " with " << N << " points";
@@ -55,6 +55,7 @@ int main(int argc, char **argv) {
     file << "ply\nformat ascii 1.0\ncomment created by libbiarc\n"
          << "element vertex " << ((S+1)*(N+1)) << "\nproperty float32 x\n"
          << "property float32 y\nproperty float32 z\nelement face "
+				 // XXX change this if you change triangle 3 to quad 4
          << (2*S*N) << "\nproperty list uint8 int32 vertex_indices\n"
          << "end_header\n";
 
@@ -75,7 +76,6 @@ int main(int argc, char **argv) {
              << (xii*(S+1)+kii) << " "
              << (j*(S+1)+kii) << endl;
 */
-
         file << "3 "
              << (j*(S+1)+k) << " "
              << (xii*(S+1)+k) << " "
@@ -85,7 +85,6 @@ int main(int argc, char **argv) {
              << (j*(S+1)+k) << " "
              << ((xii)*(S+1)+kii) << " "
              << (j*(S+1)+kii) << endl;
-
       }
     }
 

@@ -97,7 +97,7 @@ set output "$knot-angles.png"
 set title "Angles between principal normal and contact chords"
 set xlabel "arclength"
 set ylabel "angle (rad)"
-plot [0:$L] [-pi:pi] "$knot.angles" using 1:((\$2*2)-1)*pi notitle
+plot [0:1] [-pi:pi] "$knot.angles" using 1:((\$2*2)-1)*pi notitle
 EOF
 
 echo "pp/pt/tt plots"

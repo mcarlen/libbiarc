@@ -378,8 +378,8 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
       if (curr_min < global_min) global_min = curr_min;
     }
 //    cerr << "Init guess " << global_min;
-    if (from!=NULL) *from = Vector(); (*from)[0] = 69;
-    if (to!=NULL) *to = Vector(); (*to)[0] = 96;
+    if (from!=NULL) *from = Vector(); // (*from)[0] = 69;
+    if (to!=NULL) *to = Vector(); // (*to)[0] = 96;
   }
 //  else cerr << "NO HINT : ";
 
@@ -472,13 +472,19 @@ float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrM
     dbl_crit_filter(DistC,CritC,dCurrMin);   
    // dump_candi(CritC);  
 
-    if (CritC.size()==0) return 1e22;
+    if (CritC.size()==0) {
+//      cout << "dble crit empty\n";
+      return 1e22;
+    }
 
     // Distance Test
     distance_filter(CritC,DistC,dCurrMin);
 
     // Thickness Bounds
-    if (DistC.size()==0) return 1e22;
+    if (DistC.size()==0) {
+//      cout << "dist empty\n";
+      return 1e22;
+    }
 
     // Bounds
     compute_thickness_bounds(DistC,dCurrMin,D_lb,D_ub,max_err,min_candi);
@@ -531,7 +537,10 @@ int double_critical_test(const Vector &a0, const Vector &a1,
   // Ben has this and it works ;)
   if ( dCurrentMin < 1e12 && (denum - val0 - val1)*.5 > dCurrentMin) return 0;
 
-  float sina = (val0+val1)/denum;
+  // tolerance in percent we let slide
+  float eps = .1;
+
+  float sina = (val0+val1)/denum*(1+eps) ;
   w.normalize();
 
   if ((w.dot(t0a)<-sina) && (w.dot(t1a)<-sina)) return 0;
