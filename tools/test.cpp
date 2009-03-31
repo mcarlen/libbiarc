@@ -97,9 +97,12 @@ void dump_obj_surface(ofstream& out, vector<CStrut>& contacts, unsigned int num,
       if(s==1) s=0;if(t==1)t=0;if(s1==1)s1=0;if(t1==1)t1=0;
 
       // triangle 1
-      out << "v " << (V1 + (N_direc_vect_1*(i*step_size_1))) << endl;
-      out << "v " << (V3 + (N_direc_vect_2*(i*step_size_2))) << endl;
-      out << "v " << (V1 + (N_direc_vect_1*((i+1)*step_size_1))) << endl;
+			Vector3 vv =  (V1 + (N_direc_vect_1*(i*step_size_1)));
+      out << "v " << vv[0] << " " << vv[2] << " " << -vv[1] << endl;
+			vv = (V3 + (N_direc_vect_2*(i*step_size_2)));
+      out << "v " << vv[0] << " " << vv[2] << " " << -vv[1] << endl;
+			vv = (V1 + (N_direc_vect_1*((i+1)*step_size_1)));
+      out << "v " << vv[0] << " " << vv[2] << " " << -vv[1] << endl;
 
       // texture coords
       out << "vt " << s << " " << t << endl;
@@ -114,9 +117,12 @@ void dump_obj_surface(ofstream& out, vector<CStrut>& contacts, unsigned int num,
       FaceIndex1+=3; FaceIndex2+=3; FaceIndex3+=3;
       
       // triangle 2
-      out << "v " << (V1 + N_direc_vect_1*((i+1)*step_size_1)) << endl;
-      out << "v " << (V3 + N_direc_vect_2*(i*step_size_2)) << endl;
-      out << "v " << (V3 + N_direc_vect_2*((i+1)*step_size_2)) << endl;
+			vv = (V1 + N_direc_vect_1*((i+1)*step_size_1));
+      out << "v " << vv[0] << " " << vv[2] << " " << -vv[1] << endl;
+			vv = (V3 + N_direc_vect_2*(i*step_size_2));
+      out << "v " << vv[0] << " " << vv[2] << " " << -vv[1] << endl;
+			vv = (V3 + N_direc_vect_2*((i+1)*step_size_2));
+      out << "v " << vv[0] << " " << vv[2] << " " << -vv[1] << endl;
 
       // texture coords
       out << "vt " << s << " " << t1 << endl;
@@ -294,17 +300,16 @@ int main(int argc, char **argv) {
   }
 
   */
+	cout << "surf_" << contacts_size() << endl;
   sprintf(name,"surf_%04d.iv", contacts.size()-1);
   ofstream out(name,ios::out);
   dump_iv_surface(out, contacts, contacts.size()-1, 1);
   out.close();
 
-/*
   sprintf(name,"surf.obj");
-  ofstream out(name,ios::out);
+  out.open(name,ios::out);
   dump_obj_surface(out, contacts, contacts.size()-1, 1);
   out.close();
-  */
 
   // write contacts.txt file
   // format : p0x p0y p0z midpx midpy midpz p1x p1y p1z
