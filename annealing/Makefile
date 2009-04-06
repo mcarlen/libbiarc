@@ -22,5 +22,8 @@ curvatureflow: curvatureflow.cpp
 sono: sono.cpp
 	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
 
+sono_op: sono_optimized.cpp
+	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
+
 clean realclean:
 	@-rm -f anneal anneal4 sono curvatureflow *.o

@@ -45,25 +45,74 @@ void ShiftNodes(Curve<Vector3> &c, float scalefactor) {
     e2 = dummy-dummy.dot(e1)*e1;
     n2 = e2.norm(); e2/=n2;
     if (dir)
-      it->setPoint(it->getPoint()+e2*n2*scalefactor+e1*n1*scalefactor*.01);
+      it->setPoint(it->getPoint()+e2*n2*scalefactor+e1*n1*scalefactor*.1);
     else
-      it->setPoint(it->getPoint()+e2*n2*scalefactor-e1*n1*scalefactor*.01);
+      it->setPoint(it->getPoint()+e2*n2*scalefactor-e1*n1*scalefactor*.1);
   }
 }
 
-int RemoveOverlaps(Curve<Vector3> &c,float D,int skip,float delta) {
-  int overlap = 0, N = c.nodes(), start = rand()%N;
+/*
+  N number of points
+	D fixed thickness
+	skip number of points to skip (local radius of curvature case)
+  eps is a small parameter, controlling the distance between "close" points
+	m max number of neighbours
+	nn nearest neighbour array
+*/
+void FindNeighbours(Curve<Vector3> &c, float D, int skip, float eps, int m, int **nn) {
+
+	int N = c.nodes();
+
+  // clear nn
+	for (int i=0;i<N;++i)
+		for (int j=0;j<m;++j)
+			nn[i][j] = 0;
+
+	Vector3 v;
+  for (int i=0;i<N;++i) {
+	  int overlap = 0;
+    for (int j=0;j<N;++j) {
+      v = (c[i].getPoint()-c[j].getPoint());
+      if ((v.norm() < D+eps) && check_idx_skip(i,j,N,skip)) {
+				// Caution : row is considered finished if we find a zero. that's why the index starts at 1
+				nn[i][overlap] = j+1;
+        overlap++;
+				if (overlap>=m) {
+          cerr << "Nearest neighbour table size too small : need more than " << m << endl;
+					exit(1);
+				}
+      }
+    }
+  }
+
+#if 0
+	for (int i=0;i<N;++i) {
+		for (int j=0;j<m;++j)
+			cout << nn[i][j] << " ";
+		cout << endl;
+	}
+#endif
+}
+
+int RemoveOverlaps(Curve<Vector3> &c, int N, int m, int **nn, float D, float delta) {
+  int overlap = 0, start = rand()%N, ip;
   float diff;
   Vector3 v;
   for (int i=0;i<N;++i) {
-    for (int j=0;j<N;++j) {
-      v = (c[(start+i)%N].getPoint()-c[(start+j)%N].getPoint());
-      if (v.norm() < D && check_idx_skip(i,j,N,skip)) {
-        overlap++;
-        diff = fabsf(v.norm()-D-delta)*.5; v.normalize();
-        c[(start+i)%N].setPoint(c[(start+i)%N].getPoint()+v*diff);
-        c[(start+j)%N].setPoint(c[(start+j)%N].getPoint()-v*diff);
-      }
+		ip = (start + i)%N;
+    for (int j=0;j<m;++j) {
+			if (nn[ip][j]>0) {
+        v = (c[ip].getPoint()-c[nn[ip][j]-1].getPoint());
+        if (v.norm() < D) {
+          overlap++;
+          diff = fabsf(v.norm()-D-delta)*.5; v.normalize();
+          c[ip].setPoint(c[ip].getPoint()+v*diff);
+          c[nn[ip][j]-1].setPoint(c[nn[ip][j]-1].getPoint()-v*diff);
+        }
+			}
+			else {
+        j = m;
+			}
     }
   }
   return overlap;
@@ -108,10 +157,11 @@ void ControlLeashes(Curve<Vector3> &c,float l) {
 
 int   OverlapTol       = 10;
 float OverlapDelta     = 0.0;
+float NeighbourEps     = 0.1;
 float RelErrTol        = 1e-4;
 float ShiftScaleFactor = 0.0002;
 float ShrinkFactor     = .999;
-int   MaxIter;
+int   MaxIter, NeighbourSteps;
 
 int main(int argc,char** argv) {
   if (argc!=7) {
@@ -139,16 +189,23 @@ int main(int argc,char** argv) {
   c.make_default();
  
   int   N = c.nodes();
-  float D = c.thickness_fast()*.99;
+  float D = 1.; // c.thickness_fast()*.99;
   float L = GetLength(c);
 
   float l = L/(float)N;
 
+//	assert(l<D);
+
+  // Set neighbour eps to 10% of thickness
+	NeighbourEps = D/10;
+	NeighbourSteps = 200;
+
   Vector3 v;
-  int overlap, skip = (int)(M_PI*D*.5*(float)N/(float)L);
+  int overlap, skip = (int)(M_PI*D*.5/l);
   int MaxOverlap = 0, AvgOverlap = 0, ShrinkCount = 0;
   int ShrinkFailed = 0;
   if (skip>N/2) skip = N/2-1;
+	if (skip<3) skip = 3;
 
   float InitRope = L/D;
   float Rope = L/D;
@@ -160,18 +217,52 @@ int main(int argc,char** argv) {
        << ",L="    << L
        << ",Rope=" << Rope
        << ",l="    << l
-       << ",skip=" <<skip<< endl;
+       << ",skip=" << skip
+			 << ",nneps=" << NeighbourEps
+			 << endl;
 
   int zz = 0;
   SavePkf(c,zz++);
+
+	// Maximum number of nearest neighbours
+	const int MaxNN = N; // 3*N/4;
+
+  // Init nearest neighbour array
+	int **nn = new int*[N];
+	if (*nn == NULL) { cerr << "Mem problem nn\n"; exit(2); }
+	for (int i=0;i<N;++i) {
+		nn[i] = new int[MaxNN];
+		if (nn[i] == NULL) {
+			cerr << "Mem problem nn[]\n"; exit(2);
+		}
+	}
+
   //while(fabsf(RopeOld-Rope)/Rope > RelErrTol && zz<1000) {
+	int counter = 0;
   while (zz<MaxIter) {
     // if (zz%50==0 && zz!=0)
-    overlap = RemoveOverlaps(c,D, (int)(M_PI*D*.5*(float)N/(float)L),OverlapDelta);
+
+		if ((counter % NeighbourSteps) == 0) {
+			// recompute skip
+			L = GetLength(c);
+			skip = (int)(M_PI*D*.5*(float)N/(float)L);
+
+      ShiftNodes(c,ShiftScaleFactor);
+      ControlLeashes(c,(float)L/(float)N);
+
+			FindNeighbours(c, D, skip, NeighbourEps, MaxNN, nn);
+			cout << endl << zz << " : skip = " << skip << ", L=" << L << " rope=" << L/D << endl;
+	  }
+		counter++;
+
+    overlap = RemoveOverlaps(c, N, MaxNN, nn, D, OverlapDelta);
     ControlLeashes(c,l);
     if (ShrinkFailed > 50) {
+			cout << "f:"<<overlap;
       ShiftNodes(c,ShiftScaleFactor);
       ControlLeashes(c,l);
+			// Save it anyway
+      SavePkf(c,zz++);
     }
     if (overlap <= OverlapTol) { 
       SavePkf(c,zz++);

@@ -7,6 +7,9 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
+// Enable this if you only need to extract isolated chords!
+// #define ISOLATED_STRUTS
+
 #include "../include/Curve.h"
 #include "../experimental/pngmanip/colors.h"
 #include <algorithm>
@@ -37,7 +40,7 @@ void getContacts(Curve<Vector3>& curve, vector<contact>& stcontacts, vector<CStr
   vector<contact>::iterator it;
   CStrut strut;
   for (it=stcontacts.begin();it!=stcontacts.end();++it) {
-		cout << "c : " << it->s << " " << it->t << endl;
+		// cout << "c : " << it->s << " " << it->t << endl;
     strut.p0 = curve.pointAt(it->s);
     if (it->t >= 1)
       strut.p1 = curve.pointAt(it->t-1);
@@ -206,6 +209,7 @@ void dump_iv_surface(ofstream& out, vector<CStrut>& contacts, unsigned int num, 
 
 }
 
+#ifndef ISOLATED_STRUTS
 int main(int argc, char **argv) {
 
   if (argc!=3) {
@@ -216,7 +220,7 @@ int main(int argc, char **argv) {
   vector<contact_double> raw;
   contact_double c2;
   ifstream in(argv[2],ios::in);
-  while (in >> c2.s >> c2.sigma >> c2.tau)
+  while (in >> c2.s >> c2.sigma) // >> c2.tau)
     raw.push_back(c2);
   in.close();
 
@@ -228,11 +232,12 @@ int main(int argc, char **argv) {
     c.t = raw[i].sigma;
 		if (c.s > c.t) c.t += 1.0;
     final.push_back(c);
-
+/*
     c.s = raw[i].tau;
     c.t = raw[i].s;
 		if (c.s > c.t) c.t += 1.0;
     final.push_back(c);
+		*/
   }
 
   // sort final by s
@@ -242,9 +247,9 @@ int main(int argc, char **argv) {
   float s, t, val;
   c.s = os; c.t = ot;
   final2.push_back(c);
-  cerr << os << " " << ot << endl;
+  // cerr << os << " " << ot << endl;
 
-  cout << "Ot : " << final[1].t - ot << endl;
+  // cout << "Ot : " << final[1].t - ot << endl;
 	float ttol = (final[1].t - ot)*100;
 
   for (unsigned int i=1;i<final.size();i++) {
@@ -300,7 +305,7 @@ int main(int argc, char **argv) {
   }
 
   */
-	cout << "surf_" << contacts_size() << endl;
+
   sprintf(name,"surf_%04d.iv", contacts.size()-1);
   ofstream out(name,ios::out);
   dump_iv_surface(out, contacts, contacts.size()-1, 1);
@@ -324,5 +329,35 @@ int main(int argc, char **argv) {
   contacts.clear();
   return 0;
 }
+#else
+
+int main(int argc, char **argv) {
+
+  if (argc!=3) {
+    cout << "Usage : " << argv[0] << " <pkf> <isolated_contacts>\n";
+    return 0;
+  }
+
+  Curve<Vector3>* k = new Curve<Vector3>(argv[1]);
+	k->link();
+  k->make_default();
+  k->normalize();
+  k->make_default();
+
+  vector<contact> cvec;
+  vector<CStrut> contacts;
+  contact c; float dummy;
+  ifstream in(argv[2],ios::in);
+  while (in >> c.s >> c.t >> dummy)
+    cvec.push_back(c);
+  in.close();
+
+  getContacts(*k, cvec, &contacts);
+	for (int i=0;i<contacts.size();++i) {
+    cout << contacts[i].p0 << " " << .5*(contacts[i].p0+contacts[i].p1) << " " << contacts[i].p1 << endl;
+	}
+}
+
+#endif // ISOLATED_STRUTS
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
