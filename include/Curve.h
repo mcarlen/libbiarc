@@ -112,6 +112,9 @@ class Curve : public PKFmanip {
   float radius_pt(biarc_it from, biarc_it to);
   float radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &to);
   float radius_pt(const Vector &p0, const Vector &t0, const Vector &p1);
+ 
+  float pp(int from, int to) const;
+  float pp(float s, float t) const;
   
   float radius_global(Biarc<Vector>& at);
 
@@ -140,9 +143,9 @@ class Curve : public PKFmanip {
   void arcsToPolygonal();
 
   int nodes() const;
-  float length() ;
-  Vector pointAt(float s);
-  Vector tangentAt(float s);
+  float length() const;
+  Vector pointAt(float s) const;
+  Vector tangentAt(float s) const;
   biarc_it biarcAt(float s);
   int biarcPos(float s);
 

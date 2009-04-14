@@ -45,13 +45,13 @@ int main(int argc, char **argv) {
       r0 = it->getPrevious().radius1();
       r1 = it->radius0();
 // cout << "R " << r0 << " " << r1 << endl;
-      if (r0*2.0 < thick || r1*2.0 < thick) {
+      // if (r0*2.0 < thick || r1*2.0 < thick) {
 // Select more points accoring to the stencil variable
         it->setPoint(.25*it->getPrevious().getPoint()+
                      .5*it->getPoint()+
                      .25*it->getNext().getPoint());
         changed++;
-      }
+      // }
     }
     if (changed>0) {
       c.make_default();

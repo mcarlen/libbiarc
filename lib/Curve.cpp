@@ -249,13 +249,13 @@ inline int Curve<Vector>::nodes() const {return _Biarcs.size();}
   difference between an open or a closed curve.
 */
 template<class Vector>
-inline float Curve<Vector>::length() {
+inline float Curve<Vector>::length() const {
   assert(_Biarcs[0].isBiarc());
 
   float L = 0.0;
 
-  biarc_it stop = _Biarcs.end()-(_Closed?0:-1);
-  for (biarc_it it=_Biarcs.begin();it!=stop;it++)
+  biarc_constit stop = _Biarcs.end()-(_Closed?0:-1);
+  for (biarc_constit it=_Biarcs.begin();it!=stop;it++)
     L += (it->biarclength());
 
   return L;
@@ -267,8 +267,8 @@ inline float Curve<Vector>::length() {
 */
 // FIXME : STL adapt
 template<class Vector>
-Vector Curve<Vector>::pointAt(float s) {
-  biarc_it current;
+Vector Curve<Vector>::pointAt(float s) const {
+  biarc_constit current;
   Vector p;
   if (s==0.0) {
     return _Biarcs.front().getPoint();
@@ -298,8 +298,8 @@ Vector Curve<Vector>::pointAt(float s) {
 */
 // FIXME :: STL add
 template<class Vector>
-Vector Curve<Vector>::tangentAt(float s) {
-  biarc_it current;
+Vector Curve<Vector>::tangentAt(float s) const {
+  biarc_constit current;
   Vector t;
   if (s==0.0) {
     return _Biarcs[0].getTangent();
@@ -802,6 +802,22 @@ float Curve<Vector>::radius_pt(const Vector &p0, const Vector &t0,
     return -1.0;
   else
     return 0.5*Dlen/sina;
+}
+
+/*!
+	Compute the pp (euclidean distance) function between two nodes
+ */
+template<class Vector>
+float Curve<Vector>::pp(int from, int to) const {
+	return (_Biarcs[from]-_Biarcs[to]).norm();
+}
+
+/*!
+	Compute the pp (euclidean distance) function between \gamma(s) and \gamma(t)
+ */
+template<class Vector>
+float Curve<Vector>::pp(float s, float t) const {
+	return (this->pointAt(s) - this->pointAt(t)).norm();
 }
 
 /*!

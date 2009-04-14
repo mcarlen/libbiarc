@@ -1,7 +1,7 @@
 CXXFLAGS=-g -O2 -Wall
 INCLUDE=-I. -I${LIBBIARC}/include 
 LIB_INC=-L. -L${LIBBIARC}/lib
-LIB=-lbiarc -lpng -lm
+LIB=-lbiarc -lpng -lm -lrt
 FLAGS=${INCLUDE} ${CXXFLAGS}
 
 LINKER=g++
@@ -21,6 +21,13 @@ all: ${PROGS}
 .c.o:
 	@echo Compile $@
 	@$(GCC) -c $<
+
+writhe: writhe.cpp
+	@echo Build $@
+	$(CXX) $(FLAGS) -c pngwrite.c
+	$(CXX) $(FLAGS) -c writhe.cpp
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) pngwrite.o \
+	writhe.o $(LIB)
 
 plot: plot.cpp
 	@echo Build $@

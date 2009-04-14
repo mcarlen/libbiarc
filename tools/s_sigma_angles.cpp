@@ -41,7 +41,7 @@ void getContacts(Curve<Vector3>& curve, vector<contact>& stcontacts, vector<CStr
     strut.p0 = curve.pointAt(it->s);
 		strut.t0 = curve.tangentAt(it->s);
 
-    if (it->t >= 1) {
+    if (it->t > 1) {
       strut.p1 = curve.pointAt(it->t-1);
       strut.t1 = curve.tangentAt(it->t-1);
 		}
@@ -50,22 +50,10 @@ void getContacts(Curve<Vector3>& curve, vector<contact>& stcontacts, vector<CStr
       strut.t1 = curve.tangentAt(it->t);
 		}
 
-		float tau0, tau1, s0, s1;
-		s0 = it->s;
-    tau0 = it->t;
-		if ((it+1)==stcontacts.end()) {
-		  s1 = stcontacts.begin()->s;
-		  tau1 = stcontacts.begin()->t;
-		}
-		else {
-      s1 = (it+1)->s;
-      tau1 = (it+1)->t;
-		}
-		float sigmap = (tau1-tau0)/(s1-s0);
 		cout << it->s << " " << strut.t0.dot(strut.t1) << " "
-		     << strut.t0.dot(strut.t1*sigmap) << " "
 		     << strut.t0.dot(strut.p1 - strut.p0) << " "
-				 << strut.t1.dot(strut.p0 - strut.p1) << endl;
+				 << strut.t1.dot(strut.p0 - strut.p1) << " "
+				 << (strut.p0 - strut.p1).norm() << endl;
   }
 }
 
@@ -79,7 +67,7 @@ int main(int argc, char **argv) {
   vector<contact_double> raw;
   contact_double c2;
   ifstream in(argv[2],ios::in);
-  while (in >> c2.s >> c2.sigma >> c2.tau)
+  while (in >> c2.s >> c2.sigma)// >> c2.tau)
     raw.push_back(c2);
   in.close();
 
@@ -89,13 +77,15 @@ int main(int argc, char **argv) {
   for (unsigned int i=0;i<raw.size();i++) {
     c.s = raw[i].s;
     c.t = raw[i].sigma;
-		if (c.s > c.t) c.t += 1.0;
+//		if (c.s > c.t) c.t += 1.0;
     final.push_back(c);
 
+/*
     c.s = raw[i].tau;
     c.t = raw[i].s;
 		if (c.s > c.t) c.t += 1.0;
     final.push_back(c);
+		*/
   }
 
   // sort final by s
@@ -114,13 +104,15 @@ int main(int argc, char **argv) {
     if (s>1. || s<0.) continue;
 
     val = (os-s)*(os-s) + (ot-t)*(ot-t);
-    if (val < 0.0001) continue;
+ //   if (val < 0.0001) continue;
 
     // We want a monotone function
+		/*
     if (ot>t) {
       cout << "Not monotonic s=" << s << ",t=" << t << ",ot=" << ot << '\n';
       continue;
     }
+		*/
 
     c.s = final[i].s; c.t = final[i].t;
     final2.push_back(c);

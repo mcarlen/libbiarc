@@ -259,7 +259,7 @@ int main(int argc, char **argv) {
 //    if (s>t) t += 1;
 
     val = (os-s)*(os-s) + (ot-t)*(ot-t);
-    if (val < 0.0001) continue;
+    if (val < 0.00001) continue;
 
 /*
     cout << "s=" << s <<",t="<<t <<endl;
