@@ -246,6 +246,7 @@ int main(int argc,char** argv) {
 			// recompute skip
 			L = GetLength(c);
 			skip = (int)(M_PI*D*.5*(float)N/(float)L);
+                      if (skip<3) skip = 3;
 
       ShiftNodes(c,ShiftScaleFactor);
       ControlLeashes(c,(float)L/(float)N);
