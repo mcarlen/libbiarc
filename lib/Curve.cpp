@@ -790,7 +790,7 @@ float Curve<Vector>::radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &t
 */
 template<class Vector>
 float Curve<Vector>::radius_pt(const Vector &p0, const Vector &t0,
-                               const Vector &p1) {
+                               const Vector &p1) const {
 
   Vector D = p1 - p0;
   float Dlen = D.norm();
@@ -803,6 +803,15 @@ float Curve<Vector>::radius_pt(const Vector &p0, const Vector &t0,
   else
     return 0.5*Dlen/sina;
 }
+
+template<class Vector>
+float Curve<Vector>::radius_pt(const float s, const float t) const {
+  Vector p0 = pointAt(s);
+  Vector t0 = tangentAt(s);
+  Vector p1 = pointAt(t);
+  return radius_pt(p0,t0,p1);
+}
+
 
 /*!
 	Compute the pp (euclidean distance) function between two nodes

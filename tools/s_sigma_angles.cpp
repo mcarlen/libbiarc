@@ -9,6 +9,7 @@
 
 #include "../include/Curve.h"
 #include "../experimental/pngmanip/colors.h"
+#include "../include/algo_helpers.h"
 #include <algorithm>
 
 struct contact {
@@ -32,7 +33,7 @@ struct CStrut {
 	Vector3 t0, t1;
 };
 typedef CStrut CStrut;
-
+float thick;
 
 void getContacts(Curve<Vector3>& curve, vector<contact>& stcontacts, vector<CStrut> *contacts) {
   vector<contact>::iterator it;
@@ -50,10 +51,13 @@ void getContacts(Curve<Vector3>& curve, vector<contact>& stcontacts, vector<CStr
       strut.t1 = curve.tangentAt(it->t);
 		}
 
+    float d = (strut.p0 - strut.p1).norm();
+		cout.precision(12);
 		cout << it->s << " " << strut.t0.dot(strut.t1) << " "
 		     << strut.t0.dot(strut.p1 - strut.p0) << " "
 				 << strut.t1.dot(strut.p0 - strut.p1) << " "
-				 << (strut.p0 - strut.p1).norm() << endl;
+				 << d << " "
+				 << fabsf(d-thick) << endl;
   }
 }
 
@@ -126,6 +130,7 @@ int main(int argc, char **argv) {
   k->make_default();
   k->normalize();
   k->make_default();
+  thick =	k->thickness();
 
   vector<CStrut> contacts;
 	// Write angles between chords and tangents. and angle between tangents

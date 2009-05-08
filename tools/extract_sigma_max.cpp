@@ -1,6 +1,10 @@
 #include "../include/Curve.h"
 
-float find_min(const Curve<Vector3> &c, float s, float left, float right, int steps, float eps) {
+// Find the local max in the valley of torusknots
+// i.e. like the extract_sigma tool, where we want
+// to find the local mins in this valley
+
+float find_max(const Curve<Vector3> &c, float s, float left, float right, int steps, float eps) {
 	float cleft = left, cright = right;
 	while (fabs(cright-cleft)>eps) {
     float t = (cright-cleft)/(float)steps;
@@ -10,7 +14,7 @@ float find_min(const Curve<Vector3> &c, float s, float left, float right, int st
       float ct = cleft + (float)i*t;
 			if (ct>1) ct -= 1;
       float val = c.pp(s, ct);
-			if (val < vm) { im = i; vm = val; }
+			if (val > vm) { im = i; vm = val; }
 		}
 		cleft = cleft+(float)(im-1)*t;
 		cright = cleft+(float)(im+1)*t;
@@ -20,7 +24,7 @@ float find_min(const Curve<Vector3> &c, float s, float left, float right, int st
 
 void build_sigma(const Curve<Vector3> &c, float start = 0.4921, int N = 2000) {
 
-	float closeness = 0.005;
+	float closeness = 0.0005;
 	float step = 1./float(N);
 	float curr = start;
 	float s = 0.0;
@@ -29,7 +33,7 @@ void build_sigma(const Curve<Vector3> &c, float start = 0.4921, int N = 2000) {
 	float eps = 1e-12;
 
   while (s < 1.0) {
-    curr = find_min(c, s, curr-closeness, curr+closeness, steps, eps);
+    curr = find_max(c, s, curr-closeness, curr+closeness, steps, eps);
 		if (curr > 1) curr = curr - 1;
 		cout << s << " " << curr << endl;
 		s += step;
@@ -37,8 +41,8 @@ void build_sigma(const Curve<Vector3> &c, float start = 0.4921, int N = 2000) {
 	cerr << "Ended correctly " << s << "\n";
 }
 
-float first_min(const Curve<Vector3> &c) {
-  return find_min(c, 0, .3, .7, 10000, 1e-12);
+float first_max(const Curve<Vector3> &c) {
+  return find_max(c, 0, .3, .7, 10000, 1e-12);
 }
 
 #define BLA
@@ -55,10 +59,10 @@ int main(int argc, char** argv) {
 	c.normalize();
 
   cerr << "L="<<c.length()<<endl;
-	float start = first_min(c);
+	float start = first_max(c);
 	cerr << "min(0)=" << start << endl;
-	build_sigma(c, start, 2001);
-	// build_sigma(c, 0.44, 2001);
+	// build_sigma(c, start, 2001);
+	build_sigma(c, 0.5, 2001);
 	c.writePKF("out.pkf");
 
   return 0;

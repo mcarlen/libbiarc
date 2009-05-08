@@ -111,7 +111,8 @@ class Curve : public PKFmanip {
   float radius_pt(int from, int to);
   float radius_pt(biarc_it from, biarc_it to);
   float radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &to);
-  float radius_pt(const Vector &p0, const Vector &t0, const Vector &p1);
+  float radius_pt(const Vector &p0, const Vector &t0, const Vector &p1) const;
+  float radius_pt(const float s, const float t) const;
  
   float pp(int from, int to) const;
   float pp(float s, float t) const;
