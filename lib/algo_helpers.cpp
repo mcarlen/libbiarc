@@ -333,10 +333,11 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
   vector<Candi<Vector> > tmp, candidates;
   float global_min = min_diam, curr_min;
 
+//	cerr << "Local curvature min : " << global_min << endl;
+
   // If we got a hint, compute first these pairs to get a good initial guess for global_min
   // We might compute the same pair twice, but that's ok
   if (hint_i>=0 && hint_j>=0) {
-
     vector<Candi<Vector> > CritC;
     Vector a0,am,a1,b0,bm,b1,t0a,tma,t1a,t0b,tmb,t1b;
     // Temporary Bezier points
@@ -385,7 +386,8 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
 
   // Initial double critical test
   initial_dbl_crit_filter(c, tmp, global_min);
-  distance_filter(tmp, candidates, global_min);
+  distance_filter(tmp, candidates,global_min);
+  candidates = tmp;
 
   Vector lFrom, lTo;
   for (unsigned int i=0;i<candidates.size();++i) {

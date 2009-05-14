@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Vector3.h"
+#include "Vector4.h"
 #include "Biarc.h"
 
 #define biarc_it  typename vector< Biarc<Vector> >::iterator

@@ -3,6 +3,7 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "Vector4.h"
 #include "Curve.h"
 #include "algo_helpers.h"
 
@@ -111,6 +112,33 @@ public:
     // and should be faster
     TS_ASSERT_DELTA(c.thickness(),0.061033,1e-8);
   }
+
+   void testCurveThicknessTooBigBug() {
+    
+    Curve<Vector3> c("../knots/wrong_thickness_kp31m31_norm.pkf");
+    c.link();
+    c.make_default();
+		float l = c.length();
+		Vector3 a,b;
+		float rope1 = l/compute_thickness(&c,&a,&b);
+		float rope1_fast = l/c.thickness_fast();
+		TS_ASSERT(rope1 > rope1_fast);
+	
+    Curve<Vector3> c2("k3.1_30.pkf");
+		c2.link();
+		c2.make_default();
+		l = c2.length();
+		rope1 = l/compute_thickness(&c2);
+		rope1_fast = l/c2.thickness_fast();
+		TS_ASSERT(rope1 > rope1_fast);
+
+    Curve<Vector4> c3("../knots/r4/wrong_thickness_k51.pkf");
+		c3.link();
+		c3.make_default();
+		TS_ASSERT(compute_thickness(&c3) > c3.thickness_fast());
+  }
+
+
 
 };
 
