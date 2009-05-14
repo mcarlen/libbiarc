@@ -53,7 +53,7 @@ private slots:
   bool saveAs();
   void about();
 
-  // void updatePicked(float u, float v, float u2, float v2);
+  void updatePicked(float u, float v, float u2, float v2);
 
 private:
 

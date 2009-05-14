@@ -312,7 +312,7 @@ bool MainWindow::saveFile(const QString &fileName) {
 
 #if 0
 // u,v in [0,1]
-void VVV::update_picked(float u, float v, float u2, float v2) {
+void MainWindow::updatePicked(float u, float v, float u2, float v2) {
   // FIXME : one component only supported for now
   int x,y,x2,y2,i;
   float a,b;
@@ -335,10 +335,10 @@ void VVV::update_picked(float u, float v, float u2, float v2) {
   }
 
   if (u2>=0 && v2>=0) {
-    x = (*Knot)[0].biarcPos(u); //*(*Knot)[0].length());
-    y = (*Knot)[0].biarcPos(v); //*(*Knot)[0].length());
-    x2 = (*Knot)[0].biarcPos(u2); //*(*Knot)[0].length());
-    y2 = (*Knot)[0].biarcPos(v2); //*(*Knot)[0].length());
+    x = (*(ci->info->Knot))[0].biarcPos(u); //*(*Knot)[0].length());
+    y = (*(ci->info->Knot))[0].biarcPos(v); //*(*Knot)[0].length());
+    x2 = (*(ci->info->Knot))[0].biarcPos(u2); //*(*Knot)[0].length());
+    y2 = (*(ci->info->Knot))[0].biarcPos(v2); //*(*Knot)[0].length());
 
     cout << "x,y  = " << x << " , " << y << endl;
     cout << "2x,y = " << x2 << " , " << y2 << endl;
@@ -365,9 +365,9 @@ void VVV::update_picked(float u, float v, float u2, float v2) {
       a = u+(float)i*Nx;
       //for (j=0;j<=(y2-y);j++) {
       b = v; //+(float)j*Ny;
-        circles->addChild(drawCircle((*Knot)[0].pointAt(a),
-                                  (*Knot)[0].tangentAt(a),
-                                  (*Knot)[0].pointAt(b)));
+        circles->addChild(drawCircle((*(ci->info->Knot))[0].pointAt(a),
+                                  (*(ci->info->Knot))[0].tangentAt(a),
+                                  (*(ci->info->Knot))[0].pointAt(b)));
 /*
       b = v+(float)(y2-y)*Ny;
         circles->addChild(drawCircle((*Knot)[0].pointAt(a),
@@ -398,16 +398,16 @@ void VVV::update_picked(float u, float v, float u2, float v2) {
     else { oldy = y2; oldy2 = y; }
   }
   else {
-    x = (*Knot)[0].biarcPos(u);//*(*Knot)[0].length());
-    y = (*Knot)[0].biarcPos(v);//*(*Knot)[0].length());
+    x = (*(ci->info->Knot))[0].biarcPos(u);//*(*Knot)[0].length());
+    y = (*(ci->info->Knot))[0].biarcPos(v);//*(*Knot)[0].length());
     materials[0]->diffuseColor.set1Value(x,ColorTable[1]);
     materials[0]->diffuseColor.set1Value(y,ColorTable[1]);
     oldx = x; oldx2 = -1;
     oldy = y; oldy2 = -1;
 
-    SoSeparator *sep = drawCircle((*Knot)[0].pointAt(u),//*(*Knot)[0].length()),
-                                  (*Knot)[0].tangentAt(u),//*(*Knot)[0].length()),
-                                  (*Knot)[0].pointAt(v));//*(*Knot)[0].length()));
+    SoSeparator *sep = drawCircle((*(ci->info->Knot))[0].pointAt(u),//*(*Knot)[0].length()),
+                                  (*(ci->info->Knot))[0].tangentAt(u),//*(*Knot)[0].length()),
+                                  (*(ci->info->Knot))[0].pointAt(v));//*(*Knot)[0].length()));
     //cout << "Add child\n";
     if (circles->getNumChildren()==1)
       circles->replaceChild(0,sep);
