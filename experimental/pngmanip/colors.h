@@ -186,5 +186,21 @@ inline void height_map(RGB* c, float val, float min, float max) {
             (unsigned char)bi);
 }
 
+inline void map_bw(RGB* c, float val, float min, float max) {
+  // blue low, red hight, linear in between
+
+  float lval = val;
+  if (val>max) lval = max;
+  if (val<min) lval = min;
+  float t = (lval-min)/(max-min), s;
+
+  s = cos(2*M_PI*10.*t);
+	if (s>.8)
+    set_rgb(c,0,0,0);
+	else
+		set_rgb(c,255,255,255);
+}
+
+
 
 #endif

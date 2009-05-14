@@ -11,8 +11,8 @@ RGB c;
 
 int main(int argc, char** argv) {
 
-  n = 7;
-  w = 500; h = 350;
+  n = 8;
+  w = 500; h = 50*n;
   px = (unsigned char*)malloc(sizeof(unsigned char)*3*w*h);
 
   float pttable[w][h];
@@ -73,6 +73,13 @@ int main(int argc, char** argv) {
     }
   }
 
+  for (j=0;j<h/n;j++) {
+    src = px + (7*h/n+j)*(3*w);
+    for (i=0;i<w;i++) {
+      map_bw(&c,(float)i/(float)w,0,1);
+      *src++ = c.r; *src++ = c.g; *src++ = c.b;
+    }
+  }
 
   sp_png_write_rgb(outname,px,w,h,0.1,0.1,3*w);
   free(px);

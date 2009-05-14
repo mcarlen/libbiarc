@@ -245,9 +245,11 @@ void DoPlot(const char* name, int w, int h, const PLOT_TYPE &ptype) {
   for (int j=0;j<h;j++) {
     src = px + j*(3*w);
     for (int i=0;i<w;i++) {
-      if (!HEIGHTMAP)
+      if (!HEIGHTMAP) {
         map_color_sine_end(&c,pttable[i][j],0.0,ptmax);
+//        map_bw(&c,pttable[i][j],0.0,ptmax);
 //        map_color_sine_acc(&c,pttable[i][j],0.0,ptmax);
+			}
       else
         height_map(&c,pttable[i][j],0.,ptmax);
       *src++ = c.r; *src++ = c.g; *src++ = c.b;
