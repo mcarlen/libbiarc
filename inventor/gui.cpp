@@ -330,7 +330,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     case Qt::Key_P:
       if (!pl_win) {
-        pl_win = new Aux2DPlotWindow(NULL,"2dwindow");
+        pl_win = new Aux2DPlotWindow(viewer->ci->knot_shape[0]->getKnot(),NULL,"2dwindow");
         pl_win->setAttribute(Qt::WA_NoBackground);
         pl_win->setWindowTitle("2D Window");
         // XXX Screen width hardcoded!

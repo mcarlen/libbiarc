@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
 
   if (myViewer->vi->PT_PLOT) {
     if (!pl_win) {
-      pl_win = new Aux2DPlotWindow(NULL,"2dwindow");
+      pl_win = new Aux2DPlotWindow(myViewer->ci->knot_shape[0]->getKnot(),NULL,"2dwindow");
       pl_win->setAttribute(Qt::WA_NoBackground);
       pl_win->setWindowTitle("2D Window");
       pl_win->setGeometry(_SCREEN_W_+8,0,200,200);

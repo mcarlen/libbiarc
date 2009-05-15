@@ -60,7 +60,9 @@ fourier_syn.o: ../fourierknots/fourier_syn.cpp
 
 main: SoKnot.o main.o Widgets.o moc_Widgets.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o
 	@echo Link $@
-	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o Widgets.o moc_Widgets.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o $(LIBS)
+	$(CXX) ${FLAGS} -c ../experimental/pngmanip/pngwrite.c
+	$(CXX) ${FLAGS} -c ../experimental/pngmanip/plot_funcs.cpp
+	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o Widgets.o moc_Widgets.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o plot_funcs.o pngwrite.o $(LIBS)
 
 plotzoom: plotzoom.o moc_plotzoom.o
 	@echo Link $@

@@ -19,6 +19,8 @@
 #include <QImageReader>
 
 #include <iostream>
+#include "../include/Curve.h"
+#include "../experimental/pngmanip/plot_funcs.h"
 
 #ifdef WITH_ICON_PROVIDER
 class ImageIconProvider : public QFileIconProvider {
@@ -35,7 +37,7 @@ public:
 class Aux2DPlotWindow: public QWidget {
 Q_OBJECT
 public:
-  Aux2DPlotWindow(QWidget *parent=0, const char *name=0, Qt::WindowFlags wFlags=0);
+  Aux2DPlotWindow(Curve<Vector3> *c, QWidget *parent=0, const char *name=0, Qt::WindowFlags wFlags=0);
   ~Aux2DPlotWindow();
   bool loadImage(const QString &);
 protected:
