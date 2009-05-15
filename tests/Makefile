@@ -31,7 +31,7 @@ runthem: $(BUILDTESTS)
 	g++ ${INCLUDE} -o $@ ${LIB_INC} ${LIB} $<
 
 %.cpp: %.h
-	@cxxtestgen.pl --error-printer -o $@ $^
+	@../contrib/cxxtestgen.pl --error-printer -o $@ $^
 
 clean :
 	@echo Cleaning `basename ${PWD}`

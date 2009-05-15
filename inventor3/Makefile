@@ -12,7 +12,7 @@ INCLUDE  = -I../include -I$(COIN)/include -I$(SOQT)/include -D_REENTRANT -I${QT_
 INC_LIB = -L../lib -L$(COIN)/lib -L$(SOQT)/lib -L/usr/lib -L/usr/local/lib -L${QT_LIB} -L/usr/X11R6/lib
 ######### LIBRARIES  #########################
 
-LIBS = `soqt-config --libs` -lbiarc_float
+LIBS = `soqt-config --libs` -lbiarc_float -lrt
 
 ######### FLAGS      #########################
 
