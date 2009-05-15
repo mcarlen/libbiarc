@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 
+#include <Inventor/nodes/SoCoordinate3.h>
+#include <Inventor/nodes/SoLineSet.h>
+
 SOQT_OBJECT_SOURCE(MainWindow);
 
 MainWindow::MainWindow(QWidget *parent, const char *name,
@@ -417,4 +420,59 @@ void MainWindow::updatePicked(float u, float v, float u2, float v2) {
     }
   }
 }
+
+void MainWindow::updatePickedPP(float u, float v, float u2, float v2) {
+  // sort the values s.t u<u2 and v<v2
+	
+	cout << "u,v,u2,v2" << u << " " << v << " " << u2 << " " << v2 << endl;
+  circles->removeAllChildren();
+
+	SoLineSet *ls = new SoLineSet;
+	SoCoordinate3 *coords = new SoCoordinate3;
+ 	int pos = 0;
+
+  Vector3 vec1,vec2;
+  if (u2<0 && v2<0) {
+	  ls->numVertices.set1Value(0, 2);
+		vec1 = (*(ci->info.Knot))[0].pointAt(u);
+		vec2 = (*(ci->info.Knot))[0].pointAt(v);
+	  coords->point.set1Value(0,SbVec3f(vec1[0],vec1[1],vec1[2]));
+	  coords->point.set1Value(1,SbVec3f(vec2[0],vec2[1],vec2[2]));
+	}
+  else {
+    // Make cross as coordinate sys if u2>u
+	  float dx;
+	  if (u2>u) {
+  	  dx = (u2-u)/9.;
+	    for (int i=0;i<10;++i) {
+   	    ls->numVertices.set1Value(pos, 2);
+				vec1 = (*(ci->info.Knot))[0].pointAt(u+dx*(float)i);
+				vec2 = (*(ci->info.Knot))[0].pointAt((v2-v)*.5);
+				cout << vec1 << " => " << vec2 << endl;
+  	    coords->point.set1Value(2*pos+0,SbVec3f(vec1[0],vec1[1],vec1[2]));
+	      coords->point.set1Value(2*pos+1,SbVec3f(vec2[0],vec2[1],vec2[2]));
+		    pos++;
+  	  }
+	  }
+
+    if (v2>v) {
+      dx = (v2-v)/9.;
+      for (int i=1;i<10;++i) {
+        ls->numVertices.set1Value(pos, 2);
+				vec1 = (*(ci->info.Knot))[0].pointAt((u2-u)*.5);
+				vec2 = (*(ci->info.Knot))[0].pointAt(v+dx*(float)i);
+        coords->point.set1Value(2*pos+0,SbVec3f(vec1[0],vec1[1],vec1[2]));
+        coords->point.set1Value(2*pos+1,SbVec3f(vec2[0],vec2[1],vec2[2]));
+        pos++;
+      }
+    }
+  }
+
+	circles->addChild(coords);
+	circles->addChild(ls);
+}
+
+
+
+
 #endif

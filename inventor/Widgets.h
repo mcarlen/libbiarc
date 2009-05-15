@@ -47,9 +47,10 @@ protected:
   void mouseReleaseEvent( QMouseEvent * );
   void mouseMoveEvent( QMouseEvent * );
 private:
+  bool PRESSED;
   bool    convertEvent(QMouseEvent* e, int& x, int& y);
   QString filename;
-  QImage  image;
+  QImage  image, orig;
   QPixmap pm;
   
   int e1,e2,e3,oe1,oe2;

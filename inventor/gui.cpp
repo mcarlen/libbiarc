@@ -1,4 +1,5 @@
 #include "gui.h"
+#include "pp.h"
 #include "mainwindow.h"
 #include <Inventor/nodes/SoSwitch.h>
 
@@ -7,6 +8,7 @@
 #define FOURIER_REPRESENTATION
 
 extern Aux2DPlotWindow* pl_win;
+extern PPPlotWindow *pp_win;
 
 SoSeparator* frenet_frame(Tube<Vector3>* t, int FOURIER = 1) {
   
@@ -316,10 +318,12 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       }
       break;
 
+/*
     case Qt::Key_O:
       //knot_shape[0]->getKnot()->exportPOVFile("knot.pov");
       cout << "[Not Implemented] Current curve is exported to a Povray file knot.pov.\n";
       break;
+			*/
       
 /*
     case Qt::Key_I:
@@ -341,6 +345,21 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       }
       if (pl_win->isVisible()) pl_win->hide();
       else pl_win->show();    
+      break;
+
+    case Qt::Key_O:
+      if (!pp_win) {
+        pp_win = new PPPlotWindow(viewer->ci->knot_shape[0]->getKnot(),NULL,"2dwindow");
+        pp_win->setAttribute(Qt::WA_NoBackground);
+        pp_win->setWindowTitle("2D Window");
+        // XXX Screen width hardcoded!
+        // pl_win->setGeometry(800+8,0,200,200);
+        QObject::connect(pp_win,SIGNAL(pos_changed(float,float,float,float)),
+                         viewer,SLOT(updatePickedPP(float,float,float,float)));
+
+      }
+      if (pp_win->isVisible()) pp_win->hide();
+      else pp_win->show();    
       break;
 
     // Quit program

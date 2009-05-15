@@ -24,6 +24,7 @@
 #include <Inventor/nodes/SoOrthographicCamera.h>
 
 #include "mainwindow.h"
+#include "pp.h"
 
 #ifdef RENDERMAN
 #include "ri.h"
@@ -60,6 +61,7 @@ CurveInterface curve_interface;
 MainWindow *myViewer;
 
 Aux2DPlotWindow *pl_win = NULL;
+PPPlotWindow *pp_win = NULL;
 
 void init(MainWindow *viewer) {
 
