@@ -43,7 +43,7 @@ public:
 class FKAnnealOnS3: public FKAnneal<FourierKnot>{
 
 public:
-  bool enable_scale_moves;
+  int enable_scale_moves;
   FKAnnealOnS3(const char* knot_filename, const char* params = ""):FKAnneal<FourierKnot>(knot_filename,params) {
     std_init(params);
     knot = FourierKnot(knot_filename);
@@ -67,7 +67,7 @@ public:
       }
     }
 
-    if (enable_scale_moves) possible_moves.push_back(new ScaleMove<FourierKnot>(&knot, step_size_factor*(1e-5)));
+    for (uint i=0; i<enable_scale_moves; i++) possible_moves.push_back(new ScaleMove<FourierKnot>(&knot, step_size_factor*(1e-5)));
   }
 
   void std_init(const char* params) {
