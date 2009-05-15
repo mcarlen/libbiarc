@@ -55,6 +55,7 @@ private slots:
 
   void updatePicked(float u, float v, float u2, float v2);
   void updatePickedPP(float u, float v, float u2, float v2);
+  void updatePickedTT(float u, float v, float u2, float v2);
 
 private:
 

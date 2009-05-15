@@ -313,7 +313,6 @@ bool MainWindow::saveFile(const QString &fileName) {
 
 // Other
 
-#if 1
 // u,v in [0,1]
 void MainWindow::updatePicked(float u, float v, float u2, float v2) {
   // FIXME : one component only supported for now
@@ -473,6 +472,58 @@ void MainWindow::updatePickedPP(float u, float v, float u2, float v2) {
 }
 
 
+void MainWindow::updatePickedTT(float u, float v, float u2, float v2) {
+  // sort the values s.t u<u2 and v<v2
+	
+  // XXX Fixme Do this like PP updatePicked, generate a "coord system"
+	// between u->u2 and v->v2 at half height (cross of spanning balls)
 
+	cout << "u,v,u2,v2" << u << " " << v << " " << u2 << " " << v2 << endl;
+  circles->removeAllChildren();
 
-#endif
+  Vector3 q0, q1, t0, t1;
+  if (u2<0 && v2<0) {
+
+		q0 = (*(ci->info.Knot))[0].pointAt(u);
+		q1 = (*(ci->info.Knot))[0].pointAt(v);
+		t0 = (*(ci->info.Knot))[0].tangentAt(u);
+		t1 = (*(ci->info.Knot))[0].tangentAt(v);
+
+    Vector3 d = q1-q0;
+		float dlen = d.norm();
+		Vector3 e = d/dlen;
+		Vector3 t1star = t1.reflect(e);
+		float val = dlen*.5/(t0.cross(t1)).dot(e);
+
+    // compute radius
+    SoSphere* sphere = new SoSphere;
+		float rad = fabsf(val*sqrt(1-pow(t1star.dot(t0),2)));
+		sphere->radius = rad;
+
+		// compute centre
+		Vector3 centre = q0 + val*t1star.cross(t0);
+    SoTranslation* trans = new SoTranslation;
+		trans->translation.setValue(centre[0],centre[1],centre[2]);
+
+    SoSeparator* sep = new SoSeparator;
+
+		SoComplexity *comp = new SoComplexity;
+		comp->value = 1.0;
+		
+    SoMaterial *mat = new SoMaterial;
+		mat->transparency = 0.7;
+
+		sep->addChild(mat);
+		sep->addChild(comp);
+
+		sep->addChild(trans);
+		sep->addChild(sphere);
+
+		circles->addChild(sep);
+		cout << "Sphere info : c=" << centre << ", rad=" << rad << endl;
+	}
+  else {
+  }
+
+}
+

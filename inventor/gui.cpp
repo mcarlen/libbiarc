@@ -1,5 +1,6 @@
 #include "gui.h"
 #include "pp.h"
+#include "tt.h"
 #include "mainwindow.h"
 #include <Inventor/nodes/SoSwitch.h>
 
@@ -9,6 +10,7 @@
 
 extern Aux2DPlotWindow* pl_win;
 extern PPPlotWindow *pp_win;
+extern TTPlotWindow *tt_win;
 
 SoSeparator* frenet_frame(Tube<Vector3>* t, int FOURIER = 1) {
   
@@ -361,6 +363,22 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       if (pp_win->isVisible()) pp_win->hide();
       else pp_win->show();    
       break;
+
+    case Qt::Key_I:
+      if (!tt_win) {
+        tt_win = new TTPlotWindow(viewer->ci->knot_shape[0]->getKnot(),NULL,"2dwindow");
+        tt_win->setAttribute(Qt::WA_NoBackground);
+        tt_win->setWindowTitle("2D Window");
+        // XXX Screen width hardcoded!
+        // pl_win->setGeometry(800+8,0,200,200);
+        QObject::connect(tt_win,SIGNAL(pos_changed(float,float,float,float)),
+                         viewer,SLOT(updatePickedTT(float,float,float,float)));
+
+      }
+      if (tt_win->isVisible()) tt_win->hide();
+      else tt_win->show();    
+      break;
+
 
     // Quit program
     case Qt::Key_Q:

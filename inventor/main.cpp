@@ -25,6 +25,7 @@
 
 #include "mainwindow.h"
 #include "pp.h"
+#include "tt.h"
 
 #ifdef RENDERMAN
 #include "ri.h"
@@ -62,6 +63,7 @@ MainWindow *myViewer;
 
 Aux2DPlotWindow *pl_win = NULL;
 PPPlotWindow *pp_win = NULL;
+TTPlotWindow *tt_win = NULL;
 
 void init(MainWindow *viewer) {
 
