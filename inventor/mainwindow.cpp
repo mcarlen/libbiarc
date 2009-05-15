@@ -310,7 +310,7 @@ bool MainWindow::saveFile(const QString &fileName) {
 
 // Other
 
-#if 0
+#if 1
 // u,v in [0,1]
 void MainWindow::updatePicked(float u, float v, float u2, float v2) {
   // FIXME : one component only supported for now
@@ -323,30 +323,30 @@ void MainWindow::updatePicked(float u, float v, float u2, float v2) {
   // reset highlight to zero
   if (oldx2>=0 && oldy2>=0) {
     for (i=oldx;i<=oldx2;i++)
-      materials[0]->diffuseColor.set1Value(i,ColorTable[0]);
+      ci->materials[0]->diffuseColor.set1Value(i,ColorTable[0]);
     for (i=oldy;i<=oldy2;i++)
-      materials[0]->diffuseColor.set1Value(i,ColorTable[0]);
+      ci->materials[0]->diffuseColor.set1Value(i,ColorTable[0]);
   }
   else {
     if (oldx >= 0)
-      materials[0]->diffuseColor.set1Value(oldx,ColorTable[0]);
+      ci->materials[0]->diffuseColor.set1Value(oldx,ColorTable[0]);
     if (oldy >= 0)
-      materials[0]->diffuseColor.set1Value(oldy,ColorTable[0]);
+      ci->materials[0]->diffuseColor.set1Value(oldy,ColorTable[0]);
   }
 
   if (u2>=0 && v2>=0) {
-    x = (*(ci->info->Knot))[0].biarcPos(u); //*(*Knot)[0].length());
-    y = (*(ci->info->Knot))[0].biarcPos(v); //*(*Knot)[0].length());
-    x2 = (*(ci->info->Knot))[0].biarcPos(u2); //*(*Knot)[0].length());
-    y2 = (*(ci->info->Knot))[0].biarcPos(v2); //*(*Knot)[0].length());
+    x = (*(ci->info.Knot))[0].biarcPos(u); //*(*Knot)[0].length());
+    y = (*(ci->info.Knot))[0].biarcPos(v); //*(*Knot)[0].length());
+    x2 = (*(ci->info.Knot))[0].biarcPos(u2); //*(*Knot)[0].length());
+    y2 = (*(ci->info.Knot))[0].biarcPos(v2); //*(*Knot)[0].length());
 
     cout << "x,y  = " << x << " , " << y << endl;
     cout << "2x,y = " << x2 << " , " << y2 << endl;
 
     for (i=x;i<=x2;i++)
-      materials[0]->diffuseColor.set1Value(i,ColorTable[1]);
+      ci->materials[0]->diffuseColor.set1Value(i,ColorTable[1]);
     for (i=y;i<=y2;i++)
-      materials[0]->diffuseColor.set1Value(i,ColorTable[1]);
+      ci->materials[0]->diffuseColor.set1Value(i,ColorTable[1]);
 
 
     // sort the values s.t u<u2 and v<v2
@@ -365,9 +365,9 @@ void MainWindow::updatePicked(float u, float v, float u2, float v2) {
       a = u+(float)i*Nx;
       //for (j=0;j<=(y2-y);j++) {
       b = v; //+(float)j*Ny;
-        circles->addChild(drawCircle((*(ci->info->Knot))[0].pointAt(a),
-                                  (*(ci->info->Knot))[0].tangentAt(a),
-                                  (*(ci->info->Knot))[0].pointAt(b)));
+        circles->addChild(drawCircle((*(ci->info.Knot))[0].pointAt(a),
+                                     (*(ci->info.Knot))[0].tangentAt(a),
+                                     (*(ci->info.Knot))[0].pointAt(b)));
 /*
       b = v+(float)(y2-y)*Ny;
         circles->addChild(drawCircle((*Knot)[0].pointAt(a),
@@ -398,16 +398,16 @@ void MainWindow::updatePicked(float u, float v, float u2, float v2) {
     else { oldy = y2; oldy2 = y; }
   }
   else {
-    x = (*(ci->info->Knot))[0].biarcPos(u);//*(*Knot)[0].length());
-    y = (*(ci->info->Knot))[0].biarcPos(v);//*(*Knot)[0].length());
-    materials[0]->diffuseColor.set1Value(x,ColorTable[1]);
-    materials[0]->diffuseColor.set1Value(y,ColorTable[1]);
+    x = (*(ci->info.Knot))[0].biarcPos(u);//*(*Knot)[0].length());
+    y = (*(ci->info.Knot))[0].biarcPos(v);//*(*Knot)[0].length());
+    ci->materials[0]->diffuseColor.set1Value(x,ColorTable[1]);
+    ci->materials[0]->diffuseColor.set1Value(y,ColorTable[1]);
     oldx = x; oldx2 = -1;
     oldy = y; oldy2 = -1;
 
-    SoSeparator *sep = drawCircle((*(ci->info->Knot))[0].pointAt(u),//*(*Knot)[0].length()),
-                                  (*(ci->info->Knot))[0].tangentAt(u),//*(*Knot)[0].length()),
-                                  (*(ci->info->Knot))[0].pointAt(v));//*(*Knot)[0].length()));
+    SoSeparator *sep = drawCircle((*(ci->info.Knot))[0].pointAt(u),//*(*Knot)[0].length()),
+                                  (*(ci->info.Knot))[0].tangentAt(u),//*(*Knot)[0].length()),
+                                  (*(ci->info.Knot))[0].pointAt(v));//*(*Knot)[0].length()));
     //cout << "Add child\n";
     if (circles->getNumChildren()==1)
       circles->replaceChild(0,sep);

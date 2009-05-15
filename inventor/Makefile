@@ -73,15 +73,7 @@ animate: SoKnot.o animate.o
 
 qrc_application.cpp: application.qrc
 	rcc -o $@ $<
-moc_mainwindow.cpp: mainwindow.h
-	moc -o $@ $<
-moc_viewer.cpp: viewer.h
-	moc -o $@ $<
-moc_Widgets.cpp: Widgets.h
-	moc -o $@ $<
-moc_trefoil_builder.cpp: trefoil_builder.h
-	moc -o $@ $<
-moc_plotzoom.cpp: plotzoom.h
+moc_%.cpp: %.h
 	moc -o $@ $<
 
 trefoil_builder: SoKnot.o trefoil_builder.o moc_Widgets.o Widgets.o moc_trefoil_builder.o moc_main.o
@@ -94,7 +86,7 @@ trefoil_builder: SoKnot.o trefoil_builder.o moc_Widgets.o Widgets.o moc_trefoil_
 
 clean :
 	@echo Cleaning `basename ${PWD}`
-	@-rm -f $(OBJ) $(COMMON_OBJ) moc_*.o plotzoom.o animate.o
+	@-rm -f $(OBJ) $(COMMON_OBJ) moc_*.o plotzoom.o animate.o *.o
 	@-rm -rf ii_files
 
 realclean :

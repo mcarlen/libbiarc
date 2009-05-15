@@ -98,7 +98,7 @@ inline void map_color_sine(RGB* c, float val, float min, float max) {
             (unsigned char)(255.*(.5*sin(2*M_PI*20.*t)+.5)*(1.-t)));
 }
 
-float b2f(unsigned char c) {
+inline float b2f(unsigned char c) {
   int i,v=0;
   for (i=0;i<8;i++) v += (1<<i&c);
   return (float)v;
@@ -140,7 +140,7 @@ inline void map_color_rainbow_fast(RGB* c, float val, float min, float max) {
   float lval = val;
   if (val>max) lval = max;
   if (val<min) lval = min;
-  float t = (lval-min)/(max-min),t2;
+  float t = (lval-min)/(max-min);
 
   const float num_reps = 10;
 

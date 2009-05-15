@@ -16,11 +16,14 @@ all: ${PROGS}
 
 .cpp.o:
 	@echo Compile $@
-	@$(CXX) $(INCLUDE) ${CXXFLAGS} -c $<
+	$(CXX) $(INCLUDE) ${CXXFLAGS} -c $<
 
 .c.o:
 	@echo Compile $@
 	@$(GCC) -c $<
+
+%.cpp: %.h
+	touch $@
 
 writhe: writhe.cpp
 	@echo Build $@
@@ -29,12 +32,12 @@ writhe: writhe.cpp
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) pngwrite.o \
 	writhe.o $(LIB)
 
-plot: plot.cpp
+plot: plot.o plot_funcs.o
 	@echo Build $@
 	$(CXX) $(FLAGS) -c pngwrite.c
-	$(CXX) $(FLAGS) -c plot.cpp
+#	$(CXX) $(FLAGS) -c plot.cpp
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) pngwrite.o \
-	plot.o $(LIB)
+	plot.o plot_funcs.o $(LIB)
 
 plot4: plot.cpp
 	@echo Build $@
@@ -42,13 +45,6 @@ plot4: plot.cpp
 	$(CXX) $(FLAGS) -DCOMPUTE_IN_R4 -c plot.cpp
 	$(LINKER) $(FLAGS) -DCOMPUTE_IN_R4 -o $@ $(LIB_INC) pngwrite.o \
 	plot.o $(LIB)
-
-
-ptplot: ptplot.o
-	@echo Build $@
-	$(CXX) $(FLAGS) -c pngwrite.c
-	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) pngwrite.o \
-	ptplot.o $(LIB)
 
 gradienttest: gradienttest.o
 	@echo Build $@

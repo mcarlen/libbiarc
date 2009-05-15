@@ -334,9 +334,9 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
         pl_win->setAttribute(Qt::WA_NoBackground);
         pl_win->setWindowTitle("2D Window");
         // XXX Screen width hardcoded!
-        pl_win->setGeometry(800+8,0,200,200);
+        // pl_win->setGeometry(800+8,0,200,200);
         QObject::connect(pl_win,SIGNAL(pos_changed(float,float,float,float)),
-                         viewer,SLOT(update_picked(float,float,float,float)));
+                         viewer,SLOT(updatePicked(float,float,float,float)));
 
       }
       if (pl_win->isVisible()) pl_win->hide();

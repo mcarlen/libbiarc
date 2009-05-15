@@ -50,22 +50,14 @@ private:
   QImage  image;
   QPixmap pm;
   
-  QMenuBar *menubar;
-  QMenu *file; // ,extras;
-  
-  QAction *openFileAct, *quitAct;
-
   int e1,e2,e3,oe1,oe2;
 
-  QFileDialog *fd;
 #ifdef WITH_ICON_PROVIDER
   ImageIconProvider *iip;
 #endif
 
   QMessageBox *pop_info;
 
-  QLabel *status;
-  void   updateStatus();
   int    pickx, picky;
   int    clickx, clicky;
   int    releasex, releasey;
@@ -74,7 +66,6 @@ private:
   void   setImage(const QImage& newimage);
   bool   reconvertImage();
 private slots:
-  void openFile();
   void popcoords();
 signals:
   void pos_changed(float,float,float,float);

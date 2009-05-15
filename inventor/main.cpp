@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
       pl_win->setWindowTitle("2D Window");
       pl_win->setGeometry(_SCREEN_W_+8,0,200,200);
       QObject::connect(pl_win,SIGNAL(pos_changed(float,float,float,float)),
-                       myViewer,SLOT(update_picked(float,float,float,float)));
+                       myViewer,SLOT(updatePicked(float,float,float,float)));
 
     }
     if (pl_win->loadImage((const char*)(myViewer->vi->ptplot_file.toLocal8Bit().constData()))) {

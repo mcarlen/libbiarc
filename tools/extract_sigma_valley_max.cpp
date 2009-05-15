@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
 		ftau   = c.pp(valley[i].s, valley[i].tau);
 		falpha = c.pp(valley[i].s, valley[i].alpha);
     cout << valley[i].s << " " << falpha << " "
-		     << falpha-fsigma << " " << falpha - ftau << endl;
+		     << fsigma << " " << ftau << endl;
 	}
 
   return 0;

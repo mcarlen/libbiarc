@@ -10,61 +10,16 @@ Aux2DPlotWindow::Aux2DPlotWindow(QWidget *parent, const char *name, Qt::WindowFl
   clickx = -1; clicky = -1;
   releasex = -1; releasey = -1;
 
-  // Init Menu Actions
-  // File open
-  openFileAct = new QAction(tr("&Open..."), this);
-  openFileAct->setShortcut(tr("Ctrl+O"));
-  openFileAct->setStatusTip(tr("Open file"));
-  connect(openFileAct, SIGNAL(triggered()), this, SLOT(openFile()));
-
-  // Exit action
-  quitAct = new QAction(tr("E&xit"), this);
-  quitAct->setShortcut(tr("Ctrl+Q"));
-  quitAct->setStatusTip(tr("Quit"));
-  connect(quitAct, SIGNAL(triggered()), this, SLOT(close()));
-
-  // Menubar
-  menubar = new QMenuBar(this);
-  menubar->addSeparator();
-
-  // File Menu
-  file = menubar->addMenu(tr("&File"));
-  file->addAction(openFileAct);
-  file->addSeparator();
-  file->addAction(quitAct);
-
-  // Extras Menu
-/*
-  extras =  new QPopupMenu( menubar );
-  menubar->insertItem( "&Extras", extras );
-  e1 = extras->insertItem( "Extra 1" );
-  e2 = extras->insertItem( "Extra 2" );
-  e3 = extras->insertItem( "Extra 3" );
-  extras->insertSeparator();
-  oe1 = extras->insertItem( "Other Extra 1" );
-  oe2 = extras->insertItem( "Other Extra 2" );
-*/
-
-  status = new QLabel(this);
-  status->setFrameStyle(QFrame::WinPanel|QFrame::Sunken);
-  status->setFixedHeight(fontMetrics().height()+4);
-
   // Own file dialog
 #ifdef WITH_ICON_PROVIDER
   iip = new ImageIconProvider;
 #endif
 
-  fd = new QFileDialog(this);
-  fd->setViewMode(QFileDialog::Detail);
-  fd->setFileMode(QFileDialog::ExistingFile);
-  fd->setNameFilter(tr("Image Files (*.png *.jpg *.bmp)"));
-  fd->setDirectory("$LIBBIARC");
-#ifdef WITH_ICON_PROVIDER
-  fd->setIconProvider(iip);
-#endif
-
   setMouseTracking(TRUE);
 
+  resize(500,500);
+	// image = QImage(500,500,QImage::Format_RGB32);
+  update();
   std::cout << "done\n" << std::flush;
 }
 
@@ -73,81 +28,6 @@ Aux2DPlotWindow::~Aux2DPlotWindow() {
   if ( alloc_context )
     QColor::destroyAllocContext( alloc_context );
 */
-}
-
-void Aux2DPlotWindow::updateStatus() {
-  if ( image.size() == QSize( 0, 0 ) ) {
-    if ( !filename.isEmpty() )
-      status->setText("Could not load image");
-    else
-      status->setText("No image - select Open from File menu.");
-  }
-  else {
-    QString message, moremsg;
-    message.sprintf("%dx%d", image.width(), image.height());
-/*
-    if ( pm.size() != pmScaled.size() ) {
-      moremsg.sprintf(" [%dx%d]", pmScaled.width(),
-      pmScaled.height());
-      message += moremsg;
-    }
-*/
-    // moremsg.sprintf(", %d bits ", image.depth());
-    message += moremsg;
-    if (image.valid(pickx,picky)) {
-      moremsg.sprintf(" (%d,%d) ", //=#%0*x ",
-                      pickx, picky);
-//                      image.hasAlphaBuffer() ? 8 : 6,
-//                      image.pixel(pickx,picky));
-      message += moremsg;
-    }
-/*
-    if ( image.numColors() > 0 ) {
-      if (image.valid(pickx,picky)) {
-        moremsg.sprintf(", %d/%d colors", image.pixelIndex(pickx,picky),                    image.numColors());
-      }
-      else {
-        moremsg.sprintf(", %d colors", image.numColors());
-      }
-      message += moremsg;
-    }
-    if ( image.hasAlphaBuffer() ) {
-      if ( image.depth() == 8 ) {
-        int i;
-        bool alpha[256];
-        int nalpha=0;
-        for (i=0; i<256; i++)
-          alpha[i] = FALSE;
-
-        for (i=0; i<image.numColors(); i++) {
-          int alevel = image.color(i) >> 24;
-          if (!alpha[alevel]) {
-            alpha[alevel] = TRUE;
-            nalpha++;
-          }
-        }
-        moremsg.sprintf(", %d alpha levels", nalpha);
-      }
-      else {
-        // Too many pixels to bother counting.
-        moremsg = ", 8-bit alpha channel";
-      }
-      message += moremsg;
-    }
-*/
-    status->setText(message);
-  }
-}
-
-void Aux2DPlotWindow::openFile() {
-  QStringList newfilenames;
-  if (fd->exec())
-    newfilenames = fd->selectedFiles();
-
-  if ( !newfilenames.isEmpty() ) {
-    loadImage(newfilenames.at(0)) ;
-    repaint();
-  }
 }
 
 bool Aux2DPlotWindow::loadImage(const QString & fileName) {
@@ -177,7 +57,6 @@ bool Aux2DPlotWindow::loadImage(const QString & fileName) {
         h *= multiply;
       }
 */
-      h += menubar->heightForWidth(w) + status->height();
       resize( w, h );
     } else {
       // image.resize(0,0);                    // couldn't load image
@@ -185,7 +64,6 @@ bool Aux2DPlotWindow::loadImage(const QString & fileName) {
     }
     QApplication::restoreOverrideCursor();
   }
-  updateStatus();
   // setMenuItemFlags();
 
  /*
@@ -202,8 +80,8 @@ bool Aux2DPlotWindow::loadImage(const QString & fileName) {
 void Aux2DPlotWindow::paintEvent( QPaintEvent *e) {
   if ( image.size() != QSize( 0, 0 ) ) {         // is an image loaded?
     QPainter painter(this);
-    painter.setClipRect(e->rect());
-    painter.drawImage(0, menubar->heightForWidth( width() ), image);
+//    painter.setClipRect(e->rect());
+    painter.drawImage(e->rect(),image);
   }
 }
 
@@ -211,9 +89,10 @@ void Aux2DPlotWindow::paintEvent( QPaintEvent *e) {
 make it fixed size
 */
 void Aux2DPlotWindow::resizeEvent( QResizeEvent * ) {
+	/*
    status->setGeometry(0, height() - status->height(),
                         width(), status->height());
-
+*/
 }
 
 void Aux2DPlotWindow::mousePressEvent( QMouseEvent *e) {
@@ -267,7 +146,7 @@ update();
 
 void Aux2DPlotWindow::mouseMoveEvent( QMouseEvent *e) {
   if (convertEvent(e,pickx,picky)) {
-    updateStatus();
+ //   updateStatus();
   /*  
   if (image.valid(pickx,picky)&&image.valid(clickx,clicky)) {
     for (int i=clickx;i<=pickx;i++)
@@ -291,14 +170,12 @@ void Aux2DPlotWindow::mouseMoveEvent( QMouseEvent *e) {
 
 bool Aux2DPlotWindow::convertEvent(QMouseEvent* e, int& x, int& y) {
   if ( image.size() != QSize( 0, 0 ) ) {
-    int h = height() - menubar->heightForWidth( width() ) - status->height();
+    int h = height();
     int nx = e->x() * image.width() / width();
-    int ny = (e->y()-menubar->heightForWidth( width() )) * image.height() /
-      h;
+    int ny = e->y() * image.height() / h;
     if (nx != x || ny != y ) {
       x = nx;
       y = ny;
-      updateStatus();
       return TRUE;
     }
   }
@@ -324,13 +201,11 @@ void Aux2DPlotWindow::setImage(const QImage& newimage) {
     h *= multiply;
   }
 */
-  h += menubar->heightForWidth(w) + status->height();
   resize( w, h );
 
   // reconvertImage();
 //  repaint( image.hasAlphaBuffer() );
   repaint();
-  updateStatus();
 //  setMenuItemFlags();
 
 }
@@ -365,7 +240,6 @@ bool Aux2DPlotWindow::reconvertImage() {
   } else {
     pm = QPixmap(0,0);                         // couldn't load image
   }
-  updateStatus();
   // setMenuItemFlags();
   QApplication::restoreOverrideCursor();      // restore original cursor
 
