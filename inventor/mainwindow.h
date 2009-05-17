@@ -1,10 +1,16 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QApplication>
 #include <QMainWindow>
 #include <QToolBar>
 #include <QStatusBar>
 #include <QSettings>
+#include <QFileDialog>
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+
 #include "main.h"
 #include "utils.h"
 
@@ -53,9 +59,9 @@ private slots:
   bool saveAs();
   void about();
 
-  void updatePicked(float u, float v, float u2, float v2);
-  void updatePickedPP(float u, float v, float u2, float v2);
-  void updatePickedTT(float u, float v, float u2, float v2);
+  void updatePickedPP(float u, float v, float u2, float v2, bool UNION);
+  void updatePickedPT(float u, float v, float u2, float v2, bool UNION);
+  void updatePickedTT(float u, float v, float u2, float v2, bool UNION);
 
 private:
 

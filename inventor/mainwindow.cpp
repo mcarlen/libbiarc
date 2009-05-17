@@ -314,9 +314,10 @@ bool MainWindow::saveFile(const QString &fileName) {
 // Other
 
 // u,v in [0,1]
-void MainWindow::updatePicked(float u, float v, float u2, float v2) {
+void MainWindow::updatePickedPT(float u, float v, float u2, float v2, bool UNION) {
 	cout << "u,v,u2,v2" << u << " " << v << " " << u2 << " " << v2 << endl;
-  circles->removeAllChildren();
+	if (!UNION)
+    circles->removeAllChildren();
 
   Vector3 q0, q1, t0;
   if (u2<0 && v2<0) {
@@ -350,11 +351,12 @@ void MainWindow::updatePicked(float u, float v, float u2, float v2) {
   }
 }
 
-void MainWindow::updatePickedPP(float u, float v, float u2, float v2) {
+void MainWindow::updatePickedPP(float u, float v, float u2, float v2, bool UNION) {
   // sort the values s.t u<u2 and v<v2
 	
 	cout << "u,v,u2,v2" << u << " " << v << " " << u2 << " " << v2 << endl;
-  circles->removeAllChildren();
+  if (!UNION)
+    circles->removeAllChildren();
 
 	SoLineSet *ls = new SoLineSet;
 	SoCoordinate3 *coords = new SoCoordinate3;
@@ -434,14 +436,15 @@ SoSeparator* addTTSphere(const Vector3 &q0, const Vector3 &t0, const Vector3 &q1
   return sep;
 }
 
-void MainWindow::updatePickedTT(float u, float v, float u2, float v2) {
+void MainWindow::updatePickedTT(float u, float v, float u2, float v2, bool UNION) {
   // sort the values s.t u<u2 and v<v2
 	
   // XXX Fixme Do this like PP updatePicked, generate a "coord system"
 	// between u->u2 and v->v2 at half height (cross of spanning balls)
 
 	cout << "u,v,u2,v2" << u << " " << v << " " << u2 << " " << v2 << endl;
-  circles->removeAllChildren();
+	if (!UNION)
+    circles->removeAllChildren();
 
   Vector3 q0, q1, t0, t1;
   if (u2<0 && v2<0) {

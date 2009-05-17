@@ -2,6 +2,7 @@
 #define _UTILS_H_
 
 #include "main.h"
+#include <QStringList>
 
 struct CurveInfo;
 

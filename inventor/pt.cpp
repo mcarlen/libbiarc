@@ -1,11 +1,11 @@
-#include "pp.h"
+#include "pt.h"
 
-PPPlotWindow::PPPlotWindow(Curve<Vector3>* c, QWidget *parent, const char *name, Qt::WindowFlags wFlags)
+PTPlotWindow::PTPlotWindow(Curve<Vector3>* c, QWidget *parent, const char *name, Qt::WindowFlags wFlags)
     : QWidget( parent, wFlags )
 {
 
   std::cout << "init aux2dplot\n" << std::flush;
-  pickx = -1; picky = -1;
+  pickx = -1; pickx = -1;
   clickx = -1; clicky = -1;
   releasex = -1; releasey = -1;
 	PRESSED = false;
@@ -15,7 +15,7 @@ PPPlotWindow::PPPlotWindow(Curve<Vector3>* c, QWidget *parent, const char *name,
 
   resize(500,500);
 
-  // Make pp plot
+  // Make pt plot
 	Curve<Vector3> c2 = *c;
 	c2.link();
 	c2.make_default();
@@ -26,7 +26,7 @@ PPPlotWindow::PPPlotWindow(Curve<Vector3>* c, QWidget *parent, const char *name,
 	Vector3 pt_i[500], pt_j[500], tg_i[500], tg_j[500];
 	samplePtTg(0,1,500,c2,pt_i,tg_i);
 	samplePtTg(0,1,500,c2,pt_j,tg_j);
-	computePP(500,500,pt_i,pt_j,c2.thickness_fast(),table,&min,&max);
+	computePT(500,500,pt_i,tg_i,pt_j,tg_j,c2.thickness_fast(),table,&min,&max);
 	convertToColoring(500,500,min,max,table,map_color_sine_end,px);
 //	sp_png_write_rgb("out.png",px,500,500,0.1,0.1,3*500);
   // convert to RGB24 to XRGB32
@@ -44,14 +44,14 @@ PPPlotWindow::PPPlotWindow(Curve<Vector3>* c, QWidget *parent, const char *name,
   std::cout << "done\n" << std::flush;
 }
 
-PPPlotWindow::~PPPlotWindow() {
+PTPlotWindow::~PTPlotWindow() {
 /*
   if ( alloc_context )
     QColor::destroyAllocContext( alloc_context );
 */
 }
 
-void PPPlotWindow::paintEvent( QPaintEvent *e) {
+void PTPlotWindow::paintEvent( QPaintEvent *e) {
   if ( image.size() != QSize( 0, 0 ) ) {         // is an image loaded?
     QPainter painter(this);
 //    painter.setClipRect(e->rect());
@@ -62,32 +62,30 @@ void PPPlotWindow::paintEvent( QPaintEvent *e) {
 /*
 make it fixed size
 */
-void PPPlotWindow::resizeEvent( QResizeEvent * ) {
+void PTPlotWindow::resizeEvent( QResizeEvent * ) {
 	/*
    status->setGeometry(0, height() - status->height(),
                         width(), status->height());
 */
 }
 
-void PPPlotWindow::mousePressEvent( QMouseEvent *e) {
+void PTPlotWindow::mousePressEvent( QMouseEvent *e) {
   //my_be_other = convertEvent(e,clickx,clicky);
   convertEvent(e,clickx,clicky);
-  if (releasex >= 0 && releasey >=0) {
+	if (releasex >= 0 && releasey >=0) {
 		if (e->modifiers()&Qt::ShiftModifier) {
 			UNION = true;
-			// Save current image
 			bkp = image;
 		}
 		else {
 			UNION = false;
-      image = orig;
-	  	repaint();
+	    image = orig;
+    	repaint();
 		}
-    releasex = releasey = -1;
 	}
-	PRESSED = true;
+  releasex = releasey = -1;
 std::cout << "Clicked : " << clickx << ", "<<clicky<<std::endl;
-
+  PRESSED = true;
 /*
   if (image.valid(clickx,clicky)) {
     QColor c(image.pixel(clickx,clicky));
@@ -97,7 +95,7 @@ std::cout << "Clicked : " << clickx << ", "<<clicky<<std::endl;
 */
 }
 
-void PPPlotWindow::mouseReleaseEvent( QMouseEvent *e) {
+void PTPlotWindow::mouseReleaseEvent( QMouseEvent *e) {
   //if (may_be_other) other = this;
   convertEvent(e,releasex,releasey);
   popcoords();
@@ -131,18 +129,17 @@ void PPPlotWindow::mouseReleaseEvent( QMouseEvent *e) {
     int ws = tx-sx, hs = ty-sy;
 std::cout << ws << " " << hs << std::endl;
  //   this->update(sx,sy,ws,hs);
-  PRESSED = false;
+ PRESSED = false;
 update();
   }
 }
 
-void PPPlotWindow::mouseMoveEvent( QMouseEvent *e) {
+void PTPlotWindow::mouseMoveEvent( QMouseEvent *e) {
   if (PRESSED && convertEvent(e,pickx,picky)) {
  //   updateStatus();
- 
     if (image.valid(pickx,picky)&&image.valid(clickx,clicky)) {
 			if (!UNION)
-  	  	image = orig;
+  			image = orig;
 			else
 				image = bkp;
       for (int i=clickx;i<=pickx;i++)
@@ -151,8 +148,7 @@ void PPPlotWindow::mouseMoveEvent( QMouseEvent *e) {
           image.setPixel(i,j,c.dark().rgb());
         }
       repaint();
-  	}
-
+    }
 /*
     if ((e->state()&LeftButton)) {
       may_be_other = FALSE;
@@ -164,7 +160,7 @@ void PPPlotWindow::mouseMoveEvent( QMouseEvent *e) {
   }
 }
 
-bool PPPlotWindow::convertEvent(QMouseEvent* e, int& x, int& y) {
+bool PTPlotWindow::convertEvent(QMouseEvent* e, int& x, int& y) {
   if ( image.size() != QSize( 0, 0 ) ) {
     int h = height();
     int nx = e->x() * image.width() / width();
@@ -178,7 +174,7 @@ bool PPPlotWindow::convertEvent(QMouseEvent* e, int& x, int& y) {
   return FALSE;
 }
 
-void PPPlotWindow::popcoords() {
+void PTPlotWindow::popcoords() {
 /*
   QString infotext = "Clicked at : \n";
   infotext += QString().setNum(pickx);

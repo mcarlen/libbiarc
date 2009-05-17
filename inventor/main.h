@@ -44,8 +44,6 @@
 #include <Inventor/projectors/SbPlaneProjector.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 
-#include "Widgets.h"
-
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
 
@@ -75,7 +73,7 @@ struct ViewerInfo {
   
   // Other Flags
   uint TEXTURES, IV_SCENE;
-  uint PT_PLOT;
+//  uint PT_PLOT;
   
   // Qt
   QString ptplot_file, texture_file, iv_file;

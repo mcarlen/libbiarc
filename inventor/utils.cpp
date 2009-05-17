@@ -10,7 +10,6 @@ int parse(int argc, char** argv, ViewerInfo *vi, CurveInfo *ci) {
   vi->FirstPoint = 0;
   vi->BackGroundFlag = 0;
   vi->IV_SCENE = 0;
-  vi->PT_PLOT = 0;
 
   // default values
   ci->TEXTURES = 0;
@@ -45,10 +44,6 @@ int parse(int argc, char** argv, ViewerInfo *vi, CurveInfo *ci) {
       }
       else if (!strncmp(&argv[i][1],"whitebg",7)) {
         vi->BackGroundFlag = 1;
-      }
-      else if (!strncmp(&argv[i][1],"ptplot",6)) {
-        vi->PT_PLOT = 1;
-        vi->ptplot_file = QString(argv[i+1]); i++;
       }
       else {
         cerr << "Unknown option : " << argv[i][1] << endl;

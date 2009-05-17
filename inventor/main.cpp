@@ -25,6 +25,7 @@
 
 #include "mainwindow.h"
 #include "pp.h"
+#include "pt.h"
 #include "tt.h"
 
 #ifdef RENDERMAN
@@ -61,8 +62,8 @@ ViewerInfo viewer_info;
 CurveInterface curve_interface;
 MainWindow *myViewer;
 
-Aux2DPlotWindow *pl_win = NULL;
 PPPlotWindow *pp_win = NULL;
+PTPlotWindow *pt_win = NULL;
 TTPlotWindow *tt_win = NULL;
 
 void init(MainWindow *viewer) {
@@ -168,28 +169,6 @@ int main(int argc, char **argv) {
   //myWindow->setGeometry(20,20,100,100);
   //SoQt::setWidgetSize(myWindow,SbVec2s(50,50));
   SoQt::show(myViewer); // myWindow);
-
-  if (myViewer->vi->PT_PLOT) {
-    if (!pl_win) {
-      pl_win = new Aux2DPlotWindow(myViewer->ci->knot_shape[0]->getKnot(),NULL,"2dwindow");
-      pl_win->setAttribute(Qt::WA_NoBackground);
-      pl_win->setWindowTitle("2D Window");
-      pl_win->setGeometry(_SCREEN_W_+8,0,200,200);
-      QObject::connect(pl_win,SIGNAL(pos_changed(float,float,float,float)),
-                       myViewer,SLOT(updatePicked(float,float,float,float)));
-
-    }
-    if (pl_win->loadImage((const char*)(myViewer->vi->ptplot_file.toLocal8Bit().constData()))) {
-      pl_win->repaint();
-      if (pl_win->isVisible()) pl_win->hide();
-      else pl_win->show();
-    }
-    else  {
-      pl_win->hide();
-      cerr << "[Warning] Could not load "
-           << myViewer->vi->ptplot_file.toLocal8Bit().constData() << ". Skipped\n";
-    }
-  }
 
   cout << "Start main loop\n" << flush;
   SoQt::mainLoop();

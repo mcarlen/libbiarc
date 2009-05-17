@@ -1,5 +1,6 @@
 #include "gui.h"
 #include "pp.h"
+#include "pt.h"
 #include "tt.h"
 #include "mainwindow.h"
 #include <Inventor/nodes/SoSwitch.h>
@@ -8,8 +9,8 @@
 
 #define FOURIER_REPRESENTATION
 
-extern Aux2DPlotWindow* pl_win;
 extern PPPlotWindow *pp_win;
+extern PTPlotWindow* pt_win;
 extern TTPlotWindow *tt_win;
 
 SoSeparator* frenet_frame(Tube<Vector3>* t, int FOURIER = 1) {
@@ -335,18 +336,18 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
  */
 
     case Qt::Key_P:
-      if (!pl_win) {
-        pl_win = new Aux2DPlotWindow(viewer->ci->knot_shape[0]->getKnot(),NULL,"2dwindow");
-        pl_win->setAttribute(Qt::WA_NoBackground);
-        pl_win->setWindowTitle("2D Window");
+      if (!pt_win) {
+        pt_win = new PTPlotWindow(viewer->ci->knot_shape[0]->getKnot(),NULL,"2dwindow");
+        pt_win->setAttribute(Qt::WA_NoBackground);
+        pt_win->setWindowTitle("2D Window");
         // XXX Screen width hardcoded!
-        // pl_win->setGeometry(800+8,0,200,200);
-        QObject::connect(pl_win,SIGNAL(pos_changed(float,float,float,float)),
-                         viewer,SLOT(updatePicked(float,float,float,float)));
+        // pt_win->setGeometry(800+8,0,200,200);
+        QObject::connect(pt_win,SIGNAL(pos_changed(float,float,float,float,bool)),
+                         viewer,SLOT(updatePickedPT(float,float,float,float,bool)));
 
       }
-      if (pl_win->isVisible()) pl_win->hide();
-      else pl_win->show();    
+      if (pt_win->isVisible()) pt_win->hide();
+      else pt_win->show();    
       break;
 
     case Qt::Key_O:
@@ -355,9 +356,9 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
         pp_win->setAttribute(Qt::WA_NoBackground);
         pp_win->setWindowTitle("2D Window");
         // XXX Screen width hardcoded!
-        // pl_win->setGeometry(800+8,0,200,200);
-        QObject::connect(pp_win,SIGNAL(pos_changed(float,float,float,float)),
-                         viewer,SLOT(updatePickedPP(float,float,float,float)));
+        // pp_win->setGeometry(800+8,0,200,200);
+        QObject::connect(pp_win,SIGNAL(pos_changed(float,float,float,float,bool)),
+                         viewer,SLOT(updatePickedPP(float,float,float,float,bool)));
 
       }
       if (pp_win->isVisible()) pp_win->hide();
@@ -370,9 +371,9 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
         tt_win->setAttribute(Qt::WA_NoBackground);
         tt_win->setWindowTitle("2D Window");
         // XXX Screen width hardcoded!
-        // pl_win->setGeometry(800+8,0,200,200);
-        QObject::connect(tt_win,SIGNAL(pos_changed(float,float,float,float)),
-                         viewer,SLOT(updatePickedTT(float,float,float,float)));
+        // tt_win->setGeometry(800+8,0,200,200);
+        QObject::connect(tt_win,SIGNAL(pos_changed(float,float,float,float,bool)),
+                         viewer,SLOT(updatePickedTT(float,float,float,float,bool)));
 
       }
       if (tt_win->isVisible()) tt_win->hide();

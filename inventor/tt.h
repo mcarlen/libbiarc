@@ -22,22 +22,20 @@ protected:
   void mouseReleaseEvent( QMouseEvent * );
   void mouseMoveEvent( QMouseEvent * );
 private:
-  bool PRESSED;
+  bool PRESSED, UNION;
   bool    convertEvent(QMouseEvent* e, int& x, int& y);
-	QImage  orig;
-  QImage  image;
+	QImage  orig, image, bkp;
   
   int e1,e2,e3,oe1,oe2;
 
   int    pickx, picky;
   int    clickx, clicky;
   int    releasex, releasey;
-  bool   reconvertImage();
 
 private slots:
   void popcoords();
 signals:
-  void pos_changed(float,float,float,float);
+  void pos_changed(float,float,float,float,bool);
 };
 
 #endif // __TT_H__
