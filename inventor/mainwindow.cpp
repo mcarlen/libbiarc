@@ -315,108 +315,38 @@ bool MainWindow::saveFile(const QString &fileName) {
 
 // u,v in [0,1]
 void MainWindow::updatePicked(float u, float v, float u2, float v2) {
-  // FIXME : one component only supported for now
-  int x,y,x2,y2,i;
-  float a,b;
+	cout << "u,v,u2,v2" << u << " " << v << " " << u2 << " " << v2 << endl;
+  circles->removeAllChildren();
 
-  cout << "u,v  = " << u << " ," << v << endl;
-  cout << "u2,v2 = " << u2 << " ," << v2 << endl;
-
-  // reset highlight to zero
-  if (oldx2>=0 && oldy2>=0) {
-    for (i=oldx;i<=oldx2;i++)
-      ci->materials[0]->diffuseColor.set1Value(i,ColorTable[0]);
-    for (i=oldy;i<=oldy2;i++)
-      ci->materials[0]->diffuseColor.set1Value(i,ColorTable[0]);
-  }
+  Vector3 q0, q1, t0;
+  if (u2<0 && v2<0) {
+		q0 = (*(ci->info.Knot))[0].pointAt(u);
+		q1 = (*(ci->info.Knot))[0].pointAt(v);
+		t0 = (*(ci->info.Knot))[0].tangentAt(u);
+    circles->addChild(drawCircle(q0,t0,q1));
+	}
   else {
-    if (oldx >= 0)
-      ci->materials[0]->diffuseColor.set1Value(oldx,ColorTable[0]);
-    if (oldy >= 0)
-      ci->materials[0]->diffuseColor.set1Value(oldy,ColorTable[0]);
-  }
+		// Make cross as coordinate sys if u2>u
+		float dx;
+		if (u2>u) {
+			dx = (u2-u)/9.;
+			for (int i=0;i<10;++i) {
+				q0 = (*(ci->info.Knot))[0].pointAt(u+dx*(float)i);
+				q1 = (*(ci->info.Knot))[0].pointAt((v2+v)*.5);
+				t0 = (*(ci->info.Knot))[0].tangentAt(u+dx*(float)i);
+        circles->addChild(drawCircle(q0,t0,q1));
+			}
+		}
 
-  if (u2>=0 && v2>=0) {
-    x = (*(ci->info.Knot))[0].biarcPos(u); //*(*Knot)[0].length());
-    y = (*(ci->info.Knot))[0].biarcPos(v); //*(*Knot)[0].length());
-    x2 = (*(ci->info.Knot))[0].biarcPos(u2); //*(*Knot)[0].length());
-    y2 = (*(ci->info.Knot))[0].biarcPos(v2); //*(*Knot)[0].length());
-
-    cout << "x,y  = " << x << " , " << y << endl;
-    cout << "2x,y = " << x2 << " , " << y2 << endl;
-
-    for (i=x;i<=x2;i++)
-      ci->materials[0]->diffuseColor.set1Value(i,ColorTable[1]);
-    for (i=y;i<=y2;i++)
-      ci->materials[0]->diffuseColor.set1Value(i,ColorTable[1]);
-
-
-    // sort the values s.t u<u2 and v<v2
-    circles->removeAllChildren();
-    if (x>x2) { int xtmp = x; x = x2; x2 = xtmp; }
-    if (y>y2) { int ytmp = y; y = y2; y2 = ytmp; }
-    if (u>u2) { float utmp = u; u = u2; u2 = utmp; }
-    if (v>v2) { float vtmp = v; v = v2; v2 = vtmp; }
-
- //   float NUMX = ((float)(*Knot)[0].nodes())*(u2-u)/(*Knot)[0].length()/5.;
- //   float NUMY = ((float)(*Knot)[0].nodes())*(v2-v)/(*Knot)[0].length()/5.;
-
-    float Nx = (u2-u)/(float)(x2-x);
-    // float Ny = (v2-v)/(float)(y2-y);
-    for (i=0;i<=(x2-x);i++) {
-      a = u+(float)i*Nx;
-      //for (j=0;j<=(y2-y);j++) {
-      b = v; //+(float)j*Ny;
-        circles->addChild(drawCircle((*(ci->info.Knot))[0].pointAt(a),
-                                     (*(ci->info.Knot))[0].tangentAt(a),
-                                     (*(ci->info.Knot))[0].pointAt(b)));
-/*
-      b = v+(float)(y2-y)*Ny;
-        circles->addChild(drawCircle((*Knot)[0].pointAt(a),
-                                  (*Knot)[0].tangentAt(a),
-                                  (*Knot)[0].pointAt(b)));
-*/
-      //}
-   }
-
-/*
-    for (j=0;j<=(y2-y);j++) {
-      b = v+(float)j*Ny;
-      a = u;
-        circles->addChild(drawCircle((*Knot)[0].pointAt(a),
-                                  (*Knot)[0].tangentAt(a),
-                                  (*Knot)[0].pointAt(b)));
-      a = u+(float)(x2-x)*Ny;
-        circles->addChild(drawCircle((*Knot)[0].pointAt(a),
-                                  (*Knot)[0].tangentAt(a),
-                                  (*Knot)[0].pointAt(b)));
-    }
-*/
-
-    // reset old values
-    if (x<x2 && x>=0) { oldx = x; oldx2 = x2; }
-    else { oldx = x2; oldx2 = x; }
-    if (y<y2 && y>0) { oldy = y; oldy2 = y2; }
-    else { oldy = y2; oldy2 = y; }
-  }
-  else {
-    x = (*(ci->info.Knot))[0].biarcPos(u);//*(*Knot)[0].length());
-    y = (*(ci->info.Knot))[0].biarcPos(v);//*(*Knot)[0].length());
-    ci->materials[0]->diffuseColor.set1Value(x,ColorTable[1]);
-    ci->materials[0]->diffuseColor.set1Value(y,ColorTable[1]);
-    oldx = x; oldx2 = -1;
-    oldy = y; oldy2 = -1;
-
-    SoSeparator *sep = drawCircle((*(ci->info.Knot))[0].pointAt(u),//*(*Knot)[0].length()),
-                                  (*(ci->info.Knot))[0].tangentAt(u),//*(*Knot)[0].length()),
-                                  (*(ci->info.Knot))[0].pointAt(v));//*(*Knot)[0].length()));
-    //cout << "Add child\n";
-    if (circles->getNumChildren()==1)
-      circles->replaceChild(0,sep);
-    else {
-      circles->removeAllChildren();
-      circles->addChild(sep);
-    }
+		if (v2>v) {
+			dx = (v2-v)/9.;
+			for (int i=1;i<10;++i) {
+				q0 = (*(ci->info.Knot))[0].pointAt((u2+u)*.5);
+				q1 = (*(ci->info.Knot))[0].pointAt(v+dx*(float)i);
+				t0 = (*(ci->info.Knot))[0].tangentAt((u2+u)*.5);
+        circles->addChild(drawCircle(q0,t0,q1));
+			}
+		}
   }
 }
 
@@ -446,7 +376,7 @@ void MainWindow::updatePickedPP(float u, float v, float u2, float v2) {
 	    for (int i=0;i<10;++i) {
    	    ls->numVertices.set1Value(pos, 2);
 				vec1 = (*(ci->info.Knot))[0].pointAt(u+dx*(float)i);
-				vec2 = (*(ci->info.Knot))[0].pointAt((v2-v)*.5);
+				vec2 = (*(ci->info.Knot))[0].pointAt((v2+v)*.5);
 				cout << vec1 << " => " << vec2 << endl;
   	    coords->point.set1Value(2*pos+0,SbVec3f(vec1[0],vec1[1],vec1[2]));
 	      coords->point.set1Value(2*pos+1,SbVec3f(vec2[0],vec2[1],vec2[2]));
@@ -458,7 +388,7 @@ void MainWindow::updatePickedPP(float u, float v, float u2, float v2) {
       dx = (v2-v)/9.;
       for (int i=1;i<10;++i) {
         ls->numVertices.set1Value(pos, 2);
-				vec1 = (*(ci->info.Knot))[0].pointAt((u2-u)*.5);
+				vec1 = (*(ci->info.Knot))[0].pointAt((u2+u)*.5);
 				vec2 = (*(ci->info.Knot))[0].pointAt(v+dx*(float)i);
         coords->point.set1Value(2*pos+0,SbVec3f(vec1[0],vec1[1],vec1[2]));
         coords->point.set1Value(2*pos+1,SbVec3f(vec2[0],vec2[1],vec2[2]));
@@ -471,6 +401,38 @@ void MainWindow::updatePickedPP(float u, float v, float u2, float v2) {
 	circles->addChild(ls);
 }
 
+SoSeparator* addTTSphere(const Vector3 &q0, const Vector3 &t0, const Vector3 &q1, const Vector3 &t1) {
+	Vector3 d = q1-q0;
+	float dlen = d.norm();
+	Vector3 e = d/dlen;
+	Vector3 t1star = t1.reflect(e);
+	float val = dlen*.5/(t0.cross(t1)).dot(e);
+
+	// compute radius
+	SoSphere* sphere = new SoSphere;
+	float rad = fabsf(val*sqrt(1-pow(t1star.dot(t0),2)));
+	sphere->radius = rad;
+
+	// compute centre
+	Vector3 centre = q0 + val*t1star.cross(t0);
+	SoTranslation* trans = new SoTranslation;
+	trans->translation.setValue(centre[0],centre[1],centre[2]);
+
+	SoSeparator* sep = new SoSeparator;
+
+	SoComplexity *comp = new SoComplexity;
+	comp->value = 1.0;
+
+	SoMaterial *mat = new SoMaterial;
+//	mat->transparency = 0.7;
+
+	sep->addChild(mat);
+	sep->addChild(comp);
+
+	sep->addChild(trans);
+	sep->addChild(sphere);
+  return sep;
+}
 
 void MainWindow::updatePickedTT(float u, float v, float u2, float v2) {
   // sort the values s.t u<u2 and v<v2
@@ -489,41 +451,32 @@ void MainWindow::updatePickedTT(float u, float v, float u2, float v2) {
 		t0 = (*(ci->info.Knot))[0].tangentAt(u);
 		t1 = (*(ci->info.Knot))[0].tangentAt(v);
 
-    Vector3 d = q1-q0;
-		float dlen = d.norm();
-		Vector3 e = d/dlen;
-		Vector3 t1star = t1.reflect(e);
-		float val = dlen*.5/(t0.cross(t1)).dot(e);
-
-    // compute radius
-    SoSphere* sphere = new SoSphere;
-		float rad = fabsf(val*sqrt(1-pow(t1star.dot(t0),2)));
-		sphere->radius = rad;
-
-		// compute centre
-		Vector3 centre = q0 + val*t1star.cross(t0);
-    SoTranslation* trans = new SoTranslation;
-		trans->translation.setValue(centre[0],centre[1],centre[2]);
-
-    SoSeparator* sep = new SoSeparator;
-
-		SoComplexity *comp = new SoComplexity;
-		comp->value = 1.0;
-		
-    SoMaterial *mat = new SoMaterial;
-		mat->transparency = 0.7;
-
-		sep->addChild(mat);
-		sep->addChild(comp);
-
-		sep->addChild(trans);
-		sep->addChild(sphere);
-
-		circles->addChild(sep);
-		cout << "Sphere info : c=" << centre << ", rad=" << rad << endl;
+		circles->addChild(addTTSphere(q0,t0,q1,t1));
 	}
   else {
-  }
+		// Make cross as coordinate sys if u2>u
+		float dx;
+		if (u2>u) {
+			dx = (u2-u)/9.;
+			for (int i=0;i<10;++i) {
+				q0 = (*(ci->info.Knot))[0].pointAt(u+dx*(float)i);
+				q1 = (*(ci->info.Knot))[0].pointAt((v2+v)*.5);
+				t0 = (*(ci->info.Knot))[0].tangentAt(u+dx*(float)i);
+				t1 = (*(ci->info.Knot))[0].tangentAt((v2+v)*.5);
+				circles->addChild(addTTSphere(q0,t0,q1,t1));
+			}
+		}
 
+		if (v2>v) {
+			dx = (v2-v)/9.;
+			for (int i=1;i<10;++i) {
+				q0 = (*(ci->info.Knot))[0].pointAt((u2+u)*.5);
+				q1 = (*(ci->info.Knot))[0].pointAt(v+dx*(float)i);
+				t0 = (*(ci->info.Knot))[0].tangentAt((u2+u)*.5);
+				t1 = (*(ci->info.Knot))[0].tangentAt(v+dx*(float)i);
+				circles->addChild(addTTSphere(q0,t0,q1,t1));
+			}
+		}
+  }
 }
 
