@@ -102,15 +102,13 @@ void init(MainWindow *viewer) {
     }
   }
 
-  // root->addChild(interaction);
-  viewer->root->addChild(viewer->scene);
-  viewer->root->addChild(viewer->circles);
   if (viewer->ci->info.Knot->tubes()>0)
-    viewer->scene->addChild(viewer->ci->graph_node);
+    viewer->scene->replaceChild(0,viewer->ci->graph_node);
 
   // root->removeChild(ci->graph_node);
   // ci->graph_node = NULL;
   // root->addChild(ci->graph_node);
+
 }
 
 int main(int argc, char **argv) {
@@ -136,11 +134,10 @@ int main(int argc, char **argv) {
   init(myViewer);
 
   // Create event handler for mouse
-/*
+  /*
   SoEventCallback *mouseEvent = new SoEventCallback;
   mouseEvent->addEventCallback(SoMouseButtonEvent::getClassTypeId(), mousefunc, myViewer);// &appData);
-  interaction->addChild(mouseEvent);
-  
+  myViewer->interaction->addChild(mouseEvent);
   // Create event handler for mouse motion
   SoEventCallback *motionEvent = new SoEventCallback;
   motionEvent->addEventCallback(SoLocation2Event::getClassTypeId(), motionfunc, myViewer);//&appData);

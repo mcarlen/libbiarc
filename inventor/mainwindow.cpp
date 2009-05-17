@@ -2,8 +2,221 @@
 
 #include <Inventor/nodes/SoCoordinate3.h>
 #include <Inventor/nodes/SoLineSet.h>
+#include <Inventor/details/SoPointDetail.h>
+#include <Inventor/details/SoLineDetail.h>
 
 SOQT_OBJECT_SOURCE(MainWindow);
+
+//Mouse motion callback
+static void motionfunc(void *data, SoEventCallback *eventCB) {
+
+  MainWindow* viewer = (MainWindow*)data;
+
+  if (viewer->view_mode==BIARC_VIEW && viewer->PRESSED) {
+    
+    const SoMouseButtonEvent *mbe=(SoMouseButtonEvent* )eventCB->getEvent();
+    
+    if (viewer->EditTangent) {
+      SbVec3f loc = viewer->spp.project(mbe->getNormalizedPosition(viewer->getViewportRegion())) + viewer->delta;
+      loc += (viewer->LeftVector*(viewer->AspectratioX-1.f)*(loc.dot(viewer->LeftVector))
+               + viewer->UpVector*(viewer->AspectratioY-1.f)*(loc.dot(viewer->UpVector))) ;
+      Vector3 editT((float*)&loc[0]);
+      viewer->picked_biarc->setTangent(editT-viewer->picked_biarc->getPoint());
+    }
+    else {
+      SbVec3f loc = viewer->spp.project(mbe->getNormalizedPosition(viewer->getViewportRegion())) + viewer->delta;
+    
+      loc += (viewer->LeftVector*(viewer->AspectratioX-1.f)*(loc.dot(viewer->LeftVector))
+               + viewer->UpVector*(viewer->AspectratioY-1.f)*(loc.dot(viewer->UpVector))) ;
+
+      viewer->picked_biarc->setPoint(Vector3((float*)&loc[0]));
+    }
+
+    SoSeparator* sep = new SoSeparator;
+    Tube<Vector3>* bez_tub;
+    
+    for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
+      bez_tub = viewer->ci->knot_shape[i]->getKnot();
+      bez_tub->make_default();
+      addBezierCurve(sep,bez_tub);
+    }
+    viewer->scene->replaceChild(1,sep);
+  }
+}
+
+
+static void mousefunc(void* data, SoEventCallback* eventCB) {
+
+  MainWindow* viewer = (MainWindow*)data;
+  if (viewer->view_mode!=BIARC_VIEW) return;
+
+  Tube<Vector3>* bez_tub;
+  const SoMouseButtonEvent *mbe=(SoMouseButtonEvent*)eventCB->getEvent();
+  
+  //Handle point grabbing
+  if(mbe->getButton() == SoMouseButtonEvent::BUTTON1 && mbe->getState() == SoButtonEvent::DOWN) {
+    
+    SoRayPickAction rp(viewer->getViewportRegion());
+    rp.setPoint(mbe->getPosition());
+    rp.apply(viewer->getSceneManager()->getSceneGraph());
+    
+    SoPickedPoint *point = rp.getPickedPoint();
+
+    viewer->EditTangent = 0;
+    if (point) {
+
+      SoPath *path = point->getPath();
+      SoNode *node = path->getTail();
+
+      if(node && node->getTypeId()==SoSphere::getClassTypeId()) {
+
+        Vector3 pp(point->getPoint()[0],
+                   point->getPoint()[1],
+      	           point->getPoint()[2]);
+    
+        Vector3 cp;
+        int FOUND = 0;
+
+        // FIXME: If we have more than one curve, give this as userData to the callback
+        vector<Biarc<Vector3> >::iterator current;
+        for (int l=0;l<viewer->ci->info.Knot->tubes();l++) {
+          current = viewer->ci->knot_shape[l]->getKnot()->begin();
+          float Tolerance = (current->getPoint()-current->getNext().getPoint()).norm()/4.0;
+          while (current!=viewer->ci->knot_shape[l]->getKnot()->end()) {
+  	    if ((current->getPoint()-pp).norm()<Tolerance) {
+	      cp = current->getPoint();
+  	      viewer->picked_biarc = current;
+              cout << "Picked biarc " << viewer->picked_biarc->id() << endl;
+	      FOUND = 1;
+	      break;
+  	    }
+	    ++current;
+          }
+        }
+
+        if (FOUND && viewer->ResamplePartFlag) {
+          cout << "Resample\n";
+          if (!viewer->FirstPoint) {
+            viewer->FirstBiarc = viewer->picked_biarc;
+            viewer->FirstPoint = 1;
+          }
+           else {
+             // XXX only single components!
+             bez_tub = viewer->ci->knot_shape[0]->getKnot();
+             bez_tub->make_default();
+             // XXX resample from FirstBiarc to picked_biarc with 10 points
+             bez_tub->refine(viewer->FirstBiarc,viewer->picked_biarc,5);
+             bez_tub->make_default();
+             for (int i=0;i<viewer->scene->getChildren()->getLength();i++)
+               viewer->scene->getChildren()->remove(0);
+             addBezierCurve((SoSeparator*)viewer->scene,bez_tub);
+             viewer->FirstPoint = 0;
+             viewer->ResamplePartFlag = 0;
+           }
+        }
+        else if (FOUND) {
+          cout << "Found\n";
+          SbViewVolume vv = viewer->getCamera()->getViewVolume();
+          SbPlane s(-(vv.getProjectionDirection()), point->getPoint());
+          viewer->spp = SbPlaneProjector(s);
+          viewer->spp.setViewVolume(vv);
+
+          // up and left vector according to the current camera position
+          SbRotation rot = viewer->getCamera()->orientation.getValue();
+          rot.multVec(SbVec3f(1,0,0),viewer->LeftVector);
+          rot.multVec(SbVec3f(0,1,0),viewer->UpVector);
+
+          SbVec2s winsize = viewer->getViewportRegion().getWindowSize();
+          viewer->AspectratioX = (float)winsize[0]/(float)winsize[1];
+          viewer->AspectratioY = 1;
+
+          if (viewer->AspectratioX < 1) {
+            viewer->AspectratioY = (float)winsize[1]/(float)winsize[0];
+            viewer->AspectratioX = 1;
+          }
+
+          viewer->delta = SbVec3f((float*)&cp[0]) - point->getPoint();
+
+          // If the viewport is not square we have a
+          // aspect ratio problem. Meaning, that the vector
+          // is actually smaller!
+          viewer->delta -= (viewer->LeftVector*(1.f-1.f/viewer->AspectratioX)*(viewer->delta.dot(viewer->LeftVector))
+                     + viewer->UpVector*(1.f-1.f/viewer->AspectratioY)*(viewer->delta.dot(viewer->UpVector))) ;
+
+          viewer->PRESSED = 1;
+          cout << "PRESSED = 1\n";
+        }
+      } // Sphere end
+      else
+        if(node && node->getTypeId()==SoLineSet::getClassTypeId()) {
+          SoLineSet *ls = (SoLineSet*)node;
+          if (ls->getName() != "datatangents") {
+            eventCB->setHandled();
+            return;
+          }
+
+          viewer->EditTangent = 1;
+
+          int sl_idx = ((SoLineDetail*)(point)->getDetail())->getPoint0()->getCoordinateIndex();
+          // XXX only single component
+          viewer->picked_biarc = (viewer->ci->knot_shape[0]->getKnot()->begin()+(sl_idx>>1));
+          
+          // XXX same code as above!!!
+          SbViewVolume vv = viewer->getCamera()->getViewVolume();
+          SbPlane s(-(vv.getProjectionDirection()), point->getPoint());
+          viewer->spp = SbPlaneProjector(s);
+          viewer->spp.setViewVolume(vv);
+
+          // up and left vector according to the current camera position
+          SbRotation rot = viewer->getCamera()->orientation.getValue();
+          rot.multVec(SbVec3f(1,0,0),viewer->LeftVector);
+          rot.multVec(SbVec3f(0,1,0),viewer->UpVector);
+
+          SbVec2s winsize = viewer->getViewportRegion().getWindowSize();
+          viewer->AspectratioX = (float)winsize[0]/(float)winsize[1];
+          viewer->AspectratioY = 1;
+
+          if (viewer->AspectratioX < 1) {
+            viewer->AspectratioY = (float)winsize[1]/(float)winsize[0];
+            viewer->AspectratioX = 1;
+          }
+
+          viewer->delta = SbVec3f(0,0,0);
+          viewer->PRESSED = 1;
+
+        } // LineSet end
+      else viewer->PRESSED = 0;
+    } // point end
+    else viewer->PRESSED = 0;
+
+    eventCB->setHandled();
+    cout << "HANDLED\n";
+  }
+
+  //Handle ungrabbing
+  if(mbe->getButton() == SoMouseButtonEvent::BUTTON1 && mbe->getState() == SoButtonEvent::UP) {
+    if (viewer->PRESSED) {
+      cout << "Ungrab\n";
+      Tube<Vector3>* bez_tub;
+      SoSeparator* sep = new SoSeparator;
+
+      for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
+        bez_tub = viewer->ci->knot_shape[i]->getKnot();
+        bez_tub->make_default();
+        addBezierCurve(sep,bez_tub);
+      }
+      viewer->scene->replaceChild(1,sep);
+      
+      // XXX notify pp,pt,tt plot windows that curve
+      // has changed
+    }
+ 
+    viewer->PRESSED = 0;
+    eventCB->setHandled();
+  }
+}
+
+
 
 MainWindow::MainWindow(QWidget *parent, const char *name,
                        SbBool embed, SoQtFullViewer::BuildFlag flag,
@@ -15,12 +228,33 @@ MainWindow::MainWindow(QWidget *parent, const char *name,
   setCentralWidget(parent);
 
   view_mode = SOLID_VIEW;
+  PRESSED = 0;
+  EditTangent = 0;
+  ResamplePartFlag = 0;
 
   root = new SoSeparator; root->ref();
   circles = new SoSeparator; circles->ref();
   interaction = new SoSeparator; interaction->ref();
   scene = new SoSwitch; scene->ref();
   scene->whichChild = 0; // default is knot
+
+  root->addChild(interaction);
+	root->addChild(scene);
+  // add 2 separators. first for mesh, second for biarc view
+  scene->addChild(new SoSeparator);
+  scene->addChild(new SoSeparator);
+
+	root->addChild(circles);
+
+	// Create event handler for mouse 
+	SoEventCallback *mouseEvent = new SoEventCallback; 
+	mouseEvent->addEventCallback(SoMouseButtonEvent::getClassTypeId(), mousefunc, this); 
+	interaction->addChild(mouseEvent);
+
+  // Create event handler for mouse motion
+  SoEventCallback *motionEvent = new SoEventCallback;
+  motionEvent->addEventCallback(SoLocation2Event::getClassTypeId(), motionfunc, this);
+  interaction->addChild(motionEvent);
 
   vi = new ViewerInfo;
   ci = new CurveInterface; 
@@ -271,7 +505,7 @@ void MainWindow::loadFile(const QStringList fileNames) {
   }
   ci->info.filenames = fileNames;
   ci->graph_node = ci->load();
-  scene->addChild(ci->graph_node);
+  scene->replaceChild(0,ci->graph_node);
   this->getCamera()->viewAll(root, getViewportRegion());
 /*
   if (!file.open(QFile::ReadOnly | QFile::Text)) {

@@ -1,22 +1,8 @@
 #include "pt.h"
 
-PTPlotWindow::PTPlotWindow(Curve<Vector3>* c, QWidget *parent, const char *name, Qt::WindowFlags wFlags)
-    : QWidget( parent, wFlags )
-{
-
-  std::cout << "init aux2dplot\n" << std::flush;
-  pickx = -1; pickx = -1;
-  clickx = -1; clicky = -1;
-  releasex = -1; releasey = -1;
-	PRESSED = false;
-	UNION = false;
-
-  setMouseTracking(TRUE);
-
-  resize(500,500);
-
+void PTPlotWindow::recompute() {
   // Make pt plot
-	Curve<Vector3> c2 = *c;
+	Curve<Vector3> c2 = *((Curve<Vector3>*)(mainwin->ci->knot_shape[0]->getKnot()));
 	c2.link();
 	c2.make_default();
 	float *table = new float[500*500];
@@ -39,6 +25,25 @@ PTPlotWindow::PTPlotWindow(Curve<Vector3>* c, QWidget *parent, const char *name,
 	image = QImage(px32,500,500,QImage::Format_RGB32);
 	orig = image;
 	bkp = image;
+}
+
+PTPlotWindow::PTPlotWindow(MainWindow* mainWin, QWidget *parent, const char *name, Qt::WindowFlags wFlags)
+    : QWidget( parent, wFlags )
+{
+
+  std::cout << "init aux2dplot\n" << std::flush;
+  pickx = -1; pickx = -1;
+  clickx = -1; clicky = -1;
+  releasex = -1; releasey = -1;
+	PRESSED = false;
+	UNION = false;
+
+  setMouseTracking(TRUE);
+
+  resize(500,500);
+	mainwin = mainWin;
+  
+	recompute();
 
   update();
   std::cout << "done\n" << std::flush;
@@ -158,6 +163,14 @@ void PTPlotWindow::mouseMoveEvent( QMouseEvent *e) {
     }
 */
   }
+}
+
+void PTPlotWindow::keyPressEvent( QKeyEvent *e) {
+  if (e->key()==Qt::Key_R) {
+		cout << "Recompute\n";
+    recompute();
+		repaint();
+	}
 }
 
 bool PTPlotWindow::convertEvent(QMouseEvent* e, int& x, int& y) {

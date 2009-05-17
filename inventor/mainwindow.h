@@ -43,6 +43,18 @@ public:
   ViewerInfo* vi;
   CurveInterface *ci;
 
+  bool PRESSED;
+  vector<Biarc<Vector3> >::iterator picked_biarc;
+  SbPlaneProjector spp;
+  SbVec3f UpVector, LeftVector, delta;
+  float AspectratioX, AspectratioY;
+  int EditTangent;
+
+	// Partial Resample of the curve globals
+	unsigned int ResamplePartFlag;
+	unsigned int FirstPoint;
+	vector<Biarc<Vector3> >::iterator FirstBiarc;
+
   QFileDialog* fileDialog;
 
   // Important separators in the scene graph

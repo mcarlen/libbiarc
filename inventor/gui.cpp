@@ -151,6 +151,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
   SoChildList *children = new SoChildList(viewer->scene);
   int child_len;
   Tube<Vector3>* bez_tub, tube_tmp;
+	SoSeparator* sep;
 
   SbVec3f CamAxis, CamPos;
   SbRotation CamOrientation;
@@ -207,14 +208,15 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
     case Qt::Key_D:
       viewer->ci->setNumberOfNodes(viewer->ci->knot_shape[0]->nodes.getValue()+10);
     	if (viewer->view_mode==BIARC_VIEW) {
-	      children->remove(1);
+				sep = new SoSeparator;
 	      for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
 	        bez_tub = viewer->ci->knot_shape[i]->getKnot();
 	        bez_tub->make_default();
 	        bez_tub->resample(viewer->ci->knot_shape[0]->nodes.getValue());
 	        bez_tub->make_default();
-	        addBezierCurve((SoSeparator*)(viewer->scene),bez_tub);
+	        addBezierCurve(sep,bez_tub);
 	      }
+        viewer->scene->replaceChild(1, sep);
       }
 
       break;
@@ -222,14 +224,15 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
     case Qt::Key_C:
       viewer->ci->setNumberOfNodes(viewer->ci->knot_shape[0]->nodes.getValue()-10);
     	if (viewer->view_mode==BIARC_VIEW) {
-	      children->remove(1);
+				sep = new SoSeparator;
 	      for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
 	        bez_tub = viewer->ci->knot_shape[i]->getKnot();
 	        bez_tub->make_default();
 	        bez_tub->resample(viewer->ci->knot_shape[0]->nodes.getValue());
 	        bez_tub->make_default();
-	        addBezierCurve((SoSeparator*)(viewer->scene),bez_tub);
+	        addBezierCurve(sep,bez_tub);
 	      }
+        viewer->scene->replaceChild(1,sep);
       }
       break;
 
@@ -262,13 +265,13 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 	      viewer->setDrawStyle(SoQtViewer::STILL,
 	                           SoQtViewer::VIEW_AS_IS);
         // XXX rebuild bezier curve only if N or S changed!!
-        if (child_len==2)
-          viewer->scene->removeChild(1);
+				sep = new SoSeparator;
       	for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
 	        bez_tub = viewer->ci->knot_shape[i]->getKnot();
       	  bez_tub->make_default();
-	        addBezierCurve((SoSeparator*)(viewer->scene),bez_tub);
+	        addBezierCurve(sep,bez_tub);
       	}
+				viewer->scene->replaceChild(1, sep);
 	      viewer->scene->whichChild.setValue(1); // is biarc curve
 	      break;
 
@@ -337,7 +340,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     case Qt::Key_P:
       if (!pt_win) {
-        pt_win = new PTPlotWindow(viewer->ci->knot_shape[0]->getKnot(),NULL,"2dwindow");
+        pt_win = new PTPlotWindow(viewer,NULL,"2dwindow");
         pt_win->setAttribute(Qt::WA_NoBackground);
         pt_win->setWindowTitle("2D Window");
         // XXX Screen width hardcoded!
