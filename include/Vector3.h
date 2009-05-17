@@ -34,7 +34,7 @@ class Vector3 {
   Vector3 & setValues(const float v[3]);
 
   float dot(const Vector3 &v) const;
-  Vector3 cross(const Vector3 &v);			
+  Vector3 cross(const Vector3 &v) const;
   float norm() const;
   float norm2() const;
   Vector3 &normalize();

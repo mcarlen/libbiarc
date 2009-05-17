@@ -147,7 +147,7 @@ float Vector3::dot(const Vector3 &v) const {
 
   returns \f$w=a\times v\f$
 */
-Vector3 Vector3::cross(const Vector3 &v) {
+Vector3 Vector3::cross(const Vector3 &v) const {
   return Vector3(this->_v[1]*v._v[2] - this->_v[2]*v._v[1],
 		 this->_v[2]*v._v[0] - this->_v[0]*v._v[2],
 		 this->_v[0]*v._v[1] - this->_v[1]*v._v[0]);
