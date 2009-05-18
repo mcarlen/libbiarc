@@ -355,7 +355,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     case Qt::Key_O:
       if (!pp_win) {
-        pp_win = new PPPlotWindow(viewer->ci->knot_shape[0]->getKnot(),NULL,"2dwindow");
+        pp_win = new PPPlotWindow(viewer,NULL,"2dwindow");
         pp_win->setAttribute(Qt::WA_NoBackground);
         pp_win->setWindowTitle("2D Window");
         // XXX Screen width hardcoded!
@@ -370,7 +370,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     case Qt::Key_I:
       if (!tt_win) {
-        tt_win = new TTPlotWindow(viewer->ci->knot_shape[0]->getKnot(),NULL,"2dwindow");
+        tt_win = new TTPlotWindow(viewer,NULL,"2dwindow");
         tt_win->setAttribute(Qt::WA_NoBackground);
         tt_win->setWindowTitle("2D Window");
         // XXX Screen width hardcoded!

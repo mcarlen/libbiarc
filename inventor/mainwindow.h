@@ -13,6 +13,7 @@
 
 #include "main.h"
 #include "utils.h"
+#include "../experimental/pngmanip/colors.h"
 
 class QAction;
 class QMenu;
@@ -43,6 +44,9 @@ public:
   ViewerInfo* vi;
   CurveInterface *ci;
 
+  // Gradient function pointer for plots
+	void(*gradient)(RGB*,float,float,float);
+
   bool PRESSED;
   vector<Biarc<Vector3> >::iterator picked_biarc;
   SbPlaneProjector spp;
@@ -71,6 +75,17 @@ private slots:
   bool saveAs();
   void about();
 
+  // XXX That's ugly!
+	void setGrad1();
+	void setGrad2();
+	void setGrad3();
+	void setGrad4();
+	void setGrad5();
+	void setGrad6();
+	void setGrad7();
+	void setGrad8();
+	void setGrad9();
+
   void updatePickedPP(float u, float v, float u2, float v2, bool UNION);
   void updatePickedPT(float u, float v, float u2, float v2, bool UNION);
   void updatePickedTT(float u, float v, float u2, float v2, bool UNION);
@@ -91,6 +106,7 @@ private:
 
   QMenu *fileMenu;
   QMenu *editMenu;
+  QMenu *prefsMenu;
   QMenu *helpMenu;
   QToolBar *fileToolBar;
   QToolBar *editToolBar;
@@ -102,6 +118,18 @@ private:
   QAction *cutAct;
   QAction *copyAct;
   QAction *pasteAct;
+
+	QActionGroup *gradientAct;
+	QAction *grad1Act;
+	QAction *grad2Act;
+	QAction *grad3Act;
+	QAction *grad4Act;
+	QAction *grad5Act;
+	QAction *grad6Act;
+	QAction *grad7Act;
+	QAction *grad8Act;
+	QAction *grad9Act;
+
   QAction *aboutAct;
   QAction *aboutQtAct;
 };

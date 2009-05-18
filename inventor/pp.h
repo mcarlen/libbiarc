@@ -9,11 +9,12 @@
 
 #include "../include/Curve.h"
 #include "../experimental/pngmanip/plot_funcs.h"
+#include "mainwindow.h"
 
 class PPPlotWindow: public QWidget {
 Q_OBJECT
 public:
-  PPPlotWindow(Curve<Vector3> *c, QWidget *parent=0, const char *name=0, Qt::WindowFlags wFlags=0);
+  PPPlotWindow(MainWindow* mainWin, QWidget *parent=0, const char *name=0, Qt::WindowFlags wFlags=0);
   ~PPPlotWindow();
 protected:
   void paintEvent( QPaintEvent * );
@@ -21,7 +22,10 @@ protected:
   void mousePressEvent( QMouseEvent * );
   void mouseReleaseEvent( QMouseEvent * );
   void mouseMoveEvent( QMouseEvent * );
+	void keyPressEvent( QKeyEvent * );
 private:
+  void recompute();
+	MainWindow* mainwin;
   bool PRESSED, UNION;
   bool    convertEvent(QMouseEvent* e, int& x, int& y);
 	QImage  orig, image, bkp;

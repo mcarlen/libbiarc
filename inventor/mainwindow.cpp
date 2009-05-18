@@ -232,6 +232,9 @@ MainWindow::MainWindow(QWidget *parent, const char *name,
   EditTangent = 0;
   ResamplePartFlag = 0;
 
+  // Init default gradient
+  gradient = map_color_sine_end;
+
   root = new SoSeparator; root->ref();
   circles = new SoSeparator; circles->ref();
   interaction = new SoSeparator; interaction->ref();
@@ -301,6 +304,7 @@ MainWindow::~MainWindow() {
   delete cutAct;
   delete copyAct;
   delete pasteAct;
+	delete gradientAct;
   delete aboutAct;
   delete aboutQtAct;
   delete fileDialog;
@@ -371,6 +375,16 @@ void MainWindow::about() {
                "toolbars, and a status bar."));
 }
 
+void MainWindow::setGrad1() { gradient = map_color_rainbow; }
+void MainWindow::setGrad2() { gradient = map_color_rainbow_cycle; }
+void MainWindow::setGrad3() { gradient = map_color_fine; }
+void MainWindow::setGrad4() { gradient = map_color_sine; }
+void MainWindow::setGrad5() { gradient = map_color_sine_end; }
+void MainWindow::setGrad6() { gradient = map_color_rainbow_fast; }
+void MainWindow::setGrad7() { gradient = map_color_sine_acc; }
+void MainWindow::setGrad8() { gradient = height_map; }
+void MainWindow::setGrad9() { gradient = map_bw; }
+
 void MainWindow::createActions() {
   /*
   newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
@@ -414,6 +428,49 @@ void MainWindow::createActions() {
   pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
                             "selection"));
   // connect(pasteAct, SIGNAL(triggered()), textEdit, SLOT(paste()));
+
+  grad1Act = new QAction(tr("&Rainbow"), this);
+	grad1Act->setCheckable(true);
+  grad2Act = new QAction(tr("&Rainbow (cycl)"), this);
+	grad2Act->setCheckable(true);
+  grad3Act = new QAction(tr("&Fine"), this);
+	grad3Act->setCheckable(true);
+  grad4Act = new QAction(tr("&Sine"), this);
+	grad4Act->setCheckable(true);
+  grad5Act = new QAction(tr("&Sine Details"), this);
+	grad5Act->setCheckable(true);
+  grad6Act = new QAction(tr("&Rainbow (fast)"), this);
+	grad6Act->setCheckable(true);
+  grad7Act = new QAction(tr("&Sine (fast)"), this);
+	grad7Act->setCheckable(true);
+  grad8Act = new QAction(tr("&Height map (b/w)"), this);
+	grad8Act->setCheckable(true);
+  grad9Act = new QAction(tr("&B/W contours"), this);
+	grad9Act->setCheckable(true);
+
+  gradientAct = new QActionGroup(this);
+	gradientAct->addAction(grad1Act);
+	gradientAct->addAction(grad2Act);
+	gradientAct->addAction(grad3Act);
+	gradientAct->addAction(grad4Act);
+	gradientAct->addAction(grad5Act);
+	gradientAct->addAction(grad6Act);
+	gradientAct->addAction(grad7Act);
+	gradientAct->addAction(grad8Act);
+	gradientAct->addAction(grad9Act);
+	grad5Act->setChecked(true);
+
+	// XXX connect gradients
+  connect(grad1Act, SIGNAL(triggered()), this, SLOT(setGrad1()));
+  connect(grad2Act, SIGNAL(triggered()), this, SLOT(setGrad2()));
+  connect(grad3Act, SIGNAL(triggered()), this, SLOT(setGrad3()));
+  connect(grad4Act, SIGNAL(triggered()), this, SLOT(setGrad4()));
+  connect(grad5Act, SIGNAL(triggered()), this, SLOT(setGrad5()));
+  connect(grad6Act, SIGNAL(triggered()), this, SLOT(setGrad6()));
+  connect(grad7Act, SIGNAL(triggered()), this, SLOT(setGrad7()));
+  connect(grad8Act, SIGNAL(triggered()), this, SLOT(setGrad8()));
+  connect(grad9Act, SIGNAL(triggered()), this, SLOT(setGrad9()));
+
   aboutAct = new QAction(tr("&About"), this);
   aboutAct->setStatusTip(tr("Show the application's About box"));
   connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -443,6 +500,18 @@ void MainWindow::createMenus() {
   editMenu->addAction(cutAct);
   editMenu->addAction(copyAct);
   editMenu->addAction(pasteAct);
+
+  prefsMenu = menuBar()->addMenu(tr("&Preferences"));
+	prefsMenu->addSeparator()->setText(tr("Gradients"));
+	prefsMenu->addAction(grad1Act);
+	prefsMenu->addAction(grad2Act);
+	prefsMenu->addAction(grad3Act);
+	prefsMenu->addAction(grad4Act);
+	prefsMenu->addAction(grad5Act);
+	prefsMenu->addAction(grad6Act);
+	prefsMenu->addAction(grad7Act);
+	prefsMenu->addAction(grad8Act);
+	prefsMenu->addAction(grad9Act);
 
   menuBar()->addSeparator();
 
@@ -502,6 +571,9 @@ void MainWindow::loadFile(const QStringList fileNames) {
   if (ci->graph_node!=NULL) {
     scene->removeAllChildren();
     ci->graph_node = NULL;
+		// Set 2 empty Separators (0=mesh,1=biarcview)
+		scene->addChild(new SoSeparator);
+		scene->addChild(new SoSeparator);
   }
   ci->info.filenames = fileNames;
   ci->graph_node = ci->load();

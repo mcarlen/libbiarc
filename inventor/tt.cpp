@@ -1,6 +1,33 @@
 #include "tt.h"
 
-TTPlotWindow::TTPlotWindow(Curve<Vector3>* c, QWidget *parent, const char *name, Qt::WindowFlags wFlags)
+void TTPlotWindow::recompute() {
+  // Make tt plot
+	Curve<Vector3> c2 = *((Curve<Vector3>*)(mainwin->ci->knot_shape[0]->getKnot()));
+	c2.link();
+	c2.make_default();
+	float *table = new float[500*500];
+	float min, max;
+	unsigned char* px = new unsigned char[3*500*500];
+	unsigned char* px32 = new unsigned char[4*500*500];
+	Vector3 pt_i[500], pt_j[500], tg_i[500], tg_j[500];
+	samplePtTg(0,1,500,c2,pt_i,tg_i);
+	samplePtTg(0,1,500,c2,pt_j,tg_j);
+	computeTT(500,500,pt_i,tg_i,pt_j,tg_j,c2.thickness_fast(),table,&min,&max);
+	convertToColoring(500,500,min,max,table,mainwin->gradient,px);
+//	sp_png_write_rgb("out.png",px,500,500,0.1,0.1,3*500);
+  // convert to RGB24 to XRGB32
+  for (int i=0;i<500*500;++i) {
+		px32[i*4+3] = 255;
+		px32[i*4+2] = px[i*3+0];
+		px32[i*4+1] = px[i*3+1];
+		px32[i*4+0] = px[i*3+2];
+	}
+	image = QImage(px32,500,500,QImage::Format_RGB32);
+	orig = image;
+	bkp = image;
+}
+
+TTPlotWindow::TTPlotWindow(MainWindow* mainWin, QWidget *parent, const char *name, Qt::WindowFlags wFlags)
     : QWidget( parent, wFlags )
 {
 
@@ -14,32 +41,9 @@ TTPlotWindow::TTPlotWindow(Curve<Vector3>* c, QWidget *parent, const char *name,
   setMouseTracking(TRUE);
 
   resize(500,500);
+	mainwin = mainWin;
 
-  // Make pp plot
-	Curve<Vector3> c2 = *c;
-	c2.link();
-	c2.make_default();
-	float *table = new float[500*500];
-	float min, max;
-	unsigned char* px = new unsigned char[3*500*500];
-	unsigned char* px32 = new unsigned char[4*500*500];
-	Vector3 pt_i[500], pt_j[500], tg_i[500], tg_j[500];
-	samplePtTg(0,1,500,c2,pt_i,tg_i);
-	samplePtTg(0,1,500,c2,pt_j,tg_j);
-	computeTT(500,500,pt_i,tg_i,pt_j,tg_j,c2.thickness_fast(),table,&min,&max);
-	convertToColoring(500,500,min,max,table,map_color_sine_end,px);
-//	sp_png_write_rgb("out.png",px,500,500,0.1,0.1,3*500);
-  // convert to RGB24 to XRGB32
-	  for (int i=0;i<500*500;++i) {
-			px32[i*4+3] = 255;
-			px32[i*4+2] = px[i*3+0];
-			px32[i*4+1] = px[i*3+1];
-			px32[i*4+0] = px[i*3+2];
-		}
-	image = QImage(px32,500,500,QImage::Format_RGB32);
-	orig = image;
-	bkp = image;
-
+  recompute();
   update();
   std::cout << "done\n" << std::flush;
 }
@@ -162,6 +166,13 @@ void TTPlotWindow::mouseMoveEvent( QMouseEvent *e) {
     }
 */
   }
+}
+
+void TTPlotWindow::keyPressEvent( QKeyEvent *e) {
+	if (e->key()==Qt::Key_R) {
+		recompute();
+		repaint();
+	}
 }
 
 bool TTPlotWindow::convertEvent(QMouseEvent* e, int& x, int& y) {

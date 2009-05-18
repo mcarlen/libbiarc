@@ -13,7 +13,7 @@ void PTPlotWindow::recompute() {
 	samplePtTg(0,1,500,c2,pt_i,tg_i);
 	samplePtTg(0,1,500,c2,pt_j,tg_j);
 	computePT(500,500,pt_i,tg_i,pt_j,tg_j,c2.thickness_fast(),table,&min,&max);
-	convertToColoring(500,500,min,max,table,map_color_sine_end,px);
+	convertToColoring(500,500,min,max,table,mainwin->gradient,px);
 //	sp_png_write_rgb("out.png",px,500,500,0.1,0.1,3*500);
   // convert to RGB24 to XRGB32
 	  for (int i=0;i<500*500;++i) {
@@ -167,7 +167,6 @@ void PTPlotWindow::mouseMoveEvent( QMouseEvent *e) {
 
 void PTPlotWindow::keyPressEvent( QKeyEvent *e) {
   if (e->key()==Qt::Key_R) {
-		cout << "Recompute\n";
     recompute();
 		repaint();
 	}
