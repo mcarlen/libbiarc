@@ -86,6 +86,8 @@ private slots:
 	void setGrad8();
 	void setGrad9();
 
+  void addIVScene();
+
   void updatePickedPP(float u, float v, float u2, float v2, bool UNION);
   void updatePickedPT(float u, float v, float u2, float v2, bool UNION);
   void updatePickedTT(float u, float v, float u2, float v2, bool UNION);
@@ -107,6 +109,7 @@ private:
   QMenu *fileMenu;
   QMenu *editMenu;
   QMenu *prefsMenu;
+  QMenu *addMenu;
   QMenu *helpMenu;
   QToolBar *fileToolBar;
   QToolBar *editToolBar;
@@ -130,8 +133,17 @@ private:
 	QAction *grad8Act;
 	QAction *grad9Act;
 
+  QAction *addIVSceneAct;
+	QAction *addContactSurfaceAct;
+
   QAction *aboutAct;
   QAction *aboutQtAct;
+signals:
+	void changed();
+public:
+	void emitChanged() {
+    emit changed();
+	}
 };
 
 #endif

@@ -8,7 +8,7 @@ void samplePtTg(const float from, const float to,
 	float length = c.length();
 	float sigma, alen;
   for (int i=0;i<N;i++) {
-    sigma = from+(float)i/(float)N*
+    sigma = from+(float)i/(float)(N-1)*
             (to-from);
     alen = sigma*length;
     if (alen>length) {

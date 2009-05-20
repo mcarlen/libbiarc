@@ -254,7 +254,7 @@ inline float Curve<Vector>::length() const {
 
   float L = 0.0;
 
-  biarc_constit stop = _Biarcs.end()-(_Closed?0:-1);
+  biarc_constit stop = _Biarcs.end()-(_Closed?0:1);
   for (biarc_constit it=_Biarcs.begin();it!=stop;it++)
     L += (it->biarclength());
 
@@ -903,16 +903,17 @@ float Curve<Vector>::thickness_fast() {
 //  Biarc<Vector> current, sweep;
   
   biarc_it current = this->begin(), it;
-  for (;current!=this->end();current++) {
+	biarc_it stop = this->end()-(_Closed?0:1);
+  for (;current!=stop;current++) {
     if (current->radius0()<minrad && current->radius0()>0.0)
       minrad = current->radius0();
     if (current->radius1()<minrad && current->radius1()>0.0)
       minrad = current->radius1();
-    if (current!=(this->end()-2)) {
+    if (current!=(stop-2)) {
       for (it=current+1;it!=this->end();it++) {
-	radpt = radius_pt(*current,*it);
-	if (radpt<minrad && radpt>0.0)
-	  minrad = radpt;
+        radpt = radius_pt(*current,*it);
+        if (radpt<minrad && radpt>0.0)
+          minrad = radpt;
       }
     }
   }

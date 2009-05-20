@@ -403,7 +403,7 @@ void SoKnot::sogl_render_tube(const float radius,
 
       *knot = *original;
       if (original->isClosed())
-	knot->link();
+        knot->link();
 
       knot->makeMesh(nodes,segments,radius,Tol);
 

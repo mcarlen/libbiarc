@@ -3,7 +3,6 @@
 void PTPlotWindow::recompute() {
   // Make pt plot
 	Curve<Vector3> c2 = *((Curve<Vector3>*)(mainwin->ci->knot_shape[0]->getKnot()));
-	c2.link();
 	c2.make_default();
 	float *table = new float[500*500];
 	float min, max;
@@ -25,6 +24,7 @@ void PTPlotWindow::recompute() {
 	image = QImage(px32,500,500,QImage::Format_RGB32);
 	orig = image;
 	bkp = image;
+	repaint();
 }
 
 PTPlotWindow::PTPlotWindow(MainWindow* mainWin, QWidget *parent, const char *name, Qt::WindowFlags wFlags)
@@ -45,7 +45,6 @@ PTPlotWindow::PTPlotWindow(MainWindow* mainWin, QWidget *parent, const char *nam
   
 	recompute();
 
-  update();
   std::cout << "done\n" << std::flush;
 }
 
@@ -168,7 +167,6 @@ void PTPlotWindow::mouseMoveEvent( QMouseEvent *e) {
 void PTPlotWindow::keyPressEvent( QKeyEvent *e) {
   if (e->key()==Qt::Key_R) {
     recompute();
-		repaint();
 	}
 }
 

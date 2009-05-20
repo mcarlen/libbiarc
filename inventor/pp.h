@@ -24,7 +24,6 @@ protected:
   void mouseMoveEvent( QMouseEvent * );
 	void keyPressEvent( QKeyEvent * );
 private:
-  void recompute();
 	MainWindow* mainwin;
   bool PRESSED, UNION;
   bool    convertEvent(QMouseEvent* e, int& x, int& y);
@@ -38,6 +37,8 @@ private:
 
 private slots:
   void popcoords();
+  void recompute();
+
 signals:
   void pos_changed(float,float,float,float,bool);
 };

@@ -209,6 +209,7 @@ static void mousefunc(void* data, SoEventCallback* eventCB) {
       
       // XXX notify pp,pt,tt plot windows that curve
       // has changed
+			viewer->emitChanged();
     }
  
     viewer->PRESSED = 0;
@@ -293,6 +294,8 @@ MainWindow::~MainWindow() {
   delete ci;
   delete fileMenu;
   delete editMenu;
+	delete prefsMenu;
+	delete addMenu;
   delete helpMenu;
   delete fileToolBar;
   delete editToolBar;
@@ -304,7 +307,21 @@ MainWindow::~MainWindow() {
   delete cutAct;
   delete copyAct;
   delete pasteAct;
+	
 	delete gradientAct;
+	delete grad1Act;
+	delete grad2Act;
+	delete grad3Act;
+	delete grad4Act;
+	delete grad5Act;
+	delete grad6Act;
+	delete grad7Act;
+	delete grad8Act;
+	delete grad9Act;
+
+  delete addIVSceneAct;
+//	delete addContactSurfaceAct;
+
   delete aboutAct;
   delete aboutQtAct;
   delete fileDialog;
@@ -345,6 +362,22 @@ void MainWindow::open() {
 // }
 }
 
+void MainWindow::addIVScene() {
+  QStringList fileNames = QFileDialog::getOpenFileNames(this, "Select one or more files to open", NULL, "IV file(s) (*.iv)");
+	SoInput iv_in;
+  for (int i = 0; i < fileNames.size(); ++i) {
+	  cout << "Read file " <<  fileNames.at(i).toLocal8Bit().constData() << endl;
+	  if (iv_in.openFile((char*)(fileNames.at(i).toLocal8Bit().constData()))) {
+		  SoSeparator *external_iv = SoDB::readAll(&iv_in);
+  		if (external_iv) root->addChild(external_iv);
+	  	iv_in.closeFile();
+  	}
+	  else {
+		  cerr << "[Warning] " << fileNames.at(i).toLocal8Bit().constData() << " IV file Problem. Skipped\n";
+	  }
+	}
+}
+
 bool MainWindow::save() {
   /*
   if (curFile.isEmpty()) {
@@ -375,15 +408,15 @@ void MainWindow::about() {
                "toolbars, and a status bar."));
 }
 
-void MainWindow::setGrad1() { gradient = map_color_rainbow; }
-void MainWindow::setGrad2() { gradient = map_color_rainbow_cycle; }
-void MainWindow::setGrad3() { gradient = map_color_fine; }
-void MainWindow::setGrad4() { gradient = map_color_sine; }
-void MainWindow::setGrad5() { gradient = map_color_sine_end; }
-void MainWindow::setGrad6() { gradient = map_color_rainbow_fast; }
-void MainWindow::setGrad7() { gradient = map_color_sine_acc; }
-void MainWindow::setGrad8() { gradient = height_map; }
-void MainWindow::setGrad9() { gradient = map_bw; }
+void MainWindow::setGrad1() { gradient = map_color_rainbow; emit changed(); }
+void MainWindow::setGrad2() { gradient = map_color_rainbow_cycle; emit changed(); }
+void MainWindow::setGrad3() { gradient = map_color_fine; emit changed(); }
+void MainWindow::setGrad4() { gradient = map_color_sine; emit changed(); }
+void MainWindow::setGrad5() { gradient = map_color_sine_end; emit changed(); }
+void MainWindow::setGrad6() { gradient = map_color_rainbow_fast; emit changed(); }
+void MainWindow::setGrad7() { gradient = map_color_sine_acc; emit changed(); }
+void MainWindow::setGrad8() { gradient = height_map; emit changed(); }
+void MainWindow::setGrad9() { gradient = map_bw; emit changed(); }
 
 void MainWindow::createActions() {
   /*
@@ -471,6 +504,11 @@ void MainWindow::createActions() {
   connect(grad8Act, SIGNAL(triggered()), this, SLOT(setGrad8()));
   connect(grad9Act, SIGNAL(triggered()), this, SLOT(setGrad9()));
 
+  addIVSceneAct = new QAction(tr("Add Inventor Scene(s)"), this);
+	connect(addIVSceneAct, SIGNAL(triggered()), this, SLOT(addIVScene()));
+//  addContactSurfaceAct = new QAction(tr("Compute contact surface"), this);
+	// connect(addContactSurfaceAct, SIGNAL(triggered()), this, SLOT(XXX))
+
   aboutAct = new QAction(tr("&About"), this);
   aboutAct->setStatusTip(tr("Show the application's About box"));
   connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -512,6 +550,10 @@ void MainWindow::createMenus() {
 	prefsMenu->addAction(grad7Act);
 	prefsMenu->addAction(grad8Act);
 	prefsMenu->addAction(grad9Act);
+
+  addMenu = menuBar()->addMenu(tr("&Add"));
+	addMenu->addAction(addIVSceneAct);
+//	addMenu->addAction(addContactSurfaceAct);
 
   menuBar()->addSeparator();
 
@@ -619,6 +661,7 @@ bool MainWindow::saveFile(const QString &fileName) {
 
 // Other
 
+// XXX knot length problem!!! plots in [0,1], curve length not necessarily
 // u,v in [0,1]
 void MainWindow::updatePickedPT(float u, float v, float u2, float v2, bool UNION) {
 	cout << "u,v,u2,v2" << u << " " << v << " " << u2 << " " << v2 << endl;

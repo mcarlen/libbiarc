@@ -3,7 +3,6 @@
 void PPPlotWindow::recompute() {
   // Make pp plot
 	Curve<Vector3> c2 = *((Curve<Vector3>*)(mainwin->ci->knot_shape[0]->getKnot()));
-	c2.link();
 	c2.make_default();
 	float *table = new float[500*500];
 	float min, max;
@@ -25,7 +24,7 @@ void PPPlotWindow::recompute() {
 	image = QImage(px32,500,500,QImage::Format_RGB32);
 	orig = image;
 	bkp = image;
- 
+  repaint();
 }
 
 PPPlotWindow::PPPlotWindow(MainWindow* mainWin, QWidget *parent, const char *name, Qt::WindowFlags wFlags)
@@ -45,7 +44,6 @@ PPPlotWindow::PPPlotWindow(MainWindow* mainWin, QWidget *parent, const char *nam
 	mainwin = mainWin;
 
   recompute();
-  update();
   std::cout << "done\n" << std::flush;
 }
 
@@ -172,7 +170,6 @@ void PPPlotWindow::mouseMoveEvent( QMouseEvent *e) {
 void PPPlotWindow::keyPressEvent( QKeyEvent *e) {
 	if (e->key()==Qt::Key_R) {
 		recompute();
-		repaint();
 	}
 }
 

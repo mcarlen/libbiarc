@@ -22,7 +22,6 @@ SoSeparator* frenet_frame(Tube<Vector3>* t, int FOURIER = 1) {
   Vector3 vsin, vcos;
   float scale;
 
-  curve.link();
   curve.make_default(); 
   
   scale = .75*curve.maxSegDistance();
@@ -340,13 +339,15 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     case Qt::Key_P:
       if (!pt_win) {
-        pt_win = new PTPlotWindow(viewer,NULL,"2dwindow");
+        pt_win = new PTPlotWindow(viewer,NULL,"pt Plot");
         pt_win->setAttribute(Qt::WA_NoBackground);
-        pt_win->setWindowTitle("2D Window");
+        pt_win->setWindowTitle("pt Plot");
         // XXX Screen width hardcoded!
         // pt_win->setGeometry(800+8,0,200,200);
         QObject::connect(pt_win,SIGNAL(pos_changed(float,float,float,float,bool)),
                          viewer,SLOT(updatePickedPT(float,float,float,float,bool)));
+        QObject::connect(viewer,SIGNAL(changed()),
+                         pt_win,SLOT(recompute()));
 
       }
       if (pt_win->isVisible()) pt_win->hide();
@@ -355,13 +356,15 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     case Qt::Key_O:
       if (!pp_win) {
-        pp_win = new PPPlotWindow(viewer,NULL,"2dwindow");
+        pp_win = new PPPlotWindow(viewer,NULL,"pp Plot");
         pp_win->setAttribute(Qt::WA_NoBackground);
-        pp_win->setWindowTitle("2D Window");
+        pp_win->setWindowTitle("pp Plot");
         // XXX Screen width hardcoded!
         // pp_win->setGeometry(800+8,0,200,200);
         QObject::connect(pp_win,SIGNAL(pos_changed(float,float,float,float,bool)),
                          viewer,SLOT(updatePickedPP(float,float,float,float,bool)));
+        QObject::connect(viewer,SIGNAL(changed()),
+                         pp_win,SLOT(recompute()));
 
       }
       if (pp_win->isVisible()) pp_win->hide();
@@ -370,13 +373,15 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     case Qt::Key_I:
       if (!tt_win) {
-        tt_win = new TTPlotWindow(viewer,NULL,"2dwindow");
+        tt_win = new TTPlotWindow(viewer,NULL,"tt Plot");
         tt_win->setAttribute(Qt::WA_NoBackground);
-        tt_win->setWindowTitle("2D Window");
+        tt_win->setWindowTitle("tt Plot");
         // XXX Screen width hardcoded!
         // tt_win->setGeometry(800+8,0,200,200);
         QObject::connect(tt_win,SIGNAL(pos_changed(float,float,float,float,bool)),
                          viewer,SLOT(updatePickedTT(float,float,float,float,bool)));
+        QObject::connect(viewer,SIGNAL(changed()),
+                         tt_win,SLOT(recompute()));
 
       }
       if (tt_win->isVisible()) tt_win->hide();
@@ -386,7 +391,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     // Quit program
     case Qt::Key_Q:
-      exit(0);
+      QCoreApplication::exit(0);
 
     }
 
