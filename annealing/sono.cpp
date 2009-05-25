@@ -1,6 +1,8 @@
 #include "../include/Curve.h"
 #include "../include/algo_helpers.h"
 
+// #define NNeighbour
+
 /*!
   Returns true if the index difference between i and
   j is greater than the given skip parameter.
@@ -27,11 +29,15 @@ float GetLength(Curve<Vector3> &c) {
   return L;
 }
 
-void SavePkf(Curve<Vector3> &c, int i) {
+void SavePkf(Curve<Vector3> &c, int freq = 10) {
+	static int count = 0;
   char buf[16];
-  sprintf(buf,"%010i.pkf",i);
-  c.computeTangents();
-  c.writePKF(buf);
+	if (count%freq==0) {
+    sprintf(buf,"%010i.pkf",count);
+    c.computeTangents();
+    c.writePKF(buf);
+	}
+  ++count;
 }
 
 void ShiftNodes(Curve<Vector3> &c, float scalefactor) {
@@ -51,6 +57,7 @@ void ShiftNodes(Curve<Vector3> &c, float scalefactor) {
   }
 }
 
+#ifdef NNeighbour
 /*
    N number of points
    D fixed thickness
@@ -60,22 +67,23 @@ void ShiftNodes(Curve<Vector3> &c, float scalefactor) {
    nn nearest neighbour array
  */
 void FindNeighbours(Curve<Vector3> &c, float D, int skip, float eps, int m, int **nn) {
+	cout << "FIND\n";
 
   int N = c.nodes();
 
   // clear nn
   for (int i=0;i<N;++i)
     for (int j=0;j<m;++j)
-      nn[i][j] = 0;
+      nn[i][j] = -1;
 
   Vector3 v;
   for (int i=0;i<N;++i) {
     int overlap = 0;
     for (int j=0;j<N;++j) {
       v = (c[i].getPoint()-c[j].getPoint());
-      if ((v.norm() < D+eps) && check_idx_skip(i,j,N,skip)) {
+      if ((v.norm() < D*(1.+eps)) && check_idx_skip(i,j,N,skip)) {
         // Caution : row is considered finished if we find a zero. that's why the index starts at 1
-        nn[i][overlap] = j+1;
+        nn[i][overlap] = j;
         overlap++;
         if (overlap>=m) {
           cerr << "Nearest neighbour table size too small : need more than " << m << endl;
@@ -93,28 +101,45 @@ void FindNeighbours(Curve<Vector3> &c, float D, int skip, float eps, int m, int 
   }
 #endif
 }
+#endif
 
-int RemoveOverlaps(Curve<Vector3> &c, int N, int m, int **nn, float D, float delta) {
-  int overlap = 0, start = rand()%N, ip;
+int RemoveOverlaps(Curve<Vector3> &c, int N, int m, int **nn, float D, float delta
+#ifndef NNeighbour
+, int skip
+#endif
+) {
+  int overlap = 0, start = rand()%N, ip, jp;
   float diff;
   Vector3 v;
   for (int i=0;i<N;++i) {
     ip = (start + i)%N;
     for (int j=0;j<m;++j) {
-      if (nn[ip][j]>0) {
-        v = (c[ip].getPoint()-c[nn[ip][j]-1].getPoint());
-        if (v.norm() < D) {
+#ifdef NNeighbour
+			jp = nn[ip][j];
+      if (nn[ip][j]>=0) {
+#else
+      jp = j;
+#endif
+        v = (c[ip].getPoint()-c[jp].getPoint());
+        if (v.norm() < D
+#ifndef NNeighbour
+					&& check_idx_skip(ip,jp,N,skip)
+#endif
+					) {
           overlap++;
-          diff = fabsf(v.norm()-D-delta)*.5; v.normalize();
+          diff = fabsf(v.norm()-(D*(1-delta)))*.5; v.normalize();
           c[ip].setPoint(c[ip].getPoint()+v*diff);
-          c[nn[ip][j]-1].setPoint(c[nn[ip][j]-1].getPoint()-v*diff);
+          c[jp].setPoint(c[jp].getPoint()-v*diff);
         }
+#ifdef NNeighbour
       }
       else {
         j = m;
       }
+#endif
     }
   }
+	cout << "Overlap " << overlap << endl;
   return overlap;
 }
 
@@ -172,7 +197,7 @@ int main(int argc,char** argv) {
       << " <shrink>"
       << " <no steps>"
       << " <pkf>\n"
-      << "Example : 1 0.001 0.001 .99 250 bone.pkf\n";
+      << "Example : sono 1 .1 .01 .99 500 bone.pkf\n";
     exit(1);
   }
 
@@ -189,16 +214,18 @@ int main(int argc,char** argv) {
   c.make_default();
 
   int   N = c.nodes();
-  float D = 1.; // c.thickness_fast()*.99;
+  float D = c.thickness_fast()*.99; // 1.;
   float L = GetLength(c);
 
   float l = L/(float)N;
+
+  cout << "[INFO] : N=" << N << ",D="<<D<<",L="<<L<<",l="<<l<<endl;
 
   //	assert(l<D);
 
   // Set neighbour eps to 10% of thickness
   NeighbourEps = D/10;
-  NeighbourSteps = 200;
+  NeighbourSteps = 20; // 200;
 
   Vector3 v;
   int overlap, skip = (int)(M_PI*D*.5/l);
@@ -222,7 +249,7 @@ int main(int argc,char** argv) {
     << endl;
 
   int zz = 0;
-  SavePkf(c,zz++);
+  SavePkf(c); zz++;
 
   // Maximum number of nearest neighbours
   const int MaxNN = N; // 3*N/4;
@@ -250,22 +277,29 @@ int main(int argc,char** argv) {
       ShiftNodes(c,ShiftScaleFactor);
       ControlLeashes(c,(float)L/(float)N);
 
+#ifdef NNeighbour
       FindNeighbours(c, D, skip, NeighbourEps, MaxNN, nn);
+#endif
       cout << endl << zz << " : skip = " << skip << ", L=" << L << " rope=" << L/D << endl;
     }
     counter++;
 
+#ifdef NNeighbour
     overlap = RemoveOverlaps(c, N, MaxNN, nn, D, OverlapDelta);
+#else
+    overlap = RemoveOverlaps(c, N, N, nn, D, OverlapDelta, skip);
+#endif
+
     ControlLeashes(c,l);
     if (ShrinkFailed > 50) {
       cout << "f:"<<overlap;
       ShiftNodes(c,ShiftScaleFactor);
       ControlLeashes(c,l);
       // Save it anyway
-      SavePkf(c,zz++);
+      SavePkf(c);
     }
     if (overlap <= OverlapTol) { 
-      SavePkf(c,zz++);
+      SavePkf(c);
       Shrink(c,ShrinkFactor);
       ControlLeashes(c,l);
       l*=ShrinkFactor;
@@ -280,11 +314,17 @@ int main(int argc,char** argv) {
     RopeOld = Rope;
     Rope = L/D;
     if (Rope < BestRope) BestRope = Rope;
+
+		zz++;
   }
+	SavePkf(c,1);
   cout << "\nInit Rope     = " << InitRope << endl;
   cout << "Best Rope     = " << BestRope << endl;
   cout << "Max overlaps  = " << MaxOverlap << endl;
-  cout << "Average overl = " << (float)AvgOverlap/(float)ShrinkCount << endl;
+	if (ShrinkCount<1)
+		cout << "PROBLEM, Not shrinked!!!\n";
+  else
+    cout << "Average overl = " << (float)AvgOverlap/(float)ShrinkCount << endl;
 }
 #else
 int main(int argc,char** argv) {
