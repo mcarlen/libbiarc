@@ -273,7 +273,7 @@ Vector Curve<Vector>::pointAt(float s) const {
   if (s==0.0) {
     return _Biarcs.front().getPoint();
   }
-  else if (s==this->length()) {
+  else if (s>=this->length()) {
     if (this->isClosed()) current = _Biarcs.begin();
     else current = (_Biarcs.end()-1);
     return current->getPoint();
@@ -304,7 +304,7 @@ Vector Curve<Vector>::tangentAt(float s) const {
   if (s==0.0) {
     return _Biarcs[0].getTangent();
   }
-  else if (s==this->length()) {
+  else if (s>=this->length()) {
     if (this->isClosed()) current = _Biarcs.begin();
     else current = (_Biarcs.end()-1);
     return current->getTangent();

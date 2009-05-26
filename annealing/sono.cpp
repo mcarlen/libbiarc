@@ -29,14 +29,15 @@ float GetLength(Curve<Vector3> &c) {
   return L;
 }
 
-void SavePkf(Curve<Vector3> &c, int freq = 10) {
-	static int count = 0;
+void SavePkf(Curve<Vector3> &c, int freq = 50) {
+  static int count = 0;
   char buf[16];
-	if (count%freq==0) {
+  if (count%freq==0) {
     sprintf(buf,"%010i.pkf",count);
     c.computeTangents();
     c.writePKF(buf);
-	}
+		cout << "Saved " << count << endl;
+  }
   ++count;
 }
 
@@ -139,7 +140,6 @@ int RemoveOverlaps(Curve<Vector3> &c, int N, int m, int **nn, float D, float del
 #endif
     }
   }
-	cout << "Overlap " << overlap << endl;
   return overlap;
 }
 
@@ -280,7 +280,7 @@ int main(int argc,char** argv) {
 #ifdef NNeighbour
       FindNeighbours(c, D, skip, NeighbourEps, MaxNN, nn);
 #endif
-      cout << endl << zz << " : skip = " << skip << ", L=" << L << " rope=" << L/D << endl;
+      // cout << endl << zz << " : skip = " << skip << ", L=" << L << " rope=" << L/D << endl;
     }
     counter++;
 
@@ -292,7 +292,7 @@ int main(int argc,char** argv) {
 
     ControlLeashes(c,l);
     if (ShrinkFailed > 50) {
-      cout << "f:"<<overlap;
+      // cout << "f:"<<overlap;
       ShiftNodes(c,ShiftScaleFactor);
       ControlLeashes(c,l);
       // Save it anyway

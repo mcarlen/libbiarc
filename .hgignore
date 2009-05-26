@@ -28,6 +28,7 @@ syntax: regexp
 
 
 syntax: glob
+annealing/sono
 annealing/anneal
 annealing/anneal4
 annealing/anneal4.sh

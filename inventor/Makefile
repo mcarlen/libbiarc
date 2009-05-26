@@ -1,6 +1,7 @@
 PROGS = xyzview main animate plotzoom # kv4
 
 include ../Makefile.config
+include .depend
 
 ######### INCLUDES ###########################
 
@@ -40,7 +41,7 @@ OBJ = $(SRC:.cpp=.o)
 
 ################ COMPILATION #####################
 
-all: $(PROGS)
+all: depend $(PROGS)
 
 t: t.o SoKnot.o
 	@echo Link ${<:.o=}
@@ -82,6 +83,10 @@ trefoil_builder: SoKnot.o trefoil_builder.o moc_Widgets.o Widgets.o moc_trefoil_
 	@echo Link $@
 	@$(LINKER) $(FLAGS) -o trefoil_builder $(INC_LIB) $< $(LIBS)
 
+# dependencies
+depend:
+	$(CXX) -M $(FLAGS) *.cpp > .depend
+
 ###--------------###
 ###    Clean     ###
 ###--------------###
@@ -94,6 +99,8 @@ clean :
 realclean :
 	@echo Purge `basename ${PWD}`
 	@-rm -f moc_* moc_*.o
-	@-rm -f $(OBJ) $(COMMON_OBJ) $(PROGS)
+	@-rm -f *.o
+	@-rm -f qrc_application.cpp
+	@-rm -f $(PROGS)
 	@-rm -f *~ *% .*~ .*% core
 	@-rm -rf ii_files

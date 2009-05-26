@@ -203,19 +203,22 @@ void PPPlotWindow::popcoords() {
   pop_info->show();
   pop_info->raise();
 */
+ 
+  mainwin->ci->knot_shape[0]->getKnot()->make_default();
+  float L = mainwin->ci->knot_shape[0]->getKnot()->length();
   if (clickx==releasex && clicky==releasey) {
     std::cout << "(X,Y) = " << clickx << ", " << clicky <<std::endl<<std::flush;
     if (clickx>=0&&clicky>=0)
-      emit pos_changed((float)clickx/(float)image.width(),
-                       (float)clicky/(float)image.height(),
+      emit pos_changed((float)clickx/(float)image.width()*L,
+                       (float)clicky/(float)image.height()*L,
                        -1.0,-1.0,UNION);
   }
   else {
     if (clickx>=0&&clicky>=0&&releasex>=0&&releasey>=0)
-      emit pos_changed((float)clickx/(float)image.width(),
-                       (float)clicky/(float)image.height(),
-                       (float)releasex/(float)image.width(),
-                       (float)releasey/(float)image.height(),UNION);
+      emit pos_changed((float)clickx/(float)image.width()*L,
+                       (float)clicky/(float)image.height()*L,
+                       (float)releasex/(float)image.width()*L,
+                       (float)releasey/(float)image.height()*L,UNION);
   }
 }
 

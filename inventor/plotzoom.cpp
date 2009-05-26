@@ -1,6 +1,6 @@
 #include "plotzoom.h"
 #include "algo_helpers.h"
-#include "colors.h"
+#include "../experimental/pngmanip/colors.h"
 
 int Plot::height() {
   return plotwin->height()+bg->height();
