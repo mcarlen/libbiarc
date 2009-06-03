@@ -34,3 +34,14 @@ plot "time_vs_knots.txt" using 1:3 title "Parallel", "time_vs_knots.txt" using 1
 EOF
 ps2pdf time_vs_knots.ps
 
+# Time vs. batch size
+gnuplot<<EOF
+set term postscript
+set output "time_vs_batch.ps"
+set xlabel "Batch size"
+set ylabel "Time (s)"
+set size square
+plot "time_vs_batch.txt"
+EOF
+ps2pdf time_vs_batch.ps
+
