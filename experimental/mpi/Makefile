@@ -7,6 +7,10 @@ len: len.cpp
 len2: len2.cpp
 	g++ -I../../include -L../../lib $< -o $@ -lbiarc -lrt
 
+a: a.cpp
+	g++ -I../../include -L../../lib $< -o $@ -lbiarc -lrt
+
+
 run: len
 	mpirun -np 4 ./len
 

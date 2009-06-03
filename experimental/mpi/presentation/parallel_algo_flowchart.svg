@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="parallel_algo_flowchart.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.70983166"
+     inkscape:cx="372.04724"
+     inkscape:cy="526.18109"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1400"
+     inkscape:window-height="962"
+     inkscape:window-x="0"
+     inkscape:window-y="26"
+     inkscape:snap-global="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid5117" />
+  </sodipodi:namedview>
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path3219"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective10" />
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.72600001;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 70,495.31766 C 16.504913,478.45679 14.17904,427.19974 70,412.36218"
+       id="path3991"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="80.023895"
+       y="55.672253"
+       id="text5131"><tspan
+         sodipodi:role="line"
+         id="tspan5133"
+         x="80.023895"
+         y="55.672253">- Initialize knot</tspan><tspan
+         sodipodi:role="line"
+         x="80.023895"
+         y="73.172256"
+         id="tspan5135">- Compute candidates</tspan><tspan
+         sodipodi:role="line"
+         x="80.023895"
+         y="90.672256"
+         id="tspan5137">- Set smallest distance</tspan><tspan
+         sodipodi:role="line"
+         x="80.023895"
+         y="108.17226"
+         id="tspan5139">  to smallest local</tspan><tspan
+         sodipodi:role="line"
+         x="80.023895"
+         y="125.67226"
+         id="tspan5141">  curvature</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="90"
+       y="27.362183"
+       id="text5143"><tspan
+         sodipodi:role="line"
+         id="tspan5145"
+         x="90"
+         y="27.362183">Master</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 81.034538,21.346819 L 71.034538,21.346819 L 71.034538,141.34681 L 251.03453,141.34681 L 251.03453,21.346819 L 161.03453,21.346819"
+       id="path5147" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="87.853333"
+       y="229.82175"
+       id="text5149"><tspan
+         sodipodi:role="line"
+         id="tspan5151"
+         x="87.853333"
+         y="229.82175">Send arc pair(s) and</tspan><tspan
+         sodipodi:role="line"
+         x="87.853333"
+         y="247.32175"
+         id="tspan5153">smallest distance to</tspan><tspan
+         sodipodi:role="line"
+         x="87.853333"
+         y="264.82175"
+         id="tspan5155">every child</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="89.347412"
+       y="204.75192"
+       id="text5157"><tspan
+         sodipodi:role="line"
+         id="tspan5159"
+         x="89.347412"
+         y="204.75192">Master</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 80.381958,198.73656 L 70.381958,198.73656 L 70.381958,286.8594 L 250.38196,286.8594 L 250.38196,198.73656 L 160.38196,198.73656"
+       id="path5161"
+       sodipodi:nodetypes="cccccc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 250,202.36218 L 670,202.36218 L 670,252.36218"
+       id="path5163" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 250,212.36218 L 490,212.36218 L 490,252.36218"
+       id="path5165" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 250,222.36218 L 380,222.36218 L 380,252.36218"
+       id="path5167" />
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="337.51248"
+       y="273.98734"
+       id="text5185"><tspan
+         sodipodi:role="line"
+         id="tspan5187"
+         x="337.51248"
+         y="273.98734">Child 1</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 335,267.36218 L 325,267.36218 L 325,353.45431 L 432.08829,353.45431 L 432.08829,267.36218 L 395,267.36218"
+       id="path5189"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="345.00003"
+       y="297.36218"
+       id="text5191"><tspan
+         sodipodi:role="line"
+         id="tspan5193"
+         x="345.00003"
+         y="297.36218">Compute</tspan><tspan
+         sodipodi:role="line"
+         x="345.00003"
+         y="314.86218"
+         id="tspan5195">and return</tspan><tspan
+         sodipodi:role="line"
+         x="345.00003"
+         y="332.36218"
+         id="tspan5197">distance</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="453.03458"
+       y="273.37369"
+       id="text5199"><tspan
+         sodipodi:role="line"
+         id="tspan5201"
+         x="453.03458"
+         y="273.37369">Child 2</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 449.99997,267.36218 L 439.99997,267.36218 L 439.99997,353.45431 L 547.08826,353.45431 L 547.08826,267.36218 L 509.99997,267.36218"
+       id="path5203"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="460"
+       y="297.36218"
+       id="text5205"><tspan
+         sodipodi:role="line"
+         id="tspan5207"
+         x="460"
+         y="297.36218">Compute</tspan><tspan
+         sodipodi:role="line"
+         x="460"
+         y="314.86218"
+         id="tspan5209">and return</tspan><tspan
+         sodipodi:role="line"
+         x="460"
+         y="332.36218"
+         id="tspan5211">distance</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="626.04608"
+       y="273.37369"
+       id="text5213"><tspan
+         sodipodi:role="line"
+         id="tspan5215"
+         x="626.04608"
+         y="273.37369">Child N</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 624.99997,267.36218 L 614.99997,267.36218 L 614.99997,353.45431 L 722.08826,353.45431 L 722.08826,267.36218 L 684.99997,267.36218"
+       id="path5217"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="635"
+       y="297.36218"
+       id="text5219"><tspan
+         sodipodi:role="line"
+         id="tspan5221"
+         x="635"
+         y="297.36218">Compute</tspan><tspan
+         sodipodi:role="line"
+         x="635"
+         y="314.86218"
+         id="tspan5223">and return</tspan><tspan
+         sodipodi:role="line"
+         x="635"
+         y="332.36218"
+         id="tspan5225">distance</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="575"
+       y="302.36218"
+       id="text5227"><tspan
+         sodipodi:role="line"
+         id="tspan5229"
+         x="575"
+         y="302.36218">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="89.479073"
+       y="399.67209"
+       id="text5243"><tspan
+         sodipodi:role="line"
+         id="tspan5245"
+         x="89.479073"
+         y="399.67209">Master</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 80.513619,393.65672 L 70.513619,393.65672 L 69.631662,731.41958 L 249.63165,731.41958 L 250.51361,393.65672 L 160.51362,393.65672"
+       id="path5247"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="79.367287"
+       y="424.93158"
+       id="text5249"><tspan
+         sodipodi:role="line"
+         id="tspan5251"
+         x="79.367287"
+         y="424.93158">Collect distance values</tspan><tspan
+         sodipodi:role="line"
+         x="79.367287"
+         y="442.43158"
+         id="tspan5253">from children and send</tspan><tspan
+         sodipodi:role="line"
+         x="79.367287"
+         y="459.93158"
+         id="tspan5255">new candidate arc</tspan><tspan
+         sodipodi:role="line"
+         x="79.367287"
+         y="477.43158"
+         id="tspan5257">pair(s) until all arc pairs</tspan><tspan
+         sodipodi:role="line"
+         x="79.367287"
+         y="494.93158"
+         id="tspan5259">are processed.</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="337.03458"
+       y="399.37372"
+       id="text5277"><tspan
+         sodipodi:role="line"
+         id="tspan5279"
+         x="337.03458"
+         y="399.37372">Child 1</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 334.99997,392.36218 L 324.99997,392.36218 L 324.99997,478.45431 L 432.08826,478.45431 L 432.08826,392.36218 L 394.99997,392.36218"
+       id="path5281"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="345"
+       y="422.36218"
+       id="text5283"><tspan
+         sodipodi:role="line"
+         id="tspan5285"
+         x="345"
+         y="422.36218">Compute</tspan><tspan
+         sodipodi:role="line"
+         x="345"
+         y="439.86218"
+         id="tspan5287">and return</tspan><tspan
+         sodipodi:role="line"
+         x="345"
+         y="457.36218"
+         id="tspan5289">distance</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="336.03458"
+       y="652.28162"
+       id="text5291"><tspan
+         sodipodi:role="line"
+         id="tspan5293"
+         x="336.03458"
+         y="652.28162">Child N</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 335,646.27005 L 325,646.27005 L 325,732.36218 L 432.08829,732.36218 L 432.08829,646.27005 L 395,646.27005"
+       id="path5295"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="345.00003"
+       y="676.27014"
+       id="text5297"><tspan
+         sodipodi:role="line"
+         id="tspan5299"
+         x="345.00003"
+         y="676.27014">Compute</tspan><tspan
+         sodipodi:role="line"
+         x="345.00003"
+         y="693.77014"
+         id="tspan5301">and return</tspan><tspan
+         sodipodi:role="line"
+         x="345.00003"
+         y="711.27014"
+         id="tspan5303">distance</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="337.03458"
+       y="503.37756"
+       id="text5305"><tspan
+         sodipodi:role="line"
+         id="tspan5307"
+         x="337.03458"
+         y="503.37756">Child 2</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 334.99999,497.36218 L 324.99999,497.36218 L 324.99999,583.45431 L 432.08828,583.45431 L 432.08828,497.36218 L 394.99999,497.36218"
+       id="path5309"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="345"
+       y="527.36218"
+       id="text5311"><tspan
+         sodipodi:role="line"
+         id="tspan5313"
+         x="345"
+         y="527.36218">Compute</tspan><tspan
+         sodipodi:role="line"
+         x="345"
+         y="544.86218"
+         id="tspan5315">and return</tspan><tspan
+         sodipodi:role="line"
+         x="345"
+         y="562.36218"
+         id="tspan5317">distance</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="601.14532"
+       y="-376.94757"
+       id="text5319"
+       transform="matrix(-3.2365077e-3,0.9999948,-0.9999948,-3.2365077e-3,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan5321"
+         x="601.14532"
+         y="-376.94757">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="89.88488"
+       y="824.39294"
+       id="text5329"><tspan
+         sodipodi:role="line"
+         id="tspan5331"
+         x="89.88488"
+         y="824.39294">Master</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 80.919426,818.37753 L 70.919426,818.37753 L 70.919426,888.37753 L 250.91943,888.37753 L 250.91943,818.37753 L 160.91943,818.37753"
+       id="path5333"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="87.89254"
+       y="850.40833"
+       id="text5335"><tspan
+         sodipodi:role="line"
+         id="tspan5337"
+         x="87.89254"
+         y="850.40833">Send stop signal to</tspan><tspan
+         sodipodi:role="line"
+         x="87.89254"
+         y="867.90833"
+         id="tspan5339">every child</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="90"
+       y="967.36218"
+       id="text5347"><tspan
+         sodipodi:role="line"
+         id="tspan5349"
+         x="90"
+         y="967.36218">Master</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 81.034546,961.34685 L 71.034546,961.34685 L 71.034546,1031.3468 L 251.03454,1031.3468 L 251.03454,961.34685 L 161.03455,961.34685"
+       id="path5351"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="81.034546"
+       y="991.34686"
+       id="text5353"><tspan
+         sodipodi:role="line"
+         id="tspan5355"
+         x="81.034546"
+         y="991.34686">Return thickness value</tspan><tspan
+         sodipodi:role="line"
+         x="81.034546"
+         y="1008.8469"
+         id="tspan5357">and exit.</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="337.03839"
+       y="888.37756"
+       id="text5359"><tspan
+         sodipodi:role="line"
+         id="tspan5361"
+         x="337.03839"
+         y="888.37756">Child 1</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 334.99997,882.36218 L 324.99997,882.36218 L 325.9194,938.37753 L 433.00769,938.37753 L 432.08826,882.36218 L 394.99997,882.36218"
+       id="path5363"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="345"
+       y="912.36218"
+       id="text5365"><tspan
+         sodipodi:role="line"
+         x="345"
+         y="912.36218"
+         id="tspan5371">Exit.</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 250,837.36218 L 370.91943,838.37753 L 370.91943,858.37753"
+       id="path5405"
+       sodipodi:nodetypes="ccc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 250,827.36218 L 490.91943,828.37753 L 490.91943,858.37753"
+       id="path5407"
+       sodipodi:nodetypes="ccc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 250,817.36218 L 670.91943,818.37753 L 670.91943,858.37753"
+       id="path5409"
+       sodipodi:nodetypes="ccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="451.03842"
+       y="887.37756"
+       id="text5415"><tspan
+         sodipodi:role="line"
+         id="tspan5417"
+         x="451.03842"
+         y="887.37756">Child 2</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 450,882.36218 L 440,882.36218 L 440.91943,938.37753 L 548.00772,938.37753 L 547.08829,882.36218 L 510,882.36218"
+       id="path5419"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="460.00003"
+       y="912.36218"
+       id="text5421"><tspan
+         sodipodi:role="line"
+         x="460.00003"
+         y="912.36218"
+         id="tspan5423">Exit.</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="626.00769"
+       y="887.37756"
+       id="text5425"><tspan
+         sodipodi:role="line"
+         id="tspan5427"
+         x="626.00769"
+         y="887.37756">Child N</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 624.99997,882.36218 L 614.99997,882.36218 L 615.9194,938.37753 L 723.00769,938.37753 L 722.08826,882.36218 L 684.99997,882.36218"
+       id="path5429"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:14px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="635"
+       y="912.36218"
+       id="text5431"><tspan
+         sodipodi:role="line"
+         x="635"
+         y="912.36218"
+         id="tspan5433">Exit.</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="573.14148"
+       y="909.3894"
+       id="text5435"><tspan
+         sodipodi:role="line"
+         id="tspan5437"
+         x="573.14148"
+         y="909.3894">...</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 155,142.36218 C 155,174.36218 155,182.36218 155,182.36218"
+       id="path2521"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 155,287.36218 C 155,319.36218 155,382.36218 155,382.36218"
+       id="path3814"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 155,732.36218 C 155,764.36218 155,802.36218 155,802.36218"
+       id="path3816"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 155,887.36218 C 155,919.36218 155,942.36218 155,942.36218"
+       id="path3818"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 325,397.36218 C 251,397.36218 251,397.36218 251,397.36218"
+       id="path3820" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 250,407.36218 C 324,407.36218 324,407.36218 324,407.36218"
+       id="path3822" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 324,427.36218 C 250,427.36218 250,427.36218 250,427.36218"
+       id="path5884" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 250,437.36218 C 324,437.36218 324,437.36218 324,437.36218"
+       id="path5886" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 325,502.36218 C 251,502.36218 251,502.36218 251,502.36218"
+       id="path5888" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 250,512.36218 C 324,512.36218 324,512.36218 324,512.36218"
+       id="path5890" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 325,652.36218 C 251,652.36218 251,652.36218 251,652.36218"
+       id="path5896" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 250,662.36218 C 324,662.36218 324,662.36218 324,662.36218"
+       id="path5898" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 325,477.36218 C 251,477.36218 251,477.36218 251,477.36218"
+       id="path5900" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 324,582.36218 C 250,582.36218 250,582.36218 250,582.36218"
+       id="path5902" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;marker-start:none;marker-end:url(#Arrow1Lend);stroke-opacity:1"
+       d="M 325.5,730.36218 C 251.5,730.36218 251.5,730.36218 251.5,730.36218"
+       id="path5904" />
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="536.43695"
+       y="-286.73767"
+       id="text5906"
+       transform="matrix(-3.2365076e-3,0.9999948,-0.9999948,-3.2365076e-3,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan5908"
+         x="536.43695"
+         y="-286.73767">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="686.43616"
+       y="-287.22318"
+       id="text5910"
+       transform="matrix(-3.2365076e-3,0.9999948,-0.9999948,-3.2365076e-3,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan5912"
+         x="686.43616"
+         y="-287.22318">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:20px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="446.43744"
+       y="-286.44641"
+       id="text5914"
+       transform="matrix(-3.2365076e-3,0.9999948,-0.9999948,-3.2365076e-3,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan5916"
+         x="446.43744"
+         y="-286.44641">...</tspan></text>
+  </g>
+</svg>

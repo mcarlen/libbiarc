@@ -12,7 +12,7 @@
 #include "../../include/utils/timer.h"
 #endif
 
-#define BATCH 2
+#define BATCH 100
 
 // FIXME : this is specialized for 3D!
 // res contains at the end the serialized version of Candi<> c
@@ -80,24 +80,11 @@ bool done = false;
 
 int main(int argc, char *argv[]) {
 
-/*
-  Candi<Vector3> cc(Vector3(0,0,0),Vector3(1,.5,0),Vector3(2,0,0),
-	                  Vector3(0,-2,0),Vector3(1,-2.5,0),Vector3(2,-2,0));
-
-  double serial[23];
-	pack_candidate(cc, serial);
-
-	for (int i=0;i<23;++i) printf("%f ",serial[i]);
-	printf("\n");
-*/
-
   if (argc!=2) {
     printf("Usage : %s pkf\n", argv[0]);
 		exit(0);
 	}
 
-//	char idstr[32];
-//	char buff[BUFSIZE];
 	int numprocs;
   int rank;
 	MPI_Status stat; 
@@ -108,19 +95,23 @@ int main(int argc, char *argv[]) {
 
 	MPI_Init(&argc,&argv); /* all MPI programs start with MPI_Init; all 'N' processes exist thereafter */
 
-  MPI_Datatype newtype;
-  MPI_Type_contiguous(24, MPI_DOUBLE, &newtype);
-	MPI_Type_commit(&newtype);
+  MPI_Datatype MPI_Candi;
+  MPI_Type_contiguous(24, MPI_DOUBLE, &MPI_Candi);
+	MPI_Type_commit(&MPI_Candi);
 
 	MPI_Comm_size(MPI_COMM_WORLD,&numprocs); /* find out how big the SPMD world is */
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank); /* and this processes' rank is */
 
 	if(rank == 0)	{
 
+#ifdef TIMING
+    float master_time = start_time();
+#endif
+
 //    printf("No of procs : %d\n", numprocs);
 
 		// Master computes the first candidates for the computation
-		Curve<Vector3> curve(argv[1]);
+    Curve<Vector3> curve(argv[1]);
 
 		curve.link();
 		curve.make_default();
@@ -128,10 +119,10 @@ int main(int argc, char *argv[]) {
 //		curve.make_default();
 
 #ifdef TIMING
-  float mytime = start_time();
+    float mytime = start_time();
 #endif
 
-	  double dval;
+    double dval;
 		double min_diam = check_local_curvature(&curve);
 		vector<Candi<Vector3> > tmp, candidates;
 
@@ -154,9 +145,13 @@ int main(int argc, char *argv[]) {
 	  		next_candidate_id++;
 			}
 
-	  	MPI_Send(serial, BATCH, newtype, i, TAG, MPI_COMM_WORLD);
+	  	MPI_Send(serial, BATCH, MPI_Candi, i, TAG, MPI_COMM_WORLD);
 		}
 
+#ifdef TIMING
+		master_time = stop_time(mytime);
+		float child_time = start_time();
+#endif
 
 		while (!done) {
 			for(int i=1;i<numprocs;i++)	{
@@ -171,31 +166,32 @@ int main(int argc, char *argv[]) {
   		  		if (num_received>=candidates.size()) { done = true; break; }
           if (next_candidate_id<candidates.size()) {
 
-			for (int j=0;j<BATCH;++j) {
-			// XXX lol, if everything is sent, send the same pair again ;)
-			  if (next_candidate_id>=candidates.size()) next_candidate_id--;
-        pack_candidate(candidates[next_candidate_id],gDmin,serial[j]);
-	  		next_candidate_id++;
-			}
-
-	      	  MPI_Send(serial, BATCH, newtype, i, TAG, MPI_COMM_WORLD);
+	          for (int j=0;j<BATCH;++j) {
+            // XXX lol, if everything is sent, send the same pair again ;)
+              if (next_candidate_id>=candidates.size()) next_candidate_id--;
+                pack_candidate(candidates[next_candidate_id],gDmin,serial[j]);
+                next_candidate_id++;
+            }
+	      	  MPI_Send(serial, BATCH, MPI_Candi, i, TAG, MPI_COMM_WORLD);
 				  }
 
 //			printf("ROOT : Node %d sends %f\n", i, dval);
-			}
-			else done = true;
-		}
-  }
+        }
+        else done = true;
+	    }
+    }
     printf("ROOT : all done send STOP to children\n");
 
 		// Tell the children, that we're done
 		serial[0][0] = -1;
 		for(int i=1;i<numprocs;i++)
-			MPI_Send(serial, BATCH, newtype, i, TAG, MPI_COMM_WORLD);
+			MPI_Send(serial, BATCH, MPI_Candi, i, TAG, MPI_COMM_WORLD);
 
     printf("Rope : %f\n", curve.length()/gDmin);
 #ifdef TIMING
-		cerr << stop_time(mytime) << endl;
+		cerr << "Master time   : " << master_time << endl;
+		cerr << "Children time : " << stop_time(child_time) << endl;
+		cerr << "Total time    : " << stop_time(mytime) << endl;
 #endif
 
 	}
@@ -203,7 +199,7 @@ int main(int argc, char *argv[]) {
 		while (true) {
 			double curr_best, curr_min;
 			/* receive from rank 0: */
-			MPI_Recv(serial, BATCH, newtype, 0, TAG, MPI_COMM_WORLD, &stat);
+			MPI_Recv(serial, BATCH, MPI_Candi, 0, TAG, MPI_COMM_WORLD, &stat);
 			if (serial[0][0]<0) {
 //				printf("Node %d : DONE!\n", rank);
 				break; // we're done

@@ -57,8 +57,8 @@ int main(int argc, char** argv) {
   cerr << "L="<<c.length()<<endl;
 	float start = first_min(c);
 	cerr << "min(0)=" << start << endl;
-	build_sigma(c, start, 2001);
-	// build_sigma(c, 0.44, 2001);
+	// build_sigma(c, start, 2001);
+	build_sigma(c, 0.44, 2001);
 	c.writePKF("out.pkf");
 
   return 0;

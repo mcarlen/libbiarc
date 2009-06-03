@@ -189,14 +189,15 @@ float ShrinkFactor     = .999;
 int   MaxIter, NeighbourSteps;
 
 int main(int argc,char** argv) {
-  if (argc!=7) {
+  if (!(argc==7||argc==8)) {
     cout << "Usage   : " << argv[0]
       << " <overlap>"
       << " <overlap delta>"
       << " <shift>"
       << " <shrink>"
       << " <no steps>"
-      << " <pkf>\n"
+      << " <pkf>"
+			<< " [<thickness>]\n"
       << "Example : sono 1 .1 .01 .99 500 bone.pkf\n";
     exit(1);
   }
@@ -214,7 +215,11 @@ int main(int argc,char** argv) {
   c.make_default();
 
   int   N = c.nodes();
-  float D = c.thickness_fast()*.99; // 1.;
+  float D;
+	if (argc!=8)
+		D = c.thickness_fast(); // .99;
+	else
+		D = atof(argv[7]);
   float L = GetLength(c);
 
   float l = L/(float)N;
@@ -318,7 +323,8 @@ int main(int argc,char** argv) {
 		zz++;
   }
 	SavePkf(c,1);
-  cout << "\nInit Rope     = " << InitRope << endl;
+	cout << "\nD           = " << D << endl;
+  cout << "Init Rope     = " << InitRope << endl;
   cout << "Best Rope     = " << BestRope << endl;
   cout << "Max overlaps  = " << MaxOverlap << endl;
 	if (ShrinkCount<1)
