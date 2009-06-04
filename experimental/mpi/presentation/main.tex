@@ -1,5 +1,7 @@
 \documentclass{article}
+
 \usepackage{graphicx}
+\usepackage{verbatim}
 
 \begin{document}
 
@@ -45,14 +47,98 @@ and sends this value in future jobs. As soon as all the arc pairs are processed,
 the master notifies the child processes that their work is done and
 ends.
 
+\begin{comment}
 \begin{figure}[p]
 \includegraphics[width=\textwidth]{parallel_algo_flowchart.pdf}
 \caption{XXX Explain chart! \label{fig:parallel_algo_flowchart} }
 \end{figure}
+\end{comment}
 
 \subsection{MPI: A Message-Passing Interface Standard}
 
-XXX
+The MPI API specification is a standart for MIMD parallel computing
+that defines how different processes with separate memory spaces
+communicate to fullfill a computation or program execution. The
+communication is done with a message passing protocol between the
+various processes running in parallel. The communication between
+processes can be point-to-point (blocking) or asynchronous (non-blocking).
+A point-to-point communication is considered to be finished when
+the sender and receiver exchanged the data. For the non-blocking
+case the sender does not wait until the data has been received
+by its communication partner.
+
+Different computer and cluster manifacturers have different
+implementations of the MPI interface tailored to their hardware.
+A relatively widespread implementation is MPICH, which has
+as well been used as a bases for MPI implementations.
+LAM or openMPI are other implementations of this interface standard.
+
+We will not present the entire list of MPI functions. As an example
+we start with a minimal program.
+
+\begin{verbatim}
+#include <stdio.h>
+#include <mpi.h>
+
+int main (int argc, char *argv[]) {
+  int rank, size, 
+
+  MPI_Init(&argc, &argv);
+
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+  printf("Process %d of %d\n", rank, size );
+
+  MPI_Finalize();
+
+  return 0;
+}
+\end{verbatim}
+
+In the program listing we use \verb+MPI_Init+ to intialize
+the MPI environment and \verb+MPI_Finalize+ to end the
+execution. The function \verb+MPI_Comm_rank+ asks what
+processor number this process has and
+\verb+MPI_Comm_size+ requests information about how many
+CPUs are available. 
+
+Running MPI programs in a parallel environment such as
+a computing cluster depend on the different implementations.
+A sample invocation using $4$ CPUs would be the following
+
+\begin{verbatim}
+mpirun -machinefile machines -np 4 program
+\end{verbatim}
+
+where the file \verb+machines+ contains information about
+the cluster like node hostnames and number of processors per
+host.
+
+Two other routines are worth mentioning since they are
+the basis of every parallel program for sending and
+receiving messages.
+
+\begin{verbatim}
+int MPI_Send( void *buf, int count, MPI_Datatype datatype, int dest, 
+              int tag, MPI_Comm comm )
+int MPI_Recv( void *buf, int count, MPI_Datatype datatype, int source, 
+              int tag, MPI_Comm comm, MPI_Status *status )
+\end{verbatim}
+
+The various arguments are \verb+buf+, a pointer to the data to be
+sent or received - \verb+count+, the size of the data of type
+\verb+datatype+. The integers \verb+dest+ and \verb+source+ define
+the rank of the partner process, \verb+tag+ is a message identification
+and \verb+MPI_Comm+ is a communication handle. A common handle is
+\verb+MPI_COMM_WORLD+ which includes all the available processes.
+It is possible to define other communicators depending on the
+network and computation topology implemented in the program.
+
+Collective communication is possible as well. A broadcast sends
+a message to all the processes, scatter and reduce sends one task
+to all the processes in a group or reduces values on all processes to a
+single value on one process.
 
 \subsection{Custom datatypes}
 
@@ -169,6 +255,7 @@ pair is already the smallest out of the $7$ and the next $6$ are rejected since 
 a lower value. If this is true for almost every block of $7$ pairs, then the times for the single
 and multi processor runs have to be close.
 
+\begin{comment}
 \begin{figure}
 \includegraphics[width=\textwidth]{time_vs_cpus.pdf}
 \caption{XXX Explain \label{fig:time_vs_cpus}}
@@ -188,7 +275,7 @@ and multi processor runs have to be close.
 \includegraphics[width=\textwidth]{time_vs_batch.pdf}
 \caption{XXX Explain \label{fig:time_vs_batch}}
 \end{figure}
-
+\end{comment}
 
 \subsection{Timing master/slaves}
 
@@ -208,6 +295,7 @@ computation by the child processes. A more in depth analysis has shown that
 the masters spends most of the time to set up the inital candidate arc pairs.
 Note that the batch size has been set to $1$ for these computations.
 
+\begin{comment}
 \begin{figure}
 \begin{center}
 \begin{tabular}{lclll}
@@ -224,6 +312,7 @@ k9.1 & 376 & 0.067325 & 0.000118 & 0.067447
 \end{center}
 \caption{XXX caption \label{tab:master_slave_timing} }
 \end{figure}
+\end{comment}
 
 \subsection{Possible improvements}
 
