@@ -25,9 +25,9 @@
      objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.70983166"
+     inkscape:zoom="1"
      inkscape:cx="372.04724"
-     inkscape:cy="526.18109"
+     inkscape:cy="766.18109"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -100,15 +100,15 @@
          sodipodi:role="line"
          x="80.023895"
          y="90.672256"
-         id="tspan5137">- Set smallest distance</tspan><tspan
+         id="tspan5137">- Set thickness to</tspan><tspan
          sodipodi:role="line"
          x="80.023895"
          y="108.17226"
-         id="tspan5139">  to smallest local</tspan><tspan
+         id="tspan5139">  smallest local radius</tspan><tspan
          sodipodi:role="line"
          x="80.023895"
          y="125.67226"
-         id="tspan5141">  curvature</tspan></text>
+         id="tspan5141">  of curvature</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
@@ -140,7 +140,7 @@
          sodipodi:role="line"
          x="87.853333"
          y="264.82175"
-         id="tspan5155">every child</tspan></text>
+         id="tspan5155">every slave</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
@@ -177,7 +177,7 @@
          sodipodi:role="line"
          id="tspan5187"
          x="337.51248"
-         y="273.98734">Child 1</tspan></text>
+         y="273.98734">Slave 1</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 335,267.36218 L 325,267.36218 L 325,353.45431 L 432.08829,353.45431 L 432.08829,267.36218 L 395,267.36218"
@@ -210,7 +210,7 @@
          sodipodi:role="line"
          id="tspan5201"
          x="453.03458"
-         y="273.37369">Child 2</tspan></text>
+         y="273.37369">Slave 2</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 449.99997,267.36218 L 439.99997,267.36218 L 439.99997,353.45431 L 547.08826,353.45431 L 547.08826,267.36218 L 509.99997,267.36218"
@@ -243,7 +243,7 @@
          sodipodi:role="line"
          id="tspan5215"
          x="626.04608"
-         y="273.37369">Child N</tspan></text>
+         y="273.37369">Slave N</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 624.99997,267.36218 L 614.99997,267.36218 L 614.99997,353.45431 L 722.08826,353.45431 L 722.08826,267.36218 L 684.99997,267.36218"
@@ -305,7 +305,7 @@
          sodipodi:role="line"
          x="79.367287"
          y="442.43158"
-         id="tspan5253">from children and send</tspan><tspan
+         id="tspan5253">from slaves and send</tspan><tspan
          sodipodi:role="line"
          x="79.367287"
          y="459.93158"
@@ -327,7 +327,7 @@
          sodipodi:role="line"
          id="tspan5279"
          x="337.03458"
-         y="399.37372">Child 1</tspan></text>
+         y="399.37372">Slave 1</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 334.99997,392.36218 L 324.99997,392.36218 L 324.99997,478.45431 L 432.08826,478.45431 L 432.08826,392.36218 L 394.99997,392.36218"
@@ -360,7 +360,7 @@
          sodipodi:role="line"
          id="tspan5293"
          x="336.03458"
-         y="652.28162">Child N</tspan></text>
+         y="652.28162">Slave N</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 335,646.27005 L 325,646.27005 L 325,732.36218 L 432.08829,732.36218 L 432.08829,646.27005 L 395,646.27005"
@@ -393,7 +393,7 @@
          sodipodi:role="line"
          id="tspan5307"
          x="337.03458"
-         y="503.37756">Child 2</tspan></text>
+         y="503.37756">Slave 2</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 334.99999,497.36218 L 324.99999,497.36218 L 324.99999,583.45431 L 432.08828,583.45431 L 432.08828,497.36218 L 394.99999,497.36218"
@@ -456,7 +456,7 @@
          sodipodi:role="line"
          x="87.89254"
          y="867.90833"
-         id="tspan5339">every child</tspan></text>
+         id="tspan5339">every slave</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:18px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
@@ -495,7 +495,7 @@
          sodipodi:role="line"
          id="tspan5361"
          x="337.03839"
-         y="888.37756">Child 1</tspan></text>
+         y="888.37756">Slave 1</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 334.99997,882.36218 L 324.99997,882.36218 L 325.9194,938.37753 L 433.00769,938.37753 L 432.08826,882.36218 L 394.99997,882.36218"
@@ -535,7 +535,7 @@
          sodipodi:role="line"
          id="tspan5417"
          x="451.03842"
-         y="887.37756">Child 2</tspan></text>
+         y="887.37756">Slave 2</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 450,882.36218 L 440,882.36218 L 440.91943,938.37753 L 548.00772,938.37753 L 547.08829,882.36218 L 510,882.36218"
@@ -560,7 +560,7 @@
          sodipodi:role="line"
          id="tspan5427"
          x="626.00769"
-         y="887.37756">Child N</tspan></text>
+         y="887.37756">Slave N</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 624.99997,882.36218 L 614.99997,882.36218 L 615.9194,938.37753 L 723.00769,938.37753 L 722.08826,882.36218 L 684.99997,882.36218"
