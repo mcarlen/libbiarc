@@ -1,5 +1,5 @@
 /*!
-  \class TubeBundle TubeBundle.h include/TubeBundle.h
+  \class TubeBundle include/TubeBundle.h include/TubeBundle.h
   \ingroup BiarcLibGroup
   \brief The TubeBundle class contains the mesh of a tube around a
   curve in \f$\mathcal{R}^3\f$.

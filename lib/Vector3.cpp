@@ -19,7 +19,7 @@
 */
 
 /*!
-  \class Vector3 Vector3.h include/Vector3.h
+  \class Vector3 include/Vector3.h include/Vector3.h
   \ingroup BiarcLibGroup
   \brief The Vector3 class is a 3 dimensional Vector class with
   floating point coordinates.
@@ -33,7 +33,7 @@
 //
 // documentation of inlined methods
 //
- 
+
 /*!
   \fn float & Vector3::operator[](const int c)
   Index operator. Returns modifiable x, y or z coordinate of the vector.
@@ -54,8 +54,18 @@
   Overloaded left shift operator. Returns the Vector \a v as an ostream
   that can be written to a file or to standart output.
 
-  \sa print()
+  \sa print() operator>>()
 */
+
+/*!
+  \fn ostream & Vector3::operator>> (istream &out, Vector3 &v)
+
+  Overloaded right shift operator. Initialize vector \a v
+	with istream \a out.
+
+  \sa print() operator<<()
+*/
+
 
 #include "../include/Vector3.h"
 #include "../include/Matrix3.h"

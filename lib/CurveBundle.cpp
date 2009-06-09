@@ -1,5 +1,5 @@
 /*!
-  \class CurveBundle CurveBundle.h include/CurveBundle.h
+  \class CurveBundle include/CurveBundle.h include/CurveBundle.h
   \ingroup BiarcLibGroup
   \brief The CurveBundle class for storing and manipulating biarc curves
   in \f$\mathcal{R}^3\f$.

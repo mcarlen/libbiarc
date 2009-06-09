@@ -84,13 +84,8 @@ class Curve : public PKFmanip {
   void setNext(int i,const Biarc<Vector>& b);
   void setPrevious(int i,const Biarc<Vector>& b);
 
-  biarc_it begin() {
-    return _Biarcs.begin();
-  }
-
-  biarc_it end() {
-    return _Biarcs.end();
-  }
+  biarc_it begin();
+  biarc_it end();
 
   int isClosed() const ;
   void link() ;
@@ -176,11 +171,11 @@ class Curve : public PKFmanip {
   int readData(const char* filename, const char* delimiter);
   int readData(istream &in, const char* delimiter);
   int writeData(const char* filename, const char* delimiter,
-		int tangetns_flag);
+	              int tangents_flag);
   int writeData(ostream &out, const char* delimiter,
-		int tangents_flag);
+	              int tangents_flag);
 
-  //  friend ostream & operator<<(ostream &out, const Curve<Vector> &c);
+  friend ostream & operator<<(ostream &out, const Curve<Vector> &c);
 };
 
 template<class Vector>

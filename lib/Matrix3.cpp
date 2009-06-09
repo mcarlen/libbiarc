@@ -1,5 +1,5 @@
 /*!
-  \class Matrix3 Matrix3.h include/Matrix3.h
+  \class Matrix3 include/Matrix3.h include/Matrix3.h
   \ingroup BiarcLibGroup
   \brief The Matrix3 class is a 3x3 dimensional Matrix class with
   floating point entries.

@@ -1,5 +1,5 @@
 /*!
-  \class Curve Curve.h include/Curve.h
+  \class Curve include/Curve.h include/Curve.h
   \ingroup BiarcLibGroup
   \brief The Curve class for storing and manipulating a single biarc curve
   in \f$\mathcal{R}^3\f$.
@@ -95,7 +95,7 @@
 //
  
 /*!
-  \fn ostream & Curve::operator<<(ostream &out, const Curve &c)
+  \fn ostream & Curve<Vector>::operator<<(ostream &out, const Curve<Vector> &c)
 
   Overloaded left shift operator. Writes the current Curve object \a c
   to the ostream object \a out. If there is an interpolated curve,
@@ -137,11 +137,11 @@ inline biarc_ref Curve<Vector>::operator[](int c) {
 }
 
 
+// init to Null
 /*!
   Internal function to initialize a Curve object. Sets the list
   to NULL, the number of nodes and the open/closed flag to zero.
 */
-// init to Null
 template<class Vector>
 void Curve<Vector>::init() {
   _Closed = 0;
@@ -155,6 +155,15 @@ void Curve<Vector>::init() {
 */
 template<class Vector>
 biarc_it Curve<Vector>::accessBiarc(int i) {
+  return (_Biarcs.begin()+i);
+}
+
+/*!
+  Private access function to the biarcs in the curve.
+  Returns an STL iterator to a biarc
+*/
+template<class Vector>
+biarc_constit Curve<Vector>::accessBiarc(int i) const {
   return (_Biarcs.begin()+i);
 }
 
@@ -261,11 +270,11 @@ inline float Curve<Vector>::length() const {
   return L;
 }
 
+// FIXME : STL adapt
 /*!
   Return Point at Curve position Curve(s), where
   s is in [0,curvelength]
 */
-// FIXME : STL adapt
 template<class Vector>
 Vector Curve<Vector>::pointAt(float s) const {
   biarc_constit current;
@@ -292,11 +301,11 @@ Vector Curve<Vector>::pointAt(float s) const {
   }
 }
 
+// FIXME :: STL add
 /*!
   Return Tangent at Curve position Curve(s), where
   s is in [0,curvelength]
 */
-// FIXME :: STL add
 template<class Vector>
 Vector Curve<Vector>::tangentAt(float s) const {
   biarc_constit current;
@@ -323,11 +332,11 @@ Vector Curve<Vector>::tangentAt(float s) const {
   }
 }
 
+// FIXME:STL adapt
 /*!
   Returns an STL iterator to the biarc on which the
   point Curve(s) is. s is in [0,curvelength]
 */
-// FIXME:STL adapt
 template<class Vector>
 inline biarc_it Curve<Vector>::biarcAt(float s) {
   biarc_it current;
@@ -513,6 +522,22 @@ void Curve<Vector>::setPrevious(int i, const Biarc<Vector>& b) {
 }
 
 /*!
+  Return a STL iterator pointing to the first biarc
+*/
+template<class Vector>
+biarc_it Curve<Vector>::begin() {
+  return _Biarcs.begin();
+}
+
+/*!
+  Return a STL iterator pointing to the last biarc
+*/
+template<class Vector>
+biarc_it Curve<Vector>::end() {
+  return _Biarcs.end();
+}
+
+/*!
   This is the way to close a curve. It links the
   last element in the list to the first.
   If the curve is already linked, nothing happens.
@@ -563,6 +588,7 @@ void Curve<Vector>::make(float f) {
     it->make(f);
 }
 
+// #define TROVATO
 /*!
   Interpolate the point/tangent data actually stored in this
   Curve object. The computed matching points will be equidistant
@@ -571,7 +597,6 @@ void Curve<Vector>::make(float f) {
 
   \sa make(), CurveBundle::makeMidpointRule()
 */
-// #define TROVATO
 template<class Vector>
 void Curve<Vector>::makeMidpointRule() {
 #ifdef TROVATO
@@ -804,6 +829,15 @@ float Curve<Vector>::radius_pt(const Vector &p0, const Vector &t0,
     return 0.5*Dlen/sina;
 }
 
+/*!
+  This function returns the radius of a circle that
+  goes through point curve(s) and is tangent to the
+  curve at point curve(t). This function is commonly
+  called \f$\rho_{pt}(s,t)\f$. The arguments \a s
+	and \a t are arclength parameters.
+
+  \sa thickness(), thickness_fast()
+*/
 template<class Vector>
 float Curve<Vector>::radius_pt(const float s, const float t) const {
   Vector p0 = pointAt(s);
@@ -822,7 +856,7 @@ float Curve<Vector>::pp(int from, int to) const {
 }
 
 /*!
-	Compute the pp (euclidean distance) function between \gamma(s) and \gamma(t)
+	Compute the pp (euclidean distance) function between \f$\gamma(s)\f$ and \f$\gamma(t)\f$
  */
 template<class Vector>
 float Curve<Vector>::pp(float s, float t) const {
@@ -1002,6 +1036,8 @@ float Curve<Vector>::distEnergy() {
   return E;
 }
 
+// XXX : resampling doesn't work. problem with closed curves!
+//       i.e. we get one point to much
 /*!
   This function resamples the current Curve object with
   \a NewNoNodes nodes on the curve. The whole curve
@@ -1013,8 +1049,6 @@ float Curve<Vector>::distEnergy() {
 
   \sa refine(),make(),CurveBundle::resample()
 */
-// XXX : resampling doesn't work. problem with closed curves!
-//       i.e. we get one point to much
 template<class Vector>
 void Curve<Vector>::resample(int NewNoNodes) {
 
@@ -1088,6 +1122,7 @@ void Curve<Vector>::resample(int NewNoNodes) {
   *this = *c;
 }
 
+// Refine a part of a curve by N points
 /*!
   This function puts \a NewNoNodes nodes between curve
   node \a from_N and node \a to_N. The count of the number
@@ -1103,7 +1138,6 @@ void Curve<Vector>::resample(int NewNoNodes) {
 
   \sa resample(),make().
 */
-// Refine a part of a curve by N points
 template<class Vector>
 void Curve<Vector>::refine(int from_N, int to_N, int NewNoNodes) {
   biarc_it from = accessBiarc(from_N);
@@ -1339,6 +1373,7 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
   return v;
 }
 
+// FIXME : STL adapt!!
 /*!
   Returns the torsion at biarc number \a n.
 
@@ -1349,7 +1384,6 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
 
   \sa torsion2(),curvature()
 */
-// FIXME : STL adapt!!
 template<class Vector>
 float Curve<Vector>::torsion(int n) {
 
@@ -1401,6 +1435,7 @@ float Curve<Vector>::torsion(int n) {
 }
 
 
+// FIXME : STL adapt
 /*!
   Returns the torsion at biarc number \a n.
 
@@ -1416,7 +1451,6 @@ float Curve<Vector>::torsion(int n) {
 
   \sa torsion(),curvature()
 */
-// FIXME : STL adapt
 template<class Vector>
 float Curve<Vector>::torsion2(int n) {
 
@@ -1865,8 +1899,8 @@ int Curve<Vector>::writePKF(const char* filename, int Header) {
 
 /*!
   Write the current curve object to a stream \a out.
-  Start with sending "COMP #C" to the stream, where
-  #C are the number of nodes currently stored in the
+  Start with sending "COMP \#C" to the stream, where
+  \#C are the number of nodes currently stored in the
   Curve object. Then follow the NODE tags with the
   data point coordinates.
   
@@ -2032,7 +2066,7 @@ int Curve<Vector>::readSingleData(istream &in, const char* delimiter) {
 /*!
   Write the curve to a file. The format is : the number
   of curves at the first line, then the number of data points
-  (the format is {#N}) and then the list of x,y,z coordinates
+  (the format is {\#N}) and then the list of x,y,z coordinates
   for each data point.
 
   \sa writeSingleData(),readData()
@@ -2150,6 +2184,7 @@ void Curve<Vector>::computeTangents() {
     
 }
 
+// FIXME : works only for closed
 /*!
   This function converts a polygonal curve into a
   curve made of arcs of circles.
@@ -2167,7 +2202,6 @@ void Curve<Vector>::computeTangents() {
 
   \sa arcsTolPolygonal()
 */
-// FIXME : works only for closed
 template<class Vector>
 void Curve<Vector>::polygonalToArcs() {
 

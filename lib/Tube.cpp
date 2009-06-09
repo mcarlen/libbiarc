@@ -1,5 +1,5 @@
 /*!
-  \class Tube Tube.h include/Tube.h
+  \class Tube include/Tube.h include/Tube.h
   \ingroup BiarcLibGroup
   \brief The Tube class contains the mesh of a tube around a
   curve in \f$\mathcal{R}^3\f$.
@@ -380,7 +380,6 @@ void Tube<Vector>::scaleTubeRadius(float NewRadius) {
   The interpolation in case of a resampling is done
   with Gamma = 0.5.
 */
-
 template <class Vector>
 void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
 

@@ -40,6 +40,15 @@
   \sa print()
 */
 
+/*!
+  \fn ostream & Vector4::operator>> (istream &out, Vector4 &v)
+
+  Overloaded right shift operator. Initialize vector \a v
+	with istream \a out.
+
+  \sa print() operator<<()
+*/
+
 #include "../include/Vector4.h"
 #include "../include/Matrix4.h"
 

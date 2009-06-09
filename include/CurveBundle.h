@@ -60,7 +60,7 @@ class CurveBundle : public PKFmanip {
   void polygonalToArcs();
   void arcsToPolygonal();
 
-  //friend ostream & operator<<(ostream &out, CurveBundle<Vector> &cb);
+  friend ostream & operator<<(ostream &out, CurveBundle<Vector> &cb);
 
 };
 

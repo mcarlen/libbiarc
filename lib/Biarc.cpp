@@ -1,5 +1,5 @@
 /*!
-  \class Biarc Biarc.h include/Biarc.h
+  \class Biarc include/Biarc.h include/Biarc.h
   \ingroup BiarcLibGroup
   \brief The Biarc class describes a single biarc.
 
@@ -25,7 +25,7 @@
 //
  
 /*!
-  \fn ostream & Biarc::operator<< (ostream &out, const Biarc &b)
+  \fn ostream & Biarc<Vector>::operator<< (ostream &out, const Biarc<Vector> &b)
 
   Overloaded left shift operator. Returns the Biarc \a b as an ostream
   object that can be written to a file or to standart output.
@@ -142,7 +142,7 @@ void Biarc<Vector>::setPoint(const Vector &p) {
 /*
   Set point to \a <p0,p1,p2>.
 */
-/* We do it more gneneral than with simply 3 components ...
+/* We do it more general than with simply 3 components ...
 template<class Vector>
 void Biarc<Vector>::setPoint(float p0,float p1,float p2) {
   _Point=Vector3(p0,p1,p2);
@@ -1080,6 +1080,7 @@ int Biarc<Vector>::operator!=(const Biarc &b) const {
   return !(*this==b);
 }
 
+#define CLAMP_DELTA(v) (fabsf(v)<1e-12?0:v)
 /*!
   Prints starting point, tangent, matching point and matching tangent
   onto the stream \a out. If the biarc is not valid, it only prints
@@ -1087,7 +1088,6 @@ int Biarc<Vector>::operator!=(const Biarc &b) const {
   is the last of the curve, then the tag --NULL-- is printed at the
   end.
 */
-#define CLAMP_DELTA(v) (fabsf(v)<1e-12?0:v)
 template<class Vector>
 void Biarc<Vector>::print(ostream &out) const {
   if (_BIARC_) {

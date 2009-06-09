@@ -17,7 +17,12 @@
 // #define FRENET
 
 template<class Vector>
-class Tube : public Curve<Vector> {
+class Tube : public Curve
+// Doxygen doesn't like templates in heritage :(
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+<Vector>
+#endif
+{
 
   // number of circle segments
   int _Segments;
@@ -87,7 +92,7 @@ class Tube : public Curve<Vector> {
     depending on coarsness of the mesh
   */
 
-  //friend ostream &operator<<(ostream &out, Tube<Vector> &t);
+  friend ostream &operator<<(ostream &out, Tube<Vector> &t);
 
 };
 

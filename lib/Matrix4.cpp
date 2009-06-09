@@ -1,5 +1,5 @@
 /*!
-  \class Matrix4 Matrix4.h include/Matrix4.h
+  \class Matrix4 include/Matrix4.h include/Matrix4.h
   \ingroup BiarcLibGroup
   \brief The Matrix4 class is a 4x4 dimensional Matrix class with
   floating point entries.

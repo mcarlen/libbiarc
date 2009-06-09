@@ -1,5 +1,5 @@
 /*!
-  \class PKFmanip PKFmanip.h include/PKFmanip.h
+  \class PKFmanip include/PKFmanip.h include/PKFmanip.h
   \ingroup BiarcLibGroup
   \brief The PKFmanip class for storing and manipulating biarc curves
   

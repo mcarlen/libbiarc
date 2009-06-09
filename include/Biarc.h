@@ -62,17 +62,17 @@ class Biarc {
   const Vector& getMidPoint() const;
   const Vector& getMidTangent() const;
   void setPoint(const Vector &p);
-  void setPoint(float &p0,float &p1,float &p2);
+  // void setPoint(float &p0,float &p1,float &p2);
 
   // These functions should update cached values (i.e. radius,angles...)
   void setMidPoint(const Vector &p);
-  void setMidPoint(float &p0,float &p1,float &p2);
+  // void setMidPoint(float &p0,float &p1,float &p2);
   void setMidTangent(const Vector &p);
-  void setMidTangent(float &p0,float &p1,float &p2);
+  // void setMidTangent(float &p0,float &p1,float &p2);
 
   void setTangentUnnormalized(const Vector &t);
   void setTangent(const Vector &t);
-  void setTangent(float &t0,float &t1,float &t2);
+  // void setTangent(float &t0,float &t1,float &t2);
   void get(Vector& p, Vector& t) const;
   void set(const Vector& p, const Vector& t);
   void clear();
@@ -134,15 +134,11 @@ class Biarc {
   Biarc<Vector> &operator/=(const float d);
   Biarc<Vector> &operator*=(const float d);
 
+  void print(ostream &out) const ;
   int operator==(const Biarc<Vector> &b) const;
   int operator!=(const Biarc<Vector> &b) const;
 
-public:
-  void print(ostream &out) const ;
-
-private:
-  // FIXME
-  // friend ostream& operator << (ostream &out, const Biarc<Vector>& b);
+  friend ostream& operator << (ostream &out, const Biarc<Vector>& b);
 
 };
 
