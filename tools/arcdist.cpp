@@ -1,9 +1,7 @@
 /*!
-  \file test.cpp
+  \file arcdist.cpp
   \ingroup ToolsGroup
   \brief Program for testing purpose only.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

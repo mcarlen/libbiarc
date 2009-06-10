@@ -1,5 +1,12 @@
 #include "my_anneal.cpp"
 
+/*!
+  \defgroup BoxProblemGroup boxproblem
+	\ingroup AnnealingGroup
+  \class Vec2
+	\ingroup BoxProblemGroup
+	\brief 2D Vector class.
+*/
 class Vec2 {
 public:
   float x, y;
@@ -30,7 +37,17 @@ inline ostream &operator<<(ostream &out, const Vec2 &v) {
   return out;
 }
 
-// unit-boxes with center at x,y and orientation angle ang
+/*!
+  \class Box
+	\ingroup BoxProblemGroup
+  \brief Square box class.
+
+  Unit-boxes with center at x,y and orientation angle ang.
+	Function v0 to v3 give the corner coordinates. bbox
+	is the bounding box, vecInBox returns 1 if vector is
+	inside the box and overlap checks this and another
+	box for overlap.
+*/
 class Box {
 public:
   // center
@@ -118,8 +135,16 @@ inline ostream &operator<<(ostream& out, const Box &b) {
   out << "  bbox : " << bl << " " << ur;
 }
 
-void write_boxes(const vector<Box>& boxes);
+static void write_boxes(const vector<Box>& boxes);
 
+/*!
+  \class BoxAnneal
+	\ingroup BoxProblemGroup
+	\brief N square boxes in a big square.
+
+	This annealing class tries to put N square boxes
+	in the smallest square containing them.
+*/
 class BoxAnneal : public BasicAnneal {
 public:
 
@@ -175,6 +200,9 @@ public:
   }
 */
 
+  /*!
+	  Reimplemented stop criterion.
+	*/
   bool stop() {
 		// XXX I need a better criterium
 		//     if 2 boxes are stuck (let's say finished)
@@ -183,6 +211,9 @@ public:
     return false;
   }
 
+  /*!
+	  Check wheter our boxes overlap.
+	*/
   int check_for_overlap() {
     for (int i=0;i<nodes.size();++i)
 			for (int j=i+1;j<nodes.size();++j)
@@ -190,6 +221,9 @@ public:
 		return 0;
 	}
 
+  /*!
+	  Move and rotate a single box.
+	*/
   void wiggle() {
 		int r;
 		if (possible_moves.size()>0) {
@@ -223,6 +257,10 @@ public:
 		}
   }
 
+  /*!
+	  Compute square surrounding the current boxes and
+		use the edge size as energy.
+	*/
   float energy() {
     Vec2 bl, ur, bb1, bb2;
 		
@@ -269,7 +307,7 @@ public:
 // #define TEST
 
 #ifndef TEST
-void write_boxes(const vector<Box>& boxes) {
+static void write_boxes(const vector<Box>& boxes) {
 	static int box_write_count = 0;
 	Vec2 v[4];
 	

@@ -1,6 +1,13 @@
 #include "../../experimental/annealing/my_anneal.cpp"
 #include <algorithm>
 
+/*!
+	\defgroup FittingProblemGroup fitting
+	\ingroup AnnealingGroup
+	\class Vec2
+	\ingroup FittingProblemGroup
+	\brief 2D Vector class.
+*/
 class Vec2 {
 public:
   float x, y;
@@ -35,6 +42,15 @@ inline ostream &operator<<(ostream &out, const Vec2 &v) {
   return out;
 }
 
+/*!
+  \class FittingAnneal
+	\ingroup FittingProblemGroup
+	\brief Fit a curve through given points.
+
+	Here we try to fit a monotonic function through
+	a given set of points with periodic boundary
+	conditions at both sides (x and y).
+*/
 class FittingAnneal : public BasicAnneal {
 public:
 
@@ -59,7 +75,9 @@ public:
   /*!
      params  -  like BasicAnneal. 
                 Addionally 
-                N -  Number of Boxes
+								filename    -  curve to be fitted
+                no_of_nodes -  Number of points
+								resume_from -  File containing a previous run.
   */
   FittingAnneal(const char *filename, const char* params = "") {
 
@@ -147,7 +165,11 @@ public:
 		}
   }
 
-  // The energy is the sum_i (samples_i - interpolate(our fit) at i)^2
+  /*!
+	 The energy is \f$\sum_{i=1}^N (y_i - inter(f(x_i)))^2\f$, where
+	 y_i are the sample points, inter is a linear interpolation of the
+	 fitted points we currently have.
+	*/
   float energy() {
     float e = 0, val;
     for (uint i=0;i<orig.size();++i) {

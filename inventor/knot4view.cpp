@@ -1,5 +1,5 @@
 /*!
-  \defgroup InventorGroup OpenInventor stuff
+  \defgroup InventorGroup OpenInventor
 */
 
 /*!

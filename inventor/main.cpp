@@ -14,7 +14,6 @@
 #include "main.h"
 #include "utils.h"
 #include "gui.h"
-// #include "viewer.h"
 
 #include <QApplication>
 #include <Inventor/details/SoPointDetail.h>

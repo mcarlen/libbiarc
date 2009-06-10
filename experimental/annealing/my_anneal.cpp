@@ -1,6 +1,10 @@
 #ifndef _ANNEAL_H_
 #define _ANNEAL_H_
 
+/*!
+  \defgroup AnnealingGroup annealing
+*/
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -15,8 +19,8 @@ using namespace std;
 #define rand01() ((float)rand()/(float)RAND_MAX)
 #define randint(val) (rand()%val)
 
-void Tokenize(const string& str, vector<string>& tokens,
-              const char delimiters = ',') {
+static void Tokenize(const string& str, vector<string>& tokens,
+                     const char delimiters = ',') {
 
   // Skip delimiters at beginning.
   string::size_type lastPos = str.find_first_not_of(delimiters, 0);
@@ -35,8 +39,8 @@ void Tokenize(const string& str, vector<string>& tokens,
   }
 }
 
-void Tokenize2(const string &str, vector<string>& tokens,
-               const char delim1 = ',', const char delim2 = '=') {
+static void Tokenize2(const string &str, vector<string>& tokens,
+                      const char delim1 = ',', const char delim2 = '=') {
   vector<string> first_step;
   Tokenize(str, first_step, delim1);
   for (vector<string>::iterator it = first_step.begin();
@@ -44,9 +48,20 @@ void Tokenize2(const string &str, vector<string>& tokens,
     Tokenize(*it, tokens, delim2);
 }
 
+static void str2hash(string str, map<string,string> &params) {
+  vector<string> tokens;
+  vector<string>::iterator it;
+
+  Tokenize2(str, tokens);
+  for (it=tokens.begin();it!=tokens.end();it+=2)
+    params[*it] = *(it+1);
+}
 
 /*!
-  Basic class for annealing move.
+	\class BasicMove
+	\ingroup AnnealingGroup
+
+  \brief Basic class for annealing moves.
 */
 class BasicMove {
 public:
@@ -61,12 +76,16 @@ public:
     this->step_size = step_size;
     this->STEP_CHANGE = STEP_CHANGE;
   }  
+
+	/*!
+	  Virtual destructor.
+	*/
   virtual ~BasicMove() {}
 
+  // XXX make pure virtual
   /*!
     Perform the move.
   */
-  // XXX make pure virtual
   virtual void move() { cout << "Nothing\n"; }
 
   /*!
@@ -88,6 +107,10 @@ public:
 };
 
 /*!
+	\class SimpleFloatMove
+	\ingroup AnnealingGroup
+  \brief Change a single float value.
+
   Change the float entry of anneal.nodes[addr] by a
   random number within (-step_size, +step_size).
 */
@@ -105,8 +128,14 @@ public:
     this->old_value = *node;
   }
 
+  /*!
+	  Virtual destructor
+	*/
   virtual ~SimpleFloatMove() {}
 
+  /*!
+	  Perform a simple move. Change the value of a node.
+	*/
   void move() {
     old_value = *node;
     // cout << "Before:" << *node << endl;
@@ -114,11 +143,17 @@ public:
     // cout << "After:" << *node << endl << flush;
   }
 
+  /*!
+	  Reject a move and reset to old value.
+	*/
   void reject() {
     BasicMove::reject();
     *node = old_value;
   }
 
+  /*!
+	  Accept move and backup new value.
+	*/
   void accept() {
     BasicMove::accept();
     old_value = *node;
@@ -137,8 +172,16 @@ public:
 #define extract_f(Var,params) if (params[#Var].compare("")) Var = atof(params[#Var].c_str())
 #define extract_f2(Var,Str,params) if (params[Str].compare("")) Var = atof(params[Str].c_str())
 
+/*!
+  \class BasicAnneal
+	\ingroup AnnealingGroup
+	\brief Base class for annealing problems.
 
+  Basic annealing class. Derive other annealing
+	classes from this base class.
+*/
 class BasicAnneal {
+
 public:
 
   float min_step, max_step;
@@ -156,20 +199,29 @@ public:
 
   string best_filename;
 
+  /*!
+	  Constructor.
+
+    params  -   
+    T       -  Temperature
+    C       -  Cooling factor
+    logfreq -  Log frequency
+		log_optimum 
+    energy_precision - how many digits precision
+    best_filename
+
+		log_optimum is an "external" optimum Energy value.
+		The logging system prints then the difference between
+		this value and the current Emin.
+	*/
   BasicAnneal(const char *params = "") {
     this->std_init(params);
   }  
 
+  /*!
+	  Virtual destructor.
+	*/
   virtual ~BasicAnneal() {}
-
-  static void str2hash(string str, map<string,string> &params) {
-    vector<string> tokens;
-    vector<string>::iterator it;
-
-    Tokenize2(str, tokens);
-    for (it=tokens.begin();it!=tokens.end();it+=2)
-      params[*it] = *(it+1);
-  }
 
   /*!
     Parse params string and initialize defaults.
@@ -284,6 +336,11 @@ public:
     cout << "!" << setprecision(energy_precision) << best_energy << "!";
   }
  
+  /*!
+	  Adjust the min_step and max_step values as well
+		as the min_move and max_move index to the corresponding
+		move.
+	*/
   virtual void update_minmax_step() {
     min_step = max_step = possible_moves[0]->step_size;
     min_move = max_move = 0;
@@ -299,6 +356,11 @@ public:
     }
   }
 
+  /*!
+	  Write annealing information (temp, energy, minimal energy,
+		success rate, min/max stepsize, and last best count) to
+		ostream \a out.
+	*/
   virtual ostream& logline(ostream &out) {
     update_minmax_step(); 
     out << log_counter
@@ -316,11 +378,18 @@ public:
     return out;
   }
 
+  /*!
+	  Perfomr a logging action (uses logline) but can be reimplemented
+		in derived classes.
+	*/
   virtual void log(){
     logline(cout);
     cout << endl << flush;
   }
 
+  /*!
+	  Start the actual annealing!
+	*/
   virtual void do_anneal() {
     best_energy      = energy();
     curr_energy      = best_energy;
@@ -356,6 +425,18 @@ public:
   }
 };
 
+/*!
+  \defgroup AnnealingSampleGroup dotrepulsion
+	\ingroup AnnealingGroup
+  \class SampleAnneal
+	\ingroup AnnealingSampleGroup
+	\brief Example how to use BaseAnneal.
+
+  An example annealing class that inherits BasicAnneal.
+	For N points \$fx_i\$f in 2D, we want to minimize the energy
+	\f$E=\sum_{i,j=1}^N (2-dist(x_i,x_j))^2\f$, where dist is
+	the euclidean distance between two points.
+*/
 class SampleAnneal : public BasicAnneal {
 
   static float dist(float x1, float x2,
@@ -400,12 +481,19 @@ public:
   }
 */
 
+  /*!
+	  Stop criterion.
+	*/
   bool stop() {
     if (Temp < 0.0005/N)
       return true;
     return false;
   }
 
+  /*!
+	  This is called when a smaller Energy is found.
+		Writes current coordinates to file best_filename.
+	*/
   void best_found() {
     best_nodes = nodes;
     BasicAnneal::best_found();
@@ -415,6 +503,11 @@ public:
     out.close();
   }
 
+  /*!
+	  The energy for this problem. We want the euclidean distance (dist)
+		between N points to be 2! Which means that the energy is
+	  \f$E=\sum_{i,j=1}^N (2-dist(x_i,x_j))^2\f$.
+	*/
   float energy() {
     float e = 0.0;
     for (int i=0;i<N;++i) {
@@ -442,6 +535,7 @@ if __name__ == "__main__":
    main(int(sys.argv[1]))
 */
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifdef MAIN
 int main(int argc, char** argv) {
 
@@ -475,5 +569,7 @@ int main(int argc, char** argv) {
   return 0;
 }
 #endif
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 #endif //_ANNEAL_H_

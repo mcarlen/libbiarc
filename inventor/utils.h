@@ -14,7 +14,11 @@ int parse(int argc, char** argv, ViewerInfo *vi, CurveInfo *ci);
 void addBezierCurve(SoSeparator *root, Tube<Vector3>* t);
 SoSeparator* drawCircle(const Vector3& p0, const Vector3& t0, const Vector3& p1);
 
-/*
+/*!
+  \struct CurveInfo
+  \ingroup InventorGroup
+  \brief Curve information.
+
   Knot class interface for viewer, containing
   info shared among viewer, interaction callbacks,
   gui routines.
@@ -37,6 +41,11 @@ struct CurveInfo {
   QString texture_file;
 };
 
+/*!
+  \class CurveInterface
+	\ingroup InventorGroup
+	\brief Interface between curve data and viewer.
+*/
 class CurveInterface {
   
 public:

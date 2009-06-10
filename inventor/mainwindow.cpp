@@ -5,6 +5,17 @@
 #include <Inventor/details/SoPointDetail.h>
 #include <Inventor/details/SoLineDetail.h>
 
+/*!
+  \class MainWindow inventor/mainwindow.h inventor/mainwindow.h
+	\ingroup InventorGroup
+	\brief Main viewer class.
+
+	The main viewer contains information about the curve objects and the
+	current scene. It inherits SoQtExaminerViewer and add custom
+	menu and toolbars. Various plots can be generated and inventor
+	scene files *.iv can be loaded and included into the scene as well.
+*/
+
 SOQT_OBJECT_SOURCE(MainWindow);
 
 //Mouse motion callback
