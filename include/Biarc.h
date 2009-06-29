@@ -138,7 +138,7 @@ class Biarc {
   int operator==(const Biarc<Vector> &b) const;
   int operator!=(const Biarc<Vector> &b) const;
 
-  friend ostream& operator << (ostream &out, const Biarc<Vector>& b);
+//  friend ostream& operator << (ostream &out, const Biarc<Vector>& b);
 
 };
 

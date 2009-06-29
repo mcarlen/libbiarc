@@ -62,9 +62,9 @@ public:
   // XXX it's not a real interpolation. as soon as we passed the right
 	// spot we return the y value there.
   float interpolate(float s) {
-		float y = 0;
-    for (uint i=0;i<nodes.size();++i) {
-      if (s < nodes[i].x) {
+		float y = nodes[0].y, xim;
+    for (uint i=1;i<nodes.size();++i) {
+      if (s > nodes[i-1].x) {
 				return (y + (s - nodes[i-1].x)/(nodes[i].x - nodes[i-1].x)*(fabs(nodes[i].y)));
 			}
 			y += fabs(nodes[i].y);
@@ -83,37 +83,49 @@ public:
 
     std_init(params);
 
-    no_of_nodes = 100;
+    no_of_nodes = 600;
 
     map<string,string> param_map;
     str2hash(params, param_map);
     extract_i(no_of_nodes,param_map);
 		extract(resume_from,param_map);
 
+    cout << "no_of_nodes " << no_of_nodes << endl;
+
     // Load points to fit from file
 		ifstream in(filename,ios::in);
 		float s, t;
-    while(in >> s >> t)
-      orig.push_back(Vec2(s,t));
+    while(in >> s >> t) {
+			if (s>t)
+				orig.push_back(Vec2(s,t+1.));
+			else
+        orig.push_back(Vec2(s,t));
+		}
     // sort this vector
 		in.close();
     sort(orig.begin(), orig.end());
 
     // Init fitting nodes
 		if (resume_from.size()!=0) {
+			cout << "RESUME from " << resume_from << endl;
       in.open(resume_from.c_str(),ios::in);
 		  float s, t0, t;
 			in >> s >> t0;
-			nodes.push_back(Vec2(s,t));
+			nodes.push_back(Vec2(s,t0));
       while(in >> s >> t) {
+				if (s>t) t += 1.;
         nodes.push_back(Vec2(s,t-t0));
 				t0 = t;
 			}
   		in.close();
 		}
 		else {
-      for (int i=0;i<no_of_nodes;++i)
-        nodes.push_back(Vec2((float)i/(float)(no_of_nodes-1),0));
+      nodes.push_back(Vec2(0,orig[0].y));
+			// We wrap y only for the output!
+      for (int i=1;i<no_of_nodes;++i) {
+				float x = (float)i/(float)(no_of_nodes-1), y = (float)1/(float)(no_of_nodes-1);
+        nodes.push_back(Vec2(x,y));
+      }
 		}
 
     best_nodes = nodes;
@@ -125,12 +137,11 @@ public:
     // dump vectors
 		cerr << "Orig\n";
 		for (uint i=0;i<orig.size();++i)
-			cerr << orig[i].x << " " << nodes[i].y << endl;
+			cerr << orig[i].x << " " << orig[i].y << endl;
 
 		cerr << "Fit nodes\n";
 		for (int i=0;i<no_of_nodes;++i)
 			cerr << nodes[i].x << " " << nodes[i].y << endl;
-		
 
   }
 
@@ -155,7 +166,10 @@ public:
 		float y = 0;
     for (int i=0;i<no_of_nodes;++i) {
 			y += fabs(nodes[i].y);
-      out << nodes[i].x << " " << y << endl;
+			if (y>1.)
+        out << nodes[i].x << " " << y-1. << endl;
+			else
+        out << nodes[i].x << " " << y << endl;
 		}
     out.close();
 
@@ -173,7 +187,8 @@ public:
   float energy() {
     float e = 0, val;
     for (uint i=0;i<orig.size();++i) {
-      val = (orig[i].y - interpolate(orig[i].x));
+			float v = interpolate(orig[i].x);
+      val = (orig[i].y - v);
       e += val*val;
 		}
 		return e;
@@ -226,7 +241,7 @@ int main() {
   sort(orig.begin(), orig.end());
 
   for (int i=0;i<orig.size();++i)
-		cout << orig[i].x << " " << orig[i].y << endl;
+		cout << orig[i].x << " " << orig[i].y << " " <<  << endl;
 
 }
 #endif
