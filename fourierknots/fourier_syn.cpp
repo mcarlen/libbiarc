@@ -282,8 +282,8 @@ void FourierKnot::shift(float sh) {
   for (uint i=0;i<csin.size();++i) {
     f = (float)(i+1)*(2.0*M_PI);
     vcos = cos(f*sh); vsin = sin(f*sh);
-    csin[i] = vcos*tmpsin[i] + vsin*tmpcos[i];
-    ccos[i] = vcos*tmpcos[i] - vsin*tmpsin[i];
+    ccos[i] =  vcos*tmpcos[i] + vsin*tmpsin[i];
+    csin[i] = -vcos*tmpsin[i] + vsin*tmpcos[i];
   }
 }
 
