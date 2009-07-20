@@ -90,6 +90,9 @@
   
 */
  
+
+#include "../include/utils/qr.h"
+
 //
 // documentation of inlined methods
 //
@@ -1018,6 +1021,20 @@ float Curve<Vector>::minSegDistance() {
 }
 
 /*!
+  Return distance between the 2 most distant points.
+*/
+template<class Vector>
+float Curve<Vector>::span() const {
+  float d = 0, dc;
+  for (unsigned int i=0;i<_Biarcs.size();++i)
+    for (unsigned int j=i+1;j<_Biarcs.size();++j) {
+      dc = (_Biarcs[i].getPoint()-_Biarcs[j].getPoint()).norm2();
+      if (dc>d) d = dc;
+    }
+  return sqrt(d);
+}
+
+/*!
   Returns the Distance Energy in the current curve.
 
   \sa maxSegDistance(), minSegDistance()
@@ -1497,6 +1514,61 @@ void Curve::frenet(int n, Vector3& tangent,
 
 }
 */
+
+/*!
+  Compute the inertia tensor of this curve. We consider
+  uniform density along the knot centerline.
+
+  Returns a Matrix3 object.
+*/
+template<class Vector>
+void Curve<Vector>::inertiaTensor(Matrix3 &mat) {
+  // Compute Inertia Tensor
+  // Suppose the knot to be of uniform density => dm = cte
+  Vector p;
+  Matrix3 m;
+  m.zero();
+
+  for (biarc_it it=begin();it!=end();++it) {
+    p = it->getPoint();
+    // Diagonal terms
+    m[0][0] += p[1]*p[1]+p[2]*p[2];
+    m[1][1] += p[0]*p[0]+p[2]*p[2];
+    m[2][2] += p[0]*p[0]+p[1]*p[1];
+    // Off diagonal
+    m[0][1] -= p[0]*p[1];
+    m[0][2] -= p[0]*p[2];
+    m[1][2] -= p[1]*p[2];
+  }
+  m[1][0] = m[0][1];
+  m[2][0] = m[0][2];
+  m[2][1] = m[1][2];
+
+  mat = m;
+}
+
+/*!
+  Compute the principal axis of the curve. Return
+  them as colons of a Matrix3
+*/
+template<class Vector>
+void Curve<Vector>::principalAxis(Matrix3 &mat) {
+  // Compute the principal axes
+  // using the QR Algorithm to find the eigenvalues
+  // and eigenvectors of a matrix.
+  Matrix3 r, ev, m;
+  ev.id();
+  this->inertiaTensor(m);
+  int iter = 0;
+  while((fabsf(m[0][1])+fabsf(m[0][2])+fabsf(m[1][2])+
+        fabsf(m[1][0])+fabsf(m[2][0])+fabsf(m[2][1]))>qr_eps) {
+    qr_decomp(m,r);
+    ev = ev*m;
+    m  = r*m;
+    ++iter;
+  }
+  mat = ev;
+}
 
 /*!
   Normalize the length of the curve. The resulting curve will

@@ -14,7 +14,7 @@ STATIC_LIB_DOUBLE=libbiarc.a
 TODO=${LIB_FLOAT} ${STATIC_LIB_FLOAT} ${LIB_DOUBLE} ${STATIC_LIB_DOUBLE}
 endif
 
-SRC=$(wildcard *.cpp)
+SRC=$(wildcard *.cpp) utils/qr.cpp
 OBJ_FLOAT=${SRC:.cpp=_float.o}
 OBJ_DOUBLE=${SRC:.cpp=_double.o}
 

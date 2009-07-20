@@ -92,7 +92,7 @@ class Tube : public Curve
     depending on coarsness of the mesh
   */
 
-  friend ostream &operator<<(ostream &out, Tube<Vector> &t);
+  // friend ostream &operator<<(ostream &out, Tube<Vector> &t);
 
 };
 

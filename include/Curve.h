@@ -122,6 +122,7 @@ class Curve : public PKFmanip {
 
   float minSegDistance();
   float maxSegDistance();
+  float span() const;
   float distEnergy();
 
   float curvature(int n);
@@ -133,6 +134,9 @@ class Curve : public PKFmanip {
 
   // Return Frenet-Frame
   // void frenet(Vector3& t, Vector3& n, Vector3& b);
+
+  void inertiaTensor(Matrix3& mat);
+  void principalAxis(Matrix3& mat);
 
   void computeTangents();
   void polygonalToArcs();
@@ -175,7 +179,7 @@ class Curve : public PKFmanip {
   int writeData(ostream &out, const char* delimiter,
 	              int tangents_flag);
 
-  friend ostream & operator<<(ostream &out, const Curve<Vector> &c);
+  //  friend ostream & operator<<(ostream &out, const Curve<Vector> &c);
 };
 
 template<class Vector>

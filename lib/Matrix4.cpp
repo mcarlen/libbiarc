@@ -488,7 +488,7 @@ void Matrix4::print(ostream &out) const {
   out << "[";
   for (int i=0;i<4;i++) {
     for (int j=0;j<4;j++) {
-      if (i!=0&!j>0) out << " ";
+      if ((i!=0)&&(!j>0)) out << " ";
       out << (_v[j][i]);
       if (j!=3) out << " ";
     }

@@ -60,7 +60,7 @@ class TubeBundle : public PKFmanip {
   int readPKF(istream& in);
   int readData(const char* infile, const char* delimiter = " ");
 
-  friend ostream &operator<<(ostream &out, TubeBundle<Vector> &tb);
+  // friend ostream &operator<<(ostream &out, TubeBundle<Vector> &tb);
 
 };
 

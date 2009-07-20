@@ -9,7 +9,7 @@ PROGS=$(SRC:.cpp=)
 
 .PHONY: $(PROGS)
 
-all: $(PROGS)
+all: # $(PROGS)
 $(PROGS):
 	@echo Build $@
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)

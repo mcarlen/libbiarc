@@ -1,4 +1,5 @@
-PROGS = xyzview main animate plotzoom # kv4
+PROGS = main # animate plotzoom # kv4
+QTPRESENT=$(shell if which soqt-config >/dev/null; then echo OK; fi)
 
 include ../Makefile.config
 include .depend
@@ -37,7 +38,7 @@ OBJ = $(SRC:.cpp=.o)
 
 .cpp.o:
 	@echo Compile $<
-	$(CXX) ${FLAGS} -c $<
+	@$(CXX) ${FLAGS} -c $<
 
 ################ COMPILATION #####################
 
@@ -57,13 +58,17 @@ xyzview: xyzview.o SoKnot.o
 
 fourier_syn.o: ../fourierknots/fourier_syn.cpp
 	@echo Compile $<
-	$(CXX) ${FLAGS} -o $@ -c $<
+	@$(CXX) ${FLAGS} -o $@ -c $<
 
 main: SoKnot.o main.o pt.o moc_pt.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o moc_pp.o pp.o moc_tt.o tt.o
-	@echo Link $@
-	$(CXX) ${FLAGS} -c ../experimental/pngmanip/pngwrite.c
-	$(CXX) ${FLAGS} -c ../experimental/pngmanip/plot_funcs.cpp
-	$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o pt.o moc_pt.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o plot_funcs.o pngwrite.o moc_pp.o pp.o moc_tt.o tt.o $(LIBS)
+ifeq ($(QTPRESENT),OK)
+		@echo Link $@
+		@$(CXX) ${FLAGS} -c ../experimental/pngmanip/pngwrite.c
+		@$(CXX) ${FLAGS} -c ../experimental/pngmanip/plot_funcs.cpp
+		@$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o pt.o moc_pt.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o plot_funcs.o pngwrite.o moc_pp.o pp.o moc_tt.o tt.o $(LIBS)
+else
+		@echo "soqt-config not found. Coin with SoQt may not be installed. Skip building inventor viewer."
+endif
 
 plotzoom: plotzoom.o moc_plotzoom.o
 	@echo Link $@
@@ -85,7 +90,7 @@ trefoil_builder: SoKnot.o trefoil_builder.o moc_Widgets.o Widgets.o moc_trefoil_
 
 # dependencies
 depend:
-	$(CXX) -M $(FLAGS) *.cpp > .depend
+	if [ -e .soqt ]; then $(CXX) -M $(FLAGS) *.cpp > .depend; fi
 
 ###--------------###
 ###    Clean     ###

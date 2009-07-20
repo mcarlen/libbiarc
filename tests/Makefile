@@ -41,4 +41,4 @@ clean :
 realclean : clean
 	@echo Purge `basename ${PWD}`
 	@-rm -f ${BUILDTESTS}
-	@-rm -f *~ *% .*~ .*% core *.pkf ii_files
+	@-rm -f *~ *% .*~ .*% core ii_files
