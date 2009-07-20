@@ -149,6 +149,13 @@ Tube<Vector3>* SoKnot::getKnot() {
 }
 
 /*!
+  Reset current knot to original.
+*/
+void SoKnot::reset() {
+  *knot = *original;
+}
+
+/*!
   Action method for the SoGLRenderAction.
   This is called during rendering traversals.
   Reimplemented from SoShape.

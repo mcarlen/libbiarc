@@ -48,6 +48,7 @@ public:
 
   void setKnot(Tube<Vector3>* t, const float Tol);
   Tube<Vector3>* getKnot();
+  void reset();
 
   virtual void GLRender(SoGLRenderAction * action);
 /*

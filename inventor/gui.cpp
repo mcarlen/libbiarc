@@ -4,6 +4,7 @@
 #include "tt.h"
 #include "mainwindow.h"
 #include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/actions/SoGetBoundingBoxAction.h>
 
 #include "../fourierknots/fourier_syn.h"
 
@@ -142,10 +143,83 @@ SoSeparator* frenet_frame(Tube<Vector3>* t, int FOURIER = 1) {
   return frenet;
 }
 
+SoSeparator* addPrincipalAxis(const Matrix3 &m, const Curve<Vector3> *c) {
+  SoSeparator *SteadyNode = new SoSeparator;
+  //    SteadyNode->ref();
+
+  SoSeparator **AxisNode    = new SoSeparator*[3];
+  // Cylinder
+  SoSeparator **CylNode     = new SoSeparator*[3];
+  SoCylinder **Cyl          = new SoCylinder*[3];
+  SoTranslation **CylTrans  = new SoTranslation*[3];
+  SoRotation **CylRot       = new SoRotation*[3];
+ 
+  SbVec3f rot_ax;
+  float rot_angle;
+
+  // Init all the nodes
+  for (int i=0;i<3;i++) {
+    AxisNode[i] = new SoSeparator; CylNode[i] = new SoSeparator;
+    Cyl[i] = new SoCylinder; CylTrans[i] = new SoTranslation;
+    CylRot[i] = new SoRotation;
+  }
+  
+  SoMaterial** StableAxisMaterial = new SoMaterial*[3];
+  StableAxisMaterial[0] = new SoMaterial;
+  StableAxisMaterial[0]->diffuseColor.setValue(1,0,0);
+  StableAxisMaterial[1] = new SoMaterial;
+  StableAxisMaterial[1]->diffuseColor.setValue(0,1,0);
+  StableAxisMaterial[2] = new SoMaterial;
+  StableAxisMaterial[2]->diffuseColor.setValue(0,0,1);
+
+  float scale = c->span();
+  for (int i=0;i<3;i++) {
+
+    // needed general vars
+    Vector3 ssvec = m[i];
+    ssvec.normalize();
+    
+	  CylNode[i]->addChild(StableAxisMaterial[i]);
+    
+    // Cylinder for steady state
+    Cyl[i]->radius = (scale/100.0);
+    Cyl[i]->height = (scale*.5);
+    
+    CylTrans[i]->translation.setValue(0,(scale*.25),0);
+    Vector3 CylOrientation(0.0,1.0,0.0);
+    
+    if (ssvec.dot(CylOrientation)<.999f) {
+      Vector3 temp;
+      temp = ssvec.cross(CylOrientation);
+      rot_ax.setValue(temp[0],temp[1],temp[2]);
+      rot_angle = -(float)acos(ssvec.dot(CylOrientation));
+      CylRot[i]->rotation.setValue(rot_ax,rot_angle);
+      
+      CylNode[i]->addChild(CylRot[i]);
+    }
+    
+    CylNode[i]->addChild(CylTrans[i]);
+    CylNode[i]->addChild(Cyl[i]);
+    
+    //      AxisNode[i]->addChild(TextNode[i]);
+    AxisNode[i]->addChild(CylNode[i]);
+    
+    // add axis to all axis separator
+    SteadyNode->addChild(AxisNode[i]);
+    
+  }
+  return SteadyNode;
+}
+
+
 SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
   QKeyEvent *myKeyEvent;
   MainWindow *viewer = (MainWindow*)userData;
+
+  static bool INERTIA_AXIS = false;
+  static SoSeparator* inertiaNode = NULL;
+  static int AXIS_VIEW = 0;
 
   SoChildList *children = new SoChildList(viewer->scene);
   int child_len;
@@ -171,6 +245,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
     child_len = children->getLength();
 
     myKeyEvent = (QKeyEvent *) anyevent;
+    SoGLRenderAction *redraw;
 
     switch(myKeyEvent->key()) {
 
@@ -336,6 +411,42 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       exportIV();
       break;
  */
+
+    case Qt::Key_2:
+      if (myKeyEvent->modifiers()&Qt::CTRL) {
+        viewer->ci->knot_shape[0]->reset();
+        Tube<Vector3>* tube = viewer->ci->knot_shape[0]->getKnot();
+        tube->principalAxis(mat3);
+        for (int i=0;i<AXIS_VIEW;++i) {
+          Vector3 vtmp = mat3[0];
+          mat3[0] = mat3[1]; mat3[1] = mat3[2];
+          mat3[2] = vtmp;
+        }
+        tube->apply(mat3.transpose());
+        CurveInfo& ci = viewer->ci->info;
+        tube->clear_tube();
+        tube->makeMesh(ci.N,ci.S,ci.R,ci.Tol);
+        AXIS_VIEW = (AXIS_VIEW + 1)%3;
+      }
+      else {
+        INERTIA_AXIS = !INERTIA_AXIS;
+      }
+      if (inertiaNode!=NULL) {
+        viewer->root->removeChild(inertiaNode);
+        inertiaNode = 0;
+      }
+      if (INERTIA_AXIS) {
+        viewer->ci->knot_shape[0]->getKnot()->principalAxis(mat3);
+        inertiaNode = addPrincipalAxis(mat3,viewer->ci->knot_shape[0]->getKnot());
+        viewer->root->addChild(inertiaNode);
+      }
+      if (myKeyEvent->modifiers()&Qt::CTRL) {
+        SoGetBoundingBoxAction* act = new SoGetBoundingBoxAction(viewer->getViewportRegion());
+        act->apply(viewer->root);
+        viewer->scheduleRedraw();
+      }
+ 
+      break;
 
     case Qt::Key_P:
       if (!pt_win) {
