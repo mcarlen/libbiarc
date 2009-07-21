@@ -1,6 +1,7 @@
 syntax: glob
 annealing/k*
 annealing/j*
+*.bla
 *.orig
 *.rej
 *~
