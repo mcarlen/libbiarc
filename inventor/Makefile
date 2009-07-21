@@ -90,7 +90,7 @@ trefoil_builder: SoKnot.o trefoil_builder.o moc_Widgets.o Widgets.o moc_trefoil_
 
 # dependencies
 depend:
-	if [ -e .soqt ]; then $(CXX) -M $(FLAGS) *.cpp > .depend; fi
+	$(CXX) -M $(FLAGS) *.cpp > .depend
 
 ###--------------###
 ###    Clean     ###
