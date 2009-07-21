@@ -568,9 +568,9 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
 
     for (int i=0;i<Nloc-1;i++) {
 
-      Biarc<Vector3>* bi_tmp;
-      Biarc<Vector3>* b_i = this->accessBiarc(i);
-      Biarc<Vector3>* b_j = b_i->getNext();
+      biarc_it bi_tmp, b_i = this->accessBiarc(i);
+      biarc_it b_j = b_i + 1;
+      if (b_j == this->end()) b_j = this->begin();
       Vector3 t_plus  = Tangents[i];
       Vector3 t_minus = -Tangents[i];
 
@@ -578,34 +578,35 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
 
       Vector3 e_ij;
       while (b_j!=b_i) {
-	e_ij = (b_i->getPoint()-b_j->getPoint());
-	e_ij.normalize();
-	tmp.append(e_ij,Vector3(0,0,0));
-	b_j = b_j->getNext();
+	      e_ij = (b_i->getPoint()-b_j->getPoint());
+        e_ij.normalize();
+        tmp.append(e_ij,Vector3(0,0,0));
+        b_j = b_j + 1;
+        if (b_j == this->end()) b_j = this->begin();
       }
 
       // Rot curve
       Vector3 down_dir;
-      for (int k=0;k<tmp.nodes();k++) down_dir += tmp[k]->getPoint();
+      for (int k=0;k<tmp.nodes();k++) down_dir += tmp[k].getPoint();
       down_dir/=((float)tmp.nodes());
 
       down_dir = down_dir - down_dir.dot(t_plus)*t_plus;
 
       Matrix3 align_for_proj(t_plus,down_dir,t_plus.cross(down_dir));
 
-      tmp.rotate(align_for_proj);
+      tmp.apply(align_for_proj);
 
       // stereo proj
       for (int k=0;k<tmp.nodes();k++) {
-	Vector3 pppp = tmp[k]->getPoint();
-	tmp[k]->setPoint(Vector3(pppp[0]/(1.0-pppp[2]),
-				 pppp[1]/(1.0-pppp[2]),
-				 0.0));
+        Vector3 pppp = tmp[k].getPoint();
+        tmp[k].setPoint(Vector3(pppp[0]/(1.0-pppp[2]),
+				                        pppp[1]/(1.0-pppp[2]),
+				                        0.0));
       }
       
       float MassArea = 0.0, x_bar = 0.0, y_bar = 0.0;
       // we have to 0,0 our 2d curve
-      Vector3 uga = tmp[tmp.nodes()-1]->getPoint()-tmp[0]->getPoint();
+      Vector3 uga = tmp[tmp.nodes()-1].getPoint()-tmp[0].getPoint();
       uga.normalize();
       float winkel = acos(uga.dot(Vector3(1.0,0.0,0.0)));
 
@@ -613,22 +614,22 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
       float sina = sin(winkel);
 
       for (int k=1;k<tmp.nodes();k++) {
-	Vector3 mass_ding = tmp[k]->getPoint()-tmp[0]->getPoint();
+        Vector3 mass_ding = tmp[k].getPoint()-tmp[0].getPoint();
 
-	// drehen
-	float temp1 = mass_ding[0], temp2 = mass_ding[1];
-	mass_ding[0] = (-sina*temp1 + cosa*temp2);
-	mass_ding[1] = (cosa*temp1 + sina*temp2);
-	mass_ding[2] = 0.0;
+        // drehen
+        float temp1 = mass_ding[0], temp2 = mass_ding[1];
+        mass_ding[0] = (-sina*temp1 + cosa*temp2);
+        mass_ding[1] = (cosa*temp1 + sina*temp2);
+        mass_ding[2] = 0.0;
 
-	MassArea += mass_ding[1];
-	x_bar += mass_ding[0]*mass_ding[1];
-	y_bar += mass_ding[1]*mass_ding[1];
+        MassArea += mass_ding[1];
+        x_bar += mass_ding[0]*mass_ding[1];
+        y_bar += mass_ding[1]*mass_ding[1];
       }
 
       x_bar /= MassArea;
       y_bar /= (2*MassArea);
-      
+
       float gaga = x_bar*x_bar+y_bar*y_bar+1.0;
       Vector3 CM(2.0*x_bar/gaga,
 		 2.0*y_bar/gaga,

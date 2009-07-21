@@ -15,6 +15,7 @@
 #define OSCAR
 // #define PARALLEL
 // #define FRENET
+// #define WRITHEFRAME
 
 template<class Vector>
 class Tube : public Curve
