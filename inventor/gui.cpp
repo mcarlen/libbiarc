@@ -14,7 +14,7 @@ extern PPPlotWindow *pp_win;
 extern PTPlotWindow* pt_win;
 extern TTPlotWindow *tt_win;
 
-SoSeparator* frenet_frame(Tube<Vector3>* t, int FOURIER = 1) {
+SoSeparator* frenet_frame(Tube<Vector3>* t, float rad, int FOURIER = 1) {
   
   FourierKnot fk;
   Curve<Vector3> curve((*t));
@@ -25,7 +25,7 @@ SoSeparator* frenet_frame(Tube<Vector3>* t, int FOURIER = 1) {
 
   curve.make_default(); 
   
-  scale = .75*curve.maxSegDistance();
+  scale = rad*2.;
 
   curve.resample(Samples);
   curve.make_default(); 
@@ -120,6 +120,8 @@ SoSeparator* frenet_frame(Tube<Vector3>* t, int FOURIER = 1) {
       tan = (*t)[i].getTangent();
       nor = t->normalVector(i);
       nor.normalize();
+      nor = nor - tan.dot(nor)*tan;
+      nor.normalize();
     }
 // #endif
     bin = nor.cross(tan);   bin.normalize();
@@ -142,6 +144,109 @@ SoSeparator* frenet_frame(Tube<Vector3>* t, int FOURIER = 1) {
   }
   return frenet;
 }
+
+
+SoSeparator* parallel_frame(Tube<Vector3>* t, float rad) {
+  
+  float scale = rad*2.;
+
+  SoSeparator *frenet = new SoSeparator;
+  SoSeparator *sep_tangents  = new SoSeparator;
+  SoSeparator *sep_normals   = new SoSeparator;
+  SoSeparator *sep_binormals = new SoSeparator;
+  frenet->addChild(sep_tangents);
+  frenet->addChild(sep_normals);
+  frenet->addChild(sep_binormals);
+
+  // Materials
+  SoMaterial *ma_t = new SoMaterial, *ma_n = new SoMaterial, *ma_b = new SoMaterial;
+  ma_t->diffuseColor.setValue(1,0,0); sep_tangents->addChild(ma_t);
+  ma_n->diffuseColor.setValue(0,1,0); sep_normals->addChild(ma_n);
+  ma_b->diffuseColor.setValue(0,0,1); sep_binormals->addChild(ma_b);
+
+  Vector3 pt, tan, nor, bin;
+  SoCoordinate3 *co_tangents  = new SoCoordinate3;
+  SoCoordinate3 *co_normals   = new SoCoordinate3; 
+  SoCoordinate3 *co_binormals = new SoCoordinate3;
+
+  SoLineSet *ls_tangents  = new SoLineSet;
+  SoLineSet *ls_normals   = new SoLineSet;
+  SoLineSet *ls_binormals = new SoLineSet;
+
+  sep_tangents->addChild(co_tangents);   sep_tangents->addChild(ls_tangents);
+  sep_normals->addChild(co_normals);     sep_normals->addChild(ls_normals);
+  sep_binormals->addChild(co_binormals); sep_binormals->addChild(ls_binormals);
+
+  cout << "Scale : " << scale << endl;
+
+  Vector3 vec;
+  SbVec3f sbvec;
+
+  Matrix3 Frame, tmp;
+  float a,b,denom,Theta0,Theta1,tn,tb;
+  float TwistSpeed = .0;
+  Vector3 Theta;
+  for (int i=0;i<t->nodes();++i) {
+
+    pt = (*t)[i].getPoint();
+    tan = (*t)[i].getTangent();
+    tan.normalize();
+
+    if (i==0) {
+      vec = t->normalVector(0);
+      vec.normalize();
+      nor = vec - tan.dot(vec)*tan;
+      nor.normalize();
+      bin = nor.cross(tan);   bin.normalize();
+      Frame = Matrix3(nor,bin,tan);
+    }
+    else {
+      // Next frame
+
+      b = (1.0 - (Frame[2].dot(tan)));
+      a = (2.0 - b)/(2.0 + 0.5*TwistSpeed*TwistSpeed);
+      if (a < 1e-5) cerr << "Parallel Framing : possible div by 0.\n";
+      denom = a*(1.0+0.25*TwistSpeed*TwistSpeed);
+
+      tn = tan.dot(Frame[0]);
+      tb = tan.dot(Frame[1]);
+
+      Theta0 = (0.5*TwistSpeed*tn - tb)/denom;
+      Theta1 = (0.5*TwistSpeed*tb + tn)/denom;
+
+      Theta = Vector3(Theta0,Theta1,TwistSpeed);
+
+      // Get next local frame
+      Frame = (Frame*tmp.cay(Theta));
+
+      nor = Frame[0];
+      nor.normalize();
+
+      bin = nor.cross(tan);   bin.normalize();
+    }
+
+    co_tangents->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
+    vec = pt+scale*tan;
+    co_tangents->point.set1Value(2*i+1,SbVec3f(vec[0],vec[1],vec[2]));
+
+    co_normals->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
+    vec = pt+scale*nor;
+    co_normals->point.set1Value(2*i+1,SbVec3f(vec[0],vec[1],vec[2]));
+
+    co_binormals->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
+    vec = pt+scale*bin;
+    co_binormals->point.set1Value(2*i+1,SbVec3f(vec[0],vec[1],vec[2]));
+
+    ls_tangents->numVertices.set1Value(i,2);
+    ls_normals->numVertices.set1Value(i,2);
+    ls_binormals->numVertices.set1Value(i,2);
+
+  }
+  return frenet;
+}
+
+
+
 
 SoSeparator* addPrincipalAxis(const Matrix3 &m, const Curve<Vector3> *c) {
   SoSeparator *SteadyNode = new SoSeparator;
@@ -220,6 +325,9 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
   static bool INERTIA_AXIS = false;
   static SoSeparator* inertiaNode = NULL;
   static int AXIS_VIEW = 0;
+  static int FRAME_VIEW = 0;
+  static SoSeparator* frameNode = NULL;
+  static const char* frame_str[] = { "Standard Frenet", "Fourier Frenet", "Parallel" };
 
   SoChildList *children = new SoChildList(viewer->scene);
   int child_len;
@@ -245,7 +353,6 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
     child_len = children->getLength();
 
     myKeyEvent = (QKeyEvent *) anyevent;
-    SoGLRenderAction *redraw;
 
     switch(myKeyEvent->key()) {
 
@@ -313,14 +420,20 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
     case Qt::Key_1:
       // XXX we need a frame separator. now if there's more than 1 curve => boum!
       //     if the biarc view curve is already in the graph, boum again
-      cout << "Frenet Frame\n";
+      if (frameNode) {
+        viewer->scene->removeChild(frameNode);
+        frameNode = NULL;
+      }
+      cout << frame_str[FRAME_VIEW]  << " Frame\n";
       for (int i=0;i<viewer->ci->info.Knot->tubes();++i) {
-        // Fourier Repr.
-        viewer->scene->addChild(frenet_frame(viewer->ci->knot_shape[i]->getKnot(),1));
-        // Normal Repr
-//        viewer->scene->addChild(frenet_frame(viewer->ci->knot_shape[i]->getKnot(),0));
+        if (FRAME_VIEW==2)
+          frameNode = parallel_frame(viewer->ci->knot_shape[i]->getKnot(),viewer->ci->knot_shape[i]->getKnot()->radius());
+        else
+          frameNode = frenet_frame(viewer->ci->knot_shape[i]->getKnot(),viewer->ci->knot_shape[i]->getKnot()->radius(),FRAME_VIEW);
+        viewer->scene->addChild(frameNode);
       }
       viewer->scene->whichChild.setValue(SO_SWITCH_ALL); // only frenet frame
+      FRAME_VIEW = (FRAME_VIEW + 1)%3;
       break;
 
     case Qt::Key_Space:

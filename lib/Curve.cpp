@@ -1382,8 +1382,8 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
   Vector v = (b->getMidPoint()-b->getPoint())-
              (b->getPoint()-prev->getMidPoint());
 */
-  Vector v = (next->getPoint()-b->getPoint())-
-             (b->getPoint()-prev->getPoint());
+  Vector v = (next->getPoint()-b->getPoint())+
+             (prev->getPoint()-b->getPoint());
 // XXX not normalize, this way we indirectly recovert the
 //     local curvature
 //  v.normalize();
