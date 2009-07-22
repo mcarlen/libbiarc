@@ -1,5 +1,172 @@
 #include "utils.h"
 
+// Frame Normal generation helpers
+void frenet_frame_normals(Tube<Vector3>* t, Vector3* nor, int FRENET) {
+  if (FRENET) {
+    FourierKnot fk;
+    Curve<Vector3> curve((*t));
+    int Samples = 1000;
+    int N = (*t).nodes();
+    Vector3 vsin, vcos;
+
+    curve.make_default(); 
+
+    curve.resample(Samples);
+    curve.make_default(); 
+
+    vector<Biarc<Vector3> >::iterator it;
+    float dx = 2*M_PI/(float)Samples, x;
+    for (int n=1;n<=N;++n) {
+      vsin.zero(); vcos.zero(); x = 0.0;
+      for (it=curve.begin();it!=curve.end();++it) {
+        vsin += it->getPoint()*sin(n*x);
+        vcos += it->getPoint()*cos(n*x);
+        x += dx;
+      }
+      fk.csin.push_back(vsin);
+      fk.ccos.push_back(vcos);
+    }
+    float s = 0, iN = 1./(float)N;
+    for (int i=0;i<N;++i) {
+      s = (float)i*iN;
+      nor[i] = fk.primeprime(s); nor[i].normalize();
+    }
+  }
+  else {
+    Vector3 tan;
+    for (int i=0;i<t->nodes();++i) {
+      tan = (*t)[i].getTangent();
+      nor[i] = t->normalVector(i);
+      nor[i].normalize();
+      nor[i] = nor[i] - tan.dot(nor[i])*tan;
+      nor[i].normalize();
+    }
+  }
+}
+
+void parallel_frame_normals(Tube<Vector3>* t, Vector3* nor, float TwistSpeed) {
+  
+  Vector3 tan, bin;
+  Vector3 vec;
+
+  Matrix3 Frame, tmp;
+  float a,b,denom,Theta0,Theta1,tn,tb;
+  Vector3 Theta;
+
+  for (int i=0;i<t->nodes();++i) {
+
+    tan = (*t)[i].getTangent();
+    tan.normalize();
+
+    if (i==0) {
+      vec = t->normalVector(0);
+      vec.normalize();
+      nor[i] = vec - tan.dot(vec)*tan;
+      nor[i].normalize();
+      bin = nor[i].cross(tan);   bin.normalize();
+      Frame = Matrix3(nor[i],bin,tan);
+    }
+    else {
+      // Next frame
+
+      b = (1.0 - (Frame[2].dot(tan)));
+      a = (2.0 - b)/(2.0 + 0.5*TwistSpeed*TwistSpeed);
+      if (a < 1e-5) cerr << "Parallel Framing : possible div by 0.\n";
+      denom = a*(1.0+0.25*TwistSpeed*TwistSpeed);
+
+      tn = tan.dot(Frame[0]);
+      tb = tan.dot(Frame[1]);
+
+      Theta0 = (0.5*TwistSpeed*tn - tb)/denom;
+      Theta1 = (0.5*TwistSpeed*tb + tn)/denom;
+
+      Theta = Vector3(Theta0,Theta1,TwistSpeed);
+
+      // Get next local frame
+      Frame = (Frame*tmp.cay(Theta));
+
+      nor[i] = Frame[0];
+      nor[i].normalize();
+
+      bin = nor[i].cross(tan);   bin.normalize();
+    }
+  }
+}
+
+void parallel_ode_frame_normals(Tube<Vector3>* t, Vector3* Normals) {
+  
+  Vector3 p0,p1,p2,vec,cur,prev,next,tan;
+  Vector3 *tmpNormals = new Vector3[t->nodes()];
+  vec = t->normalVector(0);
+  vec.normalize();
+  tan = (*t)[0].getTangent();
+  Normals[0] = vec - tan.dot(vec)*tan;
+  Normals[0].normalize();
+ 
+  for (int i=0;i<t->nodes();i++) {
+    cur = (*t)[i].getPoint();
+    if (i==0) prev = (*t)[t->nodes()-1].getPoint();
+    else prev = (*t)[i-1].getPoint();
+    if (i==t->nodes()-1) next = (*t)[0].getPoint();
+    else next = (*t)[i+1].getPoint();
+    p0 = cur-prev;
+    // this next line looks weird. should it be next-cur; however, it looks right
+    p1 = next-prev;
+    p2 = p1.cross(p0);
+    tan = (*t)[i].getTangent();
+    tmpNormals[i] = (tan.cross(p2));
+    tmpNormals[i].normalize();
+  }
+
+  for (int i=1;i<t->nodes();i++) {
+    vec = (*t)[i-1].getTangent();
+    Normals[i] = Normals[i-1] + (vec.cross(tmpNormals[i-1])).cross(tmpNormals[i-1])*1.0/(float)t->nodes();
+    vec = (*t)[i].getTangent();
+    Normals[i] = Normals[i] - Normals[i].dot(vec)*vec;
+    Normals[i].normalize();
+  }
+}
+
+void writhe_frame_normals(Tube<Vector3>* t, Vector3* Normals) {
+
+  Vector3 tan;
+  int Nloc = t->nodes();
+  for (int i=0;i<Nloc;i++) {
+
+    tan = (*t)[i].getTangent();
+
+    vector<Biarc<Vector3> >::iterator bi_tmp, b_i = t->begin()+i;
+    vector<Biarc<Vector3> >::iterator b_j = b_i + 1;
+    if (b_j == t->end()) b_j = t->begin();
+
+    Curve<Vector3> tmp;
+    Vector3 e_ij;
+
+    tmp.append(tan,Vector3());
+    while (b_j!=b_i) {
+      e_ij = (b_j->getPoint()-b_i->getPoint());
+      e_ij.normalize();
+      tmp.append(e_ij,Vector3(0,0,0));
+      b_j = b_j + 1;
+      if (b_j == t->end()) b_j = t->begin();
+    }
+    tmp.append(-tan,Vector3());
+//    if (i==0) { tmp.computeTangents(); tmp.writePKF("fan.pkf"); }
+
+    // Rot curve
+    Vector3 down_dir;
+    for (int k=0;k<tmp.nodes();k++) down_dir += tmp[k].getPoint();
+    down_dir/=((float)tmp.nodes());
+    down_dir = down_dir - down_dir.dot(tan)*tan;
+    down_dir.normalize();
+
+    Normals[i] = down_dir;
+
+  }
+}
+
+
+
 // General Stuff
 int parse(int argc, char** argv, ViewerInfo *vi, CurveInfo *ci) {
 

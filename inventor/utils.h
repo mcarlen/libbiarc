@@ -2,6 +2,7 @@
 #define _UTILS_H_
 
 #include "main.h"
+#include "../fourierknots/fourier_syn.h"
 #include <QStringList>
 
 struct CurveInfo;
@@ -13,6 +14,12 @@ int parse(int argc, char** argv, ViewerInfo *vi, CurveInfo *ci);
 // GFX Stuff
 void addBezierCurve(SoSeparator *root, Tube<Vector3>* t);
 SoSeparator* drawCircle(const Vector3& p0, const Vector3& t0, const Vector3& p1);
+
+// Frame Normal generation helpers
+void frenet_frame_normals(Tube<Vector3>* t, Vector3* nor, int FRENET = 0);
+void parallel_frame_normals(Tube<Vector3>* t, Vector3* nor, float TwistSpeed = 0.);
+void parallel_ode_frame_normals(Tube<Vector3>* t, Vector3* Normals);
+void writhe_frame_normals(Tube<Vector3>* t, Vector3* Normals);
 
 /*!
   \struct CurveInfo
@@ -50,7 +57,7 @@ class CurveInterface {
   
 public:
   
-  CurveInterface() : graph_node(0) {}
+  CurveInterface() : graph_node(0), frame_node(0) {}
   
   struct CurveInfo info;
   
@@ -60,8 +67,9 @@ public:
   SoMaterialBinding **material_bindings;
   SoMaterial **materials;
   SoTexture2 *knot_texture;
-  
+
   SoSeparator *graph_node;
+  SoSeparator *frame_node;
 
 public slots:
   int save();
@@ -123,6 +131,87 @@ public slots:
     for (int i=0;i<info.Knot->tubes();i++)
       knot_shape[i]->nodes.setValue(N);
   }
+
+  SoSeparator* frame(int FRAME = 0) {
+    
+    Tube<Vector3>* t = knot_shape[0]->getKnot();
+    float rad = knot_shape[0]->radius.getValue();
+
+    // Construct Frenet Frame using fourier representation
+    SoSeparator *frenet = new SoSeparator;
+    SoSeparator *sep_tangents  = new SoSeparator;
+    SoSeparator *sep_normals   = new SoSeparator;
+    SoSeparator *sep_binormals = new SoSeparator;
+    frenet->addChild(sep_tangents);
+    frenet->addChild(sep_normals);
+    frenet->addChild(sep_binormals);
+
+    // Materials
+    SoMaterial *ma_t = new SoMaterial, *ma_n = new SoMaterial, *ma_b = new SoMaterial;
+
+    ma_t->diffuseColor.setValue(1,0,0); sep_tangents->addChild(ma_t);
+    ma_n->diffuseColor.setValue(0,1,0); sep_normals->addChild(ma_n);
+    ma_b->diffuseColor.setValue(0,0,1); sep_binormals->addChild(ma_b);
+
+    SoCoordinate3 *co_tangents  = new SoCoordinate3;
+    SoCoordinate3 *co_normals   = new SoCoordinate3; 
+    SoCoordinate3 *co_binormals = new SoCoordinate3;
+
+    SoLineSet *ls_tangents  = new SoLineSet;
+    SoLineSet *ls_normals   = new SoLineSet;
+    SoLineSet *ls_binormals = new SoLineSet;
+
+    sep_tangents->addChild(co_tangents);   sep_tangents->addChild(ls_tangents);
+    sep_normals->addChild(co_normals);     sep_normals->addChild(ls_normals);
+    sep_binormals->addChild(co_binormals); sep_binormals->addChild(ls_binormals);
+
+    Vector3* Normals = new Vector3[t->nodes()];
+    switch(FRAME) {
+      case 0:
+        frenet_frame_normals(t,Normals,0);
+        break;
+      case 1:
+        frenet_frame_normals(t,Normals,1);
+        break;
+      case 2:
+        parallel_frame_normals(t,Normals);
+        break;
+      case 3:
+        parallel_ode_frame_normals(t,Normals);
+        break;
+      case 4:
+        writhe_frame_normals(t,Normals);
+        break;
+    }
+
+    float scale = 2.*rad;
+    Vector3 pt, tan, nor, bin, vec;
+    for (int i=0;i<t->nodes();++i) {
+      pt  = (*t)[i].getPoint();
+      tan = (*t)[i].getTangent();
+      nor = Normals[i];
+      bin = Normals[i].cross(tan);   bin.normalize();
+
+      co_tangents->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
+      vec = pt+scale*tan;
+      co_tangents->point.set1Value(2*i+1,SbVec3f(vec[0],vec[1],vec[2]));
+
+      co_normals->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
+      vec = pt+scale*nor;
+      co_normals->point.set1Value(2*i+1,SbVec3f(vec[0],vec[1],vec[2]));
+
+      co_binormals->point.set1Value(2*i,SbVec3f(pt[0],pt[1],pt[2]));
+      vec = pt+scale*bin;
+      co_binormals->point.set1Value(2*i+1,SbVec3f(vec[0],vec[1],vec[2]));
+
+      ls_tangents->numVertices.set1Value(i,2);
+      ls_normals->numVertices.set1Value(i,2);
+      ls_binormals->numVertices.set1Value(i,2);
+    }
+    return frenet;
+  }
+
+
 
 public:
   

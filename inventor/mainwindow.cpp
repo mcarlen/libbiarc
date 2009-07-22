@@ -306,6 +306,8 @@ MainWindow::~MainWindow() {
   delete fileMenu;
   delete editMenu;
 	delete prefsMenu;
+  delete gradMenu;
+  delete framingMenu;
 	delete addMenu;
   delete helpMenu;
   delete fileToolBar;
@@ -329,6 +331,13 @@ MainWindow::~MainWindow() {
 	delete grad7Act;
 	delete grad8Act;
 	delete grad9Act;
+
+  delete framingNoneAct;
+  delete framingFrenetAct;
+  delete framingFrenetFourierAct;
+  delete framingParallelAct;
+  delete framingParallelODEAct;
+  delete framingWritheAct;
 
   delete addIVSceneAct;
 //	delete addContactSurfaceAct;
@@ -429,6 +438,26 @@ void MainWindow::setGrad7() { gradient = map_color_sine_acc; emit changed(); }
 void MainWindow::setGrad8() { gradient = height_map; emit changed(); }
 void MainWindow::setGrad9() { gradient = map_bw; emit changed(); }
 
+void MainWindow::setFraming0() { setFraming(0); }
+void MainWindow::setFraming1() { setFraming(1); }
+void MainWindow::setFraming2() { setFraming(2); }
+void MainWindow::setFraming3() { setFraming(3); }
+void MainWindow::setFraming4() { setFraming(4); }
+void MainWindow::setFraming5() { setFraming(5); }
+
+void MainWindow::setFraming(int FRAME = 0) {
+  if (ci->frame_node) {
+    scene->removeChild(ci->frame_node);
+    ci->frame_node = NULL;
+  }
+  if (FRAME==0) return;
+  for (int i=0;i<ci->info.Knot->tubes();++i) {
+    ci->frame_node = ci->frame(FRAME-1);
+    scene->addChild(ci->frame_node);
+  }
+  scene->whichChild.setValue(SO_SWITCH_ALL); // only frenet frame
+}
+
 void MainWindow::createActions() {
   /*
   newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
@@ -515,6 +544,34 @@ void MainWindow::createActions() {
   connect(grad8Act, SIGNAL(triggered()), this, SLOT(setGrad8()));
   connect(grad9Act, SIGNAL(triggered()), this, SLOT(setGrad9()));
 
+  framingNoneAct = new QAction(tr("Disable"), this);
+  framingNoneAct->setCheckable(true);
+  framingFrenetAct = new QAction(tr("Frenet"), this);
+  framingFrenetAct->setCheckable(true);
+  framingFrenetFourierAct = new QAction(tr("Frenet (Fourier)"), this);
+  framingFrenetFourierAct->setCheckable(true);
+  framingParallelAct = new QAction(tr("Parallel Transport"), this);
+  framingParallelAct->setCheckable(true);
+  framingParallelODEAct = new QAction(tr("Parallel ODE"), this);
+  framingParallelODEAct->setCheckable(true);
+  framingWritheAct = new QAction(tr("Writhe"), this);
+  framingWritheAct->setCheckable(true);
+  framingAct = new QActionGroup(this);
+  framingAct->addAction(framingNoneAct);
+  framingAct->addAction(framingFrenetAct);
+  framingAct->addAction(framingFrenetFourierAct);
+  framingAct->addAction(framingParallelAct);
+  framingAct->addAction(framingParallelODEAct);
+  framingAct->addAction(framingWritheAct);
+  framingNoneAct->setChecked(true);
+
+  connect(framingNoneAct, SIGNAL(triggered()), this, SLOT(setFraming0()));
+  connect(framingFrenetAct, SIGNAL(triggered()), this, SLOT(setFraming1()));
+  connect(framingFrenetFourierAct, SIGNAL(triggered()), this, SLOT(setFraming2()));
+  connect(framingParallelAct, SIGNAL(triggered()), this, SLOT(setFraming3()));
+  connect(framingParallelODEAct, SIGNAL(triggered()), this, SLOT(setFraming4()));
+  connect(framingWritheAct, SIGNAL(triggered()), this, SLOT(setFraming5()));
+
   addIVSceneAct = new QAction(tr("Add Inventor Scene(s)"), this);
 	connect(addIVSceneAct, SIGNAL(triggered()), this, SLOT(addIVScene()));
 //  addContactSurfaceAct = new QAction(tr("Compute contact surface"), this);
@@ -551,16 +608,24 @@ void MainWindow::createMenus() {
   editMenu->addAction(pasteAct);
 
   prefsMenu = menuBar()->addMenu(tr("&Preferences"));
-	prefsMenu->addSeparator()->setText(tr("Gradients"));
-	prefsMenu->addAction(grad1Act);
-	prefsMenu->addAction(grad2Act);
-	prefsMenu->addAction(grad3Act);
-	prefsMenu->addAction(grad4Act);
-	prefsMenu->addAction(grad5Act);
-	prefsMenu->addAction(grad6Act);
-	prefsMenu->addAction(grad7Act);
-	prefsMenu->addAction(grad8Act);
-	prefsMenu->addAction(grad9Act);
+	gradMenu = prefsMenu->addMenu(tr("&Color gradient"));
+	gradMenu->addAction(grad1Act);
+	gradMenu->addAction(grad2Act);
+	gradMenu->addAction(grad3Act);
+	gradMenu->addAction(grad4Act);
+	gradMenu->addAction(grad5Act);
+	gradMenu->addAction(grad6Act);
+	gradMenu->addAction(grad7Act);
+	gradMenu->addAction(grad8Act);
+	gradMenu->addAction(grad9Act);
+
+  framingMenu = prefsMenu->addMenu(tr("&Framings"));
+  framingMenu->addAction(framingNoneAct);
+  framingMenu->addAction(framingFrenetAct);
+  framingMenu->addAction(framingFrenetFourierAct);
+  framingMenu->addAction(framingParallelAct);
+  framingMenu->addAction(framingParallelODEAct);
+  framingMenu->addAction(framingWritheAct);
 
   addMenu = menuBar()->addMenu(tr("&Add"));
 	addMenu->addAction(addIVSceneAct);

@@ -10,13 +10,6 @@
 #include "ri.h"
 #endif
 
-// chose the framing algo : OSCAR, FRENET, PARALLEL or WRITHEFRAME
-// OSKAR is standart and works fine, the others are to be used carefully!!
-#define OSCAR
-// #define PARALLEL
-// #define FRENET
-// #define WRITHEFRAME
-
 template<class Vector>
 class Tube : public Curve
 // Doxygen doesn't like templates in heritage :(

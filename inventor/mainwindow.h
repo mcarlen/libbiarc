@@ -86,11 +86,21 @@ private slots:
 	void setGrad8();
 	void setGrad9();
 
+  void setFraming0();
+  void setFraming1();
+  void setFraming2();
+  void setFraming3();
+  void setFraming4();
+  void setFraming5();
+
   void addIVScene();
 
   void updatePickedPP(float u, float v, float u2, float v2, bool UNION);
   void updatePickedPT(float u, float v, float u2, float v2, bool UNION);
   void updatePickedTT(float u, float v, float u2, float v2, bool UNION);
+
+public slots:
+  void setFraming(int FRAME);
 
 private:
 
@@ -109,6 +119,8 @@ private:
   QMenu *fileMenu;
   QMenu *editMenu;
   QMenu *prefsMenu;
+  QMenu *gradMenu;
+  QMenu *framingMenu;
   QMenu *addMenu;
   QMenu *helpMenu;
   QToolBar *fileToolBar;
@@ -133,8 +145,16 @@ private:
 	QAction *grad8Act;
 	QAction *grad9Act;
 
+  QActionGroup *framingAct;
+  QAction *framingNoneAct;
+  QAction *framingFrenetAct;
+  QAction *framingFrenetFourierAct;
+  QAction *framingParallelAct;
+  QAction *framingParallelODEAct;
+  QAction *framingWritheAct;
+
   QAction *addIVSceneAct;
-	QAction *addContactSurfaceAct;
+//	QAction *addContactSurfaceAct;
 
   QAction *aboutAct;
   QAction *aboutQtAct;

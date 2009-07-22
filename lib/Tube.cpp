@@ -390,13 +390,13 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
 
   if (N<2) {
     cerr << "Warning : Tube::makeMesh() : Number of nodes must be >1!\n"
-	 << "                             Let's set nodes to 2!";
+         << "                             Let's set nodes to 2!";
     N=2;
   }
-  
+
   if (S<3) {
     cerr << "Warning : Tube::makeMesh() : Number of segments msut be >2!\n"
-	 << "                             Let's set segments to 3!\n";
+         << "                             Let's set segments to 3!\n";
 
     S=3;
   }
@@ -458,7 +458,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
   float TwistSpeed = 0.0;
   int Stop = 1;
   float direction, AngularSpeedScale = 1.0;
-  
+
   biarc_it current = this->begin();
   for (int i=0;i<this->nodes();i++) {
     *(Points+i)   = current->getPoint();
@@ -481,7 +481,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
     Normals[0] = Tangents[0].cross(Points[1]-Points[0]);
   else
     Normals[0] = Tangents[0].cross(Vector3(0,1,0));
-  
+
   // check cross product problem due to zero norm
   // FIXME : Tangents[0] could be || to 0,1,0 !!!
   if (Normals[0].norm()<0.0001) Normals[0]=Tangents[0].cross(Vector3(0,0,1));
@@ -492,161 +492,10 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
   Vector3 rot_point;
   float dist;
 
-#ifdef OSCAR // Oscar
   do {
-#endif
 
     Frame = Matrix3(Normals[0],Binormal,Tangents[0]);
 
-/* Start Frenet Frame code */
-#ifdef FRENET // Frenet Frame
-
-    cout << "Frenet Framing\n" << flush;
-    this->link();
-    Vector3 p0,p1,p2;
-
-    current = this->begin();
-    for (int i=0;i<Nloc;i++) {
-
-      p0 = (current->getPoint()-current->getPrevious()->getPoint());
-      p1 = (current->getNext()->getPoint()-current->getPrevious()->getPoint());
-      p2 = p1.cross(p0);
-
-      Normals[i] = (current->getTangent().cross(p2));
-      Normals[i].normalize();
-
-      current++;
-
-    }
-
-    this->unlink();
-
-#endif // Frenet Frame
-/* end Frenet Frame code */
-
-/* Start Parallel Transport Frame ODE code */
-#ifdef PARALLEL // Parallel Transport Frame ODE
-
-    cout << "Parallel Transport ODE Framing\n" << flush;
-    this->link();
-    Vector3 p0,p1,p2,tt;
-    Vector3 *tmpNormals = new Vector3[Nloc];
-
-    current = this->begin();
-    for (int i=0;i<Nloc;i++) {
-      p0 = (current->getPoint()-current->getPrevious().getPoint());
-      p1 = (current->getNext().getPoint()-current->getPrevious().getPoint());
-      p2 = p1.cross(p0);
-      tt = current->getTangent();
-      tmpNormals[i] = (tt.cross(p2));
-      tmpNormals[i].normalize();
-      current++;
-    }
-
-    for (int i=1;i<Nloc;i++) {
-      Normals[i] = Normals[i-1] + (Tangents[i-1].cross(tmpNormals[i-1])).cross(tmpNormals[i-1])*1.0/(float)Nloc;
-
-      Normals[i] = Normals[i] - Normals[i].dot(Tangents[i])*Tangents[i];
-
-      Normals[i].normalize();
-
-    }
-
-    if (!ToClose)
-    this->unlink();
-
-#endif // Parallel Transport Frame ODE
-/* end Parallel Transport Frame ODE code */
-
-
-/* start test code */
-#ifdef WRITHEFRAME // Writhe Framing
-
-    cout << "Let's get to work\n" << flush;
-
-    this->link();
-
-    for (int i=0;i<Nloc-1;i++) {
-
-      biarc_it bi_tmp, b_i = this->accessBiarc(i);
-      biarc_it b_j = b_i + 1;
-      if (b_j == this->end()) b_j = this->begin();
-      Vector3 t_plus  = Tangents[i];
-      Vector3 t_minus = -Tangents[i];
-
-      Curve<Vector3> tmp;
-
-      Vector3 e_ij;
-      while (b_j!=b_i) {
-	      e_ij = (b_i->getPoint()-b_j->getPoint());
-        e_ij.normalize();
-        tmp.append(e_ij,Vector3(0,0,0));
-        b_j = b_j + 1;
-        if (b_j == this->end()) b_j = this->begin();
-      }
-
-      // Rot curve
-      Vector3 down_dir;
-      for (int k=0;k<tmp.nodes();k++) down_dir += tmp[k].getPoint();
-      down_dir/=((float)tmp.nodes());
-
-      down_dir = down_dir - down_dir.dot(t_plus)*t_plus;
-
-      Matrix3 align_for_proj(t_plus,down_dir,t_plus.cross(down_dir));
-
-      tmp.apply(align_for_proj);
-
-      // stereo proj
-      for (int k=0;k<tmp.nodes();k++) {
-        Vector3 pppp = tmp[k].getPoint();
-        tmp[k].setPoint(Vector3(pppp[0]/(1.0-pppp[2]),
-				                        pppp[1]/(1.0-pppp[2]),
-				                        0.0));
-      }
-      
-      float MassArea = 0.0, x_bar = 0.0, y_bar = 0.0;
-      // we have to 0,0 our 2d curve
-      Vector3 uga = tmp[tmp.nodes()-1].getPoint()-tmp[0].getPoint();
-      uga.normalize();
-      float winkel = acos(uga.dot(Vector3(1.0,0.0,0.0)));
-
-      float cosa = cos(winkel);
-      float sina = sin(winkel);
-
-      for (int k=1;k<tmp.nodes();k++) {
-        Vector3 mass_ding = tmp[k].getPoint()-tmp[0].getPoint();
-
-        // drehen
-        float temp1 = mass_ding[0], temp2 = mass_ding[1];
-        mass_ding[0] = (-sina*temp1 + cosa*temp2);
-        mass_ding[1] = (cosa*temp1 + sina*temp2);
-        mass_ding[2] = 0.0;
-
-        MassArea += mass_ding[1];
-        x_bar += mass_ding[0]*mass_ding[1];
-        y_bar += mass_ding[1]*mass_ding[1];
-      }
-
-      x_bar /= MassArea;
-      y_bar /= (2*MassArea);
-
-      float gaga = x_bar*x_bar+y_bar*y_bar+1.0;
-      Vector3 CM(2.0*x_bar/gaga,
-		 2.0*y_bar/gaga,
-		 (x_bar*x_bar+y_bar*y_bar-1.0)/gaga);
-
-
-      Normals[i] = CM - CM.dot(t_plus)*t_plus;
-      
-    }
-
-this->unlink();
-    cout << "New part is done.\n" << flush;
-
-#endif // if Writhe Framing end
-/* end test code */
-
-#ifdef OSCAR // Oscar
     /*
      * Propagating the initial Normal[0] along the curve
      * the result is a sequence of smoothly chaning normal vectors
@@ -668,9 +517,9 @@ this->unlink();
       Theta = Vector3(Theta0,Theta1,TwistSpeed);
 
       // Get next local frame
-//      Frame = (tmp.cay(Theta)*Frame);
+      //      Frame = (tmp.cay(Theta)*Frame);
       Frame = (Frame*tmp.cay(Theta));
-      
+
       Normals[i] = Frame[0];
       Normals[i].normalize();  
 
@@ -702,50 +551,50 @@ this->unlink();
     else {
       ClosestDirection = Normals[Nloc-1];
       dist = (ClosestDirection-Normals[0]).norm();
-/* XXX Disable Permutation stuff (which minimizes internal twist)
-       but this is specially for visualization and texturing painfull!
-      for (int j=0;j<S;j++) {
-	// trigonometric orientation of the point on the circle !!!
-	rot_point = Normals[Nloc-1].rotPtAroundAxis(2.0*M_PI/(float)S*(float)j,
-						    Tangents[0]);
-	if ((rot_point-Normals[0]).norm()<dist) {
-	  if (iterations==0) {
-	    ClosestDirection = rot_point;
-	    PermutationIndex = j;
-	  }
-	  else if (iterations>0 && j==PermutationIndex)
-	    ClosestDirection = rot_point;
-	}
+      /* XXX Disable Permutation stuff (which minimizes internal twist)
+         but this is specially for visualization and texturing painfull!
+         for (int j=0;j<S;j++) {
+      // trigonometric orientation of the point on the circle !!!
+      rot_point = Normals[Nloc-1].rotPtAroundAxis(2.0*M_PI/(float)S*(float)j,
+      Tangents[0]);
+      if ((rot_point-Normals[0]).norm()<dist) {
+      if (iterations==0) {
+      ClosestDirection = rot_point;
+      PermutationIndex = j;
       }
-*/
-// Set the PermutationIndex to 0
-PermutationIndex = 0;
+      else if (iterations>0 && j==PermutationIndex)
+      ClosestDirection = rot_point;
+      }
+      }
+      */
+      // Set the PermutationIndex to 0
+      PermutationIndex = 0;
 
 #ifdef __debug__
       cout << "Angle diff for iteration " << iterations << " : " << angleDiff
-	   << " and permutation index " << PermutationIndex << endl;
+           << " and permutation index " << PermutationIndex << endl;
 #endif
 
       // angle difference between first normal and closest last direction
       if (Normals[0].dot(ClosestDirection) > 1-Tol) Stop=0;
 
       else {
-	angleDiff = acos(Normals[0].dot(ClosestDirection));
-	// get rotation handedness to correct the mesh 
-	direction = (ClosestDirection.cross(Normals[0])).dot(Tangents[0]) ;
-	AngularSpeedScale = angleDiff/Nloc; // maybe /10.0
+        angleDiff = acos(Normals[0].dot(ClosestDirection));
+        // get rotation handedness to correct the mesh 
+        direction = (ClosestDirection.cross(Normals[0])).dot(Tangents[0]) ;
+        AngularSpeedScale = angleDiff/Nloc; // maybe /10.0
 
-	if (direction>0)
-	  TwistSpeed+=AngularSpeedScale;
-	else
-	  TwistSpeed-=AngularSpeedScale;
+        if (direction>0)
+          TwistSpeed+=AngularSpeedScale;
+        else
+          TwistSpeed-=AngularSpeedScale;
 
-	iterations++;
-	if (iterations > 10) {
-	  cerr << "Warning : 10 iterations. Stopped with angle difference: "
-	       << angleDiff << " rad." << endl;
-	  Stop = 0;
-	}
+        iterations++;
+        if (iterations > 10) {
+          cerr << "Warning : 10 iterations. Stopped with angle difference: "
+            << angleDiff << " rad." << endl;
+          Stop = 0;
+        }
       }
     }
   } while (Stop);
@@ -754,8 +603,6 @@ PermutationIndex = 0;
   cout << "Mesh adjustment iterations : " << iterations-1 << endl;
 #endif
 
-#endif // if Oscar
-
   // Generate all the mesh points and normals
   Vector3 n, dummy;
 
@@ -763,12 +610,12 @@ PermutationIndex = 0;
   if (!TwistFlag) {
     for (int i=0;i<Nloc;i++) {
       for (int j=0;j<=S;j++) {
-	dummy = Normals[i].rotPtAroundAxis(-2.0*M_PI/(float)S*(float)(j%S),
-					   Tangents[i]);
-	dummy.normalize();
+        dummy = Normals[i].rotPtAroundAxis(-2.0*M_PI/(float)S*(float)(j%S),
+            Tangents[i]);
+        dummy.normalize();
 
-	_MeshNormals[i*(S+1)+j] = dummy;
-	_MeshPoints[i*(S+1)+j] = (R*dummy) + Points[i];
+        _MeshNormals[i*(S+1)+j] = dummy;
+        _MeshPoints[i*(S+1)+j] = (R*dummy) + Points[i];
       }
     }
   }
@@ -776,19 +623,18 @@ PermutationIndex = 0;
   else {
     for (int i=0;i<Nloc;i++) {
       for (int j=0;j<=S;j++) {
-	dummy = Normals[i].rotPtAroundAxis(-2.0*M_PI/(float)S*(float)(j%S),
-					   Tangents[i]);
-	dummy.normalize();
+        dummy = Normals[i].rotPtAroundAxis(-2.0*M_PI/(float)S*(float)(j%S),
+            Tangents[i]);
+        dummy.normalize();
 
-	_MeshNormals[i*(S+1)+j] = dummy;
-	_MeshPoints[i*(S+1)+j] = (R*dummy) + Points[i];
+        _MeshNormals[i*(S+1)+j] = dummy;
+        _MeshPoints[i*(S+1)+j] = (R*dummy) + Points[i];
 
-	if (i==0)
-	  _MeshPoints[this->nodes()*(S+1)+j] = (R*dummy) + Points[0];
+        if (i==0)
+          _MeshPoints[this->nodes()*(S+1)+j] = (R*dummy) + Points[0];
       }
     }
 
-#ifdef OSCAR // Oscar
     /*
      * Permutation of the points on the last/first circle
      * so that they match properly according to the PremutationIndex
@@ -800,14 +646,13 @@ PermutationIndex = 0;
     for (int i=0;i<S;i++) {
       perm[i]  = _MeshPoints[(i+PermutationIndex)%S];
       permN[i] = _MeshNormals[(i+PermutationIndex)%S];
-    
+
     }
 
     for (int i=0;i<(S+1);i++) {
       _MeshPoints[this->nodes()*(S+1)+i]  = perm[i%S];
       _MeshNormals[this->nodes()*(S+1)+i] = permN[i%S];
     }
-#endif // if Oscar
   }
 
   if (ToClose)
