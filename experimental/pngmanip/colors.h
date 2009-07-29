@@ -117,8 +117,9 @@ inline void map_color_sine_end(RGB* c, float val, float min, float max) {
 
   if (t>(STRIPELEN-1.)/STRIPELEN) {
     t2 = (1.-t)*STRIPELEN;
-float t3 = t2-.5;
-if (t3<0.) t3 = 1.+t3;
+    // Take the whole rainbow gradient
+    float t3 = t2; // -.5;
+//    if (t3<0.) t3 = 1.+t3;
     map_color_rainbow_cycle(&c2,t3,0,1);
     r=b2f(c2.r);g=b2f(c2.g);b=b2f(c2.b);
     ri = (unsigned int)rintf(r*(1.-t2) + t2*t*255.);
