@@ -92,6 +92,7 @@ private slots:
   void setFraming3();
   void setFraming4();
   void setFraming5();
+  void setFraming6();
 
   void addIVScene();
 
@@ -152,6 +153,7 @@ private:
   QAction *framingParallelAct;
   QAction *framingParallelODEAct;
   QAction *framingWritheAct;
+  QAction *framingWritheODEAct;
 
   QAction *addIVSceneAct;
 //	QAction *addContactSurfaceAct;

@@ -38,8 +38,6 @@ void frenet_frame_normals(Tube<Vector3>* t, Vector3* nor, int FRENET) {
       tan = (*t)[i].getTangent();
       nor[i] = t->normalVector(i);
       nor[i].normalize();
-      nor[i] = nor[i] - tan.dot(nor[i])*tan;
-      nor[i].normalize();
     }
   }
 }
@@ -59,9 +57,7 @@ void parallel_frame_normals(Tube<Vector3>* t, Vector3* nor, float TwistSpeed) {
     tan.normalize();
 
     if (i==0) {
-      vec = t->normalVector(0);
-      vec.normalize();
-      nor[i] = vec - tan.dot(vec)*tan;
+      nor[i] = t->normalVector(0);
       nor[i].normalize();
       bin = nor[i].cross(tan);   bin.normalize();
       Frame = Matrix3(nor[i],bin,tan);
@@ -93,44 +89,48 @@ void parallel_frame_normals(Tube<Vector3>* t, Vector3* nor, float TwistSpeed) {
   }
 }
 
+/*
+ We use the ODEs for an adapted frame d_i' = u cross d_i
+ where d_3 = tangent = r', d_2 = d_3 cross d_1 = binormal
+ and   d_2 = normal coming from this routine = Normals
+ and the Darboux vector u = tangent cross normal
+ see http://lcvmwww.epfl.ch/~lcvm/dna_teaching_08_09/notes/frame.pdf
+ in particular page 100.
+ derivation : use d_i' = u x d_i, with d_3 = r' = tan and d_3' = r'' = normal
+ => normal = u x tan => tan x normal = tan x (u x tan) = u => u = tan x normal
+*/
 void parallel_ode_frame_normals(Tube<Vector3>* t, Vector3* Normals) {
   
-  Vector3 p0,p1,p2,vec,cur,prev,next,tan;
-  Vector3 *tmpNormals = new Vector3[t->nodes()];
-  vec = t->normalVector(0);
+  Vector3 tan, vec = t->normalVector(0);
   vec.normalize();
-  tan = (*t)[0].getTangent();
-  Normals[0] = vec - tan.dot(vec)*tan;
-  Normals[0].normalize();
+  Normals[0] = vec;
  
-  for (int i=0;i<t->nodes();i++) {
-    cur = (*t)[i].getPoint();
-    if (i==0) prev = (*t)[t->nodes()-1].getPoint();
-    else prev = (*t)[i-1].getPoint();
-    if (i==t->nodes()-1) next = (*t)[0].getPoint();
-    else next = (*t)[i+1].getPoint();
-    p0 = cur-prev;
-    // this next line looks weird. should it be next-cur; however, it looks right
-    p1 = next-prev;
-    p2 = p1.cross(p0);
-    tan = (*t)[i].getTangent();
-    tmpNormals[i] = (tan.cross(p2));
-    tmpNormals[i].normalize();
-  }
-
   for (int i=1;i<t->nodes();i++) {
-    vec = (*t)[i-1].getTangent();
-    Normals[i] = Normals[i-1] + (vec.cross(tmpNormals[i-1])).cross(tmpNormals[i-1])*1.0/(float)t->nodes();
+    vec = ((*t)[i-1].getTangent()).cross(Normals[i-1]);
+    cout << vec << endl;
+    Normals[i] = Normals[i-1] + vec.cross(Normals[i-1])*1.0/(float)t->nodes();
     vec = (*t)[i].getTangent();
     Normals[i] = Normals[i] - Normals[i].dot(vec)*vec;
     Normals[i].normalize();
   }
 }
 
+/*
+ *  See ~/papers/Dennis_Hannay_-_Calugareanu_final.pdf
+ *  Where we "approximate" the bisecting radial chord direction
+ *  simply by summing the points on the chords C_s = (a(s) - a(s')/|a(s)-a(s')|
+ *  where s' runs from s around the knot back to s. where at the endpoints we
+ *  have +tangent, -tangent. The sum of these vectors divided by the number of
+ *  nodes in the curve orthogonalized w.r.t the tangent gives us the next normal vector.
+ *  This should mimick the fact that the "center of gravity" lies on the correct
+ *  radial chord and that it corresponds to the surface area to the left and right
+ *  of our bisecting chord.
+ */
 void writhe_frame_normals(Tube<Vector3>* t, Vector3* Normals) {
 
-  Vector3 tan;
   int Nloc = t->nodes();
+  Vector3 e_ij, down_dir, tan;
+
   for (int i=0;i<Nloc;i++) {
 
     tan = (*t)[i].getTangent();
@@ -139,29 +139,60 @@ void writhe_frame_normals(Tube<Vector3>* t, Vector3* Normals) {
     vector<Biarc<Vector3> >::iterator b_j = b_i + 1;
     if (b_j == t->end()) b_j = t->begin();
 
-    Curve<Vector3> tmp;
-    Vector3 e_ij;
-
-    tmp.append(tan,Vector3());
+    down_dir = tan;
     while (b_j!=b_i) {
       e_ij = (b_j->getPoint()-b_i->getPoint());
       e_ij.normalize();
-      tmp.append(e_ij,Vector3(0,0,0));
+      down_dir += e_ij;
+      // tmp.append(e_ij,Vector3(0,0,0));
       b_j = b_j + 1;
       if (b_j == t->end()) b_j = t->begin();
     }
-    tmp.append(-tan,Vector3());
-//    if (i==0) { tmp.computeTangents(); tmp.writePKF("fan.pkf"); }
+    down_dir += -tan;
 
-    // Rot curve
-    Vector3 down_dir;
-    for (int k=0;k<tmp.nodes();k++) down_dir += tmp[k].getPoint();
-    down_dir/=((float)tmp.nodes());
+    down_dir/= (float)(Nloc+1);
     down_dir = down_dir - down_dir.dot(tan)*tan;
     down_dir.normalize();
 
     Normals[i] = down_dir;
 
+  }
+}
+
+float writhe(Tube<Vector3>* t, int i) {
+  Curve<Vector3> c(*(Curve<Vector3>*)t);
+  c.make_default();
+  Vector3 xs = c[i].getPoint(), vec, vec2;
+  Vector3 ts = c[i].getTangent();
+  float d, I = 0, dsigma;
+  for (int j=0;j<c.nodes();++j) {
+    if (i!=j) {
+      dsigma = c[i].biarclength();
+      vec = c[j].getPoint() - xs;
+      vec2 = c[j].getTangent().cross(ts);
+      d = vec.norm();
+      I += dsigma*vec.dot(vec2)/(d*d*d);
+    }
+  }
+  return I;
+}
+
+// XXX ode
+void writhe_ode_frame_normals(Tube<Vector3>* t, Vector3* Normals) {
+  
+  Vector3 tan, vec = t->normalVector(0), u;
+  vec.normalize();
+  Normals[0] = vec;
+ 
+  for (int i=1;i<t->nodes();i++) {
+    vec = (*t)[i-1].getTangent();
+    u = vec.cross(Normals[i]);
+    u[2] = -.5*writhe(t,i-1);
+    Normals[i] = Normals[i-1] + u.cross(Normals[i-1])*1.0/(float)t->nodes();
+    vec = (*t)[i].getTangent();
+    // Orthogonalize
+    Normals[i] = Normals[i] - Normals[i].dot(vec)*vec;
+    Normals[i].normalize();
   }
 }
 

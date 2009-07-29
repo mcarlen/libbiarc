@@ -6,6 +6,8 @@
 // #include "algo_helpers.h"
 #include <fstream>
 #include <vector>
+// For changeDirection reverse
+#include <algorithm>
 
 #define StraightSegTol 1e-7
 
@@ -90,6 +92,8 @@ class Curve : public PKFmanip {
   int isClosed() const ;
   void link() ;
   void unlink() ;
+
+  void changeDirection() ;
 
   void make(float f);
   void makeMidpointRule();

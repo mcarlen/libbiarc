@@ -563,6 +563,18 @@ void Curve<Vector>::unlink() {
 }
 
 /*!
+  Change the direction of the curve. This flips the tangents
+  and reorders the points, so that we run through the curve
+  in the opposite direction.
+*/
+template<class Vector>
+void Curve<Vector>::changeDirection() {
+  reverse(begin(),end());
+  for (int i=0;i<nodes();++i)
+    _Biarcs[i].setTangent(-(_Biarcs[i].getTangent()));
+}
+
+/*!
   Returns 1 if the curve is closed (i.e. the link() function
   had been used), and 0 otherwise.
 */
@@ -1384,9 +1396,13 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
 */
   Vector v = (next->getPoint()-b->getPoint())+
              (prev->getPoint()-b->getPoint());
-// XXX not normalize, this way we indirectly recovert the
-//     local curvature
-//  v.normalize();
+  // XXX not normalize, this way we indirectly recovert the
+  //     local curvature
+  //  v.normalize();
+  
+  // orthogonalize
+  Vector3 tan = b->getTangent();
+  v = v - tan.dot(v)*tan;
   return v;
 }
 

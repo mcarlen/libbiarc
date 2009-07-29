@@ -33,6 +33,7 @@ class CurveBundle : public PKFmanip {
   void makeMidpointRule();
   void resample(int NewNoNodes);
 
+  void changeDirection();
   void normalize();
   float length();
   float thickness();

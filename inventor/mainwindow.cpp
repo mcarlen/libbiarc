@@ -338,6 +338,7 @@ MainWindow::~MainWindow() {
   delete framingParallelAct;
   delete framingParallelODEAct;
   delete framingWritheAct;
+  delete framingWritheODEAct;
 
   delete addIVSceneAct;
 //	delete addContactSurfaceAct;
@@ -444,6 +445,7 @@ void MainWindow::setFraming2() { setFraming(2); }
 void MainWindow::setFraming3() { setFraming(3); }
 void MainWindow::setFraming4() { setFraming(4); }
 void MainWindow::setFraming5() { setFraming(5); }
+void MainWindow::setFraming6() { setFraming(6); }
 
 void MainWindow::setFraming(int FRAME = 0) {
   if (ci->frame_node) {
@@ -556,6 +558,8 @@ void MainWindow::createActions() {
   framingParallelODEAct->setCheckable(true);
   framingWritheAct = new QAction(tr("Writhe"), this);
   framingWritheAct->setCheckable(true);
+  framingWritheODEAct = new QAction(tr("Writhe ODE"), this);
+  framingWritheODEAct->setCheckable(true);
   framingAct = new QActionGroup(this);
   framingAct->addAction(framingNoneAct);
   framingAct->addAction(framingFrenetAct);
@@ -563,6 +567,7 @@ void MainWindow::createActions() {
   framingAct->addAction(framingParallelAct);
   framingAct->addAction(framingParallelODEAct);
   framingAct->addAction(framingWritheAct);
+  framingAct->addAction(framingWritheODEAct);
   framingNoneAct->setChecked(true);
 
   connect(framingNoneAct, SIGNAL(triggered()), this, SLOT(setFraming0()));
@@ -571,6 +576,7 @@ void MainWindow::createActions() {
   connect(framingParallelAct, SIGNAL(triggered()), this, SLOT(setFraming3()));
   connect(framingParallelODEAct, SIGNAL(triggered()), this, SLOT(setFraming4()));
   connect(framingWritheAct, SIGNAL(triggered()), this, SLOT(setFraming5()));
+  connect(framingWritheODEAct, SIGNAL(triggered()), this, SLOT(setFraming6()));
 
   addIVSceneAct = new QAction(tr("Add Inventor Scene(s)"), this);
 	connect(addIVSceneAct, SIGNAL(triggered()), this, SLOT(addIVScene()));
@@ -626,6 +632,7 @@ void MainWindow::createMenus() {
   framingMenu->addAction(framingParallelAct);
   framingMenu->addAction(framingParallelODEAct);
   framingMenu->addAction(framingWritheAct);
+  framingMenu->addAction(framingWritheODEAct);
 
   addMenu = menuBar()->addMenu(tr("&Add"));
 	addMenu->addAction(addIVSceneAct);

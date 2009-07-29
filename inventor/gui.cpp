@@ -88,7 +88,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
   static SoSeparator* inertiaNode = NULL;
   static int AXIS_VIEW = 0;
   static int FRAME_VIEW = 0;
-  static const char* frame_str[] = { "Disabled", "Standard Frenet", "Fourier Frenet", "Parallel", "Parallel ODE", "Writhe" };
+  static const char* frame_str[] = { "Disabled", "Standard Frenet", "Fourier Frenet", "Parallel", "Parallel ODE", "Writhe", "Writhe ODE" };
 
   SoChildList *children = new SoChildList(viewer->scene);
   int child_len;
@@ -179,7 +179,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       break;
 
     case Qt::Key_1:
-      FRAME_VIEW = (FRAME_VIEW + 1)%6;
+      FRAME_VIEW = (FRAME_VIEW + 1)%7;
       cout << frame_str[FRAME_VIEW]  << " Frame\n";
       viewer->setFraming(FRAME_VIEW);
       break;

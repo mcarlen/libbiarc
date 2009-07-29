@@ -256,6 +256,16 @@ void CurveBundle<Vector>::resample(int NewNoNodes) {
 }
 
 /*!
+  Change the orientation of all the curves in the bundle.
+  This means flipping the tangents and reordering the points.
+*/
+template<class Vector>
+void CurveBundle<Vector>::changeDirection() {
+  for (int i=0;i<curves();i++)
+    bundle[i].changeDirection();
+}
+
+/*!
   Normalize the length of the sum of curve lengths! This means
   that for 10 curves with length 1 in the bundle, the length will
   be 1/10 after normalisation!

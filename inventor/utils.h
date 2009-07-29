@@ -20,6 +20,7 @@ void frenet_frame_normals(Tube<Vector3>* t, Vector3* nor, int FRENET = 0);
 void parallel_frame_normals(Tube<Vector3>* t, Vector3* nor, float TwistSpeed = 0.);
 void parallel_ode_frame_normals(Tube<Vector3>* t, Vector3* Normals);
 void writhe_frame_normals(Tube<Vector3>* t, Vector3* Normals);
+void writhe_ode_frame_normals(Tube<Vector3>* t, Vector3* Normals);
 
 /*!
   \struct CurveInfo
@@ -181,6 +182,9 @@ public slots:
         break;
       case 4:
         writhe_frame_normals(t,Normals);
+        break;
+      case 5:
+        writhe_ode_frame_normals(t,Normals);
         break;
     }
 

@@ -11,53 +11,53 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 #include "../include/Curve.h"
+#include <algorithm>
 
 struct container {
   float s,sigma,tau;
 };
 
-vector<container> contacts;
-Curve<Vector3> *knot;
-
-void compute_forces(Curve<Vector3>* knot, float s, float sigma, float tau,
-                    float *F1, float *F2) {
-
-  Vector3 normal, point, strut1, strut2;
-  float factor, theta, psi, curvature;
-  int n = knot->biarcPos(s);
-
-  curvature = 1./knot->curvature(n);
-  normal = knot->normalVector(n);
-  normal.normalize();
-
-  point = knot->pointAt(s);
-  strut1 = point - knot->pointAt(tau); strut1.normalize();
-  strut2 = knot->pointAt(sigma) - point; strut2.normalize();
-
-  theta = fabsf(strut1.dot(normal));
-  theta = acos(theta);
-  psi   = fabsf(strut2.dot(normal));
-  psi = acos(psi);
-
-  factor = curvature/sin(theta+psi);
-  *F1 =  factor*sin(psi);
-  *F2 = -factor*sin(theta);
-
-  cerr << s << " " << theta << " " << psi << endl;
+bool operator<(const container& a, const container& b) {
+      return a.s < b.s;
 }
 
-int main(int argc, char **argv) {
+vector<container> contacts;
+vector<container> contacts2;
+Curve<Vector3> *knot;
+
+// !! normalize a and b !!
+float angle(const Vector3 &a, const Vector3 &b) {
+  return acos(a.dot(b));
+}
+
+// transpose and sort contacts first!
+float interpolate(const vector<container> &contacts, float s) {
+  float sigma = contacts[0].sigma;
+  int i = 1;
+  while (s > contacts[i].s  && i < contacts.size()) {
+    sigma = contacts[i].sigma;
+    ++i;
+  }
+  return (sigma + (s - contacts[i-1].s)/(contacts[i].s - contacts[i-1].s)*(contacts[i].sigma - contacts[i-1].sigma));;
+}
+
+int main(int argc, char** argv) {
 
   if (argc!=3) {
     cout << "Usage : " << argv[0] << " <pkf> <contacts>\n";
     exit(0);
   }
   
-  struct container vals;
+  struct container vals, vals2;
   ifstream in(argv[2],ios::in);
-  while (in >> vals.s >> vals.sigma >> vals.tau)
+  while (in >> vals.s >> vals.sigma >> vals.tau) {
     contacts.push_back(vals);
+    vals2.s = vals.sigma; vals2.sigma = vals.s;
+    contacts2.push_back(vals2);
+  }
   in.close();
+
+  sort(contacts2.begin(),contacts2.end());
 
   knot = new Curve<Vector3>(argv[1]);
   if (knot==NULL) {
@@ -69,36 +69,84 @@ int main(int argc, char **argv) {
   knot->normalize();
   knot->make_default();
 
-  // First Force computation
-  // check for contact 5
-  int num;
-  float F1, F2, Fdummy;
-  float s, sigma, tau, xx;
-  for (int i=0;i<contacts.size();++i) {
-    s = contacts[i].s;
-    sigma = contacts[i].sigma;
-    tau = contacts[i].tau;
+  Vector3 normal_s, normal_sigma, point_s, point_sigma, point_tau, point_sigmasigma;
+  float cur_s, cur_sigma;
 
-//    cout << s << " " << fabsf(F1) << " " << fabsf(F2) << endl;
-    
-    /*
-    compute_forces(knot, s, sigma, tau, &Fdummy, &F1);
-    num = 0;
-    while (contacts[num].s < sigma) num++;
-    xx = contacts[num-1].sigma + (contacts[num].sigma - contacts[num-1].sigma)*(sigma - contacts[num-1].s)/(contacts[num].s - contacts[num-1].s);
-    compute_forces(knot, sigma, xx, s, &F2, &Fdummy);
-    */
+  cout << "#Inventor V2.1 ascii\nSeparator {";
+  cout << "Coordinate3 {\npoint [\n";
+  int num = 0;
+  for (int i=1;i<contacts.size();++i) {
 
-    compute_forces(knot, s, sigma, tau, &F1, &Fdummy);
-    num = 0;
-    while (contacts[num].s < tau) num++;
-    xx = contacts[num-1].tau + (contacts[num].tau - contacts[num-1].tau)*(tau - contacts[num-1].s)/(contacts[num].s - contacts[num-1].s);
-    compute_forces(knot, tau, s, xx, &Fdummy, &F2);
+    int n = knot->biarcPos(contacts[i].s);
+    normal_s = knot->normalVector(n);
+    normal_s.normalize();
+    cur_s = knot->curvature(n);
+    n = knot->biarcPos(contacts[i].sigma);
+    normal_sigma = knot->normalVector(n);
+    normal_sigma.normalize();
+    cur_sigma = knot->curvature(n);
 
-    cout << i << " " << s << " " << F1 << " " << -F2 << endl;
+    point_s          = knot->pointAt(contacts[i].s);
+    point_sigma      = knot->pointAt(contacts[i].sigma);
+    float tau        = interpolate(contacts2,contacts[i].s);
+    point_tau        = knot->pointAt(tau);
+    float sigmasigma = interpolate(contacts,contacts[i].sigma);
+    point_sigmasigma = knot->pointAt(sigmasigma);
+
+    Vector3 tmp = point_s - point_tau; tmp.normalize();
+    float psi_s       = angle(tmp, -normal_s);
+    tmp               = point_sigma - point_s; tmp.normalize();
+    float theta_s     =  angle(tmp, normal_s);
+    float psi_sigma   = angle(tmp, -normal_sigma);
+    tmp               = point_sigmasigma - point_sigma; tmp.normalize();
+    float theta_sigma = angle(tmp, normal_sigma);
+
+    float factor_s     = cur_s/sin(psi_s + theta_s);
+    float factor_sigma = cur_sigma/sin(psi_sigma + theta_sigma);
+
+    float Fi_s     =  factor_s*sin(theta_s);
+    float Fo_s     = -factor_s*sin(psi_s);
+    float Fi_sigma =  factor_sigma*sin(theta_sigma);
+    float Fo_sigma = -factor_sigma*sin(psi_sigma);
+
+//    float Fi_sigma = -factor_sigma*sin(psi_sigma);
+//    float Fo_sigma =  factor_sigma*sin(theta_sigma);
+
+    if (true || psi_s>1.5 || theta_s>1.5) {
+
+      // strut 1
+      cout << point_s     << ",";
+      cout << point_sigma << ",";
+
+      // strut 2
+      cout << point_s   << ",";
+      cout << point_tau << ",";
+
+      // strut 3 (higher up)
+      //cout << point_sigma << "," << point_sigmasigma << ",";
+
+      // normal
+      cout << point_s << ",";
+      cout << point_s + normal_s*(point_s-point_sigma).norm()/3. << ",";
+
+      // next normal (at sigma)
+      //cout << point_sigma << ",";
+      //cout << point_sigma + normal_sigma*(point_s-point_sigma).norm()/3 << ",";
+      cout << endl;
+
+      num++;
+      cerr << contacts[i].s << " " << theta_s << " " << Fo_s << " " << contacts[i].sigma << " " << psi_sigma << " " << Fi_sigma << " " << cur_s << " " << sigmasigma << endl;
+    }
   }
+  cout << "]}\n";
+  cout << "LineSet { numVertices [\n";
+  for (int i=0;i<num;++i) {
+//    cout << "2,2,2,2,2,";
+    cout << "2,2,2,";
+  }
+  cout << "]}\n";
+  cout << "}";
 
-  return 0;
 }
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
