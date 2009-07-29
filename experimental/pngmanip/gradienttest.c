@@ -11,12 +11,13 @@ RGB c;
 
 int main(int argc, char** argv) {
 
-  n = 8;
+  n = 1;
   w = 500; h = 50*n;
   px = (unsigned char*)malloc(sizeof(unsigned char)*3*w*h);
 
   float pttable[w][h];
 
+/*
   for (j=0;j<h/n;j++) {
     src = px + j*(3*w);
     for (i=0;i<w;i++) {
@@ -40,7 +41,7 @@ int main(int argc, char** argv) {
       *src++ = c.r; *src++ = c.g; *src++ = c.b;
     }
   }
- 
+
   for (j=0;j<h/n;j++) {
     src = px + (3*h/n+j)*(3*w);
     for (i=0;i<w;i++) {
@@ -48,15 +49,18 @@ int main(int argc, char** argv) {
       *src++ = c.r; *src++ = c.g; *src++ = c.b;
     }
   }
+*/
 
   for (j=0;j<h/n;j++) {
-    src = px + (4*h/n+j)*(3*w);
+//    src = px + (4*h/n+j)*(3*w);
+    src = px + j*(3*w);
     for (i=0;i<w;i++) {
       map_color_sine_end(&c,(float)i/(float)w,0,1);
       *src++ = c.r; *src++ = c.g; *src++ = c.b;
     }
   }
 
+/*
   for (j=0;j<h/n;j++) {
     src = px + (5*h/n+j)*(3*w);
     for (i=0;i<w;i++) {
@@ -80,6 +84,7 @@ int main(int argc, char** argv) {
       *src++ = c.r; *src++ = c.g; *src++ = c.b;
     }
   }
+*/
 
   sp_png_write_rgb(outname,px,w,h,0.1,0.1,3*w);
   free(px);

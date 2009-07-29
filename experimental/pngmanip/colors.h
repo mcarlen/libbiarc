@@ -110,29 +110,37 @@ inline void map_color_sine_end(RGB* c, float val, float min, float max) {
   if (val>max) lval = max;
   if (val<min) lval = min;
   float t = (lval-min)/(max-min),t2;
-  RGB c2;float r,g,b;
+  RGB c2;float r,g,b,r2,g2,b2;
   unsigned int ri,gi,bi;
 
-  const float STRIPELEN = 80.0;
+  const float eps = 1./100.;
+  const float eps2 = (eps-1.)/eps;
 
-  if (t>(STRIPELEN-1.)/STRIPELEN) {
-    t2 = (1.-t)*STRIPELEN;
-    // Take the whole rainbow gradient
-    float t3 = t2; // -.5;
-//    if (t3<0.) t3 = 1.+t3;
-    map_color_rainbow_cycle(&c2,t3,0,1);
-    r=b2f(c2.r);g=b2f(c2.g);b=b2f(c2.b);
-    ri = (unsigned int)rintf(r*(1.-t2) + t2*t*255.);
-    gi = (unsigned int)rintf(g*(1.-t2) + t2*255.*(.5*sin(2*M_PI*20.*t-M_PI)+.5));
-    bi = (unsigned int)rintf(b*(1.-t2) + t2*255.*(.5*sin(2*M_PI*20.*t)+.5)*(1.-t));
+  map_color_sine(c,t,0,1);
+  if (t>1-eps) {
+    // Map t to [0,1]
+    t2 = 1./eps*t + eps2;
+    map_color_rainbow(&c2,t2,0,1);
+    r=b2f(c->r);g=b2f(c->g);b=b2f(c->b);
+    r2=b2f(c2.r);g2=b2f(c2.g);b2=b2f(c2.b);
+
+    // fade color in with sharp ramp
+    const float fadein = .1;
+    if (t2<fadein) {
+      t2 /= fadein;
+      ri = (unsigned int)rintf(r*(1.-t2) + t2*r2);
+      gi = (unsigned int)rintf(g*(1.-t2) + t2*g2);
+      bi = (unsigned int)rintf(b*(1.-t2) + t2*b2);
+    }
+    else {
+      ri = (unsigned int)rintf(r2);
+      gi = (unsigned int)rintf(g2);
+      bi = (unsigned int)rintf(b2);
+    }
     set_rgb(c,(unsigned char)ri,
               (unsigned char)gi,
               (unsigned char)bi);
-  }
-  else {
-  set_rgb(c,(unsigned char)(255.*t),
-            (unsigned char)(255.*(.5*sin(2*M_PI*20.*t-M_PI)+.5)),
-            (unsigned char)(255.*(.5*sin(2*M_PI*20.*t)+.5)*(1.-t)));
+
   }
 }
 
