@@ -23,7 +23,7 @@
 #include <Inventor/nodes/SoOrthographicCamera.h>
 
 #include "mainwindow.h"
-#include "pp.h"
+// #include "pp.h"
 #include "pt.h"
 #include "tt.h"
 
@@ -61,7 +61,6 @@ ViewerInfo viewer_info;
 CurveInterface curve_interface;
 MainWindow *myViewer;
 
-PPPlotWindow *pp_win = NULL;
 PTPlotWindow *pt_win = NULL;
 TTPlotWindow *tt_win = NULL;
 

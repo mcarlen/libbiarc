@@ -15,6 +15,10 @@
 #include "utils.h"
 #include "../experimental/pngmanip/colors.h"
 
+class PPPlotWindow;
+class PTPlotWindow;
+class TTPlotWindow;
+
 class QAction;
 class QMenu;
 
@@ -56,6 +60,11 @@ public:
 
   QFileDialog* fileDialog;
 
+  // PlotWindow
+  PPPlotWindow* pp_win;
+  PTPlotWindow* pt_win;
+  TTPlotWindow* tt_win;
+
   // Important separators in the scene graph
   SoSeparator *root, *circles, *interaction;
   SoSwitch *scene;
@@ -89,6 +98,10 @@ private slots:
   void setFraming5();
   void setFraming6();
 
+  void ppWindow();
+  void ptWindow();
+  void ttWindow();
+
   void addIVScene();
 
   void updatePickedPP(float u, float v, float u2, float v2, bool UNION);
@@ -97,6 +110,7 @@ private slots:
 
 public slots:
   void setFraming(int FRAME);
+  void plotWindow(int w);
 
 private:
 
@@ -118,6 +132,7 @@ private:
   QMenu *gradMenu;
   QMenu *framingMenu;
   QMenu *addMenu;
+  QMenu *plotMenu;
   QMenu *helpMenu;
   QToolBar *fileToolBar;
   QToolBar *editToolBar;
@@ -149,6 +164,10 @@ private:
   QAction *framingParallelODEAct;
   QAction *framingWritheAct;
   QAction *framingWritheODEAct;
+
+  QAction *plotPPWindowAct;
+  QAction *plotPTWindowAct;
+  QAction *plotTTWindowAct;
 
   QAction *addIVSceneAct;
 //	QAction *addContactSurfaceAct;

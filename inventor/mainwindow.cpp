@@ -1,4 +1,7 @@
 #include "mainwindow.h"
+#include "pp.h"
+#include "pt.h"
+#include "tt.h"
 
 #include <Inventor/nodes/SoCoordinate3.h>
 #include <Inventor/nodes/SoLineSet.h>
@@ -253,6 +256,8 @@ MainWindow::MainWindow(QWidget *parent, const char *name,
   // Init default gradient
   gradient = map_color_sine_end;
 
+  pp_win = NULL;
+
   root = new SoSeparator; root->ref();
   circles = new SoSeparator; circles->ref();
   interaction = new SoSeparator; interaction->ref();
@@ -342,6 +347,10 @@ MainWindow::~MainWindow() {
   delete framingParallelODEAct;
   delete framingWritheAct;
   delete framingWritheODEAct;
+
+  delete plotPPWindowAct;
+  delete plotPTWindowAct;
+  delete plotTTWindowAct;
 
   delete addIVSceneAct;
 //	delete addContactSurfaceAct;
@@ -450,6 +459,54 @@ void MainWindow::setFraming4() { setFraming(4); }
 void MainWindow::setFraming5() { setFraming(5); }
 void MainWindow::setFraming6() { setFraming(6); }
 
+void MainWindow::ppWindow() { plotWindow(0); }
+void MainWindow::ptWindow() { plotWindow(1); }
+void MainWindow::ttWindow() { plotWindow(2); }
+
+void MainWindow::plotWindow(int w = 0) {
+  switch(w) {
+  case 0:
+    if (!pp_win) {
+      pp_win = new PPPlotWindow(this,NULL,"pp Plot");
+      pp_win->setAttribute(Qt::WA_NoBackground);
+      pp_win->setWindowTitle("pp Plot");
+      QObject::connect(pp_win,SIGNAL(pos_changed(float,float,float,float,bool)),
+                       this,SLOT(updatePickedPP(float,float,float,float,bool)));
+      QObject::connect(this,SIGNAL(changed()),
+                       pp_win,SLOT(recompute()));
+    }
+    if (pp_win->isVisible()) pp_win->hide();
+    else pp_win->show();
+    break;
+  case 1:
+    if (!pt_win) {
+      pt_win = new PTPlotWindow(this,NULL,"pt Plot");
+      pt_win->setAttribute(Qt::WA_NoBackground);
+      pt_win->setWindowTitle("pt Plot");
+      QObject::connect(pt_win,SIGNAL(pos_changed(float,float,float,float,bool)),
+                       this,SLOT(updatePickedPT(float,float,float,float,bool)));
+      QObject::connect(this,SIGNAL(changed()),
+                       pt_win,SLOT(recompute()));
+    }
+    if (pt_win->isVisible()) pt_win->hide();
+    else pt_win->show();
+    break;
+  case 2:
+    if (!tt_win) {
+      tt_win = new TTPlotWindow(this,NULL,"tt Plot");
+      tt_win->setAttribute(Qt::WA_NoBackground);
+      tt_win->setWindowTitle("tt Plot");
+      QObject::connect(tt_win,SIGNAL(pos_changed(float,float,float,float,bool)),
+                       this,SLOT(updatePickedTT(float,float,float,float,bool)));
+      QObject::connect(this,SIGNAL(changed()),
+                       tt_win,SLOT(recompute()));
+    }
+    if (tt_win->isVisible()) tt_win->hide();
+    else tt_win->show(); 
+    break;
+  }
+}
+
 void MainWindow::setFraming(int FRAME = 0) {
   if (ci->frame_node) {
     scene->removeChild(ci->frame_node);
@@ -549,6 +606,13 @@ void MainWindow::createActions() {
   connect(grad8Act, SIGNAL(triggered()), this, SLOT(setGrad8()));
   connect(grad9Act, SIGNAL(triggered()), this, SLOT(setGrad9()));
 
+  plotPPWindowAct = new QAction(tr("pp plot"), this);
+  plotPTWindowAct = new QAction(tr("pt plot"), this);
+  plotTTWindowAct = new QAction(tr("tt plot"), this);
+  connect(plotPPWindowAct, SIGNAL(triggered()), this, SLOT(ppWindow()));
+  connect(plotPTWindowAct, SIGNAL(triggered()), this, SLOT(ptWindow()));
+  connect(plotTTWindowAct, SIGNAL(triggered()), this, SLOT(ttWindow()));
+
   framingNoneAct = new QAction(tr("Disable"), this);
   framingNoneAct->setCheckable(true);
   framingFrenetAct = new QAction(tr("Frenet"), this);
@@ -636,6 +700,11 @@ void MainWindow::createMenus() {
   framingMenu->addAction(framingParallelODEAct);
   framingMenu->addAction(framingWritheAct);
   framingMenu->addAction(framingWritheODEAct);
+
+  plotMenu = menuBar()->addMenu(tr("2D P&lots"));
+  plotMenu->addAction(plotPPWindowAct);
+  plotMenu->addAction(plotPTWindowAct);
+  plotMenu->addAction(plotTTWindowAct);
 
   addMenu = menuBar()->addMenu(tr("&Add"));
 	addMenu->addAction(addIVSceneAct);
