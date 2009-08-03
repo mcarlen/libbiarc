@@ -98,6 +98,27 @@ void SoKnot::initClass(void) {
 }
 
 /*!
+  Recreates the mesh using the params currently stored
+  in knot. Used for example by refine to update the internal
+  mesh and number of nodes.
+*/
+void SoKnot::updateMesh(const float Tol) {
+
+  knot->makeMesh(knot->nodes(),
+		 knot->segments(),
+		 knot->radius(),
+		 Tol);
+
+  _old_segments = knot->segments();
+  _old_nodes = knot->nodes();
+  _old_radius = knot->radius();
+
+  nodes.setValue(knot->nodes());
+  segments.setValue(knot->segments());
+  radius.setValue(knot->radius());
+}
+
+/*!
   Initializes the SoKnot instance, given a Tube
   object \a t and a tolerance \a Tol for the mesh generation routine.
   
@@ -424,7 +445,6 @@ void SoKnot::sogl_render_tube(const float radius,
   }
   else {
     if (segments!=_old_segments || nodes!=_old_nodes) {
-
       knot->clear_tube();
       knot->flush_all();
 

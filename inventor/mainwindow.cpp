@@ -105,24 +105,26 @@ static void mousefunc(void* data, SoEventCallback* eventCB) {
           }
         }
 
-        if (FOUND && viewer->ResamplePartFlag) {
+        if (FOUND && viewer->vi->ResamplePartFlag) {
           cout << "Resample\n";
-          if (!viewer->FirstPoint) {
-            viewer->FirstBiarc = viewer->picked_biarc;
-            viewer->FirstPoint = 1;
+          if (!viewer->vi->FirstPoint) {
+            viewer->vi->FirstBiarc = viewer->picked_biarc;
+            viewer->vi->FirstPoint = 1;
           }
            else {
              // XXX only single components!
              bez_tub = viewer->ci->knot_shape[0]->getKnot();
              bez_tub->make_default();
              // XXX resample from FirstBiarc to picked_biarc with 10 points
-             bez_tub->refine(viewer->FirstBiarc,viewer->picked_biarc,5);
+             bez_tub->refine(viewer->vi->FirstBiarc,viewer->picked_biarc,5);
              bez_tub->make_default();
+             cout << "BEZ REFINE OK\n" <<flush;
              for (int i=0;i<viewer->scene->getChildren()->getLength();i++)
-               viewer->scene->getChildren()->remove(0);
+               viewer->scene->getChildren()->remove(1);
+             viewer->ci->knot_shape[0]->updateMesh(viewer->ci->info.Tol);
              addBezierCurve((SoSeparator*)viewer->scene,bez_tub);
-             viewer->FirstPoint = 0;
-             viewer->ResamplePartFlag = 0;
+             viewer->vi->FirstPoint = 0;
+             viewer->vi->ResamplePartFlag = 0;
            }
         }
         else if (FOUND) {
@@ -213,6 +215,7 @@ static void mousefunc(void* data, SoEventCallback* eventCB) {
 
       for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
         bez_tub = viewer->ci->knot_shape[i]->getKnot();
+        viewer->ci->knot_shape[i]->updateMesh(viewer->ci->info.Tol);
         bez_tub->make_default();
         addBezierCurve(sep,bez_tub);
       }
@@ -236,13 +239,16 @@ MainWindow::MainWindow(QWidget *parent, const char *name,
                          SoQtExaminerViewer(parent,name,
                                             embed,flag,type) {
 
+  vi = new ViewerInfo;
+  ci = new CurveInterface; 
+
   oldx2 = oldy2 = oldx = oldy = -1;
   setCentralWidget(parent);
 
   view_mode = SOLID_VIEW;
   PRESSED = 0;
   EditTangent = 0;
-  ResamplePartFlag = 0;
+  vi->ResamplePartFlag = 0;
 
   // Init default gradient
   gradient = map_color_sine_end;
@@ -270,9 +276,6 @@ MainWindow::MainWindow(QWidget *parent, const char *name,
   SoEventCallback *motionEvent = new SoEventCallback;
   motionEvent->addEventCallback(SoLocation2Event::getClassTypeId(), motionfunc, this);
   interaction->addChild(motionEvent);
-
-  vi = new ViewerInfo;
-  ci = new CurveInterface; 
 
   // Init custom file dialog
 /*

@@ -47,6 +47,7 @@ public:
   SoSFInt32 segments;
 
   void setKnot(Tube<Vector3>* t, const float Tol);
+  void updateMesh(const float Tol);
   Tube<Vector3>* getKnot();
   void reset();
 

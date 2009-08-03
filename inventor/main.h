@@ -70,6 +70,8 @@ struct ViewerInfo {
   int ResamplePartFlag;
   int FirstPoint;
   int BackGroundFlag;
+
+  vector<Biarc<Vector3> >::iterator FirstBiarc;
   
   // Other Flags
   uint TEXTURES, IV_SCENE;

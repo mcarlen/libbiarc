@@ -54,11 +54,6 @@ public:
   float AspectratioX, AspectratioY;
   int EditTangent;
 
-	// Partial Resample of the curve globals
-	unsigned int ResamplePartFlag;
-	unsigned int FirstPoint;
-	vector<Biarc<Vector3> >::iterator FirstBiarc;
-
   QFileDialog* fileDialog;
 
   // Important separators in the scene graph
