@@ -242,21 +242,30 @@ public:
     clear();
     if (info.Knot==NULL) info.Knot = new TubeBundle<Vector3>;
 
+    int count = 0;
     for (int i = 0; i < info.filenames.size(); ++i) {
       cout << "Read file : " << info.filenames.at(i).toLocal8Bit().constData() << endl;
       // Guess PKF or VECT
       if (info.filenames.at(i).endsWith(".pkf") ||
-          info.filenames.at(i).endsWith(".PKF"))
-        info.Knot->readPKF((const char*)(info.filenames.at(i).toLocal8Bit().constData()));
+          info.filenames.at(i).endsWith(".PKF")) {
+        if (!info.Knot->readPKF((const char*)(info.filenames.at(i).toLocal8Bit().constData())))
+          cout << "! Could not load " << (const char*)(info.filenames.at(i).toLocal8Bit()) << endl;
+        else count++;
+      }
       else if (info.filenames.at(i).endsWith(".xyz") ||
-               info.filenames.at(i).endsWith(".XYZ"))
-        info.Knot->readXYZ((const char*)(info.filenames.at(i).toLocal8Bit().constData()));
+               info.filenames.at(i).endsWith(".XYZ")) {
+        if (!info.Knot->readXYZ((const char*)(info.filenames.at(i).toLocal8Bit().constData())))
+          cout << "! Could not load " << (const char*)(info.filenames.at(i).toLocal8Bit()) << endl;
+        else count++;
+      }
       else {
         cerr << "[Warn] Unknown filetype. Skip!\n";
         continue;
       }
     }
     
+    if (count==0) return NULL;
+       
     // FIXME
     // We arbitrarily choose for N the number of datapoints of the first curve
     // It would be reasonnable to include the option to show exactly what
@@ -346,7 +355,7 @@ public:
       knot_node[i]->addChild(materials[i]);
       //addBezierCurve(root,&(*Knot)[i]);
       knot_node[i]->addChild(knot_shape[i]);
-#if 1 // SPHERE_END
+#if 0 // SPHERE_END
       if (!(*(info.Knot))[i].isClosed()) {
         SoTranslation *tr = new SoTranslation;
         SoTranslation *tr2 = new SoTranslation;

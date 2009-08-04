@@ -108,6 +108,9 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     myKeyEvent = (QKeyEvent *) anyevent;
 
+    // For new tube
+    Tube<Vector3> tube;
+
     switch(myKeyEvent->key()) {
 
     case Qt::Key_G:
@@ -142,7 +145,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 
     case Qt::Key_D:
       viewer->ci->setNumberOfNodes(viewer->ci->knot_shape[0]->nodes.getValue()+10);
-    	if (viewer->view_mode==BIARC_VIEW) {
+    	// if (viewer->view_mode==BIARC_VIEW) {
 				sep = new SoSeparator;
 	      for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
 	        bez_tub = viewer->ci->knot_shape[i]->getKnot();
@@ -152,13 +155,15 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 	        addBezierCurve(sep,bez_tub);
 	      }
         viewer->scene->replaceChild(1, sep);
-      }
+      // }
+      viewer->ci->knot_shape[0]->getKnot()->make_default();
+      viewer->ci->knot_shape[0]->updateMesh(viewer->ci->info.Tol);
 
       break;
 
     case Qt::Key_C:
       viewer->ci->setNumberOfNodes(viewer->ci->knot_shape[0]->nodes.getValue()-10);
-    	if (viewer->view_mode==BIARC_VIEW) {
+    	// if (viewer->view_mode==BIARC_VIEW) {
 				sep = new SoSeparator;
 	      for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
 	        bez_tub = viewer->ci->knot_shape[i]->getKnot();
@@ -168,13 +173,77 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 	        addBezierCurve(sep,bez_tub);
 	      }
         viewer->scene->replaceChild(1,sep);
-      }
+     // }
+      viewer->ci->knot_shape[0]->getKnot()->make_default();
+      viewer->ci->knot_shape[0]->updateMesh(viewer->ci->info.Tol);
       break;
 
     case Qt::Key_1:
       FRAME_VIEW = (FRAME_VIEW + 1)%7;
       cout << frame_str[FRAME_VIEW]  << " Frame\n";
       viewer->setFraming(FRAME_VIEW);
+      break;
+
+    case Qt::Key_L:
+      if (viewer->view_mode==BIARC_VIEW) {
+        if (viewer->ci->knot_shape[0]->getKnot()->isClosed()) {
+          viewer->ci->knot_shape[0]->getKnot()->unlink();
+        }
+        else {
+          viewer->ci->knot_shape[0]->getKnot()->link();
+        }
+				sep = new SoSeparator;
+	      bez_tub = viewer->ci->knot_shape[0]->getKnot();
+	      bez_tub->make_default();
+        viewer->ci->knot_shape[0]->updateMesh(viewer->ci->info.Tol);
+	      addBezierCurve(sep,bez_tub);
+        viewer->scene->replaceChild(1,sep);
+      }
+      break;
+
+    case Qt::Key_Return:
+      if (viewer->view_mode==BIARC_VIEW) {
+        if (viewer->ci->info.Knot->tubes()==0) {
+          cout << "NEW CURVE\n";
+          tube.append(Vector3(0,0,0),Vector3(1,0,0));
+          tube.append(Vector3(1,0,0),Vector3(1,0,0));
+          viewer->ci->info.Knot->newTube(tube);
+          viewer->ci->info.N = 2;
+          viewer->ci->info.R = 0.2;
+          viewer->ci->makeMesh();
+          viewer->ci->graph_node = viewer->ci->curveSeparator();
+          viewer->scene->replaceChild(0, viewer->ci->graph_node);
+        }
+        else {
+          if (viewer->ci->knot_shape[0]->getKnot()->isClosed()) {
+            cout << "[Warn] Can not add node to closed curve!\n";
+            break;
+          }
+          Vector3 p = (viewer->ci->knot_shape[0]->getKnot()->end()-1)->getPoint();
+          Vector3 t = (viewer->ci->knot_shape[0]->getKnot()->end()-1)->getTangent();
+          viewer->ci->knot_shape[0]->getKnot()->append(p+t,t);
+          viewer->ci->knot_shape[0]->updateMesh(viewer->ci->info.Tol);
+        }
+				sep = new SoSeparator;
+	      bez_tub = viewer->ci->knot_shape[0]->getKnot();
+	      bez_tub->make_default();
+	      addBezierCurve(sep,bez_tub);
+        viewer->scene->replaceChild(1,sep);
+ 
+        cout << "ADD NODE\n";
+      }
+      break;
+
+    case Qt::Key_Delete:
+      if (viewer->view_mode==BIARC_VIEW) {
+        viewer->ci->knot_shape[0]->getKnot()->remove(viewer->picked_biarc);
+	      bez_tub = viewer->ci->knot_shape[0]->getKnot();
+      	bez_tub->make_default();
+        sep = new SoSeparator;
+	      addBezierCurve(sep,bez_tub);
+				viewer->scene->replaceChild(1, sep);
+        viewer->ci->knot_shape[0]->updateMesh(viewer->ci->info.Tol);
+      }
       break;
 
     case Qt::Key_Space:

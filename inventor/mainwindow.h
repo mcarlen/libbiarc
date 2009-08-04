@@ -73,7 +73,7 @@ protected:
   void closeEvent(QCloseEvent *event);
 
 private slots:
-//  void newFile();
+  void newFile();
   void open();
   bool save();
   bool saveAs();

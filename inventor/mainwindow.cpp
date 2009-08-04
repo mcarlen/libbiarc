@@ -370,14 +370,21 @@ void MainWindow::closeEvent(QCloseEvent *event) {
   }
 }
 
-/*
 void MainWindow::newFile() {
+  if (ci->graph_node!=NULL) {
+    scene->removeAllChildren();
+    ci->graph_node = NULL;
+		// Set 2 empty Separators (0=mesh,1=biarcview)
+		scene->addChild(new SoSeparator);
+		scene->addChild(new SoSeparator);
+  }
+  /*
   if (maybeSave()) {
   //      textEdit->clear();
     setCurrentFile("");
   }
+  */
 }
-*/
 
 void MainWindow::open() {
 //  if (maybeSave()) {
@@ -521,12 +528,12 @@ void MainWindow::setFraming(int FRAME = 0) {
 }
 
 void MainWindow::createActions() {
-  /*
+
   newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
   newAct->setShortcut(tr("Ctrl+N"));
-  newAct->setStatusTip(tr("Create a new file"));
+  newAct->setStatusTip(tr("Clear scene"));
   connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
-*/
+
   openAct = new QAction(QIcon(":/images/open.png"), tr("&Open..."), this);
   openAct->setShortcut(tr("Ctrl+O"));
   openAct->setStatusTip(tr("Open an existing file"));
@@ -668,7 +675,7 @@ void MainWindow::createActions() {
 
 void MainWindow::createMenus() {
   fileMenu = menuBar()->addMenu(tr("&File"));
-  // fileMenu->addAction(newAct);
+  fileMenu->addAction(newAct);
   fileMenu->addAction(openAct);
   fileMenu->addAction(saveAct);
   fileMenu->addAction(saveAsAct);
@@ -774,7 +781,10 @@ void MainWindow::loadFile(const QStringList fileNames) {
   }
   ci->info.filenames = fileNames;
   ci->graph_node = ci->load();
-  scene->replaceChild(0,ci->graph_node);
+  if (ci->graph_node!=NULL)
+    scene->replaceChild(0,ci->graph_node);
+  else
+    view_mode = BIARC_VIEW;
   this->getCamera()->viewAll(root, getViewportRegion());
 /*
   if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -790,7 +800,7 @@ void MainWindow::loadFile(const QStringList fileNames) {
     textEdit->setPlainText(in.readAll());
     QApplication::restoreOverrideCursor();
 */
-//    setCurrentFile(fileName);
+//  setCurrentFile(fileName);
   statusBar()->showMessage(tr("File(s) loaded"), 2000);
 }
 
