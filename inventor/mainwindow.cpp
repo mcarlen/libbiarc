@@ -372,12 +372,15 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 void MainWindow::newFile() {
   if (ci->graph_node!=NULL) {
+    cout << "REMOVE ALL\n";
     scene->removeAllChildren();
+    // Set 2 empty Separators (0=mesh,1=biarcview)
+    scene->addChild(new SoSeparator);
+    scene->addChild(new SoSeparator);
     ci->graph_node = NULL;
-		// Set 2 empty Separators (0=mesh,1=biarcview)
-		scene->addChild(new SoSeparator);
-		scene->addChild(new SoSeparator);
   }
+  ci->info.Knot->clear_tb();
+
   /*
   if (maybeSave()) {
   //      textEdit->clear();

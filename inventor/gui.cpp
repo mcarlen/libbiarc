@@ -262,14 +262,14 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 	      viewer->setDrawStyle(SoQtViewer::STILL,
 	                           SoQtViewer::VIEW_AS_IS);
         // XXX rebuild bezier curve only if N or S changed!!
-				sep = new SoSeparator;
-      	for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
-	        bez_tub = viewer->ci->knot_shape[i]->getKnot();
-      	  bez_tub->make_default();
-	        addBezierCurve(sep,bez_tub);
-      	}
-				viewer->scene->replaceChild(1, sep);
-	      viewer->scene->whichChild.setValue(1); // is biarc curve
+        sep = new SoSeparator;
+        for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
+            bez_tub = viewer->ci->knot_shape[i]->getKnot();
+            bez_tub->make_default();
+            addBezierCurve(sep,bez_tub);
+        }
+        viewer->scene->replaceChild(1, sep);
+        viewer->scene->whichChild.setValue(1); // is biarc curve
 	      break;
 
       default: cerr << "View Mode problem. Should not happen\n"; exit(3);
