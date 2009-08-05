@@ -1,5 +1,8 @@
 BUG list
 
+SoQt(1.4.1)/Coin(2.5.0) In orthographic view, the NURBS controlpoints
+are wrong! Stereographic view's fine.
+
 experimental/thickness : for a circle it seems to converge to the
 correct value however only if we crank up the number of node.
 

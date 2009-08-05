@@ -25,10 +25,11 @@ class TubeBundle : public PKFmanip {
   // to update the current bounging box and center value
   void computeBoundingBox();
 
-  void clear_tb();
   void init();
 
- public:
+public:
+
+  void clear_tb();
 
   TubeBundle();
   TubeBundle(const char* filename);

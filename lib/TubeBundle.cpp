@@ -75,6 +75,13 @@
 #define __TUBE_BUNDLE_SRC__
 
 /*!
+*/
+template<class Vector>
+void TubeBundle<Vector>::clear_tb() {
+  container.resize(0);
+}
+
+/*!
   Initialize TubeBundle object. Number of segments and the radius
   are set to 0.0. The mesh point table and the mesh normal
   table are set to NULL.
