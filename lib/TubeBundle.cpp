@@ -78,7 +78,7 @@
 */
 template<class Vector>
 void TubeBundle<Vector>::clear_tb() {
-  container.resize(0);
+  container.clear(); // resize(0);
 }
 
 /*!

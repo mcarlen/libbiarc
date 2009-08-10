@@ -380,6 +380,7 @@ void MainWindow::newFile() {
     ci->graph_node = NULL;
   }
   ci->info.Knot->clear_tb();
+  ci->info.Closed = 0;
 
   /*
   if (maybeSave()) {
