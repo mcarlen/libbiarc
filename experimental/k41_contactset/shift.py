@@ -2,7 +2,7 @@
 import sys
 f = open(sys.argv[1])
 for i in f.readlines():
-  x,y,z = map(float,i.split())
+  x,y = map(float,i.split())
   x = x + .25
   y = y + .25
   if x>1:
