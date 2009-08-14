@@ -1408,7 +1408,10 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
 
 // FIXME : STL adapt!!
 /*!
-  Returns the torsion at biarc number \a n.
+  Returns the 3 sin(angle)/arclength, where angle is
+  the angle between the planes in which 2 consequent arcs lie.
+
+  Parameter a is 0 for arc 1 and 1 for the second arc
 
   The torsion computation as given in Smutny's Thesis p.64
   it is also only based on point/tangent data.
@@ -1418,11 +1421,8 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
   \sa torsion2(),curvature()
 */
 template<class Vector>
-float Curve<Vector>::torsion(int n) {
-
-  // doesn't seem to be right
-  // not too sure if this is accurate
-  // since the h is the arclength between biarc n and biarc n+1
+float Curve<Vector>::torsion(int n, int a) {
+  
 
 //  Biarc<Vector> *current = accessBiarc(n), *current_h;
   biarc_it current = _Biarcs.begin()+n, current_h;
@@ -1453,17 +1453,28 @@ float Curve<Vector>::torsion(int n) {
     }
   }
 
-  d_0 = current_h->getPoint() - current->getPoint();
-  t_0 = current->getTangent();
-  d_h = (current_h+1)->getPoint() - current_h->getPoint();
-  t_h = current_h->getTangent();
+  if (!a) { // arc 0
+    d_0 = current->getMidPoint() - current->getPoint();
+    t_0 = current->getTangent();
+    d_h = (current_h->getPoint() - current->getMidPoint());
+    t_h = current->getMidTangent();
+  }
+  else { // arc 1
+    d_0 = current_h->getPoint() - current->getMidPoint();
+    t_0 = current->getMidTangent();
+    d_h = (current_h->getMidPoint() - current_h->getPoint());
+    t_h = current_h->getTangent();   
+  }
 
   Vector v_0 = t_0.cross(d_0);
   Vector v_1 = t_h.cross(d_h);
 
   v_0.normalize(), v_1.normalize();
   sin_phi = fabsf((v_0.cross(v_1)).norm()); 
-  return 3.0*sin_phi/h;
+  if (!a)
+    return 3.0*sin_phi/current->arclength0();
+  else
+    return 3.0*sin_phi/current->arclength1();
 
 }
 

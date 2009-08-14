@@ -37,19 +37,24 @@ int main(int argc, char **argv) {
   float r0, r1;
   int changed = 0;
   for (int i=1;i<=Iterations;++i) {
-    for (b3 it=c.begin()+1;it!=c.end()-1;++it) {
+    for (b3 it=c.begin();it!=c.end();++it) {
      /*
         change only nodes that have the local radius smaller
         than the thickness of the curve is.
       */
-      r0 = it->getPrevious().radius1();
+     b3 prev, next;
+     if (it == c.begin()) prev = c.end()-1;
+     else prev = it-1;
+     if (it == c.end()-1) next = c.begin();
+     else next = it+1;
+      r0 = prev->radius1();
       r1 = it->radius0();
 // cout << "R " << r0 << " " << r1 << endl;
       // if (r0*2.0 < thick || r1*2.0 < thick) {
 // Select more points accoring to the stencil variable
-        it->setPoint(.25*it->getPrevious().getPoint()+
+        it->setPoint(.25*prev->getPoint()+
                      .5*it->getPoint()+
-                     .25*it->getNext().getPoint());
+                     .25*next->getPoint());
         changed++;
       // }
     }

@@ -27,7 +27,10 @@ int main(int argc, char **argv) {
     vector<Biarc<Vector3> >::iterator current;
     for (current=cb[i].begin();current!=cb[i].end();current++) {
       cout << i << ' ' << current->id() << ' ' << s << ' '
-           << cb[i].torsion(current->id()) << ' '
+           << cb[i].torsion(current->id(),0) << ' '
+           << cb[i].torsion2(current->id()) << endl;
+      cout << i << ' ' << current->id() << ' ' << s+current->arclength0() << ' '
+           << cb[i].torsion(current->id(),1) << ' '
            << cb[i].torsion2(current->id()) << endl;
       s+=current->biarclength();
     }

@@ -35,6 +35,7 @@ int main(int argc, char** argv) {
   // Process infile to outfile
   cout << "Read in file\t\t\t"<<flush;
   CurveBundle<Vector3> original(infile.c_str());
+  original.link();
   cout << "\t[OK]\n";
  
   cout << "Re-compute the tangents!\n";
