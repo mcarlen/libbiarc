@@ -164,8 +164,10 @@ void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC,
   // Temporary Bezier points
   Vector Ba0,Ba1,Ba2,Bb0,Bb1,Bb2;
 
-  for (biarc_it i=c->begin();i!=c->end()-1;i++) {
-    for (biarc_it j=i+1;j!=c->end();j++) {
+  biarc_it stop1 = c->isClosed()?c->end()-1:c->end()-2;
+  biarc_it stop2 = c->isClosed()?c->end():c->end()-1;
+  for (biarc_it i=c->begin();i!=stop1;i++) {
+    for (biarc_it j=i+1;j!=stop2;j++) {
 
       i->getBezierArc0(Ba0,Ba1,Ba2);
       j->getBezierArc0(Bb0,Bb1,Bb2);
