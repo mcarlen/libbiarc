@@ -81,6 +81,8 @@ inline ostream &operator<<(ostream &out, CurveBundle<Vector> &c) {
 }
 
 // Template thing
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include "../lib/CurveBundle.cpp"
+#endif
 
 #endif // __CURVE_BUNDLE_H__

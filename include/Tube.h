@@ -117,6 +117,8 @@ inline ostream &operator<<(ostream &out, Tube<Vector> &t) {
 }
 
 // Template thing
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include "../lib/Tube.cpp"
+#endif
 
 #endif // __TUBE_H__

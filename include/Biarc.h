@@ -150,6 +150,8 @@ inline ostream& operator << (ostream &out, const Biarc<Vector>& b) {
 
 // Templates need all code in the same file
 // that's why we include here the source file!!!
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include "../lib/Biarc.cpp"
+#endif
 
 #endif // _BIARC_H_

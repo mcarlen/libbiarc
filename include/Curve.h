@@ -203,6 +203,8 @@ inline ostream &operator<<(ostream &out, Curve<Vector> &c) {
 
 // Templates need all code in the same file
 // that's why we include here the source file!!!
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include "../lib/Curve.cpp"
+#endif
 
 #endif // __CURVE_H__

@@ -1,8 +1,3 @@
-implement smoothin (gaussian convolution
-f.ex using only neighbours :
-q^a = 1/4 q^{a-1} + 1/2 q^a + 1/4 q^{a+1}
-)
-
 implement ACN and Writhe (see Ideal Knots book p. 48)
 
 For all pair of points p_{i_c,i_n}, p_{j_c,j_n}

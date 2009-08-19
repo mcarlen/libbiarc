@@ -75,6 +75,8 @@ inline ostream &operator<<(ostream &out, TubeBundle<Vector> &tb) {
 }
 
 // We have templates and need all code in same file
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include "../lib/TubeBundle.cpp"
+#endif
 
 #endif // __TUBE_BUNDLE_H__
