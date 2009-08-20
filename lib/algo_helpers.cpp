@@ -326,6 +326,11 @@ void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered
   }
 }
 
+/*!
+ Compute thickness of a curve Curve<Vector>, from and to are the points on the curve
+ where this thickness is achieved. hint_i and hint_j is used in Simulated annealing runs
+ to give a biarc pair where the thickness was achieved in the last thickness computation.
+*/
 template<class Vector>
 float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hint_i, const int hint_j) {
 
@@ -389,7 +394,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
   // Initial double critical test
   initial_dbl_crit_filter(c, tmp, global_min);
   distance_filter(tmp, candidates,global_min);
-  candidates = tmp;
+  // XXX strange!!! candidates = tmp;
 
   Vector lFrom, lTo;
   for (unsigned int i=0;i<candidates.size();++i) {
@@ -404,6 +409,74 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
 //  cerr << stop_time(myt) << endl;
   return global_min;
 }
+
+
+/*!
+ Compute thickness for CurveBundle. "from" and "to" are the points where it is achieved.
+*/
+template<class Vector>
+float compute_thickness(CurveBundle<Vector> *cb, Vector *from, Vector *to) {
+
+  float min_diam = check_local_curvature(&((*cb)[0]));
+  for (int i=1;i<cb->curves();++i) {
+    float min_diam_tmp = check_local_curvature(&((*cb)[i]));
+    if (min_diam_tmp<min_diam)
+      min_diam = min_diam_tmp;
+  }
+  
+  vector<Candi<Vector> > tmp, candidates;
+  float global_min = min_diam, curr_min;
+
+  for (int ic=0;ic<cb->curves();++ic) {
+  for (int ic2=ic;ic2<cb->curves();++ic2) {
+    Curve<Vector> *c1 = &((*cb)[ic]);
+    Curve<Vector> *c2 = &((*cb)[ic2]);
+  Vector Ba0,Ba1,Ba2,Bb0,Bb1,Bb2;
+
+  for (int ib=0;ib<c1->nodes()+(c1->isClosed()?-2:-3);++ib) {
+    for (int jb=ib+1;jb<c2->nodes()+(c2->isClosed()?-1:-2);++jb) {
+
+
+      biarc_it i = c1->begin()+ib;
+      biarc_it j = c2->begin()+jb;
+
+      i->getBezierArc0(Ba0,Ba1,Ba2);
+      j->getBezierArc0(Bb0,Bb1,Bb2);
+      candidates.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+
+      j->getBezierArc1(Bb0,Bb1,Bb2);
+      candidates.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+
+      i->getBezierArc1(Ba0,Ba1,Ba2);
+      candidates.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+
+      if (j!=i+1) {
+        j->getBezierArc0(Bb0,Bb1,Bb2);
+          candidates.push_back(Candi<Vector>(Ba0,Ba1,Ba2,Bb0,Bb1,Bb2));
+      }
+    }
+  }
+  }
+  }
+
+  dbl_crit_filter(candidates, tmp, global_min);   
+  distance_filter(tmp, candidates,global_min);
+  // XXX strange candidates = tmp;
+
+  Vector lFrom, lTo;
+  for (unsigned int i=0;i<candidates.size();++i) {
+    curr_min = mindist_between_arcs(candidates[i],global_min,&lFrom,&lTo);
+    if (curr_min<global_min) {
+      global_min = curr_min;
+      if (from!=NULL) *from = lFrom;
+      if (to!=NULL)   *to = lTo;
+    }
+  }
+  return global_min;
+}
+
+
+
 
 /*!
   Compute the closest distance between two arcs of circles

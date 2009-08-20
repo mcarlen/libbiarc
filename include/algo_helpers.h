@@ -5,6 +5,7 @@
 #include "Vector3.h"
 #include "Vector4.h"
 #include "Biarc.h"
+#include "CurveBundle.h"
 
 #define biarc_it  typename vector< Biarc<Vector> >::iterator
 #define candi_it typename vector<Candi<Vector> >::iterator
@@ -79,6 +80,9 @@ void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered
 
 template<class Vector>
 float compute_thickness(Curve<Vector> *c, Vector *from = NULL, Vector *to = NULL, const int hint_i = -1, const int hint_j = -1);
+
+template<class Vector>
+float compute_thickness(CurveBundle<Vector> *cb, Vector *from = NULL, Vector *to = NULL);
 
 template<class Vector>
 float mindist_between_bezier_arcs(const Vector &a0,const Vector &a1,const Vector &a2,

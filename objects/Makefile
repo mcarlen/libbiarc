@@ -11,7 +11,7 @@ FLAGS=${INCLUDE} ${CXXFLAGS}
 
 all: $(PROGS)
 
-$(PROGS):
+%: %.cpp
 	@echo Build $@
 	@$(LINKER) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)
 
