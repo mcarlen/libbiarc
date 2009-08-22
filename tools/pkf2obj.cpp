@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
   }
   cout << "Process all curves in PKF :\n";
   for (int i=0;i<knot.tubes();i++) {
-    knot[i].scale(10.);
+//    knot[i].scale(10.);
     knot[i].link();
     if (knot[i].nodes()!=N) {
       cout << "Resample curve " << i+1 << " with " << N << " points";
@@ -51,21 +51,30 @@ int main(int argc, char **argv) {
     // Vertices and Normals
     for (int j=0;j<N;++j) {
       for (int k=0;k<S;++k) {
-          file << "v "<< knot[i].meshPoint(j*(S+1)+k) << endl;
-          file << "n "<< knot[i].meshNormal(j*(S+1)+k) << endl;
+          file << "v "  << knot[i].meshPoint(j*(S+1)+k) << endl;
+          file << "vn " << knot[i].meshNormal(j*(S+1)+k) << endl;
       }
+    }
+
+    float alen = 0;
+    for (int j=0;j<N+1;++j) {
+      for (int k=0;k<S+1;++k) {
+        file << "vt " << alen << " " << (float)k/(float)S<< endl;
+      }
+      if (j<N)
+        alen += knot[i][j].biarclength()/knot[i].length();
     }
 
     // Triangles
     for (int j=0;j<N;++j) {
       for (int k=0;k<S;++k) {
         int xii=(j+1)%N, kii=(k+1)%S;
-        file << "f " << j*(S)+k+1 << "//" << j*(S)+k+1 << " "
-             << xii*(S)+k+1 << "//" << xii*(S)+k+1 << " "
-             << xii*(S)+kii+1 << "//" << xii*(S)+kii+1 << endl
-             << "f " << j*(S)+k+1 << "//" << j*(S)+k+1 << " "
-             << xii*(S)+kii+1 << "//" << xii*(S)+kii+1 << " "
-             << j*(S)+kii+1 << "//" <<j*(S)+kii+1 << endl;
+        file << "f " << j*(S)+k+1 << "/" << j*(S+1)+k+1 << "/" << j*(S)+k+1 << " "
+             << xii*(S)+k+1 << "/" << (j+1)*(S+1)+k+1 << "/" << xii*(S)+k+1 << " "
+             << xii*(S)+kii+1 << "/" << (j+1)*(S+1)+(k+1)+1 << "/" << xii*(S)+kii+1 << endl
+             << "f " << j*(S)+k+1 << "/" << j*(S+1)+k+1 << "/" << j*(S)+k+1 << " "
+             << xii*(S)+kii+1 << "/" << (j+1)*(S+1)+(k+1)+1 << "/" << xii*(S)+kii+1 << " "
+             << j*(S)+kii+1 << "/" << j*(S+1)+(k+1)+1 << "/" <<j*(S)+kii+1 << endl;
       }
     }
 

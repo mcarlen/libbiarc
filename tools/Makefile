@@ -7,10 +7,15 @@ FLAGS=${INCLUDE} ${CXXFLAGS}
 SRC=$(wildcard *.cpp)
 PROGS=$(SRC:.cpp=)
 
-.PHONY: $(PROGS)
+.PHONY: all
 
-all: # $(PROGS)
-$(PROGS):
+all: $(PROGS)
+
+contactset4: contactset.cpp
+	@echo Build $@
+	$(LINKER) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
+
+%: %.cpp
 	@echo Build $@
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)
 

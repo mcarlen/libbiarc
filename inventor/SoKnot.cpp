@@ -392,9 +392,16 @@ void SoKnot::reset_texcoords(int Segs, int Nodes) {
   }
 
   for (int i=0;i<=Segs;i++) {
+//    float alen = 0;
     for (int j=0;j<=Nodes;j++) {
-      sogl_tube_texcoords[2*(j*(Segs+1)+i)]   = (float)j/(float)Nodes;
+      // XXX take into account non uniform sampling stuff!!!!
+      // i.e. the texcoords in the Nodes direction need to
+      // sum up the arclength
+      // THIS IS BROKEN!
+      sogl_tube_texcoords[2*(j*(Segs+1)+i)]   = (float)j/(float)Nodes; // alen;
       sogl_tube_texcoords[2*(j*(Segs+1)+i)+1] = (float)i/(float)Segs;
+//      if (j<Nodes)
+//        alen += (*knot)[j].biarclength()/knot->length();
     }
   }
 
