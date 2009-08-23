@@ -117,7 +117,7 @@ int new_rhopt(const VecType& p,
     VecType phat = p - b.dot(p-c)*b;
 #else
     // Compute center of the arc of circle
-    VecType dir = (a1-a0)+(a2-a1); dir.normalize();
+    VecType dir = (a1-a0)-(a2-a1); dir.normalize();
     // This is the normal vector at the midpoint of the arc
     // given by the bezier points a0,a1,a2
     // so the center is at
@@ -126,6 +126,7 @@ int new_rhopt(const VecType& p,
     VecType c = (.5*a0+omega*a1+.5*a2)/(omega+1.) + dir*rad;
     // project p to the plane in which the arc lies
     b = b - b.dot(a)*a;
+    b.normalize();
     VecType phat = p.dot(a)*a + p.dot(b)*b;
 #endif
     VecType x = phat-c; x.normalize();
@@ -322,11 +323,14 @@ int main(int argc, char **argv) {
     for (it=contacts.begin();it!=contacts.end();++it) {
       s     = find_s(c,it->p[0]);
       sigma = find_s(c,it->p[2]);
-      cout << s/L << " " << sigma/L << endl;
+      // cout << s/L << " " << sigma/L << endl;
+      VecType v0 = c.pointAt(s), v1 = c.pointAt(sigma);
+      cout << v0 << " " << (v0+v1)/2 << " " << v1 << endl;
     }
   }
   // Contacts start midpoint endpoint (one per row)
   else {
+    cerr << contacts[0].p[0].norm2() << " " << contacts[0].p[2].norm2() <<endl;
     for (it=contacts.begin();it!=contacts.end();++it)
       cout << it->p[0] << " " << it->p[1] << " " << it->p[2] << endl;
   }
