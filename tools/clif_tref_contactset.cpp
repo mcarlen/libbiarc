@@ -70,12 +70,13 @@ float find_s(Curve<Vector4> &c, Vector4 &p) {
   Vector4 ptrial;
 
   // Make this bisection better!!!
-  for (int i=0;i<100;++i) {
-    ptrial = c.pointAt(c_s0 + (c_s1-c_s0)*(float)i/99.);
+  int NN = 1000;
+  for (int i=0;i<NN;++i) {
+    ptrial = c.pointAt(c_s0 + (c_s1-c_s0)*(float)i/(float)(NN-1));
     dl = (ptrial - p).norm2();
     if (dl<d) {
       d = dl;
-      s_best = c_s0 + (c_s1-c_s0)*(float)i/99.;
+      s_best = c_s0 + (c_s1-c_s0)*(float)i/(float)(NN-1);
     }
   }
 
@@ -140,7 +141,11 @@ int new_rhopt(const Vector4& p,
     // project p to the plane in which the arc lies
     b = b - b.dot(a)*a;
     b.normalize();
-    Vector4 phat = p.dot(a)*a + p.dot(b)*b;
+    Vector4 proj = (p-c);
+    proj = proj - proj.dot(a)*a;
+    proj.normalize(); proj = proj - proj.dot(b)*b;
+    proj.normalize();
+    Vector4 phat = p - proj.dot(p)*proj;
 
     Vector4 x = phat-c; x.normalize();
     vec = c + rad*x;
@@ -251,6 +256,7 @@ int main(int argc, char **argv) {
 
   float tol = atof(argv[2]);
   float thick = c.thickness();
+  cerr << "Thickness = " << thick << endl;
 
   Vector4 b0,b1,b2,p,v;
   float r;
@@ -280,8 +286,8 @@ int main(int argc, char **argv) {
   vector<ssigma> vssigma;
   float s, sigma;
   for (it=contacts.begin();it!=contacts.end();++it) {
-    s     = find_s(c,it->p[0]);
-    sigma = find_s(c,it->p[2]);
+    s     = find_s(c,it->p[0]); cerr << "pt diff " << (c.pointAt(s)-it->p[0]).norm() << " ";
+    sigma = find_s(c,it->p[2]); cerr << "pt diff " << (c.pointAt(sigma)-it->p[2]).norm() << "\n";
     vssigma.push_back(ssigma(s,sigma));
   }
   contacts.clear();
@@ -317,6 +323,8 @@ int main(int argc, char **argv) {
   for (uint i=0;i<vssigma.size();++i) {
     s = vssigma[i].s; sigma = vssigma[i].sigma;
     Vector4 v0 = c.pointAt(s), v1 = c.pointAt(sigma);
+    Vector4 t0 = c.tangentAt(s), t1 = c.tangentAt(sigma);
+    cerr << "Dot " << t0.dot(v0-v1) << " " << t1.dot(v0-v1) << endl;
     Vector4 v4 = inversion_in_sphere(v0);
     Vector3 a,b;
     a = Vector3(v4[0],v4[1],v4[2]);
@@ -332,8 +340,14 @@ int main(int argc, char **argv) {
     obj_dump(newcontacts);
 
   // Write R^3 contacts to stderr
+  cerr << "Separator { Coordinate3 { point [\n";
   for (uint i=0;i<newcontacts.size();++i)
-    cerr << newcontacts[i].p[0] << " " << newcontacts[i].p[1] << " " << newcontacts[i].p[2] << endl;
+//    cerr << newcontacts[i].p[0] << " " << newcontacts[i].p[1] << " " << newcontacts[i].p[2] << endl;
+    cerr << newcontacts[i].p[0] << ", " << newcontacts[i].p[2] << ", " << endl;
+  cerr << "]}\nLineSet {\n numVertices [\n";
+  for (uint i=0;i<newcontacts.size();++i)
+    cerr << "2,";
+    cerr << "\n]}}\n";
 
   newcontacts.clear();
 

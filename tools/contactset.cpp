@@ -74,12 +74,13 @@ float find_s(Curve<VecType> &c, VecType &p) {
   VecType ptrial;
 
   // Make this bisection better!!!
-  for (int i=0;i<100;++i) {
-    ptrial = c.pointAt(c_s0 + (c_s1-c_s0)*(float)i/99.);
+  int NN = 1000.;
+  for (int i=0;i<NN;++i) {
+    ptrial = c.pointAt(c_s0 + (c_s1-c_s0)*(float)i/(float)(NN-1));
     dl = (ptrial - p).norm2();
     if (dl<d) {
       d = dl;
-      s_best = c_s0 + (c_s1-c_s0)*(float)i/99.;
+      s_best = c_s0 + (c_s1-c_s0)*(float)i/(float)(NN-1);
     }
   }
 
@@ -323,9 +324,9 @@ int main(int argc, char **argv) {
     for (it=contacts.begin();it!=contacts.end();++it) {
       s     = find_s(c,it->p[0]);
       sigma = find_s(c,it->p[2]);
-      // cout << s/L << " " << sigma/L << endl;
-      VecType v0 = c.pointAt(s), v1 = c.pointAt(sigma);
-      cout << v0 << " " << (v0+v1)/2 << " " << v1 << endl;
+      cout << s/L << " " << sigma/L << endl;
+      // VecType v0 = c.pointAt(s), v1 = c.pointAt(sigma);
+      // cout << v0 << " " << (v0+v1)/2 << " " << v1 << endl;
     }
   }
   // Contacts start midpoint endpoint (one per row)
