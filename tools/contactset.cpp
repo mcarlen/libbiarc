@@ -128,7 +128,11 @@ int new_rhopt(const VecType& p,
     // project p to the plane in which the arc lies
     b = b - b.dot(a)*a;
     b.normalize();
-    VecType phat = p.dot(a)*a + p.dot(b)*b;
+    Vector4 proj = (p-c);
+    proj = proj - proj.dot(a)*a;
+    proj.normalize(); proj = proj - proj.dot(b)*b;
+    proj.normalize();
+    VecType phat = p - proj.dot(p)*proj;
 #endif
     VecType x = phat-c; x.normalize();
     vec = c + rad*x;

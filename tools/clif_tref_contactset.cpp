@@ -375,6 +375,7 @@ int main(int argc, char **argv) {
   // filter and sort
   sort(vssigma.begin(),vssigma.end());
   // Keep only the sigma(s) and discard tau(s)
+/*
   vector<ssigma> tmp;
   for (uint i=0;i<vssigma.size();i+=2) {
     ssigma s1 = vssigma[i], s2 = vssigma[i+1];
@@ -399,6 +400,7 @@ int main(int argc, char **argv) {
   }
   vssigma = tmp;
   tmp.clear();
+*/
 
   contacts.clear();
   for (uint i=0;i<vssigma.size();++i) {
@@ -419,14 +421,40 @@ int main(int argc, char **argv) {
 
   // Write R^3 contacts to stderr
 #ifndef VERBOSE
+  int Seg = 30;
   cerr << "#Inventor V2.1 ascii\n";
   cerr << "Separator { Coordinate3 { point [\n";
-  for (uint i=0;i<contacts.size();++i)
-    cerr << dump3(inversion_in_sphere(contacts[i].p[0])) << ", "
-         << dump3(inversion_in_sphere(contacts[i].p[2])) << ", " << endl;
+  for (uint i=0;i<contacts.size();++i) {
+    if (!CURVED) {
+      cerr << dump3(inversion_in_sphere(contacts[i].p[0])) << ", "
+           << dump3(inversion_in_sphere(contacts[i].p[2])) << ", " << endl;
+    }
+    else {
+      Vector4 from = contacts[i].p[0];
+      Vector4 to   = contacts[i].p[2];
+      Vector4 vec4, v4final;
+
+      for (int j=0;j<Seg;++j) {
+        float val = (float)j/(float)(Seg-1);
+        vec4 = (1.-val)*from + val*to;
+        if (i==0&&j==0) {
+          cerr << "NNNN " << from << "\n" << to << endl;
+          cerr << "NODE " << vec4 << endl;
+        }
+        vec4.normalize();
+        if (i==0&&j==0) cerr << "NODE " << vec4 << endl;
+        v4final = inversion_in_sphere(vec4);
+        cerr << dump3(v4final) << ", ";
+      }
+      cerr << endl;
+    }
+  }
   cerr << "]}\nLineSet {\n numVertices [\n";
   for (uint i=0;i<contacts.size();++i)
-    cerr << "2,";
+    if (CURVED)
+      cerr << Seg << ",";
+    else
+      cerr << "2,";
   cerr << "\n]}}\n";
 #endif
 
