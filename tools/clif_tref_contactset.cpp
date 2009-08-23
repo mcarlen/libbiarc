@@ -14,7 +14,9 @@
 #include "../experimental/pngmanip/colors.h"
 #include <algorithm>
 
+// #define VERBOSE
 #define b4 vector<Biarc<Vector4> >::iterator
+#define dump3(v) (v)[0] << " " << (v)[1] << " " << (v)[2]
 
 class ssigma {
 public:
@@ -154,7 +156,7 @@ int new_rhopt(const Vector4& p,
   return 0;
 }
 
-void iv_dump(vector<contact3> &newcontacts) {
+void iv_dump(vector<CContact> &newcontacts, int CURVED = 0) {
   // Write inventor contact surface to stdout
 
   // How many segments
@@ -199,19 +201,42 @@ void iv_dump(vector<contact3> &newcontacts) {
 
   // Write out coordinates
   Vector3 v1,v2,v3,v4;
-  for (it3=newcontacts.begin();it3!=newcontacts.end();++it3) {
-    v1 = it3->p[0]; v2 = it3->p[2];
-    if ((it3+1)==newcontacts.end()) {
-      v3 = newcontacts.begin()->p[0]; v4 = newcontacts.begin()->p[2];
-    }
-    else {
-      v3 = (it3+1)->p[0]; v4 = (it3+1)->p[2];
+  Vector4 from, to, from2, to2, vec4, vec4_1, vec4_2;
+  for (uint j=0;j<newcontacts.size();++j) {
+    from = newcontacts[j].p[0];
+    to   = newcontacts[j].p[2];
+    from2 = newcontacts[(j+1)%newcontacts.size()].p[0];
+    to2   = newcontacts[(j+1)%newcontacts.size()].p[2];
+
+    if (!CURVED) {
+      vec4 = inversion_in_sphere(from);
+      v1 = Vector3(vec4[0],vec4[1],vec4[2]);
+      vec4 = inversion_in_sphere(to);
+      v2 = Vector3(vec4[0],vec4[1],vec4[2]);
+      vec4 = inversion_in_sphere(from2);
+      v3 = Vector3(vec4[0],vec4[1],vec4[2]);
+      vec4 = inversion_in_sphere(to2);
+      v4 = Vector3(vec4[0],vec4[1],vec4[2]);
     }
     for (int i=0;i<Seg;i++) {
-      cout << v1+(v2-v1)*(float)i/(float)(Seg-1) << ",";
-      cout << v3+(v4-v3)*(float)i/(float)(Seg-1) << ",";
+      float val = (float)i/(float)(Seg-1);
+      if (CURVED) {
+        vec4 = (1.-val)*from + val*to;
+        vec4.normalize();
+        vec4_1 = inversion_in_sphere(vec4);
+        vec4 = (1.-val)*from2 + val*to2;
+        vec4.normalize();
+        vec4_2 = inversion_in_sphere(vec4);
+        cout << Vector3(vec4_1[0],vec4_1[1],vec4_1[2]) << ",";
+        cout << Vector3(vec4_2[0],vec4_2[1],vec4_2[2]) << ",";
+      }
+      else {
+        cout << v1+(v2-v1)*(float)i/(float)(Seg-1) << ",";
+        cout << v3+(v4-v3)*(float)i/(float)(Seg-1) << ",";
+      }
     }
   }
+
   cout << "]}\n";
 
   // Write out triangle strip
@@ -221,17 +246,34 @@ void iv_dump(vector<contact3> &newcontacts) {
   cout << "]\n} }}" << endl;
 }
 
-void obj_dump(vector<contact3> &newcontacts) {
+void obj_dump(vector<CContact> &newcontacts, int CURVED = 0) {
   int Seg = 30;
-  Vector3 v1,v2,v3,v4;
-  for (int j=0;j<newcontacts.size();++j) {
-    v1 = newcontacts[j].p[0]; v2 = newcontacts[j].p[2];
+  Vector3 v1,v2,v; Vector4 from, to, v4, v4_final;
+  for (uint j=0;j<newcontacts.size();++j) {
+    from = newcontacts[j].p[0];
+    to   = newcontacts[j].p[2];
+    if (!CURVED) {
+      v4 = inversion_in_sphere(from);
+      v1 = Vector3(v4[0],v4[1],v4[2]);
+      v4 = inversion_in_sphere(to);
+      v2 = Vector3(v4[0],v4[1],v4[2]);
+    }
     for (int i=0;i<Seg;i++) {
-      cout << "v " << v1+(v2-v1)*(float)i/(float)(Seg-1) << endl;
+      float val = (float)i/(float)(Seg-1);
+      if (CURVED) {
+        v4 = (1.-val)*from + val*to;
+        v4.normalize();
+        v4_final = inversion_in_sphere(v4);
+        v = Vector3(v4_final[0],v4_final[1],v4_final[2]);
+      }
+      else {
+        v = (1.-val)*v1 + val*v2;
+      }
+      cout << "v " << v << endl;
       cout << "vt " << (float)j/(float)(newcontacts.size()-1) << " " << (float)i/(float)(Seg-1) << endl;
     }
   }
-  for (int i=0;i<newcontacts.size();++i) {
+  for (uint i=0;i<newcontacts.size();++i) {
     for (int j=0;j<Seg-1;j++) {
       cout << "f "
            << i*Seg+j+1 << "/" << i*Seg+j+1 << "/ "
@@ -243,10 +285,38 @@ void obj_dump(vector<contact3> &newcontacts) {
   }
 }
 
+// http://en.wikipedia.org/wiki/Circumscribed_circle
+void circle3p(Vector3& p1, Vector3& p2, Vector3& p3) {
+  Vector3 a = (p1-p2), b = (p2-p3), c = (p3-p1);
+  float radius = a.norm()*b.norm()*c.norm()/2./(a.cross(b)).norm();
+
+  float alpha, beta, gamma, denom;
+  denom = 2*(a.cross(b)).norm2();
+  alpha = b.norm2()*(a.dot(-c))/denom;
+  beta  = c.norm2()*((-a).dot(b))/denom;
+  gamma = a.norm2()*(c.dot(-b))/denom;
+
+  Vector3 center = alpha*p1 + beta*p2 + gamma*p3;
+
+//  cerr << "Radius " << radius << "\nCenter " << center << endl;
+
+  Vector3 e1 = p1-center, e2 = c-center;
+  e1.normalize();
+  e2 = e2 - e1.dot(e2)*e1;
+  e2.normalize();
+
+  Curve<Vector3> vill;
+  for (int i=0;i<100;++i)
+    vill.append(center + sin(2.*M_PI*(float)i/100.)*radius*e1 + cos(2.*M_PI*(float)i/100.)*radius*e2, Vector3());
+  vill.computeTangents();
+  vill.writePKF("vill.pkf");
+}
+
+
 int main(int argc, char **argv) {
 
-  if (argc!=4) {
-    cout << "Usage : " << argv[0] << " <pkf in> <tol> <iv=1/obj=0>" << endl;
+  if (argc!=5) {
+    cout << "Usage : " << argv[0] << " <pkf in> <tol> <iv=1/obj=0> <curved=1 or 0>" << endl;
     return 1;
   }
 
@@ -255,8 +325,11 @@ int main(int argc, char **argv) {
   c.make_default();
 
   float tol = atof(argv[2]);
+  int CURVED = atoi(argv[4]);
   float thick = c.thickness();
+#ifdef VERBOSE
   cerr << "Thickness = " << thick << endl;
+#endif
 
   Vector4 b0,b1,b2,p,v;
   float r;
@@ -278,16 +351,23 @@ int main(int argc, char **argv) {
     cerr << "No contacts found!\n";
     return 1;
   }
+#ifdef VERBOSE
   else
     cerr << contacts.size() << " contacts.\n";
+#endif
 
   vector<CContact>::iterator it;
-  vector<contact3> newcontacts;
   vector<ssigma> vssigma;
   float s, sigma;
   for (it=contacts.begin();it!=contacts.end();++it) {
-    s     = find_s(c,it->p[0]); cerr << "pt diff " << (c.pointAt(s)-it->p[0]).norm() << " ";
-    sigma = find_s(c,it->p[2]); cerr << "pt diff " << (c.pointAt(sigma)-it->p[2]).norm() << "\n";
+    s     = find_s(c,it->p[0]);
+#ifdef VERBOSE
+    cerr << "pt diff " << (c.pointAt(s)-it->p[0]).norm() << " ";
+#endif
+    sigma = find_s(c,it->p[2]);
+#ifdef VERBOSE
+    cerr << "pt diff " << (c.pointAt(sigma)-it->p[2]).norm() << "\n";
+#endif
     vssigma.push_back(ssigma(s,sigma));
   }
   contacts.clear();
@@ -320,36 +400,53 @@ int main(int argc, char **argv) {
   vssigma = tmp;
   tmp.clear();
 
+  contacts.clear();
   for (uint i=0;i<vssigma.size();++i) {
     s = vssigma[i].s; sigma = vssigma[i].sigma;
     Vector4 v0 = c.pointAt(s), v1 = c.pointAt(sigma);
     Vector4 t0 = c.tangentAt(s), t1 = c.tangentAt(sigma);
+#ifdef VERBOSE
     cerr << "Dot " << t0.dot(v0-v1) << " " << t1.dot(v0-v1) << endl;
-    Vector4 v4 = inversion_in_sphere(v0);
-    Vector3 a,b;
-    a = Vector3(v4[0],v4[1],v4[2]);
-    v4 = inversion_in_sphere(v1);
-    b = Vector3(v4[0],v4[1],v4[2]);
-    newcontacts.push_back(contact3(a,(a+b)/2,b));
+#endif
+    contacts.push_back(CContact(v0,(v0+v1)/2,v1));
   }
   vssigma.clear();
 
   if (atoi(argv[3]))
-    iv_dump(newcontacts);
+    iv_dump(contacts,CURVED);
   else
-    obj_dump(newcontacts);
+    obj_dump(contacts,CURVED);
 
   // Write R^3 contacts to stderr
+#ifndef VERBOSE
+  cerr << "#Inventor V2.1 ascii\n";
   cerr << "Separator { Coordinate3 { point [\n";
-  for (uint i=0;i<newcontacts.size();++i)
-//    cerr << newcontacts[i].p[0] << " " << newcontacts[i].p[1] << " " << newcontacts[i].p[2] << endl;
-    cerr << newcontacts[i].p[0] << ", " << newcontacts[i].p[2] << ", " << endl;
+  for (uint i=0;i<contacts.size();++i)
+    cerr << dump3(inversion_in_sphere(contacts[i].p[0])) << ", "
+         << dump3(inversion_in_sphere(contacts[i].p[2])) << ", " << endl;
   cerr << "]}\nLineSet {\n numVertices [\n";
-  for (uint i=0;i<newcontacts.size();++i)
+  for (uint i=0;i<contacts.size();++i)
     cerr << "2,";
-    cerr << "\n]}}\n";
+  cerr << "\n]}}\n";
+#endif
 
-  newcontacts.clear();
+  // Villarceau circle
+  Vector4 proj = inversion_in_sphere(contacts[0].p[0]);
+  Vector3 p0 = Vector3(proj[0],proj[1],proj[2]);
+  proj = inversion_in_sphere(contacts[0].p[2]);
+  Vector3 p2 = Vector3(proj[0],proj[1],proj[2]);
+  Vector4 ptmp = contacts[0].p[1]; ptmp.normalize();
+  proj = inversion_in_sphere(ptmp);
+  Vector3 p1 = Vector3(proj[0],proj[1],proj[2]);
+
+/*
+  p0 = Vector3(cos(2.*M_PI*.1),sin(2.*M_PI*.1),1);
+  p1 = Vector3(cos(2.*M_PI*.2),sin(2.*M_PI*.2),1);
+  p2 = Vector3(cos(2.*M_PI*.3),sin(2.*M_PI*.3),1);
+  */
+  circle3p(p0,p1,p2);
+
+  contacts.clear();
 
   return 0;
 }
