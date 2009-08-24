@@ -133,21 +133,19 @@ int new_rhopt(const Vector4& p,
   if ((a1-a0).dot(a0-p)<=0 && (a2-a1).dot(a2-p)>=0) {
     
     // Compute center of the arc of circle
-    Vector4 dir = (a1-a0)-(a2-a1); dir.normalize();
+    Vector4 dir = (a2-a1)-(a1-a0); dir.normalize();
     // This is the normal vector at the midpoint of the arc
     // given by the bezier points a0,a1,a2
     // so the center is at
     Vector4 a = a1-a0, b = a2-a0; a.normalize(); b.normalize();
     float omega = a.dot(b);
     Vector4 c = (.5*a0+omega*a1+.5*a2)/(omega+1.) + dir*rad;
+
     // project p to the plane in which the arc lies
     b = b - b.dot(a)*a;
     b.normalize();
-    Vector4 proj = (p-c);
-    proj = proj - proj.dot(a)*a;
-    proj.normalize(); proj = proj - proj.dot(b)*b;
-    proj.normalize();
-    Vector4 phat = p - proj.dot(p)*proj;
+
+    Vector4 phat = (p-c).dot(a)*a + (p-c).dot(b)*b + c;
 
     Vector4 x = phat-c; x.normalize();
     vec = c + rad*x;

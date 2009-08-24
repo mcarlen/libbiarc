@@ -15,6 +15,10 @@ contactset4: contactset.cpp
 	@echo Build $@
 	$(LINKER) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
 
+follow_contact4: follow_contact.cpp
+	@echo Build $@
+	$(LINKER) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
+
 %: %.cpp
 	@echo Build $@
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)

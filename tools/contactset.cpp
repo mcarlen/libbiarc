@@ -103,6 +103,21 @@ int th_cond(float d,VecType& p0, VecType &p1, float tol) {
   return 0;
 }
 
+#ifdef Dim4
+Vector4 inversion_in_sphere(Vector4 &p, Vector4 center = Vector4(0,0,0,1),
+                         float radius = 2.0) {
+  Vector4 pnew,t,tnew,v; 
+  float factor, vnorm2;
+
+  v = (p-center);
+  vnorm2 = v.norm2();
+ 
+  factor = radius*radius/vnorm2;
+  pnew = center + v*factor;
+  return pnew;
+}
+#endif
+
 int new_rhopt(const VecType& p,
               const VecType &a0, const VecType &a1, const VecType &a2,
               const float rad,
@@ -118,21 +133,19 @@ int new_rhopt(const VecType& p,
     VecType phat = p - b.dot(p-c)*b;
 #else
     // Compute center of the arc of circle
-    VecType dir = (a1-a0)-(a2-a1); dir.normalize();
+    VecType dir = (a2-a1) - (a1-a0); dir.normalize();
     // This is the normal vector at the midpoint of the arc
     // given by the bezier points a0,a1,a2
     // so the center is at
+    
     VecType a = a1-a0, b = a2-a0; a.normalize(); b.normalize();
     float omega = a.dot(b);
     VecType c = (.5*a0+omega*a1+.5*a2)/(omega+1.) + dir*rad;
+
     // project p to the plane in which the arc lies
     b = b - b.dot(a)*a;
     b.normalize();
-    Vector4 proj = (p-c);
-    proj = proj - proj.dot(a)*a;
-    proj.normalize(); proj = proj - proj.dot(b)*b;
-    proj.normalize();
-    VecType phat = p - proj.dot(p)*proj;
+    VecType phat = (p-c).dot(a)*a + (p-c).dot(b)*b + c;
 #endif
     VecType x = phat-c; x.normalize();
     vec = c + rad*x;
@@ -143,9 +156,14 @@ int new_rhopt(const VecType& p,
 
 int main(int argc, char **argv) {
 
+#ifdef Dim4
+  if (argc!=5) {
+    cout << "Usage : " << argv[0] << " <pkf in> <tol> <flag> <curved=1/0>\n";
+#else
   if (argc!=4) {
-    cout << "Usage : " << argv[0] << " <pkf in> <tol> <flag>\n"
-         << "  flag : 1 -> inventor lineset\n"
+    cout << "Usage : " << argv[0] << " <pkf in> <tol> <flag>\n";
+#endif
+    cout << "  flag : 1 -> inventor lineset\n"
          << "         2 -> inventor contact surface\n"
          << "         3 -> obj contact surface\n"
          << "         4 -> contact line as pkf output\n"
@@ -160,6 +178,9 @@ int main(int argc, char **argv) {
 
   float tol = atof(argv[2]);
   int flag = atoi(argv[3]);
+#ifdef Dim4
+  int CURVED = atoi(argv[4]);
+#endif
   float thick = c.thickness();
 
   VecType b0,b1,b2,p,v;
@@ -237,14 +258,46 @@ int main(int argc, char **argv) {
   // Inventor Line Set Version
   if (flag==1) {
     cout << "#Inventor V2.1 ascii\nSeparator {\nCoordinate3 {\npoint [";
-    for (it=contacts.begin();it!=contacts.end();++it)
+    int Seg = 30;
+    for (it=contacts.begin();it!=contacts.end();++it) {
+#ifdef Dim4
+      Vector4 projected;
+      if (!CURVED) {
+        projected = inversion_in_sphere(it->p[0]);
+        cout << projected[0] << " " << projected[1] << " " << projected [2];
+        cout << ", ";
+        projected = inversion_in_sphere(it->p[2]);
+        cout << projected[0] << " " << projected[1] << " " << projected [2];
+        cout << ",\n";
+      }
+      else {
+        Vector4 from = it->p[0], to = it->p[2], vcurr; float val;
+        for (int j=0;j<Seg;++j) {
+          val = (float)j/(float)(Seg-1);
+          vcurr = (1.-val)*from + val*to;
+          vcurr.normalize();
+          projected = inversion_in_sphere(vcurr);
+          cout << projected[0] << " " << projected[1] << " " << projected [2];
+          cout << ", ";
+        }
+        cout << endl;
+      }
+#else
       cout << it->p[0] << ", " << it->p[2] << endl;
+#endif
+    }
     cout << "] }\nLineSet {\nnumVertices [ ";
-    for (unsigned int i=0;i<contacts.size();++i)
-      cout << "2, ";
+    for (unsigned int i=0;i<contacts.size();++i) {
+#ifdef Dim4
+      if (CURVED)
+        cout << Seg << ", ";
+      else
+#endif
+        cout << "2, ";
+    }
     cout << "] } }";
   }
-  // Contact surface as inventor file
+  // Contact surface as inventor file (this usually doesn't work since isolated contacts mess things up)
   else if (flag==2) {
 
     // How many segments
