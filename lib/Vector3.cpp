@@ -11,6 +11,8 @@
   etc...
 
   whole stuff still under heavy construction
+
+  A pdf version can be found <a href="libbiarc_doc.pdf">here</a>
  */
 
 
