@@ -34,6 +34,33 @@ class CContact {
 
 vector<CContact> contacts;
 
+void obj_dump(vector<CContact> &newcontacts) {
+  int Seg = 30;
+  Vector3 v, from, to;
+  for (uint j=0;j<newcontacts.size();++j) {
+    from = newcontacts[j].p[0];
+    to   = newcontacts[j].p[2];
+
+    for (int i=0;i<Seg;i++) {
+      float val = (float)i/(float)(Seg-1);
+      v = (1.-val)*from + val*to;
+      cout << "v " << v << endl;
+      cout << "vt " << (float)j/(float)(newcontacts.size()-1) << " " << (float)i/(float)(Seg-1) << endl;
+    }
+  }
+  for (uint i=0;i<newcontacts.size();++i) {
+    for (int j=0;j<Seg-1;j++) {
+      cout << "f "
+           << i*Seg+j+1 << "/" << i*Seg+j+1 << "/ "
+           << i*Seg+j+2 << "/" << i*Seg+j+2 << "/ "
+           << (((i+1)%newcontacts.size())*Seg)+j+2 << "/" << (((i+1)%newcontacts.size())*Seg)+j+2 << "/ "
+           << (((i+1)%newcontacts.size())*Seg)+j+1 << "/" << (((i+1)%newcontacts.size())*Seg)+j+1 << "/ "
+           << endl;
+    }  
+  }
+}
+
+
 int main(int argc, char **argv) {
 
   if (argc!=4) {
@@ -180,6 +207,7 @@ int main(int argc, char **argv) {
   }
   // Contact surface as OBJ file
   else if (flag==3) {
+    obj_dump(contacts);
   }
   else if (flag==4) {
   // Contact line as pkf output

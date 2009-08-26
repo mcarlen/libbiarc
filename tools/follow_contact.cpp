@@ -20,6 +20,68 @@
 
 #define b3 vector<Biarc<VecType> >::iterator
 
+float arclength(Curve<VecType> &c, int n) {
+  float s = 0;
+  for (int i=0;i<n;++i)
+    s += c[i].biarclength();
+  return s;
+}
+
+float find_s(Curve<VecType> &c, VecType &p) {
+  // XXX possible optimization : not necessary to check against all the points ...
+  // Find closest point to p on curve c
+  float d = 1e22, dl; b3 close;
+  for (b3 b=c.begin();b!=c.end();++b) {
+    dl = (b->getPoint()-p).norm2();
+    if (dl < d) {
+      d = dl;
+      close = b;
+    }
+  }
+
+  b3 neighbor;
+  if ( (close->getPoint()-close->getNext().getPoint()).norm2() < (close->getPoint()-close->getPrevious().getPoint()).norm2() ) {
+    if (close == c.begin())
+      neighbor = c.end()-1;
+    else
+      neighbor = close-1;
+  }
+  else {
+    if (close == c.end()-1)
+      neighbor = c.begin();
+    else
+      neighbor = close+1;
+  }
+
+  // recover s for our point p
+  float s0 = arclength(c,close->id());
+  float s1 = arclength(c,neighbor->id());
+
+  if (s0>s1) {
+    float tmp = s0;
+    s0 = s1; s1 = tmp;
+  }
+
+  d = 1e22;
+  float c_s0 = s0, c_s1 = s1, s_best = s0;
+  VecType ptrial;
+
+  // Make this bisection better!!!
+  int NN = 10000.;
+  for (int i=0;i<NN;++i) {
+    ptrial = c.pointAt(c_s0 + (c_s1-c_s0)*(float)i/(float)(NN-1));
+    dl = (ptrial - p).norm2();
+    if (dl<d) {
+      d = dl;
+      s_best = c_s0 + (c_s1-c_s0)*(float)i/(float)(NN-1);
+    }
+  }
+
+  return s_best;
+
+}
+
+
 class CContact {
 public:
   VecType p[3];
@@ -181,6 +243,7 @@ int main(int argc, char **argv) {
       }
 #else
       cout << it->p[0] << ", " << it->p[2] << endl;
+      cerr << find_s(c,it->p[0])/c.length() << " " << find_s(c,it->p[2])/c.length() << endl;
 #endif
     }
     cout << "] }\nLineSet {\nnumVertices [ ";
