@@ -152,7 +152,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 	        bez_tub->make_default();
 	        bez_tub->resample(viewer->ci->knot_shape[0]->nodes.getValue());
 	        bez_tub->make_default();
-	        addBezierCurve(sep,bez_tub);
+	        addBezierCurve(sep,bez_tub,viewer->vi->BackGroundFlag);
 	      }
         viewer->scene->replaceChild(1, sep);
       // }
@@ -170,7 +170,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 	        bez_tub->make_default();
 	        bez_tub->resample(viewer->ci->knot_shape[0]->nodes.getValue());
 	        bez_tub->make_default();
-	        addBezierCurve(sep,bez_tub);
+	        addBezierCurve(sep,bez_tub,viewer->vi->BackGroundFlag);
 	      }
         viewer->scene->replaceChild(1,sep);
      // }
@@ -196,7 +196,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 	      bez_tub = viewer->ci->knot_shape[0]->getKnot();
 	      bez_tub->make_default();
         viewer->ci->knot_shape[0]->updateMesh(viewer->ci->info.Tol);
-	      addBezierCurve(sep,bez_tub);
+	      addBezierCurve(sep,bez_tub,viewer->vi->BackGroundFlag);
         viewer->scene->replaceChild(1,sep);
       }
       break;
@@ -227,7 +227,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 				sep = new SoSeparator;
 	      bez_tub = viewer->ci->knot_shape[0]->getKnot();
 	      bez_tub->make_default();
-	      addBezierCurve(sep,bez_tub);
+	      addBezierCurve(sep,bez_tub,viewer->vi->BackGroundFlag);
         viewer->scene->replaceChild(1,sep);
  
         cout << "ADD NODE\n";
@@ -240,7 +240,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
 	      bez_tub = viewer->ci->knot_shape[0]->getKnot();
       	bez_tub->make_default();
         sep = new SoSeparator;
-	      addBezierCurve(sep,bez_tub);
+	      addBezierCurve(sep,bez_tub,viewer->vi->BackGroundFlag);
 				viewer->scene->replaceChild(1, sep);
         viewer->ci->knot_shape[0]->updateMesh(viewer->ci->info.Tol);
       }
@@ -266,7 +266,7 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
         for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
             bez_tub = viewer->ci->knot_shape[i]->getKnot();
             bez_tub->make_default();
-            addBezierCurve(sep,bez_tub);
+            addBezierCurve(sep,bez_tub,viewer->vi->BackGroundFlag);
         }
         viewer->scene->replaceChild(1, sep);
         viewer->scene->whichChild.setValue(1); // is biarc curve

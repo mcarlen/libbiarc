@@ -285,7 +285,7 @@ void usage(char *prog) {
 }
 
 // GFX Stuff
-SoSeparator* drawCircle(const Vector3& p0, const Vector3& t0, const Vector3& p1) {
+SoSeparator* drawCircle(const Vector3& p0, const Vector3& t0, const Vector3& p1, bool BLACK) {
   Vector3 d = (p1-p0)-t0*(p1-p0).dot(t0);
   d.normalize();
   SoSeparator *c_sep = new SoSeparator;
@@ -354,6 +354,11 @@ SoSeparator* drawCircle(const Vector3& p0, const Vector3& t0, const Vector3& p1)
   v = SbVec4f(p0[0],p0[1],p0[2],1.);
   coords->point.set1Value(8,v);
 
+  if (BLACK) {
+    SoMaterial* mat = new SoMaterial;
+    mat->diffuseColor.setValue(0,0,0);
+    c_sep->addChild(mat);
+  }
   c_sep->addChild(coords);
   c_sep->addChild(nurbs);
 // FIXME : uncomment if u wanna see the control points of the Nurb
@@ -363,7 +368,7 @@ SoSeparator* drawCircle(const Vector3& p0, const Vector3& t0, const Vector3& p1)
   return c_sep;
 }
 
-void addBezierCurve(SoSeparator *root, Tube<Vector3>* t) {
+void addBezierCurve(SoSeparator *root, Tube<Vector3>* t, bool BLACK) {
 
   // OpenInventor part
   // Midpoints
@@ -439,7 +444,10 @@ void addBezierCurve(SoSeparator *root, Tube<Vector3>* t) {
   }
   
   SoMaterial *white = new SoMaterial;
-  white->diffuseColor.setValue(1,1,1);
+  if (BLACK)
+    white->diffuseColor.setValue(0,0,0);
+  else
+    white->diffuseColor.setValue(1,1,1);
 
   main->addChild(datapoints);
   main->addChild(midpoints);

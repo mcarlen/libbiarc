@@ -52,7 +52,7 @@ static void motionfunc(void *data, SoEventCallback *eventCB) {
     for (int i=0;i<viewer->ci->info.Knot->tubes();i++) {
       bez_tub = viewer->ci->knot_shape[i]->getKnot();
       bez_tub->make_default();
-      addBezierCurve(sep,bez_tub);
+      addBezierCurve(sep,bez_tub,viewer->vi->BackGroundFlag);
     }
     viewer->scene->replaceChild(1,sep);
   }
@@ -125,7 +125,7 @@ static void mousefunc(void* data, SoEventCallback* eventCB) {
              for (int i=0;i<viewer->scene->getChildren()->getLength();i++)
                viewer->scene->getChildren()->remove(1);
              viewer->ci->knot_shape[0]->updateMesh(viewer->ci->info.Tol);
-             addBezierCurve((SoSeparator*)viewer->scene,bez_tub);
+             addBezierCurve((SoSeparator*)viewer->scene,bez_tub,viewer->vi->BackGroundFlag);
              viewer->vi->FirstPoint = 0;
              viewer->vi->ResamplePartFlag = 0;
            }
@@ -220,7 +220,7 @@ static void mousefunc(void* data, SoEventCallback* eventCB) {
         bez_tub = viewer->ci->knot_shape[i]->getKnot();
         viewer->ci->knot_shape[i]->updateMesh(viewer->ci->info.Tol);
         bez_tub->make_default();
-        addBezierCurve(sep,bez_tub);
+        addBezierCurve(sep,bez_tub,viewer->vi->BackGroundFlag);
       }
       viewer->scene->replaceChild(1,sep);
       
@@ -842,7 +842,7 @@ void MainWindow::updatePickedPT(float u, float v, float u2, float v2, bool UNION
 		q0 = (*(ci->info.Knot))[0].pointAt(u);
 		q1 = (*(ci->info.Knot))[0].pointAt(v);
 		t0 = (*(ci->info.Knot))[0].tangentAt(u);
-    circles->addChild(drawCircle(q0,t0,q1));
+    circles->addChild(drawCircle(q0,t0,q1,vi->BackGroundFlag));
 	}
   else {
 		// Make cross as coordinate sys if u2>u
@@ -853,7 +853,7 @@ void MainWindow::updatePickedPT(float u, float v, float u2, float v2, bool UNION
 				q0 = (*(ci->info.Knot))[0].pointAt(u+dx*(float)i);
 				q1 = (*(ci->info.Knot))[0].pointAt((v2+v)*.5);
 				t0 = (*(ci->info.Knot))[0].tangentAt(u+dx*(float)i);
-        circles->addChild(drawCircle(q0,t0,q1));
+        circles->addChild(drawCircle(q0,t0,q1,vi->BackGroundFlag));
 			}
 		}
 
@@ -863,7 +863,7 @@ void MainWindow::updatePickedPT(float u, float v, float u2, float v2, bool UNION
 				q0 = (*(ci->info.Knot))[0].pointAt((u2+u)*.5);
 				q1 = (*(ci->info.Knot))[0].pointAt(v+dx*(float)i);
 				t0 = (*(ci->info.Knot))[0].tangentAt((u2+u)*.5);
-        circles->addChild(drawCircle(q0,t0,q1));
+        circles->addChild(drawCircle(q0,t0,q1,vi->BackGroundFlag));
 			}
 		}
   }

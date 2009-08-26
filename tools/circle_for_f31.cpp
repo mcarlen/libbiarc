@@ -26,7 +26,7 @@ void circle3p(Vector3& p1, Vector3& p2, Vector3& p3) {
   Vector3 center = alpha*p1 + beta*p2 + gamma*p3;
 
   // cerr << "Radius " << radius << "\nCenter " << center << endl;
-  cerr << radius << " " << center << endl;
+  cerr << radius << " " << center;
 
   Vector3 e1 = p1-center, e2 = c-center;
   e1.normalize();
@@ -45,9 +45,11 @@ int main(int argc, char **argv) {
   Vector3 p0 = c.pointAt(0.0);
   Vector3 p1 = c.pointAt(eps);
   Vector3 p2 = c.pointAt(1-eps);
-  circle3p(p0,p1,p2);
 
   cerr << eps << " ";
+  circle3p(p0,p1,p2);
+  cerr << endl;
+
   // cout << "Special point : " << c.pointAt(.5) << endl;
 
   return 0;

@@ -12,8 +12,8 @@ void usage(char* prog);
 int parse(int argc, char** argv, ViewerInfo *vi, CurveInfo *ci);
 
 // GFX Stuff
-void addBezierCurve(SoSeparator *root, Tube<Vector3>* t);
-SoSeparator* drawCircle(const Vector3& p0, const Vector3& t0, const Vector3& p1);
+void addBezierCurve(SoSeparator *root, Tube<Vector3>* t, bool BLACK = false);
+SoSeparator* drawCircle(const Vector3& p0, const Vector3& t0, const Vector3& p1, bool BLACK = false);
 
 // Frame Normal generation helpers
 void frenet_frame_normals(Tube<Vector3>* t, Vector3* nor, int FRENET = 0);

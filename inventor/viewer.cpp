@@ -63,12 +63,12 @@ void VVV::update_picked(float u, float v, float u2, float v2) {
       b = v; //+(float)j*Ny;
         circles->addChild(drawCircle((*Knot)[0].pointAt(a),
                                   (*Knot)[0].tangentAt(a),
-                                  (*Knot)[0].pointAt(b)));
+                                  (*Knot)[0].pointAt(b),viewer->vi->BackGroundFlag));
 /*
       b = v+(float)(y2-y)*Ny;
         circles->addChild(drawCircle((*Knot)[0].pointAt(a),
                                   (*Knot)[0].tangentAt(a),
-                                  (*Knot)[0].pointAt(b)));
+                                  (*Knot)[0].pointAt(b),viewer->vi->BackGroundFlag));
 */
       //}
    }
@@ -79,11 +79,11 @@ void VVV::update_picked(float u, float v, float u2, float v2) {
       a = u;
         circles->addChild(drawCircle((*Knot)[0].pointAt(a),
                                   (*Knot)[0].tangentAt(a),
-                                  (*Knot)[0].pointAt(b)));
+                                  (*Knot)[0].pointAt(b)),viewer->vi->BackGroundFlag);
       a = u+(float)(x2-x)*Ny;
         circles->addChild(drawCircle((*Knot)[0].pointAt(a),
                                   (*Knot)[0].tangentAt(a),
-                                  (*Knot)[0].pointAt(b)));
+                                  (*Knot)[0].pointAt(b)),viewer->vi->BackGroundFlag);
     }
 */
 
@@ -103,7 +103,7 @@ void VVV::update_picked(float u, float v, float u2, float v2) {
 
     SoSeparator *sep = drawCircle((*Knot)[0].pointAt(u),//*(*Knot)[0].length()),
                                   (*Knot)[0].tangentAt(u),//*(*Knot)[0].length()),
-                                  (*Knot)[0].pointAt(v));//*(*Knot)[0].length()));
+                                  (*Knot)[0].pointAt(v),viewer->vi->BackGroundFlag);//*(*Knot)[0].length()));
     //cout << "Add child\n";
     if (circles->getNumChildren()==1)
       circles->replaceChild(0,sep);
