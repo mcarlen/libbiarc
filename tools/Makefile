@@ -11,6 +11,9 @@ PROGS=$(SRC:.cpp=)
 
 all: $(PROGS)
 
+sigma_composition: sigma_composition.cpp
+	$(LINKER) -o $@ $<
+
 contactset4: contactset.cpp
 	@echo Build $@
 	$(LINKER) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
