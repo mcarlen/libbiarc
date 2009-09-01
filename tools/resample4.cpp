@@ -1,9 +1,7 @@
 /*!
-  \file resample.cpp
+  \file resample4.cpp
   \ingroup ToolsGroup
-  \brief Resample an open or closed PKF curve.
-
-  Long explanation ... Bla bla bla
+  \brief Resample an open or closed PKF curve (R^4).
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

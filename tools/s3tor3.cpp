@@ -1,5 +1,5 @@
 /*!
- \file r3tos3.cpp
+ \file s3tor3.cpp
  \ingroup ToolsGroup
  \brief Project a curve on S^3 back to R^3.
 */

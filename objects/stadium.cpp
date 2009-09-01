@@ -3,11 +3,9 @@
 */
 
 /*!
-  \file ellipse.cpp
+  \file stadium.cpp
   \ingroup ObjectGroup
-  \brief Constructs an ellipse.
-
-  Long explanation ... Bla bla bla
+  \brief Constructs a stadium curve.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

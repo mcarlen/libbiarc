@@ -3,8 +3,7 @@
   \ingroup ToolsGroup
   \brief Convert an arc curve to a polygonal curve.
 
-  The curve is taken to be closed
-  Long explanation ... Bla bla bla
+  The curve is taken to be closed.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

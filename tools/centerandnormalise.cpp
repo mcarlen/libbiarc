@@ -2,8 +2,6 @@
   \file centerandnormalise.cpp
   \ingroup ToolsGroup
   \brief Center and normalize a closed PKF curve.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

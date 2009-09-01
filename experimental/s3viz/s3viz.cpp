@@ -1,9 +1,7 @@
 /*!
-  \file resample.cpp
-  \ingroup ToolsGroup
-  \brief Resample an open or closed PKF curve.
-
-  Long explanation ... Bla bla bla
+  \file s3viz.cpp
+  \ingroup InventorGroup
+  \brief Visualize a curve in S^3 in two balls in R^3.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -1,5 +1,3 @@
-// XXX Doc
-
 #include "../include/algo_helpers.h"
 #include <stdlib.h>
 #include "../include/utils/timer.h"
@@ -394,7 +392,6 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
   // Initial double critical test
   initial_dbl_crit_filter(c, tmp, global_min);
   distance_filter(tmp, candidates,global_min);
-  // XXX strange!!! candidates = tmp;
 
   Vector lFrom, lTo;
   for (unsigned int i=0;i<candidates.size();++i) {
@@ -461,7 +458,6 @@ float compute_thickness(CurveBundle<Vector> *cb, Vector *from, Vector *to) {
 
   dbl_crit_filter(candidates, tmp, global_min);   
   distance_filter(tmp, candidates,global_min);
-  // XXX strange candidates = tmp;
 
   Vector lFrom, lTo;
   for (unsigned int i=0;i<candidates.size();++i) {
@@ -634,7 +630,6 @@ int double_critical_test_v2(
              const Vector &b0,const Vector &b1,const Vector &b2,
              const float dCurrentMin
                            ) {
-  // XXX :
   // Possible optimization : since the Bezier triangles are
   // equilateral, only 2 of the 4 norms need to be calculated!
   // smthing like : invnorma = 1./(a1-a0).norm(); (a1-a0)*invnorma ...

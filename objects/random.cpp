@@ -2,8 +2,6 @@
   \file random.cpp
   \ingroup ObjectGroup
   \brief Generate a "random" curve
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

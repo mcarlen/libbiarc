@@ -1,3 +1,10 @@
+/*!
+ \file extract_sigma_max.cpp
+ \ingroup ToolsGroup
+ \brief Find local max in pt valley.
+*/
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "../include/Curve.h"
 
 // Find the local max in the valley of torusknots
@@ -76,3 +83,5 @@ int main(int argc, char** argv) {
 
 }
 #endif
+
+#endif // DOXYGEN

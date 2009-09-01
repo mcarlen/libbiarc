@@ -4,7 +4,7 @@
 #include "Vector3.h"
 #include "Matrix3.h"
 
-// FIXME : is there nice way to check for inflection points
+// FIXME : is there a nice way to check for inflection points
 // and straight line segments. So far dot product between
 // start and end tangent is checked not to be close to one
 // up to the StraightSegTol
@@ -12,10 +12,6 @@
 
 template<class Vector>
 class Curve;
-
-//template class Vector;
-
-// Make this templated! with template for the Point, Tangent container!!
 
 template<class Vector>
 class Biarc {
@@ -94,8 +90,8 @@ class Biarc {
   float radius1() const;
 
   int id() const;
-  // XXX : these functions should not be available to the user
-  //       friends?
+  // FIXME : these functions should not be available to the user.
+  //         friends?
   void setId(const int i);
   void setCurve(Curve<Vector>* c);
   const Curve<Vector>* getCurve();

@@ -142,8 +142,6 @@ Tube<Vector>::Tube(const Tube<Vector> &tube) : Curve<Vector>(tube) {
 /*!
   Assign operator. Copies the curve data and
   calls link() if Tube \a c is closed.
-
-FIXME:doc
 */
 template <class Vector>
 Tube<Vector> &Tube<Vector>::operator= (const Tube<Vector> &c) {
@@ -551,7 +549,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
     else {
       ClosestDirection = Normals[Nloc-1];
       dist = (ClosestDirection-Normals[0]).norm();
-      /* XXX Disable Permutation stuff (which minimizes internal twist)
+      /* Disable Permutation stuff (which minimizes internal twist)
          but this is specially for visualization and texturing painfull!
          for (int j=0;j<S;j++) {
       // trigonometric orientation of the point on the circle !!!

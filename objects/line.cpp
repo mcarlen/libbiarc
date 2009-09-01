@@ -2,8 +2,6 @@
   \file line.cpp
   \ingroup ObjectGroup
   \brief Produces a file with a PKF line.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

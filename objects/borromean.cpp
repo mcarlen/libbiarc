@@ -2,8 +2,6 @@
   \file borromean.cpp
   \ingroup ObjectGroup
   \brief Constructs the borromean rings.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

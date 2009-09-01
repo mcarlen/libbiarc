@@ -2,8 +2,6 @@
   \file sinus.cpp
   \ingroup ObjectGroup
   \brief Constructs a Sinusoidal PKF curve.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -6,8 +6,6 @@
   \file bone.cpp
   \ingroup ObjectGroup
   \brief Constructs a bone shaped curve.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

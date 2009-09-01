@@ -2,8 +2,6 @@
   \file pkfframe.cpp
   \ingroup ToolsGroup
   \brief Generate a framing along the curve.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

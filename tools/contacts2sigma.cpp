@@ -1,7 +1,7 @@
 /*!
-  \file sigma_and_tau_contacts.cpp
+  \file contacts2sigma.cpp
   \ingroup ToolsGroup
-  \brief Extract contact functions sigma(s) and tau(s)
+  \brief Contact chords to sigma(s) and tau(s)
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

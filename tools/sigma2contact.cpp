@@ -1,5 +1,5 @@
 /*!
-  \file contactset.cpp
+  \file sigma2contact.cpp
   \ingroup ToolsGroup
   \brief From a sigma(s) function, generate the contact struts.
 

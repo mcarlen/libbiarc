@@ -69,8 +69,6 @@ class Curve : public PKFmanip {
   biarc_ref operator[](int c);
   biarc_constref operator[](int c) const;
 
-  // FIXME : use const and & !!
- 
   void push(const Biarc<Vector> &b);
   void push(const Vector &p, const Vector &t);
   void append(const Biarc<Vector> &b);
@@ -161,7 +159,6 @@ class Curve : public PKFmanip {
   Curve operator-(const Curve &c) const;
   Curve operator*(const float s) const;
 
-  // FIXME : Make this for MatrixN
   Curve& apply(Matrix3 &m);
   Vector getCenter() ;
   void center();

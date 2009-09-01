@@ -2,8 +2,6 @@
   \file spiral.cpp
   \ingroup ObjectGroup
   \brief Constructs a Spiral PKF file.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

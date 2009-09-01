@@ -2,8 +2,6 @@
   \file xyzview.cpp
   \ingroup InventorGroup
   \brief Visualize a closed data file.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

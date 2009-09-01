@@ -1,14 +1,7 @@
 /*!
-  \file contactset.cpp
+  \file contacts2inventor.cpp
   \ingroup ToolsGroup
-  \brief Compute the contact chords for a given knot.
-
-  Jana Smutny's rhopt contact computation algorithm.
-  Given a pkf curve and a tolerance, write an inventor
-  file with the contacts as a lineset to stdout.
-
-  Example : Get Jana's best trefoil contactset with
-    ./contactset j3.1.pkf 0.00002
+  \brief Convert contact chords to obj/iv file.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

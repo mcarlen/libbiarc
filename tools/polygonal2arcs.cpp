@@ -4,7 +4,6 @@
   \brief Convert a polygonal space curve to an arc curve.
 
   The curve is taken to be closed.
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

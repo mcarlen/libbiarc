@@ -237,12 +237,10 @@ Vector & TubeBundle<Vector>::getCenter() {
 // this guy is private
 /*!
   Computes the bounding box of the TubeBundle instance. The
-  of the bounding box touches the tube on its extremal extensions.
+  box touches the tube on its extremal extensions.
 
   This function precomputes the center and the bounding box!
   For caching purpose.
-
-FIXME:change doc
 */
 template <class Vector>
 void TubeBundle<Vector>::computeBoundingBox() {
@@ -283,8 +281,6 @@ void TubeBundle<Vector>::computeBoundingBox() {
 
   The bounding box values are updated at the end of the
   process.
-
-  FIXME:change doc
 */
 template <class Vector>
 void TubeBundle<Vector>::scaleTubeRadius(float NewRadius) {
@@ -295,7 +291,7 @@ void TubeBundle<Vector>::scaleTubeRadius(float NewRadius) {
 /*!
   Creates a tubular mesh with radius \a R around the
   curve with N nodes and S segments on each cross
-  sectional circle. If the actully stored curve has
+  sectional circle. If the actually stored curve has
   not exactly N nodes, the Curve::resample() routine
   is called automatically.
 
@@ -317,8 +313,6 @@ void TubeBundle<Vector>::scaleTubeRadius(float NewRadius) {
 
   The interpolation in case of a resampling is done
   with Gamma = 0.5.
-
-FIXME ; change doc
 */
 template <class Vector>
 void TubeBundle<Vector>::makeMesh(int N, int S, float R, float Tol) {
@@ -329,7 +323,7 @@ void TubeBundle<Vector>::makeMesh(int N, int S, float R, float Tol) {
 }
 
 /*!
-  FIXME doc
+  Read a PKF file with more than one curve from \a infile.
 */
 template <class Vector>
 int TubeBundle<Vector>::readPKF(const char* infile) {
@@ -344,7 +338,7 @@ int TubeBundle<Vector>::readPKF(const char* infile) {
 }
 
 /*!
-  FIXME doc
+  Read a PKF file with more than one curve from istream \a in.
 */
 template <class Vector>
 int TubeBundle<Vector>::readPKF(istream& in) {
@@ -372,7 +366,8 @@ int TubeBundle<Vector>::readPKF(istream& in) {
 }
 
 /*!
-  FIXME doc
+  Read a data file. This routine has been used for different
+  file formats. If needed, adapt it ;)
 */
 template <class Vector>
 int TubeBundle<Vector>::readData(const char* infile, const char* delimiter) {

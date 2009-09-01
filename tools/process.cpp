@@ -1,3 +1,5 @@
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -106,3 +108,5 @@ int main(int argc, char** argv) {
 
   return 1;
 }
+
+#endif

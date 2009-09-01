@@ -1,7 +1,7 @@
 /*!
-  \file plotslice.cpp
+  \file plotslice4.cpp
   \ingroup ToolsGroup
-  \brief Write a pt plot cross section at a given arclength.
+  \brief Write a pt plot cross section at a given arclength (S^3).
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

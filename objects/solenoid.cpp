@@ -2,9 +2,6 @@
   \file solenoid.cpp
   \ingroup ObjectGroup
   \brief Constructs a solenoid like curve.
-
-  Long explanation ... Bla bla bla
-  Formulas for the solenoid construction come from Antonio Trovato (It).
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

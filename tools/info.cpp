@@ -6,8 +6,6 @@
   \file info.cpp
   \ingroup ToolsGroup
   \brief Computes Arc-length, center of mass, thickness (approx), ropelength (aprox) info of a PKF curve.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

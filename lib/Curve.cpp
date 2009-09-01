@@ -273,7 +273,6 @@ inline float Curve<Vector>::length() const {
   return L;
 }
 
-// FIXME : STL adapt
 /*!
   Return Point at Curve position Curve(s), where
   s is in [0,curvelength]
@@ -304,7 +303,6 @@ Vector Curve<Vector>::pointAt(float s) const {
   }
 }
 
-// FIXME :: STL add
 /*!
   Return Tangent at Curve position Curve(s), where
   s is in [0,curvelength]
@@ -335,7 +333,6 @@ Vector Curve<Vector>::tangentAt(float s) const {
   }
 }
 
-// FIXME:STL adapt
 /*!
   Returns an STL iterator to the biarc on which the
   point Curve(s) is. s is in [0,curvelength]
@@ -434,7 +431,7 @@ inline void Curve<Vector>::append(const Vector &p,const Vector &t) {
 template<class Vector>
 inline void Curve<Vector>::insert(int loc, const Biarc<Vector> &b) {
   _Biarcs.insert(_Biarcs.begin()+loc,b);
-  // XXX we need to renumber the IdAndCurve in all biarcs after loc
+  // FIXME we need to renumber the IdAndCurve in all biarcs after loc
   (_Biarcs.begin()+loc)->setIdAndCurve(_Biarcs.size()-1,this);
 }
 
@@ -675,7 +672,7 @@ void Curve<Vector>::makeMidpointRule() {
     qhalf=(1.-b)*q0+b*q1+c*(t0-t1);
     p0->setMidPoint(qhalf);
 
-    // XXX : fix this, computing the tangent this way is unstable.
+    // FIXME : fix this, computing the tangent this way is unstable.
     //       c.f. pointOnBiarc
     Vector mmp0=qhalf-q0;
     p0->setMidTangent(2.*mmp0.dot(t0)/mmp0.norm2()*mmp0-t0);
@@ -921,7 +918,7 @@ float Curve<Vector>::thickness(Vector *from, Vector *to) {
   float d = compute_thickness(this,&lfrom,&lto,_hint_i,_hint_j);
   
   // Change hint values according to from and to.
-  // XXX this part of finding the biarcs should be made smarter!
+  // FIXME this part of finding the biarcs should be made smarter!
   float dfrom = 1e22, dto = 1e22, tmp;
   for (biarc_it it=this->begin();it!=this->end();++it) {
     tmp = (it->getPoint()-lfrom).norm2();
@@ -1065,8 +1062,8 @@ float Curve<Vector>::distEnergy() {
   return E;
 }
 
-// XXX : resampling doesn't work. problem with closed curves!
-//       i.e. we get one point to much
+// FIXME : resampling doesn't work. problem with closed curves!
+//         i.e. we get one point to much
 /*!
   This function resamples the current Curve object with
   \a NewNoNodes nodes on the curve. The whole curve
@@ -1276,8 +1273,8 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
     current++;
 
     // append rest of the curve
-    // XXX : if we resample up to the last biarc and the curve is closed
-    //       this doesn't work!
+    // FIXME : if we resample up to the last biarc and the curve is closed
+    //         this doesn't work!
     while (current!=_Biarcs.end()) {
       c.push_back(*current);
       current++;
@@ -1332,9 +1329,6 @@ float Curve<Vector>::curvature(int n) {
 template<class Vector>
 float Curve<Vector>::curvature(biarc_it b) {
 
-  // FIXME
-  // so far no inflection point test!!
-
   biarc_it current   = b;
   biarc_it current_h = b+1;
   if (current_h == end())
@@ -1363,8 +1357,6 @@ float Curve<Vector>::curvature(biarc_it b) {
 
 /*!
   Returns the normal vector at biarc number \a n.
-
-  XXX : inflection points!
 */
 template<class Vector>
 Vector Curve<Vector>::normalVector(int n) {
@@ -1374,9 +1366,6 @@ Vector Curve<Vector>::normalVector(int n) {
 
 /*!
   Returns the normal vector at biarc \a b.
-
-  XXX : - inflection points!
-        - closed curve case!
 */
 template<class Vector>
 Vector Curve<Vector>::normalVector(biarc_it b) {
@@ -1389,14 +1378,13 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
     next = begin();
   else
     next = b+1;
-// XXX normal viz looks weird using the midpoints
 /*
   Vector v = (b->getMidPoint()-b->getPoint())-
              (b->getPoint()-prev->getMidPoint());
 */
   Vector v = (next->getPoint()-b->getPoint())+
              (prev->getPoint()-b->getPoint());
-  // XXX not normalize, this way we indirectly recovert the
+  // FIXME not normalized, this way we indirectly recover the
   //     local curvature
   //  v.normalize();
   
@@ -1406,7 +1394,6 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
   return v;
 }
 
-// FIXME : STL adapt!!
 /*!
   Returns the 3 sin(angle)/arclength, where angle is
   the angle between the planes in which 2 consequent arcs lie.
@@ -1479,7 +1466,6 @@ float Curve<Vector>::torsion(int n, int a) {
 }
 
 
-// FIXME : STL adapt
 /*!
   Returns the torsion at biarc number \a n.
 

@@ -9,12 +9,26 @@
   for open and closed curves, but this must be specified (how
   to do that is explained later in this text). 
 
-  FFIXME ;some code here ...
-  
+  \code
+  #include "../include/CurveBundle.h"
+
+  int main() {
+    int N = 100;
+
+    CurveBundle<Vector3> borromean;
+    Curve<Vector3> c[3];
+
+    ... construct curves (see objects/borromean.cpp) ...
+
+    for (int i=0;i<3;i++)
+      borromean.newCurve(c[i]);
+
+    return 0;
+  }
+  \endcode
+
   \sa Curve,Biarc
 
-FIXME:change doc!!!
-  
 */
  
 //
@@ -123,23 +137,24 @@ int CurveBundle<Vector>::nodes() const {
 /*!
   Returns the thickness (biggest possible tube radius without self-intersection)
   of the curve bundle
-  XXX : Only single component knots are supported for now
 */
 template<class Vector>
 float CurveBundle<Vector>::thickness() {
-  assert(curves()==1);
-  return bundle[0].thickness();
+  return compute_thickness(this);
 }
 
 /*!
   Returns the "fast" thickness (pt radii only)
-  of the curve bundle
-  XXX : Only single component knots are supported for now
+  of the curve bundle.
 */
 template<class Vector>
 float CurveBundle<Vector>::thickness_fast() {
-  assert(curves()==1);
-  return bundle[0].thickness_fast();
+  float thick = bundle[0].thickness_fast();
+  for (int i=1;i<curves();++i) {
+    float th = bundle[i].thickness_fast();
+    if (th<thick) thick = th;
+  }
+  return thick;
 }
 
 

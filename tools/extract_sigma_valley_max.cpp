@@ -1,3 +1,10 @@
+/*!
+ \file extract_sigma_max_valley.cpp
+ \ingroup ToolsGroup
+ \brief Print pp of sigma,tau and max in vallye.
+*/
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "../include/Curve.h"
 
 // s arclength
@@ -45,3 +52,7 @@ int main(int argc, char** argv) {
 
   return 0;
 }
+
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+
+

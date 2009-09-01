@@ -7,6 +7,7 @@
   \ingroup ObjectGroup
   \brief Approximated trefoil with arcs of circles ...
 
+  An ideal trefoil is known not to be made of arcs of circles.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

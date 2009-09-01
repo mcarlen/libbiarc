@@ -1,9 +1,7 @@
 /*!
-  \file pointat.cpp
+  \file biarccli.cpp
   \ingroup ToolsGroup
-  \brief Writes point/tangent at Curve(s), for s arclength and s in [0,1]
-         to the standart output.
-
+  \brief Biarc command line interface.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

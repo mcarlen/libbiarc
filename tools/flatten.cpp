@@ -1,11 +1,7 @@
 /*!
-  \file align.cpp
+  \file flatten.cpp
   \ingroup ToolsGroup
-  \brief Project a curve onto z=0 plane.
-
-  Projects an initial pkf curve onto the z=0 plane. Caution :
-  This might introduce non-smooth portions in the curve, where
-  the biarc-interpolation will not work properly.
+  \brief Project curve onto 2D plane.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

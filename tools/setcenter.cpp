@@ -2,8 +2,6 @@
   \file setcenter.cpp
   \ingroup ToolsGroup
   \brief Reset the mass center of PKF curve.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -1,13 +1,7 @@
 /*!
-  \file pkf2mesh.cpp
+  \file pkf2ply.cpp
   \ingroup ToolsGroup
-  \brief Read data from a PKF file, produce a tubular mesh for each
-  	curve in the file and write that to a file.
-
-	FIXME::
-Here all the tubes will have the same number of nodes,segments,
-same radius and if tolerance, same tolerance
-  Long explanation ... Bla bla bla
+  \brief pkf to mesh to stanford ply format.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

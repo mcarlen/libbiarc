@@ -1,13 +1,7 @@
 /*!
-  \defgroup ToolsGroup PKF curve tools
-*/
-
-/*!
-  \file info.cpp
+  \file info4.cpp
   \ingroup ToolsGroup
-  \brief Computes Arc-length, center of mass, thickness (approx), ropelength (aprox) info of a PKF curve.
-
-  Long explanation ... Bla bla bla
+  \brief Computes Arc-length, center of mass, thickness (approx), ropelength (aprox) info of a PKF curve (S^3).
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -4,10 +4,8 @@
   \brief Read data from a PKF file, produce a tubular mesh for each
   	curve in the file and write that to a file.
 
-	FIXME::
-Here all the tubes will have the same number of nodes,segments,
+Warning : Here all the tubes will have the same number of nodes,segments,
 same radius and if tolerance, same tolerance
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

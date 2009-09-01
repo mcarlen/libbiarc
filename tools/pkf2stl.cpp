@@ -3,7 +3,6 @@
   \ingroup ToolsGroup
   \brief Read data from a PKF file, produce a tubular mesh for each
   	curve in the file and write that to an STL file.
-
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

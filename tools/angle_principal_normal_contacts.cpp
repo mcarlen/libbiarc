@@ -1,8 +1,8 @@
 /*!
-  \file angle_vs_arclength.cpp
+  \file angle_principal_normal_contacts.cpp
   \ingroup ToolsGroup
-  \brief Prints the arclength and for that arclength the angle between
-         the normal vector and the "2" contact struts.
+  \brief Prints angle between contact chords and principal normal
+         to stdout.
 
 */
 

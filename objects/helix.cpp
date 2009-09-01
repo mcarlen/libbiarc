@@ -2,8 +2,6 @@
   \file helix.cpp
   \ingroup ObjectGroup
   \brief Constructs a helical curve.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

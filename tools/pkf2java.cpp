@@ -1,9 +1,8 @@
 /*!
-  \file pkf2mesh.cpp
+  \file pkf2java.cpp
   \ingroup ToolsGroup
   \brief Read data from a PKF file, produce a tubular mesh for each
   	curve in the file and write it as C/C++/Java arrays.
-
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

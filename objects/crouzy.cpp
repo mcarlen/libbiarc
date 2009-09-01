@@ -1,9 +1,7 @@
 /*!
   \file crouzy.cpp
   \ingroup ObjectGroup
-  \brief Constructs a crouzy curve.
-
-  Long explanation ... Bla bla bla
+  \brief Constructs a crouzy curve ;)
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

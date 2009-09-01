@@ -1,9 +1,7 @@
 /*!
-  \file curvature.cpp
+  \file curvature4.cpp
   \ingroup ToolsGroup
-  \brief Outputs the curvature of a biarc curve.
-
-  Long explanation ... Bla bla bla
+  \brief Outputs the curvature of a biarc curve in R^4.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

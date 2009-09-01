@@ -2,8 +2,6 @@
   \file mesh4stokes.cpp
   \ingroup ToolsGroup
   \brief Produce a tube mesh from a curve and write that to a file.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

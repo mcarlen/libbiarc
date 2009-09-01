@@ -2,8 +2,6 @@
   \file refine.cpp
   \ingroup ToolsGroup
   \brief Refine/Resample a part of an open or closed PKF curve.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

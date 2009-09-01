@@ -1,9 +1,7 @@
 /*!
-  \file pkf2stl.cpp
+  \file pkf2obj.cpp
   \ingroup ToolsGroup
-  \brief Read data from a PKF file, produce a tubular mesh for each
-  	curve in the file and write that to an STL file.
-
+  \brief pkf to obj format. obj file has correct uv texture coords.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

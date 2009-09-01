@@ -6,8 +6,6 @@
   \file ellipse.cpp
   \ingroup ObjectGroup
   \brief Constructs an ellipse.
-
-  Long explanation ... Bla bla bla
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

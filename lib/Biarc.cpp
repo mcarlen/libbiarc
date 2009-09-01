@@ -163,8 +163,8 @@ void Biarc<Vector>::setMidPoint(const Vector &p) {
 template<class Vector>
 void Biarc<Vector>::setMidTangent(const Vector &p) {
   _MidTangent = p;
-  // XXX : this should go somewhere else. where we init the Bezier points
-  //       as well.
+  // this should go somewhere else. where we init the Bezier points
+  // as well.
   _BIARC_ = 1;
   Vector q0 = _Point, q1 = getNext().getPoint();
   Vector t0 = _Tangent, t1 = getNext().getTangent();
@@ -253,7 +253,7 @@ void Biarc<Vector>::reverse() {
 */
 template<class Vector>
 int Biarc<Vector>::isProper() const {
-  // XXX : check if we got one more on the curve
+  // check if we got one more on the curve
   return (((getNext().getPoint()-_Point).dot(_Tangent)>0) &&
         ((getNext().getPoint()-_Point).dot(getNext().getTangent())>0));
 }
@@ -302,7 +302,6 @@ void Biarc<Vector>::setBiarc() {
 
   \sa getBezier(),getBezierArc0(),getBezierArc1(),Curve::make()
 */
-// FIXME : is this true for more than 3Dims?
 template<class Vector>
 void Biarc<Vector>::make(float Gamma) {
 
@@ -340,7 +339,6 @@ void Biarc<Vector>::make(float Gamma) {
     _MidPoint = (_Point*GammaBar + getNext().getPoint()*Gamma);
     _MidPoint /= (Gamma+GammaBar);
 
-// FIXME : depends on gamma bar
     _MidTangent = (_Tangent+getNext().getTangent())/2;
     _MidTangent.normalize();
 
@@ -393,7 +391,7 @@ void Biarc<Vector>::make(float Gamma) {
 */
 template<class Vector>
 float Biarc<Vector>::_radius(const Vector &q0, const Vector &q1, const Vector &t0) const {
-  // XXX : should already be normalized
+  // should already be normalized
   // t0.normalize();
   Vector d = q1-q0; Vector e = q1-q0;
   e.normalize();
@@ -449,7 +447,7 @@ template<class Vector>
 float Biarc<Vector>::_angle(const Vector &q0, const Vector &q1, const Vector &t0) const {
   Vector d = q1-q0;
   d.normalize();
-  // XXX : should already be normalized
+  // should already be normalized
   // t0.normalize();
   float tmp = d.dot(t0);
 
@@ -731,7 +729,6 @@ Vector Biarc<Vector>::pointOnArc0(float s) const {
   // arc onto the arc's cord (normalized by the
   // cord length to get the tau in [0,1]!!
 
-  // FIXME : Maybe there should also be a Vector2 class for this
   Vector3 P_s(-_Radius0*cos(s/_Radius0),
 	      _Radius0*sin(s/_Radius0),
 	      0);

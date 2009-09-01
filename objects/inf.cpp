@@ -5,9 +5,7 @@
 /*!
   \file inf.cpp
   \ingroup ObjectGroup
-  \brief Constructs an inf.
-
-  Long explanation ... Bla bla bla
+  \brief Constructs an infinity shaped curve.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

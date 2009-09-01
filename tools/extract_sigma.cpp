@@ -1,3 +1,11 @@
+/*!
+ \file extract_sigma.cpp
+ \ingroup ToolsGroup
+ \brief Advancing within a small neighbournood try to extract sigma(s).
+*/
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include "../include/Curve.h"
 
 float find_min(const Curve<Vector3> &c, float s, float left, float right, int steps, float eps) {
@@ -72,3 +80,5 @@ int main(int argc, char** argv) {
 
 }
 #endif
+
+#endif // DOXYGEN

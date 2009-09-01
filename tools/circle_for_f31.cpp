@@ -2,7 +2,7 @@
   \file circle_for_f31.cpp
   \ingroup ToolsGroup
   \brief Given eps, compute using 3 points the radius and center of
-         circle (compare it to gamma(.5), which might be a center!).
+         circle.
 */
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
