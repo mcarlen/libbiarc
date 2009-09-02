@@ -8,6 +8,8 @@
 
 #include "../include/TubeBundle.h"
 
+const int OPEN = 1;
+
 int main(int argc, char **argv) {
   if(argc < 6 || argc > 7) {
     cerr << argv[0] << " <PFK file> <Nodes> "
@@ -22,15 +24,30 @@ int main(int argc, char **argv) {
   Tol = (argc==7?atof(argv[6]):1e-03);
 
   TubeBundle<Vector3> knot(argv[1]);
-  ofstream file (argv[5]);
-  if (!file.good()) {
-	cerr << "[FAILED]\n";
-	exit(1);
-  }
+
+  string filename(argv[5]);
+  ofstream file;
+
   cout << "Process all curves in PKF :\n";
   for (int i=0;i<knot.tubes();i++) {
+    if (knot.tubes()>1) {
+      if (!file.good()) {
+  	    cerr << "[FAILED]\n";
+	      exit(1);
+      }
+      char num[100];
+      sprintf(num,"%s.%02d",filename.c_str(),i);
+      file.open(num);
+
+      cout << "Write to file : " << num << endl;
+    }
+    else {
+      file.open(filename.c_str());
+      cout << "Write to file : " << filename << endl;
+    }
 //    knot[i].scale(10.);
-    knot[i].link();
+    if (!OPEN)
+      knot[i].link();
     if (knot[i].nodes()!=N) {
       cout << "Resample curve " << i+1 << " with " << N << " points";
       knot[i].make_default();
@@ -44,8 +61,6 @@ int main(int argc, char **argv) {
     knot[i].makeMesh(N,S,R,Tol);
     cout << "\t\t[OK]\n";
   
-    cout << "Write to file : " << argv[5];
-
     // Vertices and Normals
     for (int j=0;j<N;++j) {
       for (int k=0;k<S;++k) {
@@ -55,7 +70,7 @@ int main(int argc, char **argv) {
     }
 
     float alen = 0;
-    for (int j=0;j<N+1;++j) {
+    for (int j=0;j<N+(OPEN?0:1);++j) {
       for (int k=0;k<S+1;++k) {
         file << "vt " << alen << " " << (float)k/(float)S<< endl;
       }
@@ -64,9 +79,11 @@ int main(int argc, char **argv) {
     }
 
     // Triangles
-    for (int j=0;j<N;++j) {
+    int NN = N; if (OPEN) NN -= 1;
+    for (int j=0;j<NN;++j) {
       for (int k=0;k<S;++k) {
-        int xii=(j+1)%N, kii=(k+1)%S;
+        int xii=(j+1)%N;
+        int kii=(k+1)%S;
         file << "f " << j*(S)+k+1 << "/" << j*(S+1)+k+1 << "/" << j*(S)+k+1 << " "
              << xii*(S)+k+1 << "/" << (j+1)*(S+1)+k+1 << "/" << xii*(S)+k+1 << " "
              << xii*(S)+kii+1 << "/" << (j+1)*(S+1)+(k+1)+1 << "/" << xii*(S)+kii+1 << endl
@@ -77,8 +94,9 @@ int main(int argc, char **argv) {
     }
 
     cout << "\t\t\t[OK]\n";
+    file.close();
+
   }
-  file.close();
   return 0;
 }
 
