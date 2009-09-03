@@ -8,7 +8,7 @@
 
 #include "../include/TubeBundle.h"
 
-const int OPEN = 1;
+const int OPEN = 0;
 
 int main(int argc, char **argv) {
   if(argc < 6 || argc > 7) {

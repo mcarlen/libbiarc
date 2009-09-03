@@ -1,4 +1,4 @@
-PROGS = main # animate plotzoom # kv4
+PROGS = curview # animate plotzoom # kv4
 QTPRESENT=$(shell if which soqt-config >/dev/null; then echo OK; fi)
 
 include ../Makefile.config
@@ -29,7 +29,7 @@ endif
 ######### SOURCE FILES #######################
 
 SRC = SoKnot.cpp xyzview.cpp \
-	main.cpp trefoil_builder.cpp animate.cpp \
+	curview.cpp trefoil_builder.cpp animate.cpp \
         plotzoom.cpp
 OBJ = $(SRC:.cpp=.o)
 
@@ -60,12 +60,12 @@ fourier_syn.o: ../fourierknots/fourier_syn.cpp
 	@echo Compile $<
 	@$(CXX) ${FLAGS} -o $@ -c $<
 
-main: SoKnot.o main.o pt.o moc_pt.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o moc_pp.o pp.o moc_tt.o tt.o
+curview: SoKnot.o curview.o pt.o moc_pt.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o moc_pp.o pp.o moc_tt.o tt.o
 ifeq ($(QTPRESENT),OK)
 		@echo Link $@
 		@$(CXX) ${FLAGS} -c ../experimental/pngmanip/pngwrite.c
 		@$(CXX) ${FLAGS} -c ../experimental/pngmanip/plot_funcs.cpp
-		@$(LINKER) $(FLAGS) -o main $(INC_LIB) SoKnot.o main.o pt.o moc_pt.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o plot_funcs.o pngwrite.o moc_pp.o pp.o moc_tt.o tt.o $(LIBS)
+		@$(LINKER) $(FLAGS) -o curview $(INC_LIB) SoKnot.o curview.o pt.o moc_pt.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o plot_funcs.o pngwrite.o moc_pp.o pp.o moc_tt.o tt.o $(LIBS)
 else
 		@echo "soqt-config not found. Coin with SoQt may not be installed. Skip building inventor viewer."
 endif
@@ -84,7 +84,7 @@ qrc_application.cpp: application.qrc
 moc_%.cpp: %.h
 	moc -o $@ $<
 
-trefoil_builder: SoKnot.o trefoil_builder.o moc_Widgets.o Widgets.o moc_trefoil_builder.o moc_main.o
+trefoil_builder: SoKnot.o trefoil_builder.o moc_Widgets.o Widgets.o moc_trefoil_builder.o moc_curview.o
 	@echo Link $@
 	@$(LINKER) $(FLAGS) -o trefoil_builder $(INC_LIB) $< $(LIBS)
 

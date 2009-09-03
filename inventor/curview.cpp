@@ -63,6 +63,7 @@ MainWindow *myViewer;
 
 PTPlotWindow *pt_win = NULL;
 TTPlotWindow *tt_win = NULL;
+PPPlotWindow *pp_win = NULL;
 
 void init(MainWindow *viewer) {
 
@@ -119,7 +120,7 @@ int main(int argc, char **argv) {
 
   // Setup viewer (main window)
   cout << "Viewer ..." << flush;
-  myViewer = new MainWindow(myWindow,"libbiarc viewer",TRUE,
+  myViewer = new MainWindow(myWindow,"curview",TRUE,
                             SoQtFullViewer::BUILD_ALL,
                             SoQtViewer::BROWSER);
   cout << " [OK]\n";

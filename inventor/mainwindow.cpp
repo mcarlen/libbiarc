@@ -257,6 +257,8 @@ MainWindow::MainWindow(QWidget *parent, const char *name,
   gradient = map_color_sine_end;
 
   pp_win = NULL;
+  pt_win = NULL;
+  tt_win = NULL;
 
   root = new SoSeparator; root->ref();
   circles = new SoSeparator; circles->ref();
@@ -446,10 +448,10 @@ bool MainWindow::saveAs() {
 }
 
 void MainWindow::about() {
-  QMessageBox::about(this, tr("About Application"),
-            tr("The <b>Application</b> example demonstrates how to "
-               "write modern GUI applications using Qt, with a menu bar, "
-               "toolbars, and a status bar."));
+  QMessageBox::about(this, tr("About curview"),
+            tr("The <b>curview</b> is part of <b>libbiarc</b>"
+               "and used to visualize curves. Developed"
+               "during a PhD thesis at the LCVMM, EPFL, Lausanne."));
 }
 
 void MainWindow::setGrad1() { gradient = map_color_rainbow; emit changed(); }
@@ -478,6 +480,7 @@ void MainWindow::plotWindow(int w = 0) {
   switch(w) {
   case 0:
     if (!pp_win) {
+      cout << "Build pp window\n";
       pp_win = new PPPlotWindow(this,NULL,"pp Plot");
       pp_win->setAttribute(Qt::WA_NoBackground);
       pp_win->setWindowTitle("pp Plot");
@@ -491,6 +494,7 @@ void MainWindow::plotWindow(int w = 0) {
     break;
   case 1:
     if (!pt_win) {
+      cout << "Build pt window\n";
       pt_win = new PTPlotWindow(this,NULL,"pt Plot");
       pt_win->setAttribute(Qt::WA_NoBackground);
       pt_win->setWindowTitle("pt Plot");
@@ -504,6 +508,7 @@ void MainWindow::plotWindow(int w = 0) {
     break;
   case 2:
     if (!tt_win) {
+      cout << "Build tt window\n";
       tt_win = new TTPlotWindow(this,NULL,"tt Plot");
       tt_win->setAttribute(Qt::WA_NoBackground);
       tt_win->setWindowTitle("tt Plot");
@@ -686,12 +691,14 @@ void MainWindow::createMenus() {
   fileMenu->addSeparator();
   fileMenu->addAction(exitAct);
 
+/*
   editMenu = menuBar()->addMenu(tr("&Edit"));
   editMenu->addAction(cutAct);
   editMenu->addAction(copyAct);
   editMenu->addAction(pasteAct);
+*/
 
-  prefsMenu = menuBar()->addMenu(tr("&Preferences"));
+  prefsMenu = menuBar()->addMenu(tr("&Tools"));
 	gradMenu = prefsMenu->addMenu(tr("&Color gradient"));
 	gradMenu->addAction(grad1Act);
 	gradMenu->addAction(grad2Act);
