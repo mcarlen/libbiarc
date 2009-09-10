@@ -31,6 +31,9 @@ realclean:
 	@cd include/ && { rm -f *~ *% .*~ .*% core ; \
         rm -rf ii_file; cd ..; } ;
 
+archive:
+	hg archive -ttgz libbiarc-$(shell hg id -i).tgz
+
 meshonly:
 	@echo Build biarc library; \
 	cd lib/ && { make; cd ..; } ; \
