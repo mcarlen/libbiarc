@@ -2,7 +2,7 @@ DIRS=lib tools objects inventor # temp test
 
 all:
 	@for dir in $(DIRS); do \
-		cd $$dir && { make all; cd ..; } \
+		cd $$dir && { touch .depend; make all; cd ..; } \
 	done
 
 test:
