@@ -2,17 +2,44 @@
 
   \section intro_sec Introduction
  
-  This is the introduction.
+  The library and tools are intended to be used to manipulate
+  and analyse open and closed curves and knot shapes. A viewer
+  application curview is also included for visualization.
  
-  \section install_sec Installation
+  \section install_sec Mercurial repository
  
-  \subsection step1 Step 1: Opening the box
+  Clone the <a href="http://mercurial.selenic.com/wiki/StaticHTTP">static Mercurial repository</a> with
+  
+  \code
+  hg clone static-http://lcvmwww.epfl.ch/~carlen/libbiarc/
+  \endcode
 
-  etc...
+  \section build_sec Build
 
-  whole stuff still under heavy construction
+  The software has been developed in a linux environment. It
+  has successfully been tested and used on Linux and Apple's OSX,
+  but not in Microsoft Windows.
 
-  A pdf version can be found <a href="libbiarc_doc.pdf">here</a>
+  For the viewer program <a href="http://qt.nokia.com/downloads">Qt 4</a> and <a href="http://www.coin3d.org/lib/downloads">Coin3D, SoQt</a> need to be available.<br>
+  In the cloned directory <tt>libbiarc/</tt> type
+
+\code
+make
+\endcode
+
+  to build the library and a subset of the tools.
+
+  \section install_sec
+
+  There is no system wide installation performed. It is recommended
+  to tell the system where the library and the tools are, for example
+  \code
+  export LIBBIARC=/path/to/libbiarc
+  export PATH=$PATH:$LIBBIARC/tools:$LIBBIARC/inventor
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBBIARC/lib
+  \endcode
+
+  A pdf version of the documentation can be found <a href="libbiarc_doc.pdf">here</a>
  */
 
 
