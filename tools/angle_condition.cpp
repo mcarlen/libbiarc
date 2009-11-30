@@ -50,7 +50,9 @@ int main(int argc, char** argv) {
   
   struct container vals, vals2;
   ifstream in(argv[2],ios::in);
-  while (in >> vals.s >> vals.sigma >> vals.tau) {
+  while (in >> vals.s >> vals.sigma) { // >> vals.tau) {
+    if (vals.s >= 1) vals.s = vals.s - 1;
+    if (vals.sigma >= 1) vals.sigma = vals.sigma - 1;
     contacts.push_back(vals);
     vals2.s = vals.sigma; vals2.sigma = vals.s;
     contacts2.push_back(vals2);
@@ -78,13 +80,20 @@ int main(int argc, char** argv) {
   for (int i=1;i<contacts.size();++i) {
 
     int n = knot->biarcPos(contacts[i].s);
+    float my_s = (*knot)[n].biarclength();
     normal_s = knot->normalVector(n);
     normal_s.normalize();
     cur_s = knot->curvature(n);
     n = knot->biarcPos(contacts[i].sigma);
+    // FIXME my_sigma is the arclength between
+    // the sigma contact points of the endpoints
+    // of biarc (*knot)[n]
+    float my_sigma = interpolate(contacts,contacts[i].s+my_s) - contacts[i].sigma;
     normal_sigma = knot->normalVector(n);
     normal_sigma.normalize();
     cur_sigma = knot->curvature(n);
+
+    float dsigma_by_ds = my_sigma/my_s;
 
     point_s          = knot->pointAt(contacts[i].s);
     point_sigma      = knot->pointAt(contacts[i].sigma);
@@ -135,7 +144,11 @@ int main(int argc, char** argv) {
       cout << endl;
 
       num++;
-      cerr << contacts[i].s << " " << theta_s << " " << Fo_s << " " << contacts[i].sigma << " " << psi_sigma << " " << Fi_sigma << " " << cur_s << " " << sigmasigma << endl;
+      // FIXME FIXME Fi_sigma/dsigma_by_ds not in formula!!!!
+      cerr << contacts[i].s << " " << theta_s << " " << Fo_s
+           << " " << contacts[i].sigma << " " << psi_sigma
+           << " " << Fi_sigma << " "
+           << cur_s << " " << sigmasigma << " " << dsigma_by_ds << endl;
     }
   }
   cout << "]}\n";

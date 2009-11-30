@@ -60,6 +60,7 @@ int main(int argc, char **argv) {
     if (CLOSED)
       cout << "Thickness between  : " << from << ", " << to << endl;
     cout << "==================\n";
+    cout << "Thickness fast     : " << cb[i].thickness_fast() << endl;
 
   }
 

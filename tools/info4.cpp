@@ -55,6 +55,7 @@ int main(int argc, char **argv) {
     cout << "L/r                : " << L/D*2 << endl;
     cout << "maxArc/minArc      : " << off_equi << endl;
     cout << "==================\n";
+    cout << "Thickness fast     : " << cb[i].thickness_fast() << endl;
 
   }
 

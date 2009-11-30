@@ -11,7 +11,8 @@
                                    << i->a.b2 << ", " \
                                    << i->b.b0 << ", " \
                                    << i->b.b1 << ", " \
-                                   << i->b.b2 << ", \n"; }\
+                                   << i->b.b2 << ", (" \
+                                   << i->d << ")\n"; }\
 
 
 
@@ -224,42 +225,50 @@ void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC, co
   // put the correct 3 Bezier points in the subdiv arc!!!
   // example if we need the left sub arc of a0,a1,a2,m
   // subarc Bezier points are given by a0,(a0+a1)/2,m !!!
+    Vector a0,a1,a2,b0,b1,b2;
+    // current bezier points for arc a and b
+    a0 = i->a.b0;
+    a1 = i->a.b1;
+    a2 = i->a.b2;
+    b0 = i->b.b0;
+    b1 = i->b.b1;
+    b2 = i->b.b2;
+
+    // points for the new subarcs
+    Vector a01 = (a0+a1)/2., a12 = (a1+a2)/2.;
+    Vector b01 = (b0+b1)/2., b12 = (b1+b2)/2.;
+    Vector am = (a01+a12)/2., bm = (b01+b12)/2.;
+
+    // temporary Vectors for the new arc pairs
+    Vector c0,c1,c2,d0,d1,d2;
+
     // arc a1 - b1
-    if (double_critical_test_v2(i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,
-                                i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,dCurrentMin)) {
-       CritC.push_back(Candi<Vector>(
-         i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,i->a.err/i->a.ferr,i->a.ferr,
-         i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,i->b.err/i->b.ferr,i->b.ferr
-                                    ));
-    }
+    c0 = a0; c1 = a01; c2 = am;
+    d0 = b0; d1 = b01; d2 = bm;
+    if (double_critical_test_v2(c0,c1,c2,d0,d1,d2,dCurrentMin))
+       CritC.push_back(Candi<Vector>(c0,c1,c2,i->a.err/i->a.ferr,i->a.ferr,
+                                     d0,d1,d2,i->b.err/i->b.ferr,i->b.ferr));
+ 
     // arc a1 - b2
-    if (double_critical_test_v2(i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,
-                                i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,dCurrentMin)) {
-      CritC.push_back(Candi<Vector>(
-        i->a.b0,.5*(i->a.b0+i->a.b1),i->a.m,i->a.err/i->a.ferr,i->a.ferr,
-        i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,i->b.err/i->b.ferr,i->b.ferr
-                                   ));
-    }
-    // arc a2 - b1
-    if (double_critical_test_v2(i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,
-                                i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,
-                                dCurrentMin)) {
-      CritC.push_back(Candi<Vector>(
-        i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,i->a.err/i->a.ferr,i->a.ferr,
-        i->b.b0,.5*(i->b.b0+i->b.b1),i->b.m,i->b.err/i->b.ferr,i->b.ferr
-                                   ));
-    }
+    d0 = bm; d1 = b12; d2 = b2;
+    if (double_critical_test_v2(c0,c1,c2,d0,d1,d2,dCurrentMin))
+       CritC.push_back(Candi<Vector>(c0,c1,c2,i->a.err/i->a.ferr,i->a.ferr,
+                                     d0,d1,d2,i->b.err/i->b.ferr,i->b.ferr));
+
     // arc a2 - b2
-    if (double_critical_test_v2(i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,
-                                i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,
-                                dCurrentMin)) {
-      CritC.push_back(Candi<Vector>(
-        i->a.m,.5*(i->a.b1+i->a.b2),i->a.b2,i->a.err/i->a.ferr,i->a.ferr,
-        i->b.m,.5*(i->b.b1+i->b.b2),i->b.b2,i->b.err/i->b.ferr,i->b.ferr
-                                   ));
-    }
+    c0 = am; c1 = a12; c2 = a2;
+    if (double_critical_test_v2(c0,c1,c2,d0,d1,d2,dCurrentMin))
+       CritC.push_back(Candi<Vector>(c0,c1,c2,i->a.err/i->a.ferr,i->a.ferr,
+                                     d0,d1,d2,i->b.err/i->b.ferr,i->b.ferr));
+
+    // arc a2 - b1
+    d0 = b0; d1 = b01; d2 = bm;
+    if (double_critical_test_v2(c0,c1,c2,d0,d1,d2,dCurrentMin))
+       CritC.push_back(Candi<Vector>(c0,c1,c2,i->a.err/i->a.ferr,i->a.ferr,
+                                     d0,d1,d2,i->b.err/i->b.ferr,i->b.ferr));
+
   }
-//    cout << ITERATION << " : No crit : " << CritC.size() << endl;
+//  cout << ITERATION << " : No crit : " << CritC.size() << endl;
 
 }
 
@@ -391,7 +400,10 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
 
   // Initial double critical test
   initial_dbl_crit_filter(c, tmp, global_min);
-  distance_filter(tmp, candidates,global_min);
+  // This first distance filter removes "good" candidates!!!
+  // DO NOT CHANGE IT!
+  // distance_filter(tmp, candidates,global_min);
+  candidates = tmp;
 
   Vector lFrom, lTo;
   for (unsigned int i=0;i<candidates.size();++i) {
@@ -457,7 +469,10 @@ float compute_thickness(CurveBundle<Vector> *cb, Vector *from, Vector *to) {
   }
 
   dbl_crit_filter(candidates, tmp, global_min);   
-  distance_filter(tmp, candidates,global_min);
+  // This first distance filter removes "good" candidates!!!
+  // DO NOT CHANGE IT!
+  // distance_filter(tmp, candidates,global_min);
+  candidates = tmp;
 
   Vector lFrom, lTo;
   for (unsigned int i=0;i<candidates.size();++i) {
@@ -539,14 +554,16 @@ float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrM
   DistC.push_back(pair_of_arcs);
   candi_it min_candi = DistC.begin();
 
+  int iter = 1;
   while(rel_err > rel_err_tol) {
 
     // Bisect Candidates
     dbl_crit_filter(DistC,CritC,dCurrMin);   
-   // dump_candi(CritC);  
+    // cout << "iter " << iter++ << endl;
+    // dump_candi(CritC);  
 
     if (CritC.size()==0) {
-//      cout << "dble crit empty\n";
+    //  cout << "dble crit empty\n";
       return 1e22;
     }
 
@@ -555,7 +572,7 @@ float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrM
 
     // Thickness Bounds
     if (DistC.size()==0) {
-//      cout << "dist empty\n";
+    //  cout << "dist empty\n";
       return 1e22;
     }
 
@@ -608,12 +625,12 @@ int double_critical_test(const Vector &a0, const Vector &a1,
   }
 
   // Ben has this and it works ;)
-  if ( dCurrentMin < 1e12 && (denum - val0 - val1)*.5 > dCurrentMin) return 0;
+  // if ( dCurrentMin < 1e12 && (denum - val0 - val1)*.5 > dCurrentMin) return 0;
 
   // tolerance in percent we let slide
-  float eps = .1;
+  float eps = 1e-6;
 
-  float sina = (val0+val1)/denum*(1+eps) ;
+  float sina = (val0+val1)/denum*(1.+eps) ;
   w.normalize();
 
   if ((w.dot(t0a)<-sina) && (w.dot(t1a)<-sina)) return 0;
