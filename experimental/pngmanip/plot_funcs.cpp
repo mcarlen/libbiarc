@@ -11,8 +11,8 @@ void samplePtTg(const float from, const float to,
     sigma = from+(float)i/(float)(N-1)*
             (to-from);
     alen = sigma*length;
-    if (alen>length) {
-      cout << alen << " - "; alen = length;
+    if (alen>=length -sigma*0.001) { //poinAt(length) crashes :( so we chose a value close to it.
+      cout << alen << " - "; alen = length-sigma*0.001;
       cout << i << " -- " << (float)i/(float)N<<endl;
     }
     pts[i] = c.pointAt(alen);

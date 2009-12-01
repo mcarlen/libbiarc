@@ -40,7 +40,7 @@ plot: plot.o plot_funcs.o
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) pngwrite.o \
 	plot.o plot_funcs.o $(LIB)
 
-plot4: plot.cpp
+plot4: plot.cpp plot_funcs.o
 	@echo Build $@
 	$(CXX) $(FLAGS) -DCOMPUTE_IN_R4 -c pngwrite.c
 	$(CXX) $(FLAGS) -DCOMPUTE_IN_R4 -c plot.cpp
