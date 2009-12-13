@@ -3,7 +3,7 @@ from Blender.Mathutils import Vector
 from os import popen2, listdir
 from math import sin,cos,pi, sqrt
 
-struts="/tmp/bill"
+struts="/home/carlen/shapeways/billiard/bill_for_blender_script.txt"
 
 SScale  = 1
 SRadius = 0.001
@@ -56,6 +56,6 @@ def docyl(S,R,Pts):
   me.faces.extend(faces)
   Scene.GetCurrent().objects.new(me)
 
-docyl(SSegs,SRadius,l)
+docyl(SSegs,SRadius,list)
 
 Redraw()
