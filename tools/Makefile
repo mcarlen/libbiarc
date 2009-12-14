@@ -14,17 +14,20 @@ all: $(PROGS)
 sigma_composition: sigma_composition.cpp
 	$(LINKER) -o $@ $<
 
+animate: animate.cpp
+	soqt-config --build animate animate.cpp
+
 contactset4: contactset.cpp
 	@echo Build $@
-	$(LINKER) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
+	@$(LINKER) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
 
 follow_contact4: follow_contact.cpp
 	@echo Build $@
-	$(LINKER) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
+	@$(LINKER) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
 
 %: %.cpp
 	@echo Build $@
-	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)
+	@$(LINKER) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)
 
 clean :
 	@echo Cleaning `basename ${PWD}`

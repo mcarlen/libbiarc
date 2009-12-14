@@ -21,12 +21,6 @@ int main(int argc, char **argv) {
 
   clog << "Read in curve from " << argv[4];
   Curve<Vector3> curve(argv[4]);
-  if (&curve!=NULL)
-    clog << "\t[OK]\n";
-  else {
-    clog << "\t[FAILED]\n";
-    return 1;
-  }
 
   Vector3 AlignAxis(atof(argv[1]),atof(argv[2]),atof(argv[3]));
   AlignAxis.normalize();

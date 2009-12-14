@@ -42,12 +42,6 @@ int main(int argc, char **argv) {
 
   clog << "Read in curve from " << argv[5];
   Curve<Vector3> curve(argv[5]);
-  if (&curve!=NULL)
-    clog << "\t[OK]\n";
-  else {
-    clog << "\t[FAILED]\n";
-    return 1;
-  }
 
   curve.link();
   clog << "Align curve along " << AlignAxis;

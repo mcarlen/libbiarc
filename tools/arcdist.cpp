@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
   b2 = Vector3(1.01,-1.2,0);
 
   cout << "Min dist = "
-       << mindist_between_arcs(a0,a1,a2,b0,b1,b2,&from,&to)
+       << mindist_between_bezier_arcs(a0,a1,a2,b0,b1,b2,1e99,&from,&to)
        << endl;
   cout << "Achieved between " << from << ", " << to << endl;
 

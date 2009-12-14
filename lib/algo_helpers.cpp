@@ -341,7 +341,7 @@ void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered
 template<class Vector>
 float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hint_i, const int hint_j) {
 
-  double myt = start_time();
+//  double myt = start_time();
 
   float min_diam = check_local_curvature(c);
   vector<Candi<Vector> > tmp, candidates;
@@ -554,7 +554,7 @@ float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrM
   DistC.push_back(pair_of_arcs);
   candi_it min_candi = DistC.begin();
 
-  int iter = 1;
+//  int iter = 1;
   while(rel_err > rel_err_tol) {
 
     // Bisect Candidates

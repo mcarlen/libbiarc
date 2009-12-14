@@ -77,7 +77,7 @@ plotzoom: plotzoom.o moc_plotzoom.o
 
 animate: SoKnot.o animate.o 
 	@echo Link $@
-	$(LINKER) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
+	@$(LINKER) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
 
 qrc_application.cpp: application.qrc
 	rcc -o $@ $<
