@@ -39,7 +39,7 @@ make
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBBIARC/lib
   \endcode
 
-  A pdf version of the documentation can be found <a href="libbiarc_doc.pdf">here</a>
+  A pdf version of the documentation can be found <a href="../latex/refman.pdf">here</a>
  */
 
 
