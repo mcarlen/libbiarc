@@ -33,15 +33,24 @@ float angle(const Vector3 &a, const Vector3 &b) {
 }
 
 // transpose and sort contacts first!
+// we need the first and last point t=0, t=1 !!
 float interpolate(const vector<container> &contacts, float s) {
+  if (s==0 || s==1) return contacts[0].sigma;
+  if (s>1) s -= 1;
   float sigma = contacts[0].sigma;
-  if (s>=1) s -= 1;
   unsigned int i = 1;
-  while (s > contacts[i].s  && i < contacts.size()) {
+  while (s > contacts[i].s  && i < contacts.size()-1) {
     sigma = contacts[i].sigma;
     ++i;
   }
-  return (sigma + (s - contacts[i-1].s)/(contacts[i].s - contacts[i-1].s)*(contacts[i].sigma - contacts[i-1].sigma));;
+  if (contacts[i-1].sigma <= contacts[i].sigma) {
+    return (sigma + (s - contacts[i-1].s)/(contacts[i].s - contacts[i-1].s)*(contacts[i].sigma - contacts[i-1].sigma));;
+  }
+  else {
+    float ret = (sigma + (s - contacts[i-1].s)/(contacts[i].s - contacts[i-1].s)*(contacts[i].sigma + 1. - contacts[i-1].sigma));;
+    if (ret>=1) ret -= 1;
+    return ret;
+  }
 }
 
 #if 0
@@ -241,7 +250,18 @@ int main(int argc, char** argv) {
   }
   in.close();
 
+  float mid = fabsf((contacts[0].sigma+contacts.back().sigma)*.5);
+  vals.s = 0; vals.sigma = mid;
+  contacts.insert(contacts.begin(),vals);
+  vals.s = 1; vals.sigma = mid;
+  contacts.push_back(vals);
+
   sort(contacts2.begin(),contacts2.end());
+  mid = fabsf((contacts2[0].sigma+contacts2.back().sigma)*.5);
+  vals.s = 0; vals.sigma = mid;
+  contacts2.insert(contacts2.begin(),vals);
+  vals.s = 1; vals.sigma = mid;
+  contacts2.push_back(vals);
 
   knot = new Curve<Vector3>(argv[1]);
   if (knot==NULL) {

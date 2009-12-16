@@ -11,9 +11,6 @@ PROGS=$(SRC:.cpp=)
 
 all: $(PROGS)
 
-sigma_composition: sigma_composition.cpp
-	$(LINKER) -o $@ $<
-
 animate: animate.cpp
 	soqt-config --build animate animate.cpp
 
