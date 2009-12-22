@@ -22,10 +22,7 @@ int main(int argc, char **argv) {
   cb.readVECT(argv[1]);
   cout << "\t[OK]\n";
 
-  cout << "Close curves and convert to arcs" << flush;
-  cb.link();
   cb.polygonalToArcs();
-  cout << "\t[OK]\n" <<flush;
 
   cout << "Write arc curve to " << argv[2];
   cb.writePKF(argv[2]);

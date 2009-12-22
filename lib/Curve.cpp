@@ -2303,6 +2303,11 @@ void Curve<Vector>::polygonalToArcs() {
     tmp.append(p,t);
   }
 
+  if (isClosed()) {
+    tmp.append((_Biarcs[0].getPoint() + _Biarcs.back().getPoint())*.5,
+               (_Biarcs[0].getPoint() - _Biarcs.back().getPoint()));
+  }
+
   (*this) = tmp;
 }
 

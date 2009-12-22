@@ -622,20 +622,17 @@ int CurveBundle<Vector>::readVECT(const char* infile) {
   char *tval = strtok(tmp," ");
   char tmp_coord[1024];
   int NoCurves  = atoi(tval);
-  // tval = strtok(NULL," ");
-  // int NoVertices = atoi(tval);
-  // ignore number of colors
+  // ignore total vertices and number of colors
   Vector v;
   Curve<Vector> ctmp;
   assert(NoCurves>0);
 
   // number of nodes for each
-  in.getline(tmp,sizeof tmp);
-  int NoNodes = atoi(strtok(tmp," "));
-  in.getline(tmp_coord,sizeof tmp_coord); // skip colors per comp
-  in.getline(tmp_coord,sizeof tmp_coord); // skip comment ...
   for (int i=0;i<NoCurves;i++) {
-    in.getline(tmp_coord, sizeof tmp_coord); // skip Component X comment
+    ctmp.flush_all();
+    in.getline(tmp,sizeof tmp);
+    int NoNodes = atoi(strtok(tmp," "));
+    in.getline(tmp, sizeof tmp); // ignore color
     for (int j=0;j<abs(NoNodes);j++) {
       in.getline(tmp_coord,sizeof tmp_coord);
       v[0] = atof(strtok(tmp_coord," "));
@@ -644,9 +641,9 @@ int CurveBundle<Vector>::readVECT(const char* infile) {
       }
       ctmp.append(v,Vector3(0,0,0));
     }
+    if (NoNodes<0) ctmp.link();
+    ctmp.computeTangents();
     newCurve(ctmp);
-    if (i<NoCurves-1)
-      NoNodes = atoi(strtok(NULL," "));
   }
   // ignore the color part
   in.close();
@@ -658,7 +655,25 @@ int CurveBundle<Vector>::readVECT(const char* infile) {
 */
 template<class Vector>
 int CurveBundle<Vector>::writeVECT(const char* outfile) {
-  return 0;
+  ofstream ofs(outfile,ios::trunc|ios::out);
+  if(!ofs.good()) {
+    cerr<<"CurveBundle::writeVECT() : File "
+	      << outfile <<" problem.\n";
+    return 0;
+  }
+
+  // Number of points on curve
+  ofs << "VECT\n";
+  int verts = 0; for (int i=0;i<curves();++i) verts+=bundle[i].nodes();
+  ofs << curves() << " " << verts << " 0\n";
+  ofs.precision(20);
+  for (int i=0;i<curves();i++) {
+    ofs << (bundle[i].isClosed()?"-":"") << bundle[i].nodes() << endl;
+    ofs << "0\n";
+    for (int k=0;k<bundle[i].nodes();++k)
+      ofs << bundle[i][k].getPoint() << endl;
+  }
+  return 1;
 }
 
 /*!

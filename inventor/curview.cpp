@@ -23,7 +23,7 @@
 #include <Inventor/nodes/SoOrthographicCamera.h>
 
 #include "mainwindow.h"
-// #include "pp.h"
+#include "pp.h"
 #include "pt.h"
 #include "tt.h"
 
@@ -131,6 +131,7 @@ int main(int argc, char **argv) {
   cout << " [OK]\n";
 
   init(myViewer);
+  myViewer->setCentralWidget(myWindow);
 
   // Create event handler for mouse
   /*

@@ -258,6 +258,20 @@ public:
           cout << "! Could not load " << (const char*)(info.filenames.at(i).toLocal8Bit()) << endl;
         else count++;
       }
+      else if (info.filenames.at(i).endsWith(".vect") ||
+               info.filenames.at(i).endsWith(".VECT")) {
+        CurveBundle<Vector3> cb;
+        if (!cb.readVECT(info.filenames.at(i).toLocal8Bit().constData()))
+          cout << "! Could not load " << (const char*)(info.filenames.at(i).toLocal8Bit()) << endl;
+
+        else {
+          for (int k=0;k<cb.curves();++k) {
+            cb[k].computeTangents();
+            info.Knot->newTube(Tube<Vector3>(cb[k]));
+            count++;
+          }
+        }
+      }
       else {
         cerr << "[Warn] Unknown filetype. Skip!\n";
         continue;

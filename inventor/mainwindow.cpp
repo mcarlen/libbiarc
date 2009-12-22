@@ -246,7 +246,8 @@ MainWindow::MainWindow(QWidget *parent, const char *name,
   ci = new CurveInterface; 
 
   oldx2 = oldy2 = oldx = oldy = -1;
-  setCentralWidget(parent);
+  // initialized later. Fedora doesn't like it.
+  // setCentralWidget(parent);
 
   view_mode = SOLID_VIEW;
   PRESSED = 0;
@@ -398,7 +399,7 @@ void MainWindow::open() {
                          this,
                          "Select one or more files to open",
                          NULL,
-                         "Curve file(s) (*.pkf *.xyz)"));
+                         "Curve file(s) (*.pkf *.vect *.xyz)"));
 /*
   if (fileDialog->exec())
     loadFile(fileDialog->selectedFiles());
