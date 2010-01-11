@@ -38,16 +38,21 @@ void obj_dump(vector<CContact> &newcontacts) {
       float val = (float)i/(float)(Seg-1);
       v = (1.-val)*from + val*to;
       cout << "v " << v << endl;
-      cout << "vt " << (float)j/(float)(newcontacts.size()-1) << " " << (float)i/(float)(Seg-1) << endl;
+      cout << "vt " << (float)j/(float)(newcontacts.size()-2) << " " << (float)i/(float)(Seg-1) << endl;
     }
   }
+
+  // Give texval 1.0 to the last vertices
+  for (int i=0;i<Seg;i++)
+    cout << "vt 1.0 " << (float)i/(float)(Seg-1) << endl;
+
   for (uint i=0;i<newcontacts.size();++i) {
     for (int j=0;j<Seg-1;j++) {
       cout << "f "
            << i*Seg+j+1 << "/" << i*Seg+j+1 << "/ "
            << i*Seg+j+2 << "/" << i*Seg+j+2 << "/ "
-           << (((i+1)%newcontacts.size())*Seg)+j+2 << "/" << (((i+1)%newcontacts.size())*Seg)+j+2 << "/ "
-           << (((i+1)%newcontacts.size())*Seg)+j+1 << "/" << (((i+1)%newcontacts.size())*Seg)+j+1 << "/ "
+           << (((i+1)%newcontacts.size())*Seg)+j+2 << "/" << ((i+1)*Seg)+j+2 << "/ "
+           << (((i+1)%newcontacts.size())*Seg)+j+1 << "/" << ((i+1)*Seg)+j+1 << "/ "
            << endl;
     }  
   }
