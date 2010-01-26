@@ -384,6 +384,7 @@ void MainWindow::newFile() {
   }
   ci->info.Knot->clear_tb();
   ci->info.Closed = 0;
+  ci->info.N = 0;
 
   /*
   if (maybeSave()) {
@@ -846,10 +847,11 @@ void MainWindow::updatePickedPT(float u, float v, float u2, float v2, bool UNION
     circles->removeAllChildren();
 
   Vector3 q0, q1, t0;
+  Curve<Vector3>* curknot = ci->knot_shape[0]->getKnot();
   if (u2<0 && v2<0) {
-		q0 = (*(ci->info.Knot))[0].pointAt(u);
-		q1 = (*(ci->info.Knot))[0].pointAt(v);
-		t0 = (*(ci->info.Knot))[0].tangentAt(u);
+		q0 = curknot->pointAt(u);
+		q1 = curknot->pointAt(v);
+		t0 = curknot->tangentAt(u);
     circles->addChild(drawCircle(q0,t0,q1,vi->BackGroundFlag));
 	}
   else {
@@ -858,9 +860,9 @@ void MainWindow::updatePickedPT(float u, float v, float u2, float v2, bool UNION
 		if (u2>u) {
 			dx = (u2-u)/9.;
 			for (int i=0;i<10;++i) {
-				q0 = (*(ci->info.Knot))[0].pointAt(u+dx*(float)i);
-				q1 = (*(ci->info.Knot))[0].pointAt((v2+v)*.5);
-				t0 = (*(ci->info.Knot))[0].tangentAt(u+dx*(float)i);
+				q0 = curknot->pointAt(u+dx*(float)i);
+				q1 = curknot->pointAt((v2+v)*.5);
+				t0 = curknot->tangentAt(u+dx*(float)i);
         circles->addChild(drawCircle(q0,t0,q1,vi->BackGroundFlag));
 			}
 		}
@@ -868,9 +870,9 @@ void MainWindow::updatePickedPT(float u, float v, float u2, float v2, bool UNION
 		if (v2>v) {
 			dx = (v2-v)/9.;
 			for (int i=1;i<10;++i) {
-				q0 = (*(ci->info.Knot))[0].pointAt((u2+u)*.5);
-				q1 = (*(ci->info.Knot))[0].pointAt(v+dx*(float)i);
-				t0 = (*(ci->info.Knot))[0].tangentAt((u2+u)*.5);
+				q0 = curknot->pointAt((u2+u)*.5);
+				q1 = curknot->pointAt(v+dx*(float)i);
+				t0 = curknot->tangentAt((u2+u)*.5);
         circles->addChild(drawCircle(q0,t0,q1,vi->BackGroundFlag));
 			}
 		}
@@ -891,8 +893,8 @@ void MainWindow::updatePickedPP(float u, float v, float u2, float v2, bool UNION
   Vector3 vec1,vec2;
   if (u2<0 && v2<0) {
 	  ls->numVertices.set1Value(0, 2);
-		vec1 = (*(ci->info.Knot))[0].pointAt(u);
-		vec2 = (*(ci->info.Knot))[0].pointAt(v);
+		vec1 = ci->knot_shape[0]->getKnot()->pointAt(u);
+		vec2 = ci->knot_shape[0]->getKnot()->pointAt(v);
 	  coords->point.set1Value(0,SbVec3f(vec1[0],vec1[1],vec1[2]));
 	  coords->point.set1Value(1,SbVec3f(vec2[0],vec2[1],vec2[2]));
 	}
@@ -903,8 +905,8 @@ void MainWindow::updatePickedPP(float u, float v, float u2, float v2, bool UNION
   	  dx = (u2-u)/9.;
 	    for (int i=0;i<10;++i) {
    	    ls->numVertices.set1Value(pos, 2);
-				vec1 = (*(ci->info.Knot))[0].pointAt(u+dx*(float)i);
-				vec2 = (*(ci->info.Knot))[0].pointAt((v2+v)*.5);
+		    vec1 = ci->knot_shape[0]->getKnot()->pointAt(u+dx*(float)i);
+		    vec2 = ci->knot_shape[0]->getKnot()->pointAt((v2+v)*.5);
 				cout << vec1 << " => " << vec2 << endl;
   	    coords->point.set1Value(2*pos+0,SbVec3f(vec1[0],vec1[1],vec1[2]));
 	      coords->point.set1Value(2*pos+1,SbVec3f(vec2[0],vec2[1],vec2[2]));
@@ -916,8 +918,8 @@ void MainWindow::updatePickedPP(float u, float v, float u2, float v2, bool UNION
       dx = (v2-v)/9.;
       for (int i=1;i<10;++i) {
         ls->numVertices.set1Value(pos, 2);
-				vec1 = (*(ci->info.Knot))[0].pointAt((u2+u)*.5);
-				vec2 = (*(ci->info.Knot))[0].pointAt(v+dx*(float)i);
+		    vec1 = ci->knot_shape[0]->getKnot()->pointAt((u2+u)*.5);
+		    vec2 = ci->knot_shape[0]->getKnot()->pointAt(v+dx*(float)i);
         coords->point.set1Value(2*pos+0,SbVec3f(vec1[0],vec1[1],vec1[2]));
         coords->point.set1Value(2*pos+1,SbVec3f(vec2[0],vec2[1],vec2[2]));
         pos++;
@@ -973,12 +975,13 @@ void MainWindow::updatePickedTT(float u, float v, float u2, float v2, bool UNION
     circles->removeAllChildren();
 
   Vector3 q0, q1, t0, t1;
+  Curve<Vector3>* curknot = ci->knot_shape[0]->getKnot();
   if (u2<0 && v2<0) {
 
-		q0 = (*(ci->info.Knot))[0].pointAt(u);
-		q1 = (*(ci->info.Knot))[0].pointAt(v);
-		t0 = (*(ci->info.Knot))[0].tangentAt(u);
-		t1 = (*(ci->info.Knot))[0].tangentAt(v);
+		q0 = curknot->pointAt(u);
+		q1 = curknot->pointAt(v);
+		t0 = curknot->tangentAt(u);
+		t1 = curknot->tangentAt(v);
 
 		circles->addChild(addTTSphere(q0,t0,q1,t1));
 	}
@@ -988,10 +991,10 @@ void MainWindow::updatePickedTT(float u, float v, float u2, float v2, bool UNION
 		if (u2>u) {
 			dx = (u2-u)/9.;
 			for (int i=0;i<10;++i) {
-				q0 = (*(ci->info.Knot))[0].pointAt(u+dx*(float)i);
-				q1 = (*(ci->info.Knot))[0].pointAt((v2+v)*.5);
-				t0 = (*(ci->info.Knot))[0].tangentAt(u+dx*(float)i);
-				t1 = (*(ci->info.Knot))[0].tangentAt((v2+v)*.5);
+				q0 = curknot->pointAt(u+dx*(float)i);
+				q1 = curknot->pointAt((v2+v)*.5);
+				t0 = curknot->tangentAt(u+dx*(float)i);
+				t1 = curknot->tangentAt((v2+v)*.5);
 				circles->addChild(addTTSphere(q0,t0,q1,t1));
 			}
 		}
@@ -999,10 +1002,10 @@ void MainWindow::updatePickedTT(float u, float v, float u2, float v2, bool UNION
 		if (v2>v) {
 			dx = (v2-v)/9.;
 			for (int i=1;i<10;++i) {
-				q0 = (*(ci->info.Knot))[0].pointAt((u2+u)*.5);
-				q1 = (*(ci->info.Knot))[0].pointAt(v+dx*(float)i);
-				t0 = (*(ci->info.Knot))[0].tangentAt((u2+u)*.5);
-				t1 = (*(ci->info.Knot))[0].tangentAt(v+dx*(float)i);
+				q0 = curknot->pointAt((u2+u)*.5);
+				q1 = curknot->pointAt(v+dx*(float)i);
+				t0 = curknot->tangentAt((u2+u)*.5);
+				t1 = curknot->tangentAt(v+dx*(float)i);
 				circles->addChild(addTTSphere(q0,t0,q1,t1));
 			}
 		}

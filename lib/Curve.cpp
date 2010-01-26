@@ -56,7 +56,7 @@
   int main(int argc,char** argv) {
 
     // Init empty curve
-    Curve circle;
+    Curve<Vector3> circle;
 
     // Point and Tangent
     Vector3 p,t;

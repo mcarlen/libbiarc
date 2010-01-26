@@ -162,6 +162,9 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
       break;
 
     case Qt::Key_C:
+      if (viewer->ci->knot_shape[0]->nodes.getValue()-10<7)
+      viewer->ci->setNumberOfNodes(7);
+      else
       viewer->ci->setNumberOfNodes(viewer->ci->knot_shape[0]->nodes.getValue()-10);
     	// if (viewer->view_mode==BIARC_VIEW) {
 				sep = new SoSeparator;

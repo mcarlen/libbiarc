@@ -284,8 +284,9 @@ public:
     // We arbitrarily choose for N the number of datapoints of the first curve
     // It would be reasonnable to include the option to show exactly what
     // is in the data file
-    if (!info.N)
+//    if (!info.N)
       info.N = (*(info.Knot))[0].nodes();
+//      info.R = (*(info.Knot))[0].thickness_fast()/20.;
 
     makeMesh();
     return curveSeparator();
