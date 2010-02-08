@@ -1,6 +1,7 @@
 #include "fourier_3_1.h"
 #include "fourier_4_1.h"
 #include "fourier_5_1.h"
+#include "fourier_8_18.h"
 
 void curvature(const FourierKnot &fk, const int N) {
   float isampling = 1./(float)N, t;
@@ -15,7 +16,7 @@ void curvature(const FourierKnot &fk, const int N) {
 int main(int argc, char **argv) {
 
   if (argc!=4) {
-    cout << "Usage : " << argv[0] << " <n/3/4>"
+    cout << "Usage : " << argv[0] << " <n/3/4/5/8>"
             " <N> <coeff_file>\n";
     exit(0);
   }
@@ -39,8 +40,12 @@ int main(int argc, char **argv) {
     K51FourierKnot fk(infile);
     curvature(fk.toFourierKnot(),N);
   }
+  else if (argv[1][0]=='8') {
+    K818FourierKnot fk(infile);
+    curvature(fk.toFourierKnot(),N);
+  }
   else {
-    cerr << "Wrong type : " << argv[1] << ". Must be n, 3 or 4.\n";
+    cerr << "Wrong type : " << argv[1] << ". Must be n,3,4,5 or 8.\n";
     exit(1);
   }
 

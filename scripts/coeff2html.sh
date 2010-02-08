@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function usage {
-  echo "Usage : $0 3/4/5/n N file.coeff out.html"
+  echo "Usage : $0 3/4/5/8/n N file.coeff out.html"
   exit 0
 }
 

@@ -11,6 +11,9 @@ PROGS=$(SRC:.cpp=)
 
 all: $(PROGS)
 
+pkf2rib: pkf2rib.cpp
+	g++ -DPRECISION_HACK -DRENDERMAN -I../include -L../lib -L${PIXIEHOME}/lib -I${PIXIEHOME}/include pkf2rib.cpp -o pkf2rib -lbiarc_pixie -lrt -lri
+
 animate: animate.cpp
 	soqt-config --build animate animate.cpp
 

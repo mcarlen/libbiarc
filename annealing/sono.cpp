@@ -186,19 +186,20 @@ float NeighbourEps     = 0.1;
 float RelErrTol        = 1e-4;
 float ShiftScaleFactor = 0.0002;
 float ShrinkFactor     = .999;
-int   MaxIter, NeighbourSteps;
+int   MaxIter, NeighbourSteps, LogFreq;
 
 int main(int argc,char** argv) {
-  if (!(argc==7||argc==8)) {
+  if (!(argc==8||argc==9)) {
     cout << "Usage   : " << argv[0]
       << " <overlap>"
       << " <overlap delta>"
       << " <shift>"
       << " <shrink>"
       << " <no steps>"
+      << " <log frequency>"
       << " <pkf>"
 			<< " [<thickness>]\n"
-      << "Example : sono 1 .1 .01 .99 500 bone.pkf\n";
+      << "Example : sono 1 .1 .01 .99 500 50 bone.pkf\n";
     exit(1);
   }
 
@@ -207,19 +208,20 @@ int main(int argc,char** argv) {
   ShiftScaleFactor = atof(argv[3]);
   ShrinkFactor     = atof(argv[4]);
   MaxIter          = atoi(argv[5]);
+  LogFreq          = atoi(argv[6]);
 
   srand(time(NULL));
 
-  Curve<Vector3> c(argv[6]);
+  Curve<Vector3> c(argv[7]);
   c.link();
   c.make_default();
 
   int   N = c.nodes();
   float D;
-	if (argc!=8)
+	if (argc!=9)
 		D = c.thickness_fast(); // .99;
 	else
-		D = atof(argv[7]);
+		D = atof(argv[8]);
   float L = GetLength(c);
 
   float l = L/(float)N;
@@ -301,10 +303,10 @@ int main(int argc,char** argv) {
       ShiftNodes(c,ShiftScaleFactor);
       ControlLeashes(c,l);
       // Save it anyway
-      SavePkf(c);
+      SavePkf(c,LogFreq);
     }
     if (overlap <= OverlapTol) { 
-      SavePkf(c);
+      SavePkf(c,LogFreq);
       Shrink(c,ShrinkFactor);
       ControlLeashes(c,l);
       l*=ShrinkFactor;

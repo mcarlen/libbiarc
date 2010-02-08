@@ -5,7 +5,7 @@ function usage {
   exit 0
 }
 
-D=""
+Dim=""
 OPEN=""
 if [ "$#" == "3" ]; then
   if [ "$1" != "open" ]; then
@@ -32,7 +32,7 @@ check $1
 arr=( $(grep "NODE" $1 | sed -n '1p') )
 if [ "${#arr[*]}" == "9" ]; then
   echo "We're in 4D!"
-  D=4
+  Dim=4
 else
   echo "We're in 3D!"
 fi
@@ -43,9 +43,10 @@ knot=${knot1%.pkf}
 
 # Tools needed
 source ~/.bashrc
-plot=$LIBBIARC/experimental/pngmanip/plot$D
-curv=$LIBBIARC/tools/curvature$D
-info=$LIBBIARC/tools/info$D
+plot=$LIBBIARC/experimental/pngmanip/plot$Dim
+curv=$LIBBIARC/tools/curvature$Dim
+info=$LIBBIARC/tools/info$Dim
+cset=$LIBBIARC/tools/contactset$Dim
 
 check $plot
 check $curv
@@ -54,7 +55,7 @@ check $info
 # Get knot info
 msg=($($info $1 | sed '1,5d'))
 name=$knot
-if [ "$D" == "4" ]; then
+if [ "$Dim" == "4" ]; then
   N=${msg[5]}
   L=${msg[9]}
   D=${msg[21]}
@@ -85,20 +86,86 @@ for i in pp pt tt; do
   mv out.png $knot-$i.png
 done
 
+# generate contact set
+echo "Generate contact set"
+dummy=""
+if [ "$Dim" == "4" ]; then
+  dummy="0"
+fi
+$cset $knotfile 0.01 5 $dummy >$knot.ssigma 2>/dev/null
+gnuplot <<EOF
+set term png
+set output "$knot-cset.png"
+set title "Contact set for $knot"
+set size square
+plot [0:1] [0:1] "$knot.ssigma" notitle
+EOF
+
+echo "Render 3D pt"
+cp $knot-pt.png /tmp/tex.png
+$plot $OPEN -hm -plot pt $1 >/dev/null
+python $LIBBIARC/experimental/pngmanip/interpdiag.py out.png /tmp/hm.png
+blender -b $LIBBIARC/experimental/blender/plot.blend -f 1 -F PNG -o /tmp/ >/dev/null
+mv /tmp/0001.png ./$knot-3dpt.png
+
+if [ "$Dim" == "" ]; then
+echo "Render knot pix"
+$LIBBIARC/tools/inertiatensor $knotfile | sed -n 8,10p >$knot.inertia
+~/work/pkfrender/pkfrender -whitebg -closed -N=600 -R=`python -c "print $D/2."` -whitebg -quality=1 -S=32 -matrix `cat $knot.inertia | sed -n 1p` $knotfile >/dev/null
+convert output.tif -resize 400x -fuzz 7% -trim -gravity center -extent 110%x $knot-1.png
+~/work/pkfrender/pkfrender -whitebg -closed -N=600 -R=`python -c "print $D/2."` -whitebg -quality=1 -S=32 -matrix `cat $knot.inertia | sed -n 2p` $knotfile >/dev/null
+convert output.tif -resize 400x -fuzz 7% -trim -gravity center -extent 120%x $knot-2.png
+~/work/pkfrender/pkfrender -whitebg -closed -N=600 -R=`python -c "print $D/2."` -whitebg -quality=1 -S=32 -matrix `cat $knot.inertia | sed -n 3p` $knotfile >/dev/null
+convert output.tif -resize 400x -fuzz 7% -trim -gravity center -extent 120%x $knot-3.png
+fi
+
 echo "Dump html to $2"
 cat <<EOF >$2
 <html>
-  <h2>$name</h2>
-  <b>N=$N<br/>L=$L<br/>D=$D<br/>Rope=$rope<br/></b>
-  <TABLE><TR>
-    <TD>D/(2*radius_of_curvature) <IMG SRC='$knot-curvature.png'></TD>
-    <TD>2pp/D <IMG SRC='$knot-pp.png'></TD>
-    <TD>D/2pt <IMG SRC='$knot-pt.png'></TD>
-    <TD>D/2tt <IMG SRC='$knot-tt.png'></TD>
-    <TD>D/(2*rho) <IMG SRC='$knot-rho.png'></TD>
-  </TR></TABLE>
+  <h2>$name (<a href='$knotfile'>PKF file</a>)</h2>
+  <TABLE>
+  <TR>
+    <TD><b>N=$N<br/>L=$L<br/>D=$D<br/>Rope=$rope<br/></b><br/><TD>
+EOF
+if [ "$Dim" == "" ]; then
+cat <<EOF >>$2
+    <TD><img src='$knot-1.png' /></TD>
+    <TD><img src='$knot-2.png' /></TD>
+    <TD><img src='$knot-3.png' /></TD>
+EOF
+fi
+cat <<EOF >>$2
+  </TR>
+  </TABLE>
+  <TABLE>
+  <TR>
+    <TD>D/(2*radius_of_curvature)</TD>
+    <TD>D/(2*rho)</TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC='$knot-curvature.png'></TD>
+    <TD><IMG SRC='$knot-rho.png'></TD>
+  </TR>
+  </TABLE>
+  <TABLE>
+    <TR><TD>Contact set</TD><TD>3D pt plot</TD></TR>
+    <TR><TD><IMG SRC='$knot-cset.png'></TD>
+        <TD><IMG SRC='$knot-3dpt.png'></TD></TR>
+  </TABLE>
+  <TABLE>
+  <TR>
+    <TD>2pp/D</TD>
+    <TD>D/2pt</TD>
+    <TD>D/2tt</TD>
+  </TR>
+  <TR>
+    <TD><IMG SRC='$knot-pp.png'></TD>
+    <TD><IMG SRC='$knot-pt.png'></TD>
+    <TD><IMG SRC='$knot-tt.png'></TD>
+  </TR>
+  </TABLE>
 </html>
 EOF
 
 # Clean-up
-rm -f $knot.curvature
+rm -f $knot.curvature $knot.ssigma $knot.inertia out.png output.tif

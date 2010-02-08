@@ -2,6 +2,7 @@
 #include "fourier_3_1.h"
 #include "fourier_4_1.h"
 #include "fourier_5_1.h"
+#include "fourier_8_18.h"
 #include "../experimental/annealing/my_anneal.cpp"
 #include "../include/algo_helpers.h"
 #include <iomanip>
@@ -233,6 +234,57 @@ public:
   }
 };
 
+class K818FKAnneal: public FKAnneal<K818FourierKnot> {
+public:
+  K818FKAnneal(const char* knot_filename, const char* params = ""):FKAnneal<K818FourierKnot>(knot_filename, params) {
+    std_init(params);
+    knot = K818FourierKnot(knot_filename);
+    best_knot = knot;
+    for (uint i=0; possible_moves.size(); ++i)
+      delete possible_moves[i];
+    possible_moves.clear();
+
+    for (uint i=0; i<knot.csin.size(); ++i) {
+      for (uint j=0; j<3; ++j) { 
+        if (fabs(knot.csin[i][j]) < 1e-8)
+          possible_moves.push_back(new SimpleFloatMove(&(knot.csin[i][j]), step_size_factor*(1e-8)));
+        else
+          possible_moves.push_back(new SimpleFloatMove(&(knot.csin[i][j]), step_size_factor*fabs(knot.csin[i][j])));
+      }
+    }
+    for (uint i=0; i<knot.ccos.size(); ++i) {
+      for (uint j=0; j<3; ++j) { 
+        if (fabs(knot.ccos[i][j]) < 1e-8)
+          possible_moves.push_back(new SimpleFloatMove(&(knot.ccos[i][j]), step_size_factor*(1e-8)));
+        else
+          possible_moves.push_back(new SimpleFloatMove(&(knot.ccos[i][j]), step_size_factor*fabs(knot.ccos[i][j])));
+      }
+    }
+  }
+
+  virtual float energy() {
+    Curve<Vector3> curve;
+    knot.toCurve(NODES,&curve);
+    curve.link();
+    curve.make_default();
+    curve.normalize();
+    curve.make_default();
+
+    // Get/Set hint for thickness
+    // curve.set_hint(hinti,hintj);
+    float D;
+    if (thickness_fast)
+      D = curve.thickness_fast();
+    else
+      D = curve.thickness();
+    // curve.get_hint(&hinti,&hintj);
+
+    float L = curve.length();
+    return L/D;
+  }
+};
+
+
 // FIXME: (HG) Yes! I'm ashemed of the NOMAIN-construction. ;)
 #ifndef NOMAIN
 int main(int argc, char** argv) {
@@ -240,8 +292,9 @@ int main(int argc, char** argv) {
   TrefFKAnneal* t;
   K41FKAnneal* k41;
   K51FKAnneal* k51;
+  K818FKAnneal* k818;
   if (argc != 4) {
-    cout << "Usage: " << argv[0] << "  [n|3|4|5] filename params " << endl;
+    cout << "Usage: " << argv[0] << "  [n|3|4|5|8] filename params " << endl;
     exit(1);
   }
   switch(argv[1][0]) {
@@ -261,8 +314,12 @@ int main(int argc, char** argv) {
     k51=new K51FKAnneal(argv[2],argv[3]);
     k51->do_anneal();
     break;
+  case '8':
+    k818=new K818FKAnneal(argv[2],argv[3]);
+    k818->do_anneal();
+    break;
   default:
-    cerr << "Wrong Fourier Knot type [n|3|4|5]\n";
+    cerr << "Wrong Fourier Knot type [n|3|4|5|8]\n";
     exit(1);
   }
   return 0;

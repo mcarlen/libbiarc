@@ -1,6 +1,7 @@
 #include "fourier_3_1.h"
 #include "fourier_4_1.h"
 #include "fourier_5_1.h"
+#include "fourier_8_18.h"
 
 float adjust51(float x) {
   float shift = 0.2;
@@ -61,6 +62,14 @@ Curve<Vector3> gen5(const int N, const char* infile, const char* outfile) {
   return knot;
 }
 
+Curve<Vector3> gen818(const int N, const char* infile, const char* outfile) {
+  Curve<Vector3> knot;
+  K818FourierKnot fk(infile);
+  fk.toCurve(N,&knot);
+  knot.header("fourier 8.18","coeff2pkf","","");
+  return knot;
+}
+
 Curve<Vector4> gen5_on_s3(const int N, const char* infile, const char* outfile) {
   Curve<Vector4> knot;
   K51FourierKnot fk(infile);
@@ -82,7 +91,7 @@ Curve<Vector4> gen5_on_s3(const int N, const char* infile, const char* outfile) 
 int main(int argc, char **argv) {
 
   if (argc!=5) {
-    cout << "Usage : " << argv[0] << " <n/3/4/5/X>"
+    cout << "Usage : " << argv[0] << " <n/3/4/5/8/X/E/T>"
             " <N> <coeff_file> <out.pkf>\n";
     exit(0);
   }
@@ -102,10 +111,11 @@ int main(int argc, char **argv) {
   case '4': knot=gen4(N,infile,outfile); break;
 
   case '5': knot=gen5(N,infile,outfile); break;
+  case '8': knot=gen818(N,infile,outfile); break;
   case 'T': gen5_on_s3(N,infile,outfile).writePKF(outfile); exit(0); break;
   /* 'T' is the letter below 5 on kb */
   default:
-    cerr << "Wrong Fourier Knot type (n/X/3/E/4/5/T/)\n";
+    cerr << "Wrong Fourier Knot type (n/X/3/E/4/5/8/T/)\n";
     exit(1);
   }
 #if 0
