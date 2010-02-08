@@ -4,14 +4,14 @@
  
   The library and tools are intended to be used to manipulate
   and analyse open and closed curves and knot shapes. A viewer
-  application curview is also included for visualization.
+  application called <tt>curview</tt> is also included for visualization.
  
-  \section install_sec Mercurial repository
+  \section install_sec Mercurial repositories
  
   Clone the <a href="http://mercurial.selenic.com/wiki/StaticHTTP">static Mercurial repository</a> with
   
   \code
-  hg clone static-http://lcvmwww.epfl.ch/~carlen/libbiarc/
+  hg clone static-http://lcvmwww.epfl.ch/libbiarc/
   \endcode
 
   \section build_sec Build
@@ -40,6 +40,7 @@ make
   \endcode
 
   A pdf version of the documentation can be found <a href="../latex/refman.pdf">here</a>
+  A tarball (tgz) of the latest version can be downloaded <a href="../tars/XXX>here</a>
  */
 
 
