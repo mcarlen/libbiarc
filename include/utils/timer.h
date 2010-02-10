@@ -1,6 +1,8 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
+#define DISABLED
+#ifndef DISABLED
 #include <time.h>
 
 // start timer and return start time
@@ -17,5 +19,7 @@ double stop_time(double begin) {
   double end = 1e9*tp.tv_sec + tp.tv_nsec;
   return (end-begin)*1e-9;
 }
+
+#endif
 
 #endif // __TIMER_H__

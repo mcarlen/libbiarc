@@ -6,7 +6,7 @@ SRC=$(wildcard *.cpp)
 PROGS=$(SRC:.cpp=)
 INCLUDE =-I. -I../include 
 LIB_INC=-L. -L../lib
-LIB=-lbiarc -lrt
+LIB=-lbiarc
 FLAGS=${INCLUDE} ${CXXFLAGS}
 
 all: $(PROGS)

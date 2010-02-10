@@ -2,7 +2,7 @@ include ../Makefile.config
 
 INCLUDE+=-I. -I../include 
 LIB_INC+=-L. -L../lib
-LIB+=-lbiarc -lrt
+LIB+=-lbiarc
 FLAGS=${INCLUDE} ${CXXFLAGS}
 SRC=$(wildcard *.cpp)
 PROGS=$(SRC:.cpp=)
@@ -12,7 +12,11 @@ PROGS=$(SRC:.cpp=)
 all: $(PROGS)
 
 pkf2rib: pkf2rib.cpp
-	g++ -DPRECISION_HACK -DRENDERMAN -I../include -L../lib -L${PIXIEHOME}/lib -I${PIXIEHOME}/include pkf2rib.cpp -o pkf2rib -lbiarc_pixie -lrt -lri
+ifeq ($(RENDERMAN),YES)
+	g++ -DPRECISION_HACK -DRENDERMAN -I../include -L../lib -L${PIXIEHOME}/lib -I${PIXIEHOME}/include pkf2rib.cpp -o pkf2rib -lbiarc_pixie -lri
+else
+	@echo "No Pixie support compiled in. Ignore."
+endif
 
 animate: animate.cpp
 	soqt-config --build animate animate.cpp

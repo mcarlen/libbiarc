@@ -2,7 +2,7 @@ include ../Makefile.config
 
 INCLUDE+=-I. -I../include 
 LIB_INC+=-L. -L../lib
-LIB+=-lbiarc -lrt
+LIB+=-lbiarc
 FLAGS=${INCLUDE} ${CXXFLAGS}
 SRC=$(wildcard *.cpp)
 
