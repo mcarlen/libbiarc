@@ -40,7 +40,7 @@ make
   \endcode
 
   A pdf version of the documentation can be found <a href="../latex/refman.pdf">here</a>.<br/>
-  A tarball of the latest release can be downloaded <a href="../tars/libbiarc-0.1.tgz>here (tgz)</a> or <a href="../tars/libbiarc-0.1.tbz2">here (tbz2)</a>.
+  A tarball of the latest release can be downloaded <a href="../../tars/libbiarc-0.1.tgz">here (tgz)</a> or <a href="../../tars/libbiarc-0.1.tbz2">here (tbz2)</a>.
  */
 
 
