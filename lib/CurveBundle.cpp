@@ -619,22 +619,30 @@ int CurveBundle<Vector>::readVECT(const char* infile) {
 
   // Read in number of curves
   in.getline(tmp,sizeof tmp);
-  char *tval = strtok(tmp," ");
   char tmp_coord[1024];
-  int NoCurves  = atoi(tval);
+  int NoCurves  = atoi(strtok(tmp, " "));
   // ignore total vertices and number of colors
   Vector v;
   Curve<Vector> ctmp;
   assert(NoCurves>0);
+  int NoNodes[NoCurves];
+  in.getline(tmp, sizeof tmp); // ignore color
+  NoNodes[0] = atoi(strtok(tmp," "));
+
+  for (int i=1;i<NoCurves;++i)
+    NoNodes[i] = atoi(strtok(NULL," "));
+
+  in.getline(tmp, sizeof tmp); // ignore color
 
   // number of nodes for each
   for (int i=0;i<NoCurves;i++) {
     ctmp.flush_all();
-    in.getline(tmp,sizeof tmp);
-    int NoNodes = atoi(strtok(tmp," "));
-    in.getline(tmp, sizeof tmp); // ignore color
-    for (int j=0;j<abs(NoNodes);j++) {
+    for (int j=0;j<abs(NoNodes[i]);j++) {
       in.getline(tmp_coord,sizeof tmp_coord);
+      if (tmp_coord[0]=='#') {
+        j=j-1;
+        continue;
+      }
       v[0] = atof(strtok(tmp_coord," "));
       for (int k=1;k<(int)v.type;k++) {
         v[k] = atof(strtok(NULL," "));
