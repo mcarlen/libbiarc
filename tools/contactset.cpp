@@ -160,8 +160,8 @@ int main(int argc, char **argv) {
   if (argc!=5) {
     cout << "Usage : " << argv[0] << " <pkf in> <tol> <flag> <curved=1/0>\n";
 #else
-  if (argc!=4) {
-    cout << "Usage : " << argv[0] << " <pkf in> <tol> <flag>\n";
+  if (argc<4 || argc>5) {
+    cout << "Usage : " << argv[0] << " -open <pkf in> <tol> <flag>\n";
 #endif
     cout << "  flag : 1 -> inventor lineset\n"
          << "         2 -> inventor contact surface\n"
@@ -172,12 +172,19 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  Curve<VecType> c(argv[1]);
-  c.link();
+  bool OPEN = false;
+  int first_arg = 1;
+  if (argc==5) if (!strcmp(argv[1],"-open")) {
+    OPEN = true;
+    first_arg = 2;
+  }
+  Curve<VecType> c(argv[first_arg]);
+  if (!OPEN)
+    c.link();
   c.make_default();
 
-  float tol = atof(argv[2]);
-  int flag = atoi(argv[3]);
+  float tol = atof(argv[first_arg+1]);
+  int flag = atoi(argv[first_arg+2]);
 #ifdef Dim4
   int CURVED = atoi(argv[4]);
 #endif

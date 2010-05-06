@@ -11,6 +11,9 @@ PROGS=$(SRC:.cpp=)
 
 all: $(PROGS)
 
+billiard_poly: billiard_poly.cpp
+	g++ -o $@ $<
+
 pkf2rib: pkf2rib.cpp
 ifeq ($(RENDERMAN),YES)
 	g++ -DPRECISION_HACK -DRENDERMAN -I../include -L../lib -L${PIXIEHOME}/lib -I${PIXIEHOME}/include pkf2rib.cpp -o pkf2rib -lbiarc_pixie -lri

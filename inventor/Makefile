@@ -79,6 +79,10 @@ animate: SoKnot.o animate.o
 	@echo Link $@
 	@$(LINKER) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
 
+animate_open: SoKnot.o animate_open.o 
+	@echo Link $@
+	@$(LINKER) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
+
 qrc_application.cpp: application.qrc
 	rcc -o $@ $<
 moc_%.cpp: %.h

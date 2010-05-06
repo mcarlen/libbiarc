@@ -45,6 +45,10 @@ knot=${knot1%.pkf}
 source ~/.bashrc
 plot=$LIBBIARC/experimental/pngmanip/plot$Dim
 curv=$LIBBIARC/tools/curvature$Dim
+if [ "$Dim" != "4" ]; then
+  tors=$LIBBIARC/tools/torsion
+  check $tors
+fi
 info=$LIBBIARC/tools/info$Dim
 cset=$LIBBIARC/tools/contactset$Dim
 
@@ -53,7 +57,7 @@ check $curv
 check $info
 
 # Get knot info
-msg=($($info $1 | sed '1,5d'))
+msg=($($info $OPEN $1 | sed '1,5d'))
 name=$knot
 if [ "$Dim" == "4" ]; then
   N=${msg[5]}
@@ -69,7 +73,7 @@ fi
 
 # generate curvature plots
 echo "Generate curvature plots"
-$curv $knotfile >$knot.curvature
+$curv $knotfile >$knot.curvature 2>/dev/null
 gnuplot <<EOF
 set term png
 set output "$knot-curvature.png"
@@ -79,6 +83,18 @@ set output "$knot-rho.png
 set title "rho for $knot"
 plot [0:$L] [.999:1.0001] "$knot.curvature" using 3:5 with steps notitle
 EOF
+
+# generate torsion plots
+if [ "$Dim" != "4" ]; then
+echo "Generate torsion plots"
+$tors $knotfile >$knot.torsion 2>/dev/null
+gnuplot <<EOF
+set term png
+set output "$knot-torsion.png"
+set title "Torsion (angle between biarcs) for $knot"
+plot [0:$L] "$knot.torsion" using 3:5 with steps notitle
+EOF
+fi
 
 echo "pp/pt/tt plots"
 for i in pp pt tt; do
@@ -92,7 +108,8 @@ dummy=""
 if [ "$Dim" == "4" ]; then
   dummy="0"
 fi
-$cset $knotfile 0.01 5 $dummy >$knot.ssigma 2>/dev/null
+# $cset $OPEN $knotfile 0.01 5 $dummy >$knot.ssigma 2>/dev/null
+$cset $OPEN $knotfile 0.3 5 $dummy >$knot.ssigma 2>/dev/null
 gnuplot <<EOF
 set term png
 set output "$knot-cset.png"
@@ -109,13 +126,17 @@ blender -b $LIBBIARC/experimental/blender/plot.blend -f 1 -F PNG -o /tmp/ >/dev/
 mv /tmp/0001.png ./$knot-3dpt.png
 
 if [ "$Dim" == "" ]; then
+RENDER_CLOSED=-closed
+if [ "$OPEN" == "-open" ]; then 
+  RENDER_CLOSED=""
+fi
 echo "Render knot pix"
 $LIBBIARC/tools/inertiatensor $knotfile | sed -n 8,10p >$knot.inertia
-~/work/pkfrender/pkfrender -whitebg -closed -N=600 -R=`python -c "print $D/2."` -whitebg -quality=1 -S=32 -matrix `cat $knot.inertia | sed -n 1p` $knotfile >/dev/null
+~/work/pkfrender/pkfrender -whitebg $RENDER_CLOSED -N=600 -R=`python -c "print $D/2."` -whitebg -quality=1 -S=32 -matrix `cat $knot.inertia | sed -n 1p` $knotfile >/dev/null
 convert output.tif -resize 400x -fuzz 7% -trim -gravity center -extent 110%x $knot-1.png
-~/work/pkfrender/pkfrender -whitebg -closed -N=600 -R=`python -c "print $D/2."` -whitebg -quality=1 -S=32 -matrix `cat $knot.inertia | sed -n 2p` $knotfile >/dev/null
+~/work/pkfrender/pkfrender -whitebg $RENDER_CLOSED -N=600 -R=`python -c "print $D/2."` -whitebg -quality=1 -S=32 -matrix `cat $knot.inertia | sed -n 2p` $knotfile >/dev/null
 convert output.tif -resize 400x -fuzz 7% -trim -gravity center -extent 120%x $knot-2.png
-~/work/pkfrender/pkfrender -whitebg -closed -N=600 -R=`python -c "print $D/2."` -whitebg -quality=1 -S=32 -matrix `cat $knot.inertia | sed -n 3p` $knotfile >/dev/null
+~/work/pkfrender/pkfrender -whitebg $RENDER_CLOSED -N=600 -R=`python -c "print $D/2."` -whitebg -quality=1 -S=32 -matrix `cat $knot.inertia | sed -n 3p` $knotfile >/dev/null
 convert output.tif -resize 400x -fuzz 7% -trim -gravity center -extent 120%x $knot-3.png
 fi
 
@@ -140,10 +161,12 @@ cat <<EOF >>$2
   <TABLE>
   <TR>
     <TD>D/(2*radius_of_curvature)</TD>
+    <TD>Torsion (~angle between biarcs)</TD>
     <TD>D/(2*rho)</TD>
   </TR>
   <TR>
     <TD><IMG SRC='$knot-curvature.png'></TD>
+    <TD><IMG SRC='$knot-torsion.png'></TD>
     <TD><IMG SRC='$knot-rho.png'></TD>
   </TR>
   </TABLE>

@@ -24,14 +24,15 @@ double diff(Vec& v1, Vec& v2) {
 int next(vector<pair<Vec,Vec> > &pt, Vec& v) {
   int i = 0;
   while (i<pt.size()) {
-    if (diff(pt[i].first,v)<1e-4) break;
-    else if (diff(pt[i].second,v)<1e-4) {
+    if (diff(pt[i].first,v)<1e-8) break;
+    else if (diff(pt[i].second,v)<1e-8) {
       Vec tmp = pt[i].first;
       pt[i].first = pt[i].second; pt[i].second = tmp;
       break;
     }
     ++i;
   }
+  cerr << i << " / " << pt.size() << endl;
   return i;
 }
 

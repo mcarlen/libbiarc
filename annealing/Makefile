@@ -22,6 +22,9 @@ curvatureflow: curvatureflow.cpp
 sono: sono.cpp
 	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
 
+open_sono: open_sono.cpp
+	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
+
 sono_op: sono_optimized.cpp
 	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
 

@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
   }
 
   CurveBundle<Vector3> cb(argv[1]);
-  cb.link();
+  // cb.link();
   cb.make_default();
   //cb.normalize();
   //cb.make_default();
@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
   float s = 0;
   for (int i=0;i<cb.curves();i++) {
     vector<Biarc<Vector3> >::iterator current;
-    for (current=cb[i].begin();current!=cb[i].end();current++) {
+    for (current=cb[i].begin()+1;current!=cb[i].end()-1;current++) {
       cout << i << ' ' << current->id() << ' ' << s << ' '
            << cb[i].torsion(current->id(),0) << ' '
            << cb[i].torsion2(current->id()) << endl;

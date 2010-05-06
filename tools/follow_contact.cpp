@@ -149,7 +149,7 @@ int new_rhopt(const VecType& p,
 
 // FIXME this tolerance depends on the size of the arcs, precision in the contact extraction and other
 void follow_contact(float thick, float tol, const VecType &p, const VecType &oldp, Curve<VecType>& curve, int max_level, int level = 0) {
-  cerr << "Level " << level << " p=" << p << " oldp=" << oldp << endl;
+  // cerr << "Level " << level << " p=" << p << " oldp=" << oldp << endl;
   if (level>=max_level) return;
 
   float TOL = thick/10.;
@@ -243,7 +243,7 @@ int main(int argc, char **argv) {
       }
 #else
       cout << it->p[0] << ", " << it->p[2] << endl;
-      cerr << find_s(c,it->p[0])/c.length() << " " << find_s(c,it->p[2])/c.length() << endl;
+      // cerr << find_s(c,it->p[0])/c.length() << " " << find_s(c,it->p[2])/c.length() << endl;
 #endif
     }
     cout << "] }\nLineSet {\nnumVertices [ ";

@@ -44,13 +44,13 @@ int main(int argc, char** argv) {
 
   for (j=0;j<h/n;j++) {
     src = px + (3*h/n+j)*(3*w);
+    // src = px + j*(3*w);
     for (i=0;i<w;i++) {
       map_color_sine(&c,(float)i/(float)w,0,1);
       *src++ = c.r; *src++ = c.g; *src++ = c.b;
     }
   }
 */
-
   for (j=0;j<h/n;j++) {
 //    src = px + (4*h/n+j)*(3*w);
     src = px + j*(3*w);
