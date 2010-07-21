@@ -1513,6 +1513,71 @@ float Curve<Vector>::torsion2(int n) {
 
 }
 
+/*!
+   Return signed torsion. This uses a copy/pasted version of
+   the torsion(int n, int a) function.
+
+   \sa torsion
+*/
+template<class Vector>
+float Curve<Vector>::signed_torsion(int n, int a) {
+
+//  Biarc<Vector> *current = accessBiarc(n), *current_h;
+  biarc_it current = _Biarcs.begin()+n, current_h;
+  float h, sin_phi;
+  Vector d_0,t_0,d_h,t_h;
+
+  /*
+   * First treat the closed curve case
+   */
+  if (_Closed) {
+    current_h = current+1; // ->getNext();
+    if (current_h == _Biarcs.end()) current_h = _Biarcs.begin();
+    h = current->biarclength();
+  }
+  else {
+    if (n>=(nodes()-2)) {
+      // FIXME : end of non-closed curve problem
+      return 0.0;
+//      current = accessBiarc(n-2);
+//      current_h = accessBiarc(n-1);
+      current = _Biarcs.begin()+n-2;
+      current_h = _Biarcs.begin()+n-1;
+      h = current->biarclength();
+    }
+    else {
+      current_h = current + 1; // current->getNext();
+      h = current->biarclength();
+    }
+  }
+
+  if (!a) { // arc 0
+    d_0 = current->getMidPoint() - current->getPoint();
+    t_0 = current->getTangent();
+    d_h = (current_h->getPoint() - current->getMidPoint());
+    t_h = current->getMidTangent();
+  }
+  else { // arc 1
+    d_0 = current_h->getPoint() - current->getMidPoint();
+    t_0 = current->getMidTangent();
+    d_h = (current_h->getMidPoint() - current_h->getPoint());
+    t_h = current_h->getTangent();   
+  }
+
+  Vector v_0 = t_0.cross(d_0);
+  Vector v_1 = t_h.cross(d_h);
+
+  v_0.normalize(), v_1.normalize();
+  Vector v_cross = v_1.cross(v_0);
+  sin_phi = fabsf(v_cross.norm()); 
+  // Put the sign in
+  if (t_0.dot(v_cross)<0) sin_phi *= -1;
+  if (!a)
+    return 3.0*sin_phi/current->arclength0();
+  else
+    return 3.0*sin_phi/current->arclength1();
+}
+ 
 
 /*
 // FIXME : maybe this could be usefull one day ...

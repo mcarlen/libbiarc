@@ -133,6 +133,7 @@ class Curve : public PKFmanip {
   Vector normalVector(biarc_it b);
   float torsion(int n, int a);
   float torsion2(int n);
+  float signed_torsion(int n, int a);
 
   // Return Frenet-Frame
   // void frenet(Vector3& t, Vector3& n, Vector3& b);

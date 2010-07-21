@@ -28,10 +28,12 @@ int main(int argc, char **argv) {
     for (current=cb[i].begin()+1;current!=cb[i].end()-1;current++) {
       cout << i << ' ' << current->id() << ' ' << s << ' '
            << cb[i].torsion(current->id(),0) << ' '
-           << cb[i].torsion2(current->id()) << endl;
+           << cb[i].torsion2(current->id()) << ' '
+           << cb[i].signed_torsion(current->id(), 0) << endl;
       cout << i << ' ' << current->id() << ' ' << s+current->arclength0() << ' '
            << cb[i].torsion(current->id(),1) << ' '
-           << cb[i].torsion2(current->id()) << endl;
+           << cb[i].torsion2(current->id()) << ' '
+           << cb[i].signed_torsion(current->id(), 1) << endl;
       s+=current->biarclength();
     }
   }
