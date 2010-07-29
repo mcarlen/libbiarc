@@ -45,28 +45,33 @@ int main(int argc, char** argv) {
   if (atoi(argv[1])) {
     original.link();
     ToClose = 1;
-    Nloc = original.nodes()+1;
   } 
   else {
-    ToClose = 0; Nloc = original.nodes();
+    ToClose = 0;
   }
   
   cout << "Interpolate pt/tan by biarcs\t\t";
   original.make_default();
   cout << "\t[OK]\n";
   
-  cout << "Resample curve with "<< N << " points\t\t" << flush;
-  original.resample(N);
-  cout << "\t[OK]\n";
+  if (N!=original.nodes()) {
+    cout << "Resample curve with "<< N << " points\t\t" << flush;
+    original.resample(N);
+    original.link();
+    original.make_default();
+    cout << "\t[OK]\n";
+  }
   
+  Nloc = original.nodes();
+  if (ToClose) Nloc++;
   // this code comes mainly from my makMesh function in Tube.cpp
 
-  int TwistFlag = 0;
+  int TwistFlag = ToClose;
   float Tol = 0.001;
 
   Vector3* Normals = new Vector3[Nloc];
-  Vector3* Points = new Vector3[original.nodes()];
-  Vector3* Tangents= new Vector3[original.nodes()];
+  Vector3* Points = new Vector3[Nloc];
+  Vector3* Tangents= new Vector3[Nloc];
   Vector3 Binormal, Theta;
   Vector3 ClosestDirection;
   Matrix3 Frame, tmp;
@@ -78,11 +83,9 @@ int main(int argc, char** argv) {
   float direction, AngularSpeedScale = 1.0;
 
   vector<Biarc<Vector3> >::iterator current = original.begin();
-  for (int i=0;i<original.nodes();i++) {
-    *(Points+i)   = current->getPoint();
-    *(Tangents+i) = current->getTangent();
-    //(*(Tangents+i)).normalize(); // should already be done in data
-    current++;
+  for (int i=0;i<Nloc;i++) {
+    Points[i] = original[i%original.nodes()].getPoint();
+    Tangents[i] = original[i%original.nodes()].getTangent();
   }
 
   int iterations = 0;
@@ -115,13 +118,13 @@ int main(int argc, char** argv) {
      */
     for (int i=1;i<Nloc;i++) {
 
-      b = (1.0 - (Frame[2].dot(Tangents[i%original.nodes()])));
+      b = (1.0 - (Frame[2].dot(Tangents[i])));
       a = (2.0 - b)/(2.0 + 0.5*TwistSpeed*TwistSpeed);
       if (a < 1e-5) cerr << "generateMesh() : possible div by 0.\n";
       denom = a*(1.0+0.25*TwistSpeed*TwistSpeed);
 
-      tn = Tangents[i%original.nodes()].dot(Frame[0]);
-      tb = Tangents[i%original.nodes()].dot(Frame[1]);
+      tn = Tangents[i].dot(Frame[0]);
+      tb = Tangents[i].dot(Frame[1]);
 
       Theta0 = (0.5*TwistSpeed*tn - tb)/denom;
       Theta1 = (0.5*TwistSpeed*tb + tn)/denom;
@@ -129,7 +132,7 @@ int main(int argc, char** argv) {
       Theta = Vector3(Theta0,Theta1,TwistSpeed);
 
       // Get next local frame
-      Frame = (tmp.cay(Theta)*Frame);
+      Frame = (Frame*tmp.cay(Theta));
 
       Normals[i] = Frame[0];
       Normals[i].normalize();
@@ -137,26 +140,13 @@ int main(int argc, char** argv) {
     }
 
     // only if curve closed
-     if (!TwistFlag)
+     if (!TwistFlag) {
+       cout << "\nNo Twisting\n";
       Stop = 0;
+     }
     else {
       ClosestDirection = Normals[Nloc-1];
       dist = (ClosestDirection-Normals[0]).norm();
-/*
-      for (int j=0;j<S;j++) {
-        // trigonometric orientation of the point on the circle !!!
-        rot_point = Normals[Nloc-1].rotPtAroundAxis(2.0*M_PI/(float)S*(float)j,
-                                                    Tangents[0]);
-        if ((rot_point-Normals[0]).norm()<dist) {
-          if (iterations==0) {
-            ClosestDirection = rot_point;
-            PermutationIndex = j;
-          }
-          else if (iterations>0 && j==PermutationIndex)
-            ClosestDirection = rot_point;
-        }
-      }
-*/
 
 // angle difference between first normal and closest last direction
       if (Normals[0].dot(ClosestDirection) > 1-Tol) Stop=0;
@@ -184,22 +174,27 @@ int main(int argc, char** argv) {
 
   cout << "Write s,point,tangent,normal to "<<outfile.c_str()<< "\t";;
   ofstream fd(outfile.c_str());
-  original.make_default();
-  fd << original.getName() << " " << original.nodes()
+  fd << "NoName " << original.nodes()
      << " " << original.length() << endl;
-  vector<Biarc<Vector3> >::iterator biarc = original.begin();
-  for (int i=0;i<original.nodes()-1;i++) {
-    fd << biarc->getPoint() << " " << biarc->getTangent()
-       << " " << Normals[i] << endl;
-    biarc++;
-  }
-  if (ToClose) {
-     biarc = original.begin();
-     fd << biarc->getPoint() << " " << biarc->getTangent()
-        << " " << Normals[original.nodes()-1] << endl;
-  }
+  for (int i=0;i<Nloc;i++)
+    fd << Points[i] << " " << Tangents[i] << " " << Normals[i] << endl;
   fd.close();
   cout << "\t[OK]\n";
+
+  cout << "Write inventor file normals.iv";
+  ofstream ivout("normals.iv");
+  ivout << "#Inventor V2.1 ascii\n\nSeparator {\n  Coordinate3 {\n    point [\n";
+  float d = (Points[0]-Points[1]).norm();
+  for (int i=0;i<original.nodes();++i)
+    ivout << "      " << Points[i]
+          << ", " << (Points[i]+d*Normals[i])
+          << ",\n";
+  ivout << "    ]\n  }\n  LineSet { numVertices [";
+  for (int i=0;i<Nloc-1;++i) ivout << "2,";
+  ivout << "2] }\n";
+  ivout << "}\n";
+  ivout.close();
+  cout << "\t\t\t[OK]\n";
 
   return 0;
 }
