@@ -883,7 +883,7 @@ Vector Biarc<Vector>::tangentOnBiarc(float arclength) const {
   else if (arclength==_ArcLength0) return _MidTangent;
   else if (arclength==_Length) return getNext().getTangent();
   else if (arclength > this->arclength0()) {
-    if (arclength > (this->arclength0()+this->arclength1())/2.0)
+    if (arclength > this->arclength0()+this->arclength1()/2.0)
       t = this->getMidTangent().reflect(p-this->getMidPoint());
     else
       t = this->getNext().getTangent().reflect(this->getNext().getPoint()-p);
