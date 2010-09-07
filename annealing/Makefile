@@ -8,7 +8,7 @@ SRC=$(wildcard *.cpp)
 
 PROF=${FLAGS} -O2
 
-all: anneal anneal4 sono curvatureflow
+all: anneal anneal4 sono sono4 curvatureflow
 
 anneal: anneal.cpp
 	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
@@ -20,6 +20,9 @@ curvatureflow: curvatureflow.cpp
 	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
 
 sono: sono.cpp
+	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
+
+sono4: sono4.cpp
 	$(LINKER) ${PROF} -o $@ ${LIB_INC} $^ ${LIB}
 
 open_sono: open_sono.cpp
