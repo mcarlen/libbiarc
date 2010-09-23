@@ -20,7 +20,8 @@
   has successfully been tested and used on Linux and Apple's OSX,
   but not in Microsoft Windows.
 
-  For the viewer program <a href="http://qt.nokia.com/downloads">Qt 4</a> and <a href="http://www.coin3d.org/lib/downloads">Coin3D, SoQt</a> need to be available.<br>
+  For the viewer program <a href="http://qt.nokia.com/downloads">Qt 4</a>, <a href="http://www.libpng.org/pub/png/libpng.html">libpng</a>
+  and <a href="http://www.coin3d.org/lib/downloads">Coin3D, SoQt</a> need to be available.<br>
   In the cloned directory <tt>libbiarc/</tt> type
 
 \code
