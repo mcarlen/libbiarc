@@ -16,6 +16,9 @@ all: coeff2pkf
 	$(CXX) $(FLAGS) -o $@ -c $<
 
 
+curv_moeb_fourier_anneal: curv_moeb_fourier_anneal.o fourier_syn.o fourier_3_1.o fourier_4_1.o fourier_5_1.o fourier_8_18.o ../experimental/annealing/my_anneal.cpp
+	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) curv_moeb_fourier_anneal.o fourier_syn.o fourier_3_1.o fourier_4_1.o fourier_5_1.o fourier_8_18.o $(LIB)
+
 new_fourier_anneal: new_fourier_anneal.o fourier_syn.o fourier_3_1.o fourier_4_1.o fourier_5_1.o fourier_8_18.o ../experimental/annealing/my_anneal.cpp
 	$(LINKER) $(FLAGS) -o $@ $(LIB_INC) new_fourier_anneal.o fourier_syn.o fourier_3_1.o fourier_4_1.o fourier_5_1.o fourier_8_18.o $(LIB)
 
