@@ -21,7 +21,7 @@ protected:
   int hinti, hintj;
 public:
   bool thickness_fast;
-  int NODES;
+  int NODES, intnodes;
   float step_size_factor;
   float length_penalty, eps_me, eps_ce;
   FK knot, best_knot;
@@ -60,9 +60,11 @@ public:
     map<string,string> param_map;
     str2hash(params, param_map);
     extract_i(NODES,param_map);
+    intnodes = 4 * NODES;
     extract_f(step_size_factor,param_map);
     extract_i(thickness_fast,param_map);
     extract_f(length_penalty,param_map);
+    extract_i(intnodes,param_map);
     extract_f(eps_me,param_map);
     extract_f(eps_ce,param_map);
 
@@ -74,6 +76,7 @@ public:
     BasicAnneal::show_config(out) << "NODES: " << NODES << endl
         << "step_size_factor: " << step_size_factor << endl 
         << "length_penalty: " << length_penalty << endl 
+        << "intnodes: " << intnodes<< endl 
         << "eps_me: " << eps_me << endl
         << "eps_ce: " << eps_ce << endl;
     return out;
@@ -95,23 +98,27 @@ public:
   virtual float energy() {
     /* here: ropelength */
     float penalty = 0;
-    float L, me = 0., curv_e = 0.;
-    int steps = 4*NODES;
+    float D,L, me = 0., curv_e = 0.;
     Vector3 v;
     Curve<Vector3> curve;
     knot.toCurve(NODES,&curve);
     curve.link();
     curve.make_default();
     L = curve.length();
+    //D = curve.thickness();
     penalty += length_penalty*pow((L-1.),4);
     //calculate moebius-energy
     if (eps_me > 0.) {
-      float step_size = L/steps;
-      for (int i=0; i<steps;i++) {
-        for (int j=0; j<steps;j++) {
+      Vector3 vl[intnodes];
+      float step_size = L/intnodes;
+      for (int i=0; i<intnodes;i++) {
+        vl[i]=curve.pointAt(i*step_size);
+      } 
+      for (int i=0; i<intnodes;i++) {
+        for (int j=0; j<intnodes;j++) {
           if (i==j) continue;
-          me += (1./(curve.pointAt(i*step_size)-curve.pointAt(j*step_size)).norm2()*step_size*step_size
-                  - 1./pow( min( (i-j) % steps, (j-i) % steps),2));
+          me += (1./(vl[i]-vl[j]).norm2()*step_size*step_size
+                  - 1./pow( min( (i-j) % intnodes, (j-i) % intnodes),2));
          }
       }
     }
@@ -123,7 +130,7 @@ public:
       }
    }
 
-    return penalty + eps_me*me + eps_ce*curv_e;
+    return penalty + eps_me*me + eps_ce*curv_e ;
   }
 };
 
