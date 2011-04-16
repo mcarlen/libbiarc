@@ -466,7 +466,7 @@ public:
     no_of_nodes = 2*N;
 
     for (int i=0;i<no_of_nodes;++i)
-      nodes.push_back(rand01()-.5);
+      nodes.push_back(2*rand01()-1.);
 
     best_nodes = nodes;
 
@@ -512,7 +512,7 @@ public:
     float e = 0.0;
     for (int i=0;i<N;++i) {
       for (int j=0;j<N;++j) {
-         e += pow(2.-dist(nodes[2*i],nodes[2*i+1],nodes[2*j],nodes[2*j+1]),2);
+         e += pow(1.-dist(nodes[2*i],nodes[2*i+1],nodes[2*j],nodes[2*j+1]),2);
       }
     }
     return e;

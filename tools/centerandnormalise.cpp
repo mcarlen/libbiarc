@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
   curves.link();
   curves.make_default();
   curves.normalize();
+  //curves.scale(1.000000001);
 
   curves.writePKF(argv[2]);
   

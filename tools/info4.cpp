@@ -32,14 +32,15 @@ int main(int argc, char **argv) {
     cb.link();
   cb.make_default();
 
-  cout.precision(16);
+  cout.precision(8);
   cout << "\nPKF info for < " << cb.getName() << " >\n\n";
 
-  float off_equi, L, D;
+  float off_equi, L, D, Dfast;
   for (int i=0;i<cb.curves();i++) {
 
     off_equi = (cb[i].maxSegDistance() / cb[i].minSegDistance());
     L = cb[i].length();
+    Dfast = cb[i].thickness_fast();
     if (CLOSED)
       D = cb[i].thickness();
     else
@@ -54,6 +55,7 @@ int main(int argc, char **argv) {
     cout << "Roplength (L/D)    : " << L/D << endl;
     cout << "L/r                : " << L/D*2 << endl;
     cout << "maxArc/minArc      : " << off_equi << endl;
+    cout << "Thickness fast     : " << Dfast << "  (" << Dfast-D << ")" << endl;
     cout << "==================\n";
     cout << "Thickness fast     : " << cb[i].thickness_fast() << endl;
 

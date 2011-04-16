@@ -26,6 +26,7 @@
 */
 
 #include "../include/PKFmanip.h"
+#include <stdio.h>
 
 /*!
   Internal function to initialize a PKFmanip object. Sets

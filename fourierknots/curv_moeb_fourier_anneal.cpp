@@ -21,7 +21,7 @@ protected:
   int hinti, hintj;
 public:
   bool thickness_fast;
-  int NODES, intnodes;
+  int NODES, intnodes, display_all;
   float step_size_factor;
   float length_penalty, eps_me, eps_ce;
   FK knot, best_knot;
@@ -57,6 +57,7 @@ public:
     length_penalty = 0;
     eps_me = 0.1;
     eps_ce = 1;
+    display_all = 0;
     map<string,string> param_map;
     str2hash(params, param_map);
     extract_i(NODES,param_map);
@@ -65,6 +66,7 @@ public:
     extract_i(thickness_fast,param_map);
     extract_f(length_penalty,param_map);
     extract_i(intnodes,param_map);
+    extract_i(display_all,param_map);
     extract_f(eps_me,param_map);
     extract_f(eps_ce,param_map);
 
@@ -104,10 +106,17 @@ public:
     knot.toCurve(NODES,&curve);
     curve.link();
     curve.make_default();
+    if (display_all) {
+         curve.normalize();
+         curve.make_default();
+    }
     L = curve.length();
     //D = curve.thickness();
-    penalty += length_penalty*pow((L-1.),4);
+    penalty += length_penalty*fabs(L-1.);
+    //penalty += length_penalty*pow(L-1.,2);
+    //penalty += length_penalty*L;
     //calculate moebius-energy
+    if (display_all) { cout << "Length:" << L << endl; }
     if (eps_me > 0.) {
       Vector3 vl[intnodes];
       float step_size = L/intnodes;
@@ -121,6 +130,7 @@ public:
                   - 1./pow( min( (i-j) % intnodes, (j-i) % intnodes),2));
          }
       }
+      if (display_all) {cout << "Moebius Energy:" << me << endl; }
     }
     //calculate curvature energy 
     if (eps_ce > 0.) {
@@ -128,9 +138,10 @@ public:
         curv_e += 1./pow(current->radius0(),2)*current->arclength0();
         curv_e += 1./pow(current->radius1(),2)*current->arclength1();
       }
-   }
+      if (display_all) {cout << "Bending Energy:" << curv_e << endl;}
+    }
 
-    return penalty + eps_me*me + eps_ce*curv_e ;
+    return penalty + eps_me*me + L*eps_ce*curv_e;
   }
 };
 

@@ -115,7 +115,7 @@ set term png
 set output "$knot-cset.png"
 set title "Contact set for $knot"
 set size square
-plot [0:1] [0:1] "$knot.ssigma" notitle
+plot [0:1] [0:1] "$knot.ssigma" notitle with dots
 EOF
 
 echo "Render 3D pt"
