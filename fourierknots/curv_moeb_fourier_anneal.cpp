@@ -6,6 +6,7 @@
 #include "../experimental/annealing/my_anneal.cpp"
 #include "../include/algo_helpers.h"
 #include <iomanip>
+#include <sstream>
 
 
 float adjust51(float x) {
@@ -23,7 +24,7 @@ public:
   bool thickness_fast;
   int NODES, intnodes, display_all;
   float step_size_factor;
-  float length_penalty, eps_me, eps_ce;
+  float length_penalty, eps_me, eps_ce, eps_thick;
   FK knot, best_knot;
 
 
@@ -57,6 +58,7 @@ public:
     length_penalty = 0;
     eps_me = 0.1;
     eps_ce = 1;
+    eps_thick = 0;
     display_all = 0;
     map<string,string> param_map;
     str2hash(params, param_map);
@@ -69,6 +71,7 @@ public:
     extract_i(display_all,param_map);
     extract_f(eps_me,param_map);
     extract_f(eps_ce,param_map);
+    extract_f(eps_thick,param_map);
 
     // Set the hint values to -1
     hinti = hintj = -1;
@@ -80,7 +83,8 @@ public:
         << "length_penalty: " << length_penalty << endl 
         << "intnodes: " << intnodes<< endl 
         << "eps_me: " << eps_me << endl
-        << "eps_ce: " << eps_ce << endl;
+        << "eps_ce: " << eps_ce << endl
+        << "eps_thick: " << eps_thick << endl;
     return out;
   }
 
@@ -89,9 +93,16 @@ public:
   }
 
   void best_found() {
+    time_t t;
+    string fn = best_filename;
+    stringstream buf;
+    buf << time(&t);
+    fn += ".";
+    fn += buf.str() ;
     BasicAnneal::best_found();
+    
     best_knot = knot;
-    ofstream out(best_filename.c_str());
+    ofstream out(fn.c_str());
     out.precision(16);
     out << knot; 
     out.close();
@@ -100,7 +111,7 @@ public:
   virtual float energy() {
     /* here: ropelength */
     float penalty = 0;
-    float D,L, me = 0., curv_e = 0.;
+    float D,L, me = 0., curv_e = 0., thick_e=0;
     Vector3 v;
     Curve<Vector3> curve;
     knot.toCurve(NODES,&curve);
@@ -127,10 +138,40 @@ public:
         for (int j=0; j<intnodes;j++) {
           if (i==j) continue;
           me += (1./(vl[i]-vl[j]).norm2()*step_size*step_size
-                  - 1./pow( min( (i-j) % intnodes, (j-i) % intnodes),2));
+                  - 1./pow( min( (i-j+intnodes) % intnodes, 
+                                 (j-i+intnodes) % intnodes),2));
          }
       }
       if (display_all) {cout << "Moebius Energy:" << me << endl; }
+    }
+    if (eps_thick > 0.) {
+      thick_e = L / curve.thickness();
+      if (display_all) {cout << "Thickness Energy:" << thick_e << endl; }
+    }
+    if (display_all) { 
+      //calc inf_{s,t\in\R/\Z} \frac{|\g(s)-\g(t)|}{D_\g(s,t)}
+      Vector3 vl[intnodes];
+      float step_size = L/intnodes, infimum, current;
+      int i=1,j=2;
+      for (int i=0; i<intnodes;i++) {
+        vl[i]=curve.pointAt(i*step_size);
+      } 
+      infimum = sqrt((vl[i]-vl[j]).norm2())/
+                    ( min( (i-j+intnodes) % intnodes, 
+                      (j-i+intnodes) % intnodes)*step_size );
+      for (i=0; i<intnodes;i++) {
+        for (j=0; j<intnodes;j++) {
+          if (i==j) continue;
+          current = (vl[i]-vl[j]).norm()/
+                    ( min( (i-j+intnodes) % intnodes, 
+                           (j-i+intnodes) % intnodes)*step_size );
+          if (current < infimum) { 
+                       infimum = current; 
+             }
+         }
+      }
+    cout << "inf_{s,t} {|g(s)-g(t)|}/{D_g(s,t)}:" 
+         << infimum << endl;
     }
     //calculate curvature energy 
     if (eps_ce > 0.) {
@@ -141,7 +182,7 @@ public:
       if (display_all) {cout << "Bending Energy:" << curv_e << endl;}
     }
 
-    return penalty + eps_me*me + L*eps_ce*curv_e;
+    return penalty + eps_me*me + L*eps_ce*curv_e + eps_thick*thick_e;
   }
 };
 
