@@ -22,7 +22,7 @@ protected:
   int hinti, hintj;
 public:
   bool thickness_fast;
-  int NODES, intnodes, display_all;
+  int NODES, intnodes, display_all, animate;
   float step_size_factor;
   float length_penalty, eps_me, eps_ce, eps_thick;
   FK knot, best_knot;
@@ -60,6 +60,7 @@ public:
     eps_ce = 1;
     eps_thick = 0;
     display_all = 0;
+    animate = 0;
     map<string,string> param_map;
     str2hash(params, param_map);
     extract_i(NODES,param_map);
@@ -69,6 +70,7 @@ public:
     extract_f(length_penalty,param_map);
     extract_i(intnodes,param_map);
     extract_i(display_all,param_map);
+    extract_i(animate,param_map);
     extract_f(eps_me,param_map);
     extract_f(eps_ce,param_map);
     extract_f(eps_thick,param_map);
@@ -96,9 +98,11 @@ public:
     time_t t;
     string fn = best_filename;
     stringstream buf;
-    buf << time(&t);
-    fn += ".";
-    fn += buf.str() ;
+    if (animate) {
+       buf << time(&t);
+       fn += ".";
+       fn += buf.str() ;
+    }
     BasicAnneal::best_found();
     
     best_knot = knot;
