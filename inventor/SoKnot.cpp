@@ -29,7 +29,7 @@
 #include <Inventor/bundles/SoMaterialBundle.h>
 #include <Inventor/SoPrimitiveVertex.h>
 #include <Inventor/elements/SoGLTextureEnabledElement.h>
-#include <Inventor/elements/SoGLTexture3EnabledElement.h>
+//#include <Inventor/elements/SoGLTexture3EnabledElement.h>
 #include <Inventor/elements/SoTextureCoordinateElement.h>
 #include <Inventor/elements/SoMaterialBindingElement.h>
 //#include <Inventor/misc/SoGL.h>

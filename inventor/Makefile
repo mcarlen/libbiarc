@@ -12,7 +12,7 @@ INCLUDE  = -I../include -I$(COIN)/include -I$(SOQT)/include -I/usr/X11R6/include
 INC_LIB = `soqt-config --ldflags` -L../lib -L$(COIN)/lib -L$(SOQT)/lib -L/usr/lib -L/usr/local/lib -L/usr/X11R6/lib
 ######### LIBRARIES  #########################
 
-LIBS = `soqt-config --libs` -lbiarc_float
+LIBS = `soqt-config --libs` -lbiarc_float -lpng
 
 ######### FLAGS      #########################
 
