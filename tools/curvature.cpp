@@ -55,19 +55,19 @@ int main(int argc, char **argv) {
       r = current->radius0();
       if (r < 0)  // r is infty
          {cout << i << ' ' << 2*current->id() << ' ' << s << ' ' << 0.0
-               << ' ' << D/r_global << endl;}
+               << ' ' << D/r_global << ' ' << 0.0 << endl;}
       else
          {cout << i << ' ' << 2*current->id() << ' ' << s << ' '
-               << D/(2*r) << ' ' << D/r_global << ' ' << D/r_global_fast << endl;}
+               << D/(2*r) << ' ' << D/r_global << ' ' << D/r_global_fast << ' ' << 1./r << endl;}
       s+=current->arclength0();
 
       r = current->radius1();
       if (r < 0)  // r is infty
          {cout << i << ' ' << 2*current->id()+1 << ' ' << s << ' ' << 0.0
-               << ' ' << D/r_global << endl;}
+               << ' ' << D/r_global << ' ' << 0.0 << endl;}
       else
          {cout << i << ' ' << 2*current->id()+1 << ' ' << s << ' '
-               << D/(2*r) << ' ' << D/r_global << ' ' << D/r_global_fast << endl;}
+               << D/(2*r) << ' ' << D/r_global << ' ' << D/r_global_fast << ' ' << 1./r << endl;}
       s+=current->arclength1();
     }
   }

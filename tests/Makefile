@@ -28,7 +28,7 @@ runthem: $(BUILDTESTS)
 	done
 
 %: %.cpp
-	g++ ${INCLUDE} -o $@ ${LIB_INC} ${LIB} $<
+	g++ ${FLAGS} -o $@ ${LIB_INC}  ${LIB} $<
 
 %.cpp: %.h
 	@../contrib/cxxtestgen.pl --error-printer -o $@ $^

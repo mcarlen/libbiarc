@@ -130,6 +130,7 @@ public:
     penalty += length_penalty*fabs(L-1.);
     //penalty += length_penalty*pow(L-1.,2);
     //penalty += length_penalty*L;
+
     //calculate moebius-energy
     if (display_all) { cout << "Length:" << L << endl; }
     if (eps_me > 0.) {
@@ -148,6 +149,8 @@ public:
       }
       if (display_all) {cout << "Moebius Energy:" << me << endl; }
     }
+
+    //calculate thickness energy
     if (eps_thick > 0.) {
       thick_e = L / curve.thickness();
       if (display_all) {cout << "Thickness Energy:" << thick_e << endl; }

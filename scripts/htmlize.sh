@@ -191,4 +191,4 @@ cat <<EOF >>$2
 EOF
 
 # Clean-up
-rm -f $knot.curvature $knot.ssigma $knot.inertia out.png output.tif
+#rm -f $knot.curvature $knot.ssigma $knot.inertia out.png output.tif
