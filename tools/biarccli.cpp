@@ -53,6 +53,59 @@ void printpointat(float s) {
   }
 }
 
+
+void printcurvatureat(float s) {
+
+  // Test
+
+  vector<Biarc<Vector3> >::iterator current;
+  Vector3 p, t;
+  double R=0;
+  for (int i=0;i<cb->curves();i++) {
+
+    if (s==0.0) {
+      current =(*cb)[i].begin() ;
+      R = current->radius0();
+    }
+    else if (s==1.0) {
+      if ((*cb)[i].isClosed()) {
+         current = (*cb)[i].begin();
+         R = current->radius0();
+         }
+      else {
+         current = (*cb)[i].end()-1;
+         R = current->radius1();
+         }
+    }
+    else {
+      current = (*cb)[i].begin();
+
+      // check if we have valid biarcs!
+      assert(current->isBiarc());
+ 
+      float Total = s*(*cb)[i].length();
+      while (Total > current->biarclength()) {
+        Total -= current->biarclength();
+        ++current;
+      }
+      
+      if (Total < current->arclength0()) {
+         R = current->radius0();
+         }
+      else {
+         R = current->radius1();
+         }
+    }
+  }
+  cout << ".";
+  if (R<0) { //R is infinity
+     cout << 0 << endl;
+     }
+  else {
+     cout << 1./R << endl;
+     }
+}
+
 int main(int argc, char **argv) {
   string line;
   string token;
@@ -80,7 +133,21 @@ int main(int argc, char **argv) {
         continue;
       }
       printpointat(s);
+      continue;
     }
+
+    if (token.compare("curvatureat")==0) {
+      token.assign(strtok(NULL,":"));
+      double s = atof(token.c_str());
+      if (s<0.0 or s>1.0) {
+        cout << "! s-value out of bound. " << __FILE__ << ":" << __LINE__ << endl;
+        continue;
+      }
+      printcurvatureat(s);
+      continue;
+    }
+
+
 
     if (token.compare("closed")==0) {
       cb->link();
@@ -135,6 +202,7 @@ int main(int argc, char **argv) {
     if (token.compare("center")==0) {
       cb->center();
       cout << ".centered\n";
+      continue;
     }
 
     if (token.compare("rotate")==0) {
@@ -149,6 +217,7 @@ int main(int argc, char **argv) {
       axis[2] = atof(token.c_str());
       (*cb)[0].rotAroundAxis(angle,axis);
       cout << "." << "Rotate " << angle << " rad around [ " << axis << " ].\n";
+      continue;
     }
 
     // Request mesh points, given N,S,R
@@ -164,6 +233,7 @@ int main(int argc, char **argv) {
       curve.make_default();
       curve.makeMesh(N,S,R,1e-3);
       cout << ".\n" << curve ;
+      continue;
     }
 
     if (token.compare("save")==0) {
@@ -180,6 +250,7 @@ int main(int argc, char **argv) {
     if (token.compare("exit")==0) {
       return 0;
     }
+    //cout << "! Unknown command >" << token <<"< " << __FILE__ << ":" << __LINE__ << endl;
   }
   return 0;
 

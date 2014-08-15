@@ -197,16 +197,14 @@ public:
   virtual float energy() {
     /* here: ropelength */
     float penalty = 0;
-    float D,L, me = 0., curv_e = 0., thick_e=0;
+    float L, me = 0., curv_e = 0., thick_e=0.;
     knot.make_default();
     L = knot.length();
-    //D = curve.thickness();
     penalty += length_penalty*fabs(L-1.);
     //penalty += length_penalty*pow(L-1.,2);
-    //penalty += length_penalty*L;
 
-    //calculate moebius-energy
     if (display_all) { cout << "Length:" << L << endl; }
+    //calculate moebius-energy
     if (eps_me > 0.) {
       Vector3 vl[intnodes];
       float step_size = L/intnodes;
@@ -226,7 +224,7 @@ public:
 
     //calculate thickness energy
     if (eps_thick > 0.) {
-      thick_e = L / knot.thickness(NULL,NULL);
+      thick_e = L / knot.thickness();
       if (display_all) {cout << "Thickness Energy:" << thick_e << endl; }
     }
     if (display_all) { 
