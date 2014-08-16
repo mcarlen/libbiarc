@@ -1954,8 +1954,8 @@ int Curve<Vector>::readPKF(const char* filename) {
 */
 template<class Vector>
 int Curve<Vector>::readSinglePKF(istream &in) {
-
   char tmp[1024];
+  setlocale(LC_NUMERIC,"C"); //FIXME: we should save the old and restore later.
   in.getline(tmp,sizeof tmp);
   if(strncmp(tmp,"COMP ",5)) {
     cerr << "Expected COMP: " << tmp << '\n';
@@ -1983,15 +1983,14 @@ int Curve<Vector>::readSinglePKF(istream &in) {
     p[0] = atof(val);
     for (unsigned int i=1;i<p.type;i++) {
       val  = strtok(NULL," ");
-      p[i] = atof(val);
+      p[i] = strtod(val,NULL);
     }
 
     // Read tangent
     for (unsigned int i=0;i<t.type;i++) {
       val  = strtok(NULL," ");
-      t[i] = atof(val);
+      t[i] = strtod(val,NULL);
     }
-
     append(p,t);
 
   }

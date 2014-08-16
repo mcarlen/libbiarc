@@ -303,7 +303,7 @@ public:
       cout << "Nodes     : "<< (*(info.Knot))[i].nodes() << endl;
       cout << "Segments  : "<< (*(info.Knot))[i].segments() << endl;
       cout << "Radius    : "<< (*(info.Knot))[i].radius() << endl;
-			cout << "Length    : "<< (*(info.Knot))[i].length() << endl;
+      cout << "Length    : "<< (*(info.Knot))[i].length() << endl;
     }
     cout << "Tolerance : " << info.Tol << endl;
     if ((*(info.Knot))[0].isClosed()) cout << "Closed curves!\n";
