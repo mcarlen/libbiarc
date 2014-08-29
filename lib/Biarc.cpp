@@ -899,6 +899,50 @@ Vector Biarc<Vector>::tangentOnBiarc(float arclength) const {
 }
 
 /*!
+  Returns normal vector at a(s) on the biarc
+  0,0,0 if not defined (straight segment).
+*/
+template<class Vector>
+Vector Biarc<Vector>::normalOnBiarc(float arclength) const {
+  if (arclength>_Length || arclength < 0.0) {
+    cerr << "Biarc::tangentOnBiarc(float) : val out of bounds\n";
+    return Vector();
+  }
+  if (!_BIARC_) {
+    cerr << "Biarc::tangentOnBiarc(float) : Not a valid biarc\n";
+    return Vector();
+  }
+
+  if (_Radius0 <=1e-12 || _Radius1 <=1e-12) {
+    // cerr << "STRAIGHT LINE\n";
+    return Vector(0,0,0);
+  }
+
+  Vector t, c;
+
+  //Calculate center c of arc 
+  if (arclength <= this->arclength0()) {
+     Vector x=this->getMidPoint() - this->getPoint();
+     x.normalize();
+     Vector y=x-x.dot(_Tangent)*_Tangent;
+     y.normalize();
+     c = this->getPoint() + _Radius0*y;
+  } else {
+     Vector x=this->getMidPoint()-this->getNext().getPoint();
+     x.normalize();
+     Vector y=x-x.dot(this->getNext().getTangent())*this->getNext().getTangent();
+     y.normalize();
+     c = this->getNext().getPoint() + _Radius1*y;
+  }
+  //__HG
+  Vector n = c-pointOnBiarc(arclength);
+  n.normalize();
+  return n;
+}
+
+
+
+/*!
   Returns a pointer to the next biarc. We get
   NULL if the current biarc is the last point
   on the curve (i.e. the end of the linked-list).

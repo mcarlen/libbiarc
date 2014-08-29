@@ -100,6 +100,7 @@ class Biarc {
   Vector pointOnArc1(float s) const;
   Vector pointOnBiarc(float arclength) const;
   Vector tangentOnBiarc(float arclength) const;
+  Vector normalOnBiarc(float arclength) const;
 
   // replace & by * and set & explicitly when call
   void getBezierArc0(Vector& b0, Vector& b1, Vector& b2) const;

@@ -106,6 +106,31 @@ void printcurvatureat(float s) {
      }
 }
 
+
+void printnormalat(float s) {
+  //__HG
+  vector<Biarc<Vector3> >::iterator current;
+  Vector3 p, t;
+  double R=0;
+  for (int i=0;i<cb->curves();i++) {
+      current = (*cb)[i].begin();
+
+      // check if we have valid biarcs!
+      assert(current->isBiarc());
+ 
+      float Total = s*(*cb)[i].length();
+      while (Total > current->biarclength()) {
+        Total -= current->biarclength();
+        ++current;
+      }
+     cout << "."; 
+     write_vec(current->normalOnBiarc(Total));
+     cout << endl;
+     }
+}
+
+
+
 int main(int argc, char **argv) {
   string line;
   string token;
@@ -146,6 +171,18 @@ int main(int argc, char **argv) {
       printcurvatureat(s);
       continue;
     }
+
+    if (token.compare("normalat")==0) {
+      token.assign(strtok(NULL,":"));
+      double s = atof(token.c_str());
+      if (s<0.0 or s>1.0) {
+        cout << "! s-value out of bound. " << __FILE__ << ":" << __LINE__ << endl;
+        continue;
+      }
+      printnormalat(s);
+      continue;
+    }
+
 
 
 
