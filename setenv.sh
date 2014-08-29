@@ -1,7 +1,7 @@
 echo source setenv.sh
-script=$(readlink -f "$0")
-currdir=$(dirname "$script")
+SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+echo SCRIPTDIR="$SCRIPTDIR"
 
-export LIBBIARC="$currdir"
-export LD_LIBRARY_PATH="$currdir/lib/:$LD_LIBRARY_PATH"
-export PATH="$currdir/bin/:$PATH"
+export LIBBIARC="$SCRIPTDIR"
+export LD_LIBRARY_PATH="$SCRIPTDIR/lib/:$LD_LIBRARY_PATH"
+export PATH="$SCRIPTDIR/bin/:$PATH"
