@@ -1,9 +1,11 @@
 DIRS=lib tools objects inventor # temp test
 
-all:
-	@for dir in $(DIRS); do \
-		cd $$dir && { touch .depend; $(MAKE) all; cd ..; } \
-	done
+.PHONY: all $(DIRS)
+
+all: $(DIRS)
+
+$(DIRS):
+	$(MAKE) -C $@
 
 test:
 	cd tests; $(MAKE)
