@@ -1639,8 +1639,8 @@ void Curve<Vector>::principalAxis(Matrix3 &mat) {
   ev.id();
   this->inertiaTensor(m);
   int iter = 0;
-  while((fabsf(m[0][1])+fabsf(m[0][2])+fabsf(m[1][2])+
-        fabsf(m[1][0])+fabsf(m[2][0])+fabsf(m[2][1]))>qr_eps) {
+  while((std::abs(m[0][1])+std::abs(m[0][2])+std::abs(m[1][2])+
+	 std::abs(m[1][0])+std::abs(m[2][0])+std::abs(m[2][1]))>qr_eps) {
     qr_decomp(m,r);
     ev = ev*m;
     m  = r*m;
