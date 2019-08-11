@@ -52,8 +52,8 @@ int main(int argc, char** argv) {
   }
   int k = atoi(argv[2]);
   if (k<1) return 0;
-  
-  struct container vals, vals2;
+
+  struct container vals;
   ifstream in(argv[1],ios::in);
   while (in >> vals.s >> vals.sigma >> vals.tau) {
     if (vals.s >= 1) vals.s = vals.s - 1;

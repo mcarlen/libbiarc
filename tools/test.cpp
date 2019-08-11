@@ -250,7 +250,6 @@ int main(int argc, char **argv) {
   // cerr << os << " " << ot << endl;
 
   // cout << "Ot : " << final[1].t - ot << endl;
-	float ttol = (final[1].t - ot)*100;
 
   for (unsigned int i=1;i<final.size();i++) {
 

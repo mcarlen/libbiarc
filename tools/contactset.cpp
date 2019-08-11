@@ -265,7 +265,7 @@ int main(int argc, char **argv) {
   // Inventor Line Set Version
   if (flag==1) {
     cout << "#Inventor V2.1 ascii\nSeparator {\nCoordinate3 {\npoint [";
-    int Seg = 30;
+
     for (it=contacts.begin();it!=contacts.end();++it) {
 #ifdef Dim4
       Vector4 projected;

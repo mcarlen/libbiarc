@@ -217,7 +217,7 @@ int main(int argc, char **argv) {
   if (LineSet) {
     // Inventor Line Set Version
     cout << "#Inventor V2.1 ascii\nSeparator {\nCoordinate3 {\npoint [";
-    int Seg = 30;
+
     for (it=contacts.begin();it!=contacts.end();++it) {
 #ifdef Dim4
       Vector4 projected;

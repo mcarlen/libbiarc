@@ -100,8 +100,6 @@ int main(int argc, char **argv) {
   c.s = os; c.t = ot;
   final2.push_back(c);
 
-	float ttol = (final[1].t - ot)*100;
-
   for (unsigned int i=1;i<final.size();i++) {
 
     s = final[i].s; t = final[i].t;
