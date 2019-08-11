@@ -5,7 +5,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/dir.h>
+#ifdef __FreeBSD__
+# include <dirent.h>
+#else
+# include <sys/dir.h>
+#endif
 #include <math.h>
 
 using namespace std;
@@ -49,7 +53,11 @@ int main(int argc, char** argv) {
     exit(3);
   }
 
+#ifdef __FreeBSD__
+  struct dirent *pEnt;
+#else
   struct direct *pEnt;
+#endif
   for (; (pEnt=readdir(pDir)) ;) {
     // Skip directories
     if (pEnt->d_type != DT_DIR)
