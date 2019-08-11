@@ -17,12 +17,14 @@ int main(int argc, char **argv) {
 
   clog << "Read in curve from " << argv[1];
   Curve<Vector3> curve(argv[1]);
+  /* FIXME: this test can never fail
   if (&curve!=NULL)
     clog << "\t[OK]\n";
   else {
     clog << "\t[FAILED]\n";
     return 1;
   }
+  */
 
   for (int i=0;i<curve.nodes();i++) {
     Vector3 p=curve[i].getPoint(),t=curve[i].getTangent();
