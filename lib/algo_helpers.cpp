@@ -170,7 +170,7 @@ void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC,
 
       i->getBezierArc0(Ba0,Ba1,Ba2);
       j->getBezierArc0(Bb0,Bb1,Bb2);
- 
+
       // Now double criticle all 4 possibilities
       // excluding next neighbors
       // arc a1 - b1
@@ -248,7 +248,7 @@ void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC, co
     if (double_critical_test_v2(c0,c1,c2,d0,d1,d2,dCurrentMin))
        CritC.push_back(Candi<Vector>(c0,c1,c2,i->a.err/i->a.ferr,i->a.ferr,
                                      d0,d1,d2,i->b.err/i->b.ferr,i->b.ferr));
- 
+
     // arc a1 - b2
     d0 = bm; d1 = b12; d2 = b2;
     if (double_critical_test_v2(c0,c1,c2,d0,d1,d2,dCurrentMin))
@@ -283,7 +283,7 @@ template<class Vector>
 void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, float &ub, float &err, candi_it &min_candi) {
   // Initial Thickness Bounds
   float D_lb = 1e8, D_ub = 1e8;
-  float max_err = 0, tmperr, tmpf; // ,relerr; 
+  float max_err = 0, tmperr, tmpf; // ,relerr;
 
   for (candi_it i=C.begin();i!=C.end();i++) {
     tmperr = i->a.err+i->b.err;
@@ -355,7 +355,7 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
     vector<Candi<Vector> > CritC;
     Vector a0,am,a1,b0,bm,b1,t0a,tma,t1a,t0b,tmb,t1b;
     // Temporary Bezier points
-    Vector Ba0,Ba1,Ba2,Bb0,Bb1,Bb2; 
+    Vector Ba0,Ba1,Ba2,Bb0,Bb1,Bb2;
 
 //    cerr << "HINT : " << hint_i << " " << hint_j << " : ";
     typename vector< Biarc<Vector> >::iterator i = c->begin() + hint_i;
@@ -432,7 +432,7 @@ float compute_thickness(CurveBundle<Vector> *cb, Vector *from, Vector *to) {
     if (min_diam_tmp<min_diam)
       min_diam = min_diam_tmp;
   }
-  
+
   vector<Candi<Vector> > tmp, candidates;
   float global_min = min_diam, curr_min;
 
@@ -468,7 +468,7 @@ float compute_thickness(CurveBundle<Vector> *cb, Vector *from, Vector *to) {
   }
   }
 
-  dbl_crit_filter(candidates, tmp, global_min);   
+  dbl_crit_filter(candidates, tmp, global_min);
   // This first distance filter removes "good" candidates!!!
   // DO NOT CHANGE IT!
   // distance_filter(tmp, candidates,global_min);
@@ -498,9 +498,9 @@ float compute_thickness(CurveBundle<Vector> *cb, Vector *from, Vector *to) {
 template<class Vector>
 float mindist_between_bezier_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
                                   const Vector &b0,const Vector &b1,const Vector &b2,
-                                  const float dCurrMin = 1e22,
-                                  Vector* from = NULL,
-                                  Vector* to = NULL) {
+                                  const float dCurrMin,
+                                  Vector* from,
+                                  Vector* to) {
   Candi<Vector> arcs(a0,a1,a2,b0,b1,b2);
   return mindist_between_arcs(arcs,dCurrMin,from,to);
 }
@@ -558,9 +558,9 @@ float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrM
   while(rel_err > rel_err_tol) {
 
     // Bisect Candidates
-    dbl_crit_filter(DistC,CritC,dCurrMin);   
+    dbl_crit_filter(DistC,CritC,dCurrMin);
     // cout << "iter " << iter++ << endl;
-    // dump_candi(CritC);  
+    // dump_candi(CritC);
 
     if (CritC.size()==0) {
     //  cout << "dble crit empty\n";
@@ -696,7 +696,7 @@ float min_seg_dist(
   Vector D = B0-B1, M0 = B0p-B0, M1 = B1p-B1;
   float a = M0.dot(M0), b = -M0.dot(M1), c = M1.dot(M1);
   float d = M0.dot(D), e = -M1.dot(D); // , f = D.dot(D);
-  float det = fabsf(a*c-b*b);
+  float det = std::abs(a*c-b*b);
   float invDet, tmp;
   s = b*e-c*d; t = b*d-a*e;
 

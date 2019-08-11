@@ -73,11 +73,11 @@ void force(float s, int i, float *Fi, float *Fo,
     i = knot->biarcPos(s);
     normal = knot->pointAt(s+.00001) - 2*ps + knot->pointAt(s-.00001);
   }
-  else 
+  else
     normal = knot->normalVector(i);
   normal.normalize();
   *curv   = knot->curvature(i);
-  
+
   tmp     = ps - ptau; tmp.normalize();
   *psi     = angle(tmp, -normal);
   tmp     = psigma - ps; tmp.normalize();
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
     cout << "Usage : " << argv[0] << " <pkf> <contacts>\n";
     exit(0);
   }
-  
+
   struct container vals, vals2;
   ifstream in(argv[2],ios::in);
   while (in >> vals.s >> vals.sigma >> vals.tau) {
@@ -107,14 +107,14 @@ int main(int argc, char** argv) {
   }
   in.close();
 
-  float mid = fabsf((contacts[0].sigma+contacts.back().sigma)*.5);
+  float mid = std::abs((contacts[0].sigma+contacts.back().sigma)*.5);
   vals.s = 0; vals.sigma = mid;
   contacts.insert(contacts.begin(),vals);
   vals.s = 1; vals.sigma = mid;
   contacts.push_back(vals);
 
   sort(contacts2.begin(),contacts2.end());
-  mid = fabsf((contacts2[0].sigma+contacts2.back().sigma)*.5);
+  mid = std::abs((contacts2[0].sigma+contacts2.back().sigma)*.5);
   vals.s = 0; vals.sigma = mid;
   contacts2.insert(contacts2.begin(),vals);
   vals.s = 1; vals.sigma = mid;

@@ -55,9 +55,9 @@ void getContacts(Curve<Vector3>& curve, vector<contact>& stcontacts, vector<CStr
 		cout.precision(12);
 		cout << it->s << " " << strut.t0.dot(strut.t1) << " "
 		     << strut.t0.dot(strut.p1 - strut.p0) << " "
-				 << strut.t1.dot(strut.p0 - strut.p1) << " "
-				 << d << " "
-				 << fabsf(d-thick) << endl;
+		     << strut.t1.dot(strut.p0 - strut.p1) << " "
+		     << d << " "
+		     << std::abs(d-thick) << endl;
   }
 }
 
@@ -100,8 +100,6 @@ int main(int argc, char **argv) {
   c.s = os; c.t = ot;
   final2.push_back(c);
 
-	float ttol = (final[1].t - ot)*100;
-
   for (unsigned int i=1;i<final.size();i++) {
 
     s = final[i].s; t = final[i].t;
@@ -120,7 +118,7 @@ int main(int argc, char **argv) {
 
     c.s = final[i].s; c.t = final[i].t;
     final2.push_back(c);
-      
+
     os = s;
     ot = t;
   }

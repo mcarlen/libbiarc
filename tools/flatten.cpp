@@ -17,12 +17,6 @@ int main(int argc, char **argv) {
 
   clog << "Read in curve from " << argv[1];
   Curve<Vector3> curve(argv[1]);
-  if (&curve!=NULL)
-    clog << "\t[OK]\n";
-  else {
-    clog << "\t[FAILED]\n";
-    return 1;
-  }
 
   for (int i=0;i<curve.nodes();i++) {
     Vector3 p=curve[i].getPoint(),t=curve[i].getTangent();
@@ -30,7 +24,7 @@ int main(int argc, char **argv) {
     curve[i].setPoint(p);curve[i].setTangent(t);
   }
 
-  clog << "Write curve to " << argv[2]; 
+  clog << "Write curve to " << argv[2];
   if (curve.writePKF(argv[2]))
     clog << "\t\t\t[OK]\n";
   else {

@@ -40,20 +40,20 @@ int main(int argc, char** argv) {
   cout << "Read in file\t\t\t\t"<<flush;
   Curve<Vector3> original(infile.c_str());
   cout << "\t[OK]\n";
- 
+
   int ToClose, Nloc;
   if (atoi(argv[1])) {
     original.link();
     ToClose = 1;
-  } 
+  }
   else {
     ToClose = 0;
   }
-  
+
   cout << "Interpolate pt/tan by biarcs\t\t";
   original.make_default();
   cout << "\t[OK]\n";
-  
+
   if (N!=original.nodes()) {
     cout << "Resample curve with "<< N << " points\t\t" << flush;
     original.resample(N);
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     original.make_default();
     cout << "\t[OK]\n";
   }
-  
+
   Nloc = original.nodes();
   if (ToClose) Nloc++;
   // this code comes mainly from my makMesh function in Tube.cpp
@@ -82,7 +82,6 @@ int main(int argc, char** argv) {
   int Stop = 1;
   float direction, AngularSpeedScale = 1.0;
 
-  vector<Biarc<Vector3> >::iterator current = original.begin();
   for (int i=0;i<Nloc;i++) {
     Points[i] = original[i%original.nodes()].getPoint();
     Tangents[i] = original[i%original.nodes()].getTangent();

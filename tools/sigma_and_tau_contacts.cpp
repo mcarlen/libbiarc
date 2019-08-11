@@ -12,7 +12,7 @@
 #define b3 vector<Biarc<Vector3> >::iterator
 
 int th_cond(float d,Vector3& p0, Vector3 &p1, float tol) {
-  if ( fabsf((p0-p1).norm()-d)<d*tol ) return 1;
+ if ( std::abs((p0-p1).norm()-d)<d*tol ) return 1;
   return 0;
 }
 
@@ -173,7 +173,7 @@ int main(int argc, char **argv) {
     // In order to check the angle condition we need : angle(strut1, normal) angle(strut2, normal) curvature_kappa
     cout << slen << " " << s_close0/L << " " << s_close1/L << endl;
 //    cout << slen << " " << ss0/L << " " << ss1/L << endl;
- 
+
   }
   cerr << ContactN << " Contacts." << endl;
   return 0;

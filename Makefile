@@ -1,29 +1,31 @@
 DIRS=lib tools objects inventor # temp test
 
-all:
-	@for dir in $(DIRS); do \
-		cd $$dir && { touch .depend; make all; cd ..; } \
-	done
+.PHONY: all $(DIRS)
+
+all: $(DIRS)
+
+$(DIRS):
+	$(MAKE) -C $@
 
 test:
 	cd tests; $(MAKE)
 
 clean:
 	@for dir in $(DIRS); do \
-		cd $$dir && { make clean; cd ..; } \
+		cd $$dir && { $(MAKE) clean; cd ..; } \
 	done
 
 library:
 	@echo Build biarc library; \
-	cd lib/ && { make; cd ..; } ; \
+	cd lib/ && { $(MAKE); cd ..; } ; \
 
 rendermanlib:
 	@echo Build biarc lib with renderman support; \
-	cd lib/ && { make renderman; cd ..; } ;
+	cd lib/ && { $(MAKE) renderman; cd ..; } ;
 
 realclean:
 	@for dir in $(DIRS) benchmark annealing; do \
-		cd $$dir && { make realclean; cd ..; } \
+		cd $$dir && { $(MAKE) realclean; cd ..; } \
 	done
 	@echo Remove doc
 	@rm -rf ./doc
@@ -36,9 +38,9 @@ archive:
 
 meshonly:
 	@echo Build biarc library; \
-	cd lib/ && { make; cd ..; } ; \
+	cd lib/ && { $(MAKE); cd ..; } ; \
 	echo making mesh4stokes in directory tools; \
-	cd tools/ && { make mesh4stokes perturb map resample; cd ..; }
+	cd tools/ && { $(MAKE) mesh4stokes perturb map resample; cd ..; }
 
 stokes: meshonly
 	@echo

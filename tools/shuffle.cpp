@@ -17,7 +17,7 @@
 
 void inversion_in_sphere(Curve<VecType>* curve, VecType center = VecType(),
                          float radius = 2.0) {
-  VecType p,pnew,t,tnew,v; 
+  VecType p,pnew,t,tnew,v;
   float factor, vnorm2;
   for (int i=0;i<curve->nodes();++i) {
 
@@ -26,7 +26,7 @@ void inversion_in_sphere(Curve<VecType>* curve, VecType center = VecType(),
 
     v = (p-center);
     vnorm2 = v.norm2();
- 
+
     factor = radius*radius/vnorm2;
     pnew = center + v*factor;
     tnew = t*factor - v*(2*factor/vnorm2*t.dot(v));
@@ -60,12 +60,12 @@ float pick_random_plane(Curve<VecType>* curve, VecType* n, float *dist) {
 void scale_move(Curve<VecType>* curve) {
   VecType n; float plane_d;
   float dmax = pick_random_plane(curve,&n,&plane_d);
- 
+
   float magnitude = 1.+(*curve)[0].biarclength()/10.*rand01();
   for (int i=0;i<curve->nodes();++i) {
     VecType p = (*curve)[i].getPoint();
     float val = p.dot(n);
-    if (val > 0 && fabsf(val)>plane_d) {
+    if (val > 0 && std::abs(val)>plane_d) {
       // stretch point
       float blend = (val-plane_d)/(dmax-plane_d);
       p = p + n*magnitude*blend*blend*blend;
@@ -77,7 +77,7 @@ void scale_move(Curve<VecType>* curve) {
 void rot_move(Curve<VecType>* curve) {
   VecType n; float plane_d;
   float dmax = pick_random_plane(curve,&n,&plane_d);
- 
+
   float rot_angle = M_PI/2.+rand01()*M_PI/2; // rand01()*M_PI;
 
   // rotate about axis going through center
@@ -86,7 +86,7 @@ void rot_move(Curve<VecType>* curve) {
   for (int i=0;i<curve->nodes();++i) {
     VecType p = (*curve)[i].getPoint();
     float val = p.dot(n);
-    if (val > 0 && fabsf(val)>plane_d) {
+    if (val > 0 && std::abs(val)>plane_d) {
       // rot point
       float blend = (val-plane_d)/(dmax-plane_d);
       p = (p-proj_center).rotPtAroundAxis(rot_angle*blend*blend, n) + proj_center;
@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
   int N = 10./thick;
   if (N>1000) N = 1000;
   curve.resample(N);
- 
+
   curve.header(curve.getName(),"shuffle","","");
   curve.writePKF(argv[2]);
 

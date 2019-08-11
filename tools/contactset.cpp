@@ -106,12 +106,12 @@ int th_cond(float d,VecType& p0, VecType &p1, float tol) {
 #ifdef Dim4
 Vector4 inversion_in_sphere(Vector4 &p, Vector4 center = Vector4(0,0,0,1),
                          float radius = 2.0) {
-  Vector4 pnew,t,tnew,v; 
+  Vector4 pnew,t,tnew,v;
   float factor, vnorm2;
 
   v = (p-center);
   vnorm2 = v.norm2();
- 
+
   factor = radius*radius/vnorm2;
   pnew = center + v*factor;
   return pnew;
@@ -137,7 +137,7 @@ int new_rhopt(const VecType& p,
     // This is the normal vector at the midpoint of the arc
     // given by the bezier points a0,a1,a2
     // so the center is at
-    
+
     VecType a = a1-a0, b = a2-a0; a.normalize(); b.normalize();
     float omega = a.dot(b);
     VecType c = (.5*a0+omega*a1+.5*a2)/(omega+1.) + dir*rad;
@@ -223,7 +223,7 @@ int main(int argc, char **argv) {
 
     tmp_c.push_back(contacts.front());
     contacts.erase(contacts.begin());
-    
+
     while(contacts.size()>0) {
       p = tmp_c.back().p[1];
       closest_c = contacts.begin();
@@ -234,7 +234,7 @@ int main(int argc, char **argv) {
           closest_f = tmp_f; closest_c = cit;
         }
       }
-      
+
       // Remove isolated struts (we assume they are
       // far away form most other struts)
       /*
@@ -265,7 +265,7 @@ int main(int argc, char **argv) {
   // Inventor Line Set Version
   if (flag==1) {
     cout << "#Inventor V2.1 ascii\nSeparator {\nCoordinate3 {\npoint [";
-    int Seg = 30;
+
     for (it=contacts.begin();it!=contacts.end();++it) {
 #ifdef Dim4
       Vector4 projected;
@@ -362,7 +362,7 @@ int main(int argc, char **argv) {
       }
     }
     cout << "]}\n";
-    
+
     // Write out triangle strip
     cout << "TriangleStripSet {\nnumVertices [";
     for (unsigned int i=0;i<contacts.size();i++)

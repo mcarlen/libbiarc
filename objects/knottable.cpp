@@ -8,7 +8,11 @@
 
 #include "../include/CurveBundle.h"
 #include <stdlib.h>
-#include <sys/dir.h>
+#ifdef __FreeBSD__
+# include <dirent.h>
+#else
+# include <sys/dir.h>
+#endif
 #include <vector>
 #include <algorithm>
 
@@ -35,14 +39,18 @@ int main(int argc,char** argv) {
   pDir = opendir(szDir);
   if (!pDir) {
     cout << "\t[FAILED]\n"<<flush;
-    exit(3); 
+    exit(3);
   }
 
   Curve<Vector3> *pkf;
-  
+
   int PKFcounter = 0;
-  
+
+#ifdef __FreeBSD__
+  struct dirent *pEnt;
+#else
   struct direct *pEnt;
+#endif
   vector<string> Words;
 
   for (; (pEnt=readdir(pDir)) ;) {

@@ -15,15 +15,15 @@
   If the point is the start or endpoint of an open curve, then
   it will only have a single neighbour. The other pointer will
   be set to NULL.
-  
+
   \sa Curve
-  
+
 */
- 
+
 //
 // documentation of inlined methods
 //
- 
+
 /*!
   \fn ostream & Biarc<Vector>::operator<< (ostream &out, const Biarc<Vector> &b)
 
@@ -33,6 +33,7 @@
   \sa print()
 */
 
+#include <cmath>
 #include "../include/Biarc.h"
 
 // Templatized code needs to be kept in the same
@@ -74,7 +75,7 @@ template<class Vector>
 Biarc<Vector>::Biarc(const Biarc<Vector>& b) :
   _BIARC_(b._BIARC_),
   _Point(b._Point), _Tangent(b._Tangent),
-  _BiarcInCurve(b._BiarcInCurve), _Curve(b._Curve) 
+  _BiarcInCurve(b._BiarcInCurve), _Curve(b._Curve)
 {
   _Tangent.normalize();
 }
@@ -285,7 +286,7 @@ void Biarc<Vector>::setBiarc() {
   Giving a value for \a Gamma, it is possible to compute a
   point (matching point), that links the two data points by
   two circular arcs of circles. For each arc the control points
-  of a Bezier curve are computed and can be recovered by getBezier(). 
+  of a Bezier curve are computed and can be recovered by getBezier().
 
   The appropriate rule that computes the matching point is
   still an open question (since the matching point of a biarc
@@ -373,7 +374,7 @@ void Biarc<Vector>::make(float Gamma) {
   // Bezier midpoint b1 for arc 0 and 1
   // i.e. set _BezierPoint0 and _BezierPoint1
   for (int i=0;i<2;i++)
-    (i?_BezierPoint1:_BezierPoint0) = 
+    (i?_BezierPoint1:_BezierPoint0) =
       (i?q1:q0) + (i?t1:t0)*(d.norm2()/(2*(i?t1:t0).dot(d)))*(i?-GammaBar:Gamma);
 
   // compute radius,arclength of arc0 and arc1
@@ -490,7 +491,7 @@ template<class Vector>
 float Biarc<Vector>::_arclength1() const {
   if (_radius1()<0)
     return (getNext().getPoint() - _MidPoint).norm();
-  else 
+  else
     return (_radius1()*_angle1());
 }
 
@@ -647,7 +648,7 @@ Vector Biarc<Vector>::a0(float tau) const {
   the point \f$a(\tau)\f$ on the second arc of circle of the biarc.
   Where \f$a(\tau)\f$ is a non-arclength parametrization of an
   arc of circle.
-  
+
   For arc-length parametrized arcs use one of the pointOn*
   functions.
 
@@ -920,7 +921,7 @@ Vector Biarc<Vector>::normalOnBiarc(float arclength) const {
 
   Vector t, c;
 
-  //Calculate center c of arc 
+  //Calculate center c of arc
   if (arclength <= this->arclength0()) {
      Vector x=this->getMidPoint() - this->getPoint();
      x.normalize();
@@ -950,7 +951,7 @@ Vector Biarc<Vector>::normalOnBiarc(float arclength) const {
   \sa getPrevious(),setNext(),setPrevious(),setNextNULL(),setPreviousNULL().
 */
 template<class Vector>
-const Biarc<Vector>& Biarc<Vector>::getNext() const { 
+const Biarc<Vector>& Biarc<Vector>::getNext() const {
   if (_Curve==NULL) cout << "C problem\n";
   return _Curve->getNext(_BiarcInCurve);
 }
@@ -995,7 +996,7 @@ void Biarc<Vector>::setPrevious(const Biarc &b) {
 */
 // Reimplement with stl vector
 template<class Vector>
-void Biarc<Vector>::setNextNULL() { 
+void Biarc<Vector>::setNextNULL() {
   // Next = NULL;
 }
 
@@ -1121,7 +1122,7 @@ int Biarc<Vector>::operator!=(const Biarc &b) const {
   return !(*this==b);
 }
 
-#define CLAMP_DELTA(v) (fabsf(v)<1e-12?0:v)
+#define CLAMP_DELTA(v) (std::abs(v)<1e-12?0:v)
 /*!
   Prints starting point, tangent, matching point and matching tangent
   onto the stream \a out. If the biarc is not valid, it only prints

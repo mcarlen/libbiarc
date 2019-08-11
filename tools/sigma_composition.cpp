@@ -52,8 +52,8 @@ int main(int argc, char** argv) {
   }
   int k = atoi(argv[2]);
   if (k<1) return 0;
-  
-  struct container vals, vals2;
+
+  struct container vals;
   ifstream in(argv[1],ios::in);
   while (in >> vals.s >> vals.sigma >> vals.tau) {
     if (vals.s >= 1) vals.s = vals.s - 1;
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
   }
   in.close();
 
-  float mid = fabsf((contacts[0].sigma+contacts.back().sigma)*.5);
+  float mid = std::abs((contacts[0].sigma+contacts.back().sigma)*.5);
   vals.s = 0; vals.sigma = mid;
   contacts.insert(contacts.begin(),vals);
   vals.s = 1; vals.sigma = mid;
