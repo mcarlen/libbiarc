@@ -305,7 +305,7 @@ int main(int argc, char **argv) {
 
   */
 
-  sprintf(name,"surf_%04d.iv", contacts.size()-1);
+  sprintf(name,"surf_%04lu.iv", contacts.size()-1);
   ofstream out(name,ios::out);
   dump_iv_surface(out, contacts, contacts.size()-1, 1);
   out.close();
