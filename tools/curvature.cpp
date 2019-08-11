@@ -29,7 +29,6 @@ int main(int argc, char **argv) {
 
     float D = cb[i].thickness();
     Vector3 v, p, b0, b1, b2;
-    float rad;
     vector<Biarc<Vector3> >::iterator current, prev, next;
     for (current=cb[i].begin();current!=cb[i].end();current++) {
       // point to point global radius of curvature (if we use the correct thickness to scale the plot, there is an offset w/r to 1 !!

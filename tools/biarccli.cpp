@@ -111,7 +111,7 @@ void printnormalat(float s) {
   //__HG
   vector<Biarc<Vector3> >::iterator current;
   Vector3 p, t;
-  double R=0;
+
   for (int i=0;i<cb->curves();i++) {
       current = (*cb)[i].begin();
 
