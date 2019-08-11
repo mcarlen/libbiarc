@@ -4,6 +4,16 @@
 # Outputs
 *.a
 *.so
+tools/arcs2polygonal
 tools/billiard_poly
+tools/clif_tref_contactset
+tools/curvature4
+tools/extract_sigma_max
+tools/perturb
+tools/pkf2xyz
+tools/plotslice
+tools/r3tos3
+tools/rotate_curve
+tools/vect2pkf
 
 *~
