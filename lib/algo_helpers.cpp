@@ -498,9 +498,9 @@ float compute_thickness(CurveBundle<Vector> *cb, Vector *from, Vector *to) {
 template<class Vector>
 float mindist_between_bezier_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
                                   const Vector &b0,const Vector &b1,const Vector &b2,
-                                  const float dCurrMin = 1e22,
-                                  Vector* from = NULL,
-                                  Vector* to = NULL) {
+                                  const float dCurrMin,
+                                  Vector* from,
+                                  Vector* to) {
   Candi<Vector> arcs(a0,a1,a2,b0,b1,b2);
   return mindist_between_arcs(arcs,dCurrMin,from,to);
 }
