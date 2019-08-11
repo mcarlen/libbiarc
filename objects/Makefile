@@ -4,7 +4,7 @@ include ../Makefile.config
 
 SRC=$(wildcard *.cpp)
 PROGS=$(SRC:.cpp=)
-INCLUDE =-I. -I../include 
+INCLUDE =-I. -I../include
 LIB_INC=-L. -L../lib
 LIB=-lbiarc
 FLAGS=${INCLUDE} ${CXXFLAGS}
@@ -13,7 +13,7 @@ all: $(PROGS)
 
 %: %.cpp
 	@echo Build $@
-	@$(LINKER) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)
+	@$(CXX) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)
 
 pkf: $(PROGS)
 	@echo Make pkf files
