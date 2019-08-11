@@ -15,10 +15,10 @@ int main(int argc, char **argv) {
 	 << "<Segments> <Radius> <Out file> [Tolerance]\n";
     exit(0);
   }
-  
+
   int N = atoi(argv[2]), S = atoi(argv[3]);
   float R = atof(argv[4]);
-  
+
   float Tol;
   Tol = (argc==7?atof(argv[6]):1e-03);
 
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     cout << "Generate mesh (N="<<N<<",S="<<S<<",R="<<R<<")";
     knot[i].makeMesh(N,S,R,Tol);
     cout << "\t\t[OK]\n";
-  
+
     cout << "Write to file : " << argv[5];
 //   cout << "N = " << N << ", S = " << S << endl;
 
