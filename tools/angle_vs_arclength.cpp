@@ -66,7 +66,7 @@ void generateNormals(int N, Vector3 *Normals, Curve<Vector3> &c, int S, float To
     ClosestDirection = Normals[N-1];
     dist = (ClosestDirection-Normals[0]).norm();
     PermutationIndex = 0;
-/* Disable Permutation 
+/* Disable Permutation
     for (int j=0;j<S;++j) {
       rot_point = Normals[N-1].rotPtAroundAxis(2.0*M_PI/(float)S*(float)j,
                                                vt0);
@@ -88,7 +88,7 @@ void generateNormals(int N, Vector3 *Normals, Curve<Vector3> &c, int S, float To
     }
     else {
       angleDiff = acos(Normals[0].dot(ClosestDirection));
-      // get rotation handedness to correct the mesh 
+      // get rotation handedness to correct the mesh
       direction = (ClosestDirection.cross(Normals[0])).dot(vt0) ;
       AngularSpeedScale = angleDiff/N;
 
@@ -187,7 +187,7 @@ int main(int argc, char **argv) {
       }
     }
   }
- 
+
 
   cerr << ContactN << " Contacts." << endl;
   // Output the Normals
@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
   for (int i=0;i<N;i++)
     cerr << Normals[i] << endl;
 */
-  
+
   return 0;
 }
 

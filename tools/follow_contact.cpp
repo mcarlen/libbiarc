@@ -99,12 +99,12 @@ int th_cond(float d,const VecType& p0, const VecType &p1, float tol) {
 #ifdef Dim4
 Vector4 inversion_in_sphere(Vector4 &p, Vector4 center = Vector4(0,0,0,1),
                          float radius = 2.0) {
-  Vector4 pnew,t,tnew,v; 
+  Vector4 pnew,t,tnew,v;
   float factor, vnorm2;
 
   v = (p-center);
   vnorm2 = v.norm2();
- 
+
   factor = radius*radius/vnorm2;
   pnew = center + v*factor;
   return pnew;
@@ -130,7 +130,7 @@ int new_rhopt(const VecType& p,
     // This is the normal vector at the midpoint of the arc
     // given by the bezier points a0,a1,a2
     // so the center is at
-    
+
     VecType a = a1-a0, b = a2-a0; a.normalize(); b.normalize();
     float omega = a.dot(b);
     VecType c = (.5*a0+omega*a1+.5*a2)/(omega+1.) + dir*rad;
@@ -173,7 +173,7 @@ void follow_contact(float thick, float tol, const VecType &p, const VecType &old
         follow_contact(thick,tol,v2,p,curve,max_level,level+1);
       }
     }
-  } 
+  }
 }
 
 int main(int argc, char **argv) {

@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 
     c.s = final[i].s; c.t = final[i].t;
     final2.push_back(c);
-      
+
     os = s;
     ot = t;
   }

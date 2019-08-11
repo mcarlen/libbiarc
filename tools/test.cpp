@@ -60,7 +60,7 @@ void dump_obj_surface(ofstream& out, vector<CStrut>& contacts, unsigned int num,
   Vector3 save1, save2, V1, V2, V3, V4;
 
   static int FaceIndex1 = 1, FaceIndex2 = 2, FaceIndex3 = 3;
-  
+
   // foreach contact line pair
 
   //
@@ -77,15 +77,15 @@ void dump_obj_surface(ofstream& out, vector<CStrut>& contacts, unsigned int num,
 
     V3 = contacts[(l+1)%contacts.size()].p0;
     V4 = contacts[(l+1)%contacts.size()].p1;
-    
+
     // compute step size
     step_size_1 = (V2-V1).norm()/(float)Segments; //NO_OF_SUB_TRIS;
     step_size_2 = (V4-V3).norm()/(float)Segments; //NO_OF_SUB_TRIS;
-    
+
     // get the direction vector for each contact segment
     N_direc_vect_1 = (V2-V1);
     N_direc_vect_2 = (V4-V3);
-    
+
     N_direc_vect_1.normalize();
     N_direc_vect_2.normalize();
 
@@ -118,7 +118,7 @@ void dump_obj_surface(ofstream& out, vector<CStrut>& contacts, unsigned int num,
   	      << FaceIndex3 << "/" << FaceIndex3 << endl;
 
       FaceIndex1+=3; FaceIndex2+=3; FaceIndex3+=3;
-      
+
       // triangle 2
 			vv = (V1 + N_direc_vect_1*((i+1)*step_size_1));
       out << "v " << vv[0] << " " << vv[2] << " " << -vv[1] << endl;
@@ -136,15 +136,15 @@ void dump_obj_surface(ofstream& out, vector<CStrut>& contacts, unsigned int num,
       out << "f "<< FaceIndex1 << "/" << FaceIndex1 << " "
           << FaceIndex2 << "/" << FaceIndex2 << " "
 	        << FaceIndex3 << "/" << FaceIndex3 << endl;
-    
+
       FaceIndex1+=3; FaceIndex2+=3; FaceIndex3+=3;
-	    
+
     }
   }
 }
 
 void dump_iv_surface(ofstream& out, vector<CStrut>& contacts, unsigned int num, int close = 0) {
-  
+
   assert(num<contacts.size());
 
   // How many segments
@@ -276,10 +276,10 @@ int main(int argc, char **argv) {
 
 
     cerr << s << " " << t << endl;
-      
+
     c.s = final[i].s; c.t = final[i].t;
     final2.push_back(c);
-      
+
     os = s;
     ot = t;
   }

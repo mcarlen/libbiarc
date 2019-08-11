@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
     curve[i].setPoint(p);curve[i].setTangent(t);
   }
 
-  clog << "Write curve to " << argv[2]; 
+  clog << "Write curve to " << argv[2];
   if (curve.writePKF(argv[2]))
     clog << "\t\t\t[OK]\n";
   else {
