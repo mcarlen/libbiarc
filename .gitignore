@@ -1,1 +1,9 @@
+# Intermediates
 *.o
+
+# Outputs
+*.a
+*.so
+tools/billiard_poly
+
+*~
