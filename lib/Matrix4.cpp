@@ -29,22 +29,22 @@
   \sa class Vector4
 
 */
- 
+
 //
 // documentation of inlined methods
 //
- 
+
 /*!
   \fn Vector4 & Matrix4::operator[](int n)
   Index operator. Returns one of the three matrix columns as a Vector4 instance.
- 
+
   \sa getOne(), getAll(), setOne(), setAll().
 */
- 
+
 /*!
   \fn const Vector4 &Matrix4::operator[](int n) const
   Index operator. Returns one of the three matrix columns as a Vector4 instance.
- 
+
   \sa getOne(), getAll(), setOne(), setAll().
 */
 
@@ -306,16 +306,16 @@ Matrix4 & Matrix4::inv() {
 /*!
   Computes the outer product between a vector \a a and a
   vector \a b and stores the result in the current Matrix4 object.
-  
+
   Formally we have the product between a column vector \a a with
   a row vector \a b.
 
-  
+
   \f$M=\left(
   \begin{array}{c}a_0 \\
                   a_1 \\
 		  a_2 \\
-		  a_3 
+		  a_3
   \end{array}
   \right)
   \cdot

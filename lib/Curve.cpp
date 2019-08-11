@@ -8,7 +8,7 @@
   point/tangent data. This data can be interpolated to
   a biarc curve. The class is for open and closed curves, but
   this must be specified (how to do that is explained
-  later in this text). 
+  later in this text).
 
   The space-curve is a linked-list of Biarc elements. Every
   biarc element in the "curve list" has two neighbours. If
@@ -23,7 +23,7 @@
 
   \code
   #include "../include/Curve.h"
-  
+
   int main(int argc,char** argv) {
 
     // Read the data
@@ -43,7 +43,7 @@
 
     return 0;
   }
-  
+
   \endcode
 
   The next example illustrates how to build a circle with radius
@@ -73,7 +73,7 @@
 
       // Normalize the tangent
       t.normalize();
-      
+
       // Add point to the curve
       circle.append(p,t);
     }
@@ -81,22 +81,23 @@
     ...
 
     return 0;
-  
+
   }
 
   \endcode
-  
+
   \sa Biarc
-  
+
 */
- 
+
 
 #include "../include/utils/qr.h"
+#include <cmath>
 
 //
 // documentation of inlined methods
 //
- 
+
 /*!
   \fn ostream & Curve<Vector>::operator<<(ostream &out, const Curve<Vector> &c)
 
@@ -377,7 +378,7 @@ inline int Curve<Vector>::biarcPos(float s) {
 /*!
   Adds a point/tangent data stored in biarc \a b at the
   front of the curve.
-  
+
   \sa append(),insert(),pop(),remove()
 */
 template<class Vector>
@@ -388,7 +389,7 @@ inline void Curve<Vector>::push(const Biarc<Vector> &b) {
 /*!
   Adds a point \a p, tangent \a t data at the
   front of the curve.
-  
+
   \sa append(),insert(),pop(),remove()
 */
 template<class Vector>
@@ -399,7 +400,7 @@ inline void Curve<Vector>::push(const Vector &p, const Vector &t) {
 /*!
   Adds a point/tangent data stored in biarc \a b at the
   end of the curve.
-  
+
   \sa push(),insert(),pop(),remove()
 */
 template<class Vector>
@@ -411,7 +412,7 @@ inline void Curve<Vector>::append(const Biarc<Vector> &b) {
 /*!
   Adds a point \a p, tangent \a t data at the
   end of the curve.
-  
+
   \sa push(),insert(),pop(),remove()
 */
 template<class Vector>
@@ -703,7 +704,7 @@ void Curve<Vector>::make(Biarc<Vector>* from, Biarc<Vector>* to, float f) {
     cerr << "Warning:make(Biarc*,Biarc*,float):You try to interpolate a part of a"
 	 << " non interpolated curve!\n";
   }
-    
+
   Biarc<Vector>* current = from;
 
   while (current!=to) {
@@ -742,7 +743,7 @@ void Curve<Vector>::makeMidpointRule(Biarc<Vector>* from, Biarc<Vector>* to) {
     cerr << "Warning:make(Biarc*,Biarc*,float):You try to interpolate a part of a"
 	 << " non interpolated curve!\n";
   }
-    
+
   Biarc<Vector>* current = from;
 
   while (current!=to) {
@@ -916,7 +917,7 @@ float Curve<Vector>::thickness(Vector *from, Vector *to) {
   if (_hint_i==_hint_j) { _hint_i = -1; _hint_j = -1; }
 
   float d = compute_thickness(this,&lfrom,&lto,_hint_i,_hint_j);
-  
+
   // Change hint values according to from and to.
   // FIXME this part of finding the biarcs should be made smarter!
   float dfrom = 1e22, dto = 1e22, tmp;
@@ -945,9 +946,9 @@ template<class Vector>
 float Curve<Vector>::thickness_fast() {
 
   float minrad = 1e16, radpt;
-  
+
 //  Biarc<Vector> current, sweep;
-  
+
   biarc_it current = this->begin(), it;
 	biarc_it stop = this->end()-(_Closed?0:1);
   for (;current!=stop;current++) {
@@ -964,7 +965,7 @@ float Curve<Vector>::thickness_fast() {
     }
   }
   return 2*minrad;
-}  
+}
 
 /*!
   Get the thickness hint. This can speed up the thickness computation
@@ -1087,7 +1088,7 @@ void Curve<Vector>::resample(int NewNoNodes) {
   assert(current->isBiarc());
 
   float SegLen;
-  
+
   // We want exactly \NewNoNodes points on curve, therefore
   if (_Closed)
     SegLen = length()/(float)NewNoNodes;
@@ -1101,7 +1102,7 @@ void Curve<Vector>::resample(int NewNoNodes) {
   c->append(*current);
 
   int STOP = 0;
-  while (!STOP) { 
+  while (!STOP) {
 
     // is the next sample point still on the current biarc or on the next
     if (SegDummy < current->biarclength()) {
@@ -1120,7 +1121,7 @@ void Curve<Vector>::resample(int NewNoNodes) {
       // substract the length of the current biarc
       SegDummy -= current->biarclength();
       current++;
-      
+
       if (_Closed) {
         if (current==stop_biarc) {
           current = _Biarcs.begin();
@@ -1137,7 +1138,7 @@ void Curve<Vector>::resample(int NewNoNodes) {
 	  // Do we need to add last point?
 	  if (NewNoNodes!=c->nodes())
 	    c->append(_Biarcs.back());
-	  
+
 	  STOP = 1;
 	}
       }
@@ -1235,22 +1236,22 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
       }
       else {
 	p = current->pointOnBiarc(SegDummy);
-      
+
 	// compute corresponding tangent
 //	t = current->getTangent().reflect(p-current->getPoint());
         t = current->tangentOnBiarc(SegDummy);
       }
 
       t.normalize();
-      
+
       c.push_back(Biarc<Vector>(p,t));
-      
+
       SegDummy += SegLen;
     }
     else {
       // substract current biarc length
       SegDummy -= current->biarclength();
-      
+
       // go on to the next biarc
       if (_Closed&& current==(_Biarcs.end()-1))
         current = _Biarcs.begin();
@@ -1280,7 +1281,7 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
       current++;
     }
   }
- 
+
   if (begin->id() > end->id())
     c.insert(c.end(),end,begin);
 
@@ -1387,7 +1388,7 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
   // FIXME not normalized, this way we indirectly recover the
   //     local curvature
   //  v.normalize();
-  
+
   // orthogonalize
   Vector3 tan = b->getTangent();
   v = v - tan.dot(v)*tan;
@@ -1409,7 +1410,7 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
 */
 template<class Vector>
 float Curve<Vector>::torsion(int n, int a) {
-  
+
 
 //  Biarc<Vector> *current = accessBiarc(n), *current_h;
   biarc_it current = _Biarcs.begin()+n, current_h;
@@ -1450,14 +1451,14 @@ float Curve<Vector>::torsion(int n, int a) {
     d_0 = current_h->getPoint() - current->getMidPoint();
     t_0 = current->getMidTangent();
     d_h = (current_h->getMidPoint() - current_h->getPoint());
-    t_h = current_h->getTangent();   
+    t_h = current_h->getTangent();
   }
 
   Vector v_0 = t_0.cross(d_0);
   Vector v_1 = t_h.cross(d_h);
 
   v_0.normalize(), v_1.normalize();
-  sin_phi = fabsf((v_0.cross(v_1)).norm()); 
+  sin_phi = fabsf((v_0.cross(v_1)).norm());
   if (!a)
     return 3.0*sin_phi/current->arclength0();
   else
@@ -1472,7 +1473,7 @@ float Curve<Vector>::torsion(int n, int a) {
   Slightly modified version of the torsion() computation.
   This time we consider a biarc's previous and next
   midpoint to compute the torsion at the current biarc.
-  
+
   Interpolated biarcs are necessary!
 
   Caution : No inflection points test, so far.
@@ -1508,7 +1509,7 @@ float Curve<Vector>::torsion2(int n) {
   Vector v_1 = t_h.cross(d_h);
 
   v_0.normalize(), v_1.normalize();
-  float sin_phi = fabsf((v_0.cross(v_1)).norm()); 
+  float sin_phi = fabsf((v_0.cross(v_1)).norm());
   return 3.0*sin_phi/h;
 
 }
@@ -1561,7 +1562,7 @@ float Curve<Vector>::signed_torsion(int n, int a) {
     d_0 = current_h->getPoint() - current->getMidPoint();
     t_0 = current->getMidTangent();
     d_h = (current_h->getMidPoint() - current_h->getPoint());
-    t_h = current_h->getTangent();   
+    t_h = current_h->getTangent();
   }
 
   Vector v_0 = t_0.cross(d_0);
@@ -1569,7 +1570,7 @@ float Curve<Vector>::signed_torsion(int n, int a) {
 
   v_0.normalize(), v_1.normalize();
   Vector v_cross = v_1.cross(v_0);
-  sin_phi = fabsf(v_cross.norm()); 
+  sin_phi = fabsf(v_cross.norm());
   // Put the sign in
   if (t_0.dot(v_cross)<0) sin_phi *= -1;
   if (!a)
@@ -1577,7 +1578,7 @@ float Curve<Vector>::signed_torsion(int n, int a) {
   else
     return 3.0*sin_phi/current->arclength1();
 }
- 
+
 
 /*
 // FIXME : maybe this could be usefull one day ...
@@ -1741,7 +1742,7 @@ Curve<Vector> Curve<Vector>::operator+(const Curve<Vector> &c) const {
 
   for (;c1!=_Biarcs.end();c1++,c2++)
      c_new.append(c1->getPoint()+c2->getPoint(),
-                  c1->getTangent()+c2->getTangent()); 
+                  c1->getTangent()+c2->getTangent());
 
   return c_new;
 }
@@ -1761,7 +1762,7 @@ Curve<Vector> Curve<Vector>::operator-(const Curve<Vector> &c) const {
 
   for (;c1!=_Biarcs.end();c1++,c2++)
      c_new.append(c1->getPoint()-c2->getPoint(),
-                  c1->getTangent()-c2->getTangent()); 
+                  c1->getTangent()-c2->getTangent());
 
   return c_new;
 }
@@ -1784,7 +1785,7 @@ Curve<Vector> Curve<Vector>::operator*(const float s) const {
   know what matrix he wants to apply.
 
   This is not the standart 4x4 transformation matrix approach
-  known from homogeneous coordinates stuff. 
+  known from homogeneous coordinates stuff.
 */
 template<class Vector>
 Curve<Vector>& Curve<Vector>::apply(Matrix3 &m) {
@@ -1880,9 +1881,9 @@ void Curve<Vector>::check_tangents() {
   END
   HISTL 7
   HIST "Remarks"
-  END 
-  NCMP <Number of components> 
-  COMP <Number of nodes for component 1> 
+  END
+  NCMP <Number of components>
+  COMP <Number of nodes for component 1>
   NODE px py pz tx ty tz
   NODE 1.1363 0.2903 0.1548 0.2936 1.2251 0.2837
   NODE 0.7187 0.8510 0.0271 -0.6460 0.7450 0.1103
@@ -1976,7 +1977,7 @@ int Curve<Vector>::readSinglePKF(istream &in) {
     char *val=strtok(tmp+5," ");
 
     Vector p,t;
-    
+
     // FIXME : THIS IS NOT RIGHT!!!!! for 4 components
     // Read point
 
@@ -2033,7 +2034,7 @@ int Curve<Vector>::writePKF(ostream &out, int Header) {
 */
 template<class Vector>
 int Curve<Vector>::writePKF(const char* filename, int Header) {
-  
+
   ofstream ofs(filename,ios::out);
   if (!ofs.good()) {
     cerr << "Curve::writePKF() : write to file " << filename << "problem.\n";
@@ -2052,7 +2053,7 @@ int Curve<Vector>::writePKF(const char* filename, int Header) {
   \#C are the number of nodes currently stored in the
   Curve object. Then follow the NODE tags with the
   data point coordinates.
-  
+
   \sa writePKF()
 */
 template<class Vector>
@@ -2063,7 +2064,7 @@ ostream& Curve<Vector>::writeSinglePKF(ostream &out) {
     out << "NODE " << it->getPoint()
 	<< ' '     << it->getTangent() << endl;
   }
-  
+
   out << "END\n";
   out.precision(OldOsf);
 
@@ -2169,7 +2170,7 @@ int Curve<Vector>::readSingleXYZ(istream &in) {
 
 /*!
   Read in the curve data for a single curve given
-  in VECT format! Only one component is supported. 
+  in VECT format! Only one component is supported.
   Skips the first two lines. Reads the number of
   vertices from the 2nd column of line three. Skips
   3 more lines and reads in the coordinates.
@@ -2179,7 +2180,7 @@ int Curve<Vector>::readSingleXYZ(istream &in) {
 template<class Vector>
 int Curve<Vector>::readSingleData(istream &in, const char* delimiter) {
   char tmp[1024];
-  
+
   in.getline(tmp,sizeof tmp);
   in.getline(tmp,sizeof tmp);
 
@@ -2288,14 +2289,14 @@ ostream& Curve<Vector>::writeSingleData(ostream &out, const char* delimiter,
   Computes the tangents for a set of points only. The tangent
   \f$t_i\f$ at the point \f$p_i\f$ is set to
 
-  \f$t_i=\frac{p_{i+1}-p_{i-1}}{|p_{i+1}-p_{i-1}|}\f$ 
+  \f$t_i=\frac{p_{i+1}-p_{i-1}}{|p_{i+1}-p_{i-1}|}\f$
 
   If the curve is open the first and the last point get the
   tangent
 
-  \f$t_0=\frac{p_1-p_0}{|p_1-p_0|}\f$ 
-  \f$t_{N-1}=\frac{p_{N-1}-p_{N-2}}{|p_{N-1}-p_{N-2}|}\f$ 
-  
+  \f$t_0=\frac{p_1-p_0}{|p_1-p_0|}\f$
+  \f$t_{N-1}=\frac{p_{N-1}-p_{N-2}}{|p_{N-1}-p_{N-2}|}\f$
+
 */
 template<class Vector>
 void Curve<Vector>::computeTangents() {
@@ -2330,7 +2331,7 @@ void Curve<Vector>::computeTangents() {
     t = tail->getPoint() - (tail-1)->getPoint() ;
     (tail)->setTangent(t);
   }
-    
+
 }
 
 // FIXME : works only for closed
@@ -2342,12 +2343,12 @@ void Curve<Vector>::computeTangents() {
   curve) stored in Curve \a c are transformed in the following
   way
 
-  \f$p_i^{new}=\frac{p_i^{old}+ p_{i+1}^{old}}{2}\f$ 
+  \f$p_i^{new}=\frac{p_i^{old}+ p_{i+1}^{old}}{2}\f$
 
   the corresponding tangents at each of these points \f$p_i\f$
   if given by
 
-  \f$t_i= \frac{p_i^{old} + p_{i+1}^{old}}{2\,|p_i^{old}-p_{i+1}^{old}| }\f$ 
+  \f$t_i= \frac{p_i^{old} + p_{i+1}^{old}}{2\,|p_i^{old}-p_{i+1}^{old}| }\f$
 
   \sa arcsTolPolygonal()
 */
@@ -2424,7 +2425,7 @@ void Curve<Vector>::arcsToPolygonal() {
 
     tmp.append(p0,Vector(0,1,0));
     tmp.append(p1,Vector(0,1,0));
-    
+
     current++;
   }
 

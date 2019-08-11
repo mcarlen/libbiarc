@@ -7,7 +7,7 @@
   This class is used to store and manipulate a set of curves.
   This data can be interpolated to a biarc curve. The class is
   for open and closed curves, but this must be specified (how
-  to do that is explained later in this text). 
+  to do that is explained later in this text).
 
   \code
   #include "../include/CurveBundle.h"
@@ -30,11 +30,11 @@
   \sa Curve,Biarc
 
 */
- 
+
 //
 // documentation of inlined methods
 //
- 
+
 /*!
   \fn ostream & CurveBundle::operator<<(ostream &out, CurveBundle &c)
 
@@ -173,7 +173,7 @@ float CurveBundle<Vector>::length() {
 
 /*!
   This is the way to close all the curves at once.
-  
+
   \sa unlink(), Curve::link(), Curve::unlink()
 */
 template<class Vector>
@@ -351,7 +351,7 @@ CurveBundle<Vector>& CurveBundle<Vector>::operator-=(const Vector &v) {
   know what matrix he wants to apply.
 
   This is not the standart 4x4 transformation matrix approach
-  known from homogeneous coordinates stuff. 
+  known from homogeneous coordinates stuff.
 */
 template<class Vector>
 CurveBundle<Vector>& CurveBundle<Vector>::rotate(Matrix3 &m) {
@@ -482,7 +482,7 @@ int CurveBundle<Vector>::writePKF(ostream &out) {
       return 0;
     }
   }
-	
+
   return 1;
 }
 
@@ -711,7 +711,7 @@ void CurveBundle<Vector>::polygonalToArcs() {
   This function converts all the biarc curves into
   polygonal curves.
 
-  \sa polygonalToArcs(),Curve::arcsToPolygonal 
+  \sa polygonalToArcs(),Curve::arcsToPolygonal
 */
 template<class Vector>
 void CurveBundle<Vector>::arcsToPolygonal() {
