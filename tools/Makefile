@@ -1,6 +1,6 @@
 include ../Makefile.config
 
-INCLUDE+=-I. -I../include 
+INCLUDE+=-I. -I../include
 LIB_INC+=-L. -L../lib
 LIB+=-lbiarc
 FLAGS=${INCLUDE} ${CXXFLAGS}
