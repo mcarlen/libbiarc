@@ -107,14 +107,14 @@ int main(int argc, char** argv) {
   }
   in.close();
 
-  float mid = fabsf((contacts[0].sigma+contacts.back().sigma)*.5);
+  float mid = std::abs((contacts[0].sigma+contacts.back().sigma)*.5);
   vals.s = 0; vals.sigma = mid;
   contacts.insert(contacts.begin(),vals);
   vals.s = 1; vals.sigma = mid;
   contacts.push_back(vals);
 
   sort(contacts2.begin(),contacts2.end());
-  mid = fabsf((contacts2[0].sigma+contacts2.back().sigma)*.5);
+  mid = std::abs((contacts2[0].sigma+contacts2.back().sigma)*.5);
   vals.s = 0; vals.sigma = mid;
   contacts2.insert(contacts2.begin(),vals);
   vals.s = 1; vals.sigma = mid;
