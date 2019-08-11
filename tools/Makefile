@@ -26,15 +26,15 @@ animate: animate.cpp
 
 contactset4: contactset.cpp
 	@echo Build $@
-	@$(LD) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
+	@$(CXX) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
 
 follow_contact4: follow_contact.cpp
 	@echo Build $@
-	@$(LD) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
+	@$(CXX) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
 
 %: %.cpp
 	@echo Build $@
-	@$(LD) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)
+	@$(CXX) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)
 
 clean :
 	@echo Cleaning `basename ${PWD}`
