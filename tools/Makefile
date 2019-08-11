@@ -22,7 +22,11 @@ else
 endif
 
 animate: animate.cpp
+ifeq ($(SOQT),YES)
 	soqt-config --build animate animate.cpp
+else
+	touch animate
+endif
 
 contactset4: contactset.cpp
 	@echo Build $@
