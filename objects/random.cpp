@@ -24,9 +24,8 @@ int main(int argc,char** argv) {
 	  exit(1);
   }
 
-  float scale = atof(argv[1]);
   int nodes = atoi(argv[2]);
-  
+
   Curve<Vector3> c;
 
   // construct header
@@ -41,7 +40,7 @@ int main(int argc,char** argv) {
   c.computeTangents();
   if (!c.writePKF("random.pkf"))
     cerr << "Problem writing file."<<endl;
-   
+
   return 0;
 }
 
