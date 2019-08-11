@@ -649,7 +649,7 @@ int CurveBundle<Vector>::readVECT(const char* infile) {
       }
       ctmp.append(v,Vector3(0,0,0));
     }
-    if (NoNodes<0) ctmp.link();
+    if (NoNodes[i]<0) ctmp.link();
     ctmp.computeTangents();
     newCurve(ctmp);
   }
