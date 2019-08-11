@@ -65,7 +65,7 @@ void scale_move(Curve<VecType>* curve) {
   for (int i=0;i<curve->nodes();++i) {
     VecType p = (*curve)[i].getPoint();
     float val = p.dot(n);
-    if (val > 0 && fabsf(val)>plane_d) {
+    if (val > 0 && std::abs(val)>plane_d) {
       // stretch point
       float blend = (val-plane_d)/(dmax-plane_d);
       p = p + n*magnitude*blend*blend*blend;
@@ -86,7 +86,7 @@ void rot_move(Curve<VecType>* curve) {
   for (int i=0;i<curve->nodes();++i) {
     VecType p = (*curve)[i].getPoint();
     float val = p.dot(n);
-    if (val > 0 && fabsf(val)>plane_d) {
+    if (val > 0 && std::abs(val)>plane_d) {
       // rot point
       float blend = (val-plane_d)/(dmax-plane_d);
       p = (p-proj_center).rotPtAroundAxis(rot_angle*blend*blend, n) + proj_center;

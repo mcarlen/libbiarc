@@ -55,9 +55,9 @@ void getContacts(Curve<Vector3>& curve, vector<contact>& stcontacts, vector<CStr
 		cout.precision(12);
 		cout << it->s << " " << strut.t0.dot(strut.t1) << " "
 		     << strut.t0.dot(strut.p1 - strut.p0) << " "
-				 << strut.t1.dot(strut.p0 - strut.p1) << " "
-				 << d << " "
-				 << fabsf(d-thick) << endl;
+		     << strut.t1.dot(strut.p0 - strut.p1) << " "
+		     << d << " "
+		     << std::abs(d-thick) << endl;
   }
 }
 

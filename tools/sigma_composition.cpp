@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
   }
   in.close();
 
-  float mid = fabsf((contacts[0].sigma+contacts.back().sigma)*.5);
+  float mid = std::abs((contacts[0].sigma+contacts.back().sigma)*.5);
   vals.s = 0; vals.sigma = mid;
   contacts.insert(contacts.begin(),vals);
   vals.s = 1; vals.sigma = mid;

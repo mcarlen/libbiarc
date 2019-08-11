@@ -1229,8 +1229,8 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
 
     if (SegDummy < current->biarclength()) {
       // FIXME:straight segment check : can i do that better?!!!
-      if (fabsf(current->getTangent().dot(current->getNext().getTangent()))>(1.0-StraightSegTol) &&
-          fabsf(current->getTangent().dot((current->getNext().getPoint()-current->getPoint()).normalize()))>(1.-StraightSegTol)) {
+      if (std::abs(current->getTangent().dot(current->getNext().getTangent()))>(1.0-StraightSegTol) &&
+          std::abs(current->getTangent().dot((current->getNext().getPoint()-current->getPoint()).normalize()))>(1.-StraightSegTol)) {
 	p = current->getPoint() + current->getTangent()*SegDummy;
 	t = current->getTangent();
       }
@@ -1458,7 +1458,7 @@ float Curve<Vector>::torsion(int n, int a) {
   Vector v_1 = t_h.cross(d_h);
 
   v_0.normalize(), v_1.normalize();
-  sin_phi = fabsf((v_0.cross(v_1)).norm());
+  sin_phi = std::abs((v_0.cross(v_1)).norm());
   if (!a)
     return 3.0*sin_phi/current->arclength0();
   else
@@ -1509,7 +1509,7 @@ float Curve<Vector>::torsion2(int n) {
   Vector v_1 = t_h.cross(d_h);
 
   v_0.normalize(), v_1.normalize();
-  float sin_phi = fabsf((v_0.cross(v_1)).norm());
+  float sin_phi = std::abs((v_0.cross(v_1)).norm());
   return 3.0*sin_phi/h;
 
 }
@@ -1570,7 +1570,7 @@ float Curve<Vector>::signed_torsion(int n, int a) {
 
   v_0.normalize(), v_1.normalize();
   Vector v_cross = v_1.cross(v_0);
-  sin_phi = fabsf(v_cross.norm());
+  sin_phi = std::abs(v_cross.norm());
   // Put the sign in
   if (t_0.dot(v_cross)<0) sin_phi *= -1;
   if (!a)
@@ -1842,7 +1842,7 @@ void Curve<Vector>::check_tangents() {
   int count = 0;
   for (biarc_it it = begin(); it!= end(); it++) {
     count++;
-    if (fabsf(it->getTangent().norm()-1.0)>1e-4)
+    if (std::abs(it->getTangent().norm()-1.0)>1e-4)
       cout << "Tan norm of biarc " << count << " : " << (*it) << " = " << it->getTangent().norm()<<endl;
     if (it->getTangent().dot(it->getNext().getTangent())<1-0.1 && it!=end()-1)
       cout << "Tan too far apart of biarc " << count << " : " << (*it) << " = " << it->getTangent().norm()<<endl;

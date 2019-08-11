@@ -14,7 +14,7 @@
 #define b3 vector<Biarc<Vector3> >::iterator
 
 int th_cond(float d,Vector3& p0, Vector3 &p1, float tol) {
-  if ( fabsf((p0-p1).norm()-d)<d*tol ) return 1;
+  if ( std::abs((p0-p1).norm()-d)<d*tol ) return 1;
   return 0;
 }
 

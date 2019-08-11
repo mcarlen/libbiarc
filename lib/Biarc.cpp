@@ -33,6 +33,7 @@
   \sa print()
 */
 
+#include <cmath>
 #include "../include/Biarc.h"
 
 // Templatized code needs to be kept in the same
@@ -1121,7 +1122,7 @@ int Biarc<Vector>::operator!=(const Biarc &b) const {
   return !(*this==b);
 }
 
-#define CLAMP_DELTA(v) (fabsf(v)<1e-12?0:v)
+#define CLAMP_DELTA(v) (std::abs(v)<1e-12?0:v)
 /*!
   Prints starting point, tangent, matching point and matching tangent
   onto the stream \a out. If the biarc is not valid, it only prints
