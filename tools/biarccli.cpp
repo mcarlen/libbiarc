@@ -38,7 +38,7 @@ void printpointat(float s) {
 
       // check if we have valid biarcs!
       assert(current->isBiarc());
- 
+
       float Total = s*(*cb)[i].length();
       while (Total > current->biarclength()) {
         Total -= current->biarclength();
@@ -82,13 +82,13 @@ void printcurvatureat(float s) {
 
       // check if we have valid biarcs!
       assert(current->isBiarc());
- 
+
       float Total = s*(*cb)[i].length();
       while (Total > current->biarclength()) {
         Total -= current->biarclength();
         ++current;
       }
-      
+
       if (Total < current->arclength0()) {
          R = current->radius0();
          }
@@ -117,13 +117,13 @@ void printnormalat(float s) {
 
       // check if we have valid biarcs!
       assert(current->isBiarc());
- 
+
       float Total = s*(*cb)[i].length();
       while (Total > current->biarclength()) {
         Total -= current->biarclength();
         ++current;
       }
-     cout << "."; 
+     cout << ".";
      write_vec(current->normalOnBiarc(Total));
      cout << endl;
      }
@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
   while (!cin.eof()) {
     cin >> line;
     //cout << "ddd>" << line << "<ddd" <<endl;;
-    token.assign( strtok( (char *) line.c_str(),":")); 
+    token.assign( strtok( (char *) line.c_str(),":"));
     if (token.compare("pointat")==0) {
       token.assign(strtok(NULL,":"));
       double s = atof(token.c_str());

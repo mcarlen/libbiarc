@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
   cb.make_default();
   //cb.normalize();
   //cb.make_default();
-  
+
   cout.precision(16);
 
   float s = 0, r, r_global, r_global_fast;
