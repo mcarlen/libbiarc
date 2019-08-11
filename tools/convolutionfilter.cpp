@@ -22,7 +22,6 @@ int main(int argc, char **argv) {
   }
 
 
-  int Stencil = 1; // argv[2]
   int Iterations = atoi(argv[3]);
   Curve<Vector3> c(argv[4]);
 // XXX chose if open or closed
@@ -30,8 +29,6 @@ int main(int argc, char **argv) {
   c.make_default();
 
   cout << "Thickness is " << c.thickness_fast() << endl;
-
-  float thick = atof(argv[1]);
 
 #define b3 vector<Biarc<Vector3> >::iterator
   float r0, r1;
@@ -71,7 +68,7 @@ int main(int argc, char **argv) {
 
   c.computeTangents();
   c.writePKF("out.pkf");
-  
+
   return 0;
 }
 
