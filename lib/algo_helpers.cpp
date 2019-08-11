@@ -696,7 +696,7 @@ float min_seg_dist(
   Vector D = B0-B1, M0 = B0p-B0, M1 = B1p-B1;
   float a = M0.dot(M0), b = -M0.dot(M1), c = M1.dot(M1);
   float d = M0.dot(D), e = -M1.dot(D); // , f = D.dot(D);
-  float det = fabsf(a*c-b*b);
+  float det = std::abs(a*c-b*b);
   float invDet, tmp;
   s = b*e-c*d; t = b*d-a*e;
 
