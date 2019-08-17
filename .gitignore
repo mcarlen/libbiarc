@@ -4,6 +4,25 @@
 # Outputs
 *.a
 *.so
+objects/bone
+objects/borromean
+objects/circle
+objects/circle4
+objects/crouzy
+objects/ellipse
+objects/helix
+objects/hopf
+objects/inf
+objects/knottable
+objects/line
+objects/random
+objects/sinus
+objects/solenoid
+objects/spiral
+objects/stadium
+objects/torusknot
+objects/torusknot4
+objects/trefoil
 tools/align
 tools/angle_condition
 tools/angle_principal_normal_contacts
@@ -47,6 +66,7 @@ tools/pkf2mesh
 tools/pkf2obj
 tools/pkf2ply
 tools/pkf2stl
+tools/pkf2stl2
 tools/pkf2vect
 tools/pkf2xyz
 tools/pkfframe
