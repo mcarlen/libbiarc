@@ -34,7 +34,10 @@ all: $(TODO)
 -include .depend
 
 .depend: *.cpp
-	$(CXX) $(FLAGS) -E -MM *.cpp > .depend
+	$(CXX) $(FLAGS) -E -MM *.cpp > tmp_depend
+	sed 's/\.o/_float.o/' < tmp_depend > .depend
+	sed 's/\.o/_double.o/' < tmp_depend >> .depend
+	rm tmp_depend
 
 # Build float only
 float: ${LIB_FLOAT} ${STATIC_LIB_FLOAT}
