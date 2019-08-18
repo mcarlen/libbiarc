@@ -774,10 +774,10 @@ static void write_facet(ostream &file,
 
   file << fn
        << (a - b).cross(b - c).normalize() << endl
-       << ol << v
-       << a << endl << v
-       << b << endl << v
-       << c << endl
+       << ol
+       << v << a << endl
+       << v << b << endl
+       << v << c << endl
        << el << ef;
 }
 
