@@ -51,9 +51,9 @@ protected:
   void setCite(const char *cite);
   void setHistory(const char *history);
 
-  int readHeader(istream& in);
+  bool readHeader(istream& in);
   bool readEnd(istream &in) const;
-  int writeHeader(ostream& out);
+  bool writeHeader(ostream& out);
 
   friend ostream & operator<<(ostream &out, PKFmanip &c);
 };

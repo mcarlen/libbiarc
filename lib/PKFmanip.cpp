@@ -265,7 +265,7 @@ void PKFmanip::writeString(ostream &os,
 
   \sa writeHeader()
 */
-int PKFmanip::readHeader(istream &in) {
+bool PKFmanip::readHeader(istream &in) {
 
   char tmp[1024];
   in.getline(tmp,sizeof tmp);
@@ -273,12 +273,12 @@ int PKFmanip::readHeader(istream &in) {
   // Header begin
   if(strncmp(tmp,"PKF 0.2",7)) {
     cerr << "ERROR : readkPKF() : Not in PKF 0.2 format!\n";
-    return 0;
+    return false;
   }
   in.getline(tmp,sizeof tmp);
   if(strncmp(tmp,"BIARC_KNOT",10)) {
     cerr << "Expected BIARC_KNOT. Only Biarc Format is supported.\n";
-    return 0;
+    return false;
   }
   _NameString    = setString(tmp+11);
   _EticString    = readString(in,"ETICL","ETIC");
@@ -286,7 +286,7 @@ int PKFmanip::readHeader(istream &in) {
   _HistoryString = readString(in,"HISTL","HIST");
   //Header End
 
-  return 1;
+  return true;
 }
 
 /*!
@@ -295,7 +295,7 @@ int PKFmanip::readHeader(istream &in) {
 
   \sa readPKF()
 */
-int PKFmanip::writeHeader(ostream &out) {
+bool PKFmanip::writeHeader(ostream &out) {
 
   out << szPKFString << '\n';
 
@@ -311,5 +311,5 @@ int PKFmanip::writeHeader(ostream &out) {
   writeString(out,"CITEL","CITE",_CiteString);
   writeString(out,"HISTL","HIST",_HistoryString);
 
-  return 1;
+  return true;
 }
