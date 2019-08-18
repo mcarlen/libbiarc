@@ -10,6 +10,23 @@
 #include <TubeBundle.h>
 #include <algo_helpers.h>
 
+static void write_facet(ostream &file,
+			const Vector3 a, const Vector3 b, const Vector3 c) {
+  const char fn[] = "facet normal ";
+  const char ol[] = "  outer loop\n";
+  const char v[]  = "    vertex ";
+  const char el[] = "  endloop\n";
+  const char ef[] = "endfacet\n";
+
+  file << fn
+       << (a - b).cross(b - c).normalize() << endl
+       << ol << v
+       << a << endl << v
+       << b << endl << v
+       << c << endl
+       << el << ef;
+}
+
 int main(int argc, char **argv) {
   if(argc < 6 || argc > 7) {
     cerr << argv[0] << " <PFK file> <Node multiplier> "
@@ -60,27 +77,17 @@ int main(int argc, char **argv) {
     file << "solid " << knot[i].getName() << endl;
     for (int j=0;j<knot[i].nodes();++j) {
       for (int k=0;k<=S;++k) {
-      int xii=(j+1)%knot[i].nodes(), kii=(k+1)%S;
+      int xii=(j+1)%knot[i].nodes();
+      int kii=(k+1)%S;
 
-        file << "facet normal "
-             << (knot[i].meshNormal(j*(S+1)+k)+
-                 knot[i].meshNormal(xii*(S+1)+k)+
-                 knot[i].meshNormal(xii*(S+1)+kii))/3. << endl
-             << "  outer loop\n    vertex "
-             << knot[i].meshPoint(j*(S+1)+k) << "\n    vertex "
-             << knot[i].meshPoint(xii*(S+1)+k) << "\n     vertex "
-             << knot[i].meshPoint(xii*(S+1)+kii) << endl
-             << "  endloop\nendfacet\n";
+      write_facet(file,
+		  knot[i].meshPoint(j*(S+1)+k),
+		  knot[i].meshPoint(xii*(S+1)+k),
+		  knot[i].meshPoint(xii*(S+1)+kii));
 
-        file << "facet normal "
-             << (knot[i].meshNormal(j*(S+1)+k)+
-                 knot[i].meshNormal(xii*(S+1)+kii)+
-                 knot[i].meshNormal(j*(S+1)+kii))/3. << endl
-             << "  outer loop\n    vertex "
-             << knot[i].meshPoint(j*(S+1)+k) << "\n    vertex "
-             << knot[i].meshPoint(xii*(S+1)+kii) << "\n    vertex "
-             << knot[i].meshPoint(j*(S+1)+kii) << endl
-             << "  endloop\nendfacet\n";
+      write_facet(file, knot[i].meshPoint(j*(S+1)+k),
+		  knot[i].meshPoint(xii*(S+1)+kii),
+		  knot[i].meshPoint(j*(S+1)+kii));
       }
     }
     file << "endsolid " << knot[i].getName() << endl;
