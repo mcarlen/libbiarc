@@ -1,6 +1,6 @@
 include ../Makefile.config
 
-INCLUDE+=-I. -I../include
+INCLUDE+=-I../include
 LIB_INC+=-L. -L../lib
 LIB+=-lbiarc
 FLAGS=${INCLUDE} ${CXXFLAGS}
@@ -9,7 +9,12 @@ PROGS=$(SRC:.cpp=)
 
 .PHONY: all
 
-all: $(PROGS)
+all: .depend $(PROGS)
+
+-include .depend
+
+.depend: *.cpp
+	$(CXX) $(FLAGS) -E -MM *.cpp > .depend
 
 billiard_poly: billiard_poly.cpp
 	$(CXX) -o $@ $<
@@ -36,7 +41,7 @@ follow_contact4: follow_contact.cpp
 	@echo Build $@
 	@$(CXX) $(FLAGS) -DDim4 -o $@ $(LIB_INC) $< $(LIB)
 
-%: %.cpp
+%: %.cpp ../lib/libbiarc.a
 	@echo Build $@
 	@$(CXX) $(FLAGS) -o $@ $(LIB_INC) $@.cpp $(LIB)
 
