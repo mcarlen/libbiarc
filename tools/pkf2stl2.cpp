@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 
     file << "solid " << knot[i].getName() << endl;
     for (int j=0;j<knot[i].nodes();++j) {
-      for (int k=0;k<=S;++k) {
+      for (int k=0;k<S;++k) {
       int xii=(j+1)%knot[i].nodes();
       int kii=(k+1)%S;
 
