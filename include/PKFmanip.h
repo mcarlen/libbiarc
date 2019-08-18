@@ -31,8 +31,7 @@ class PKFmanip {
   void writeString(ostream &os,const char *szLengthTag,
 		   const char *szTag,const char *szString);
 
- public:
-
+public:
   PKFmanip();
   PKFmanip(const PKFmanip &h);
   PKFmanip &operator= (const PKFmanip &h);
@@ -41,23 +40,26 @@ class PKFmanip {
   void header(const char* name="No name",const char* etic="",
 	      const char *cite="", const char *history="");
 
-  void setName(const char *name);
-  void setEtic(const char *etic);
-  void setCite(const char *cite);
-  void setHistory(const char *history);
   const char *getName() const;
   const char *getEtic() const;
   const char *getCite() const;
   const char *getHistory() const;
 
+protected:
+  void setName(const char *name);
+  void setEtic(const char *etic);
+  void setCite(const char *cite);
+  void setHistory(const char *history);
+
   int readHeader(istream& in);
+  bool readEnd(istream &in) const;
   int writeHeader(ostream& out);
 
   friend ostream & operator<<(ostream &out, PKFmanip &c);
 };
 
 inline ostream &operator<<(ostream &out, PKFmanip &pkf) {
-  
+
   // Spit out PKF header
   pkf.writeHeader(out);
   return out;

@@ -24,7 +24,7 @@
  *  a video that morphs from one knot to another by
  *  using some time step and the operator+ with lin
  *  interpolated moves or so.
- *  
+ *
  */
 
 #define make_default() makeMidpointRule()
@@ -110,10 +110,10 @@ class Curve : public PKFmanip {
   float radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &to);
   float radius_pt(const Vector &p0, const Vector &t0, const Vector &p1) const;
   float radius_pt(const float s, const float t) const;
- 
+
   float pp(int from, int to) const;
   float pp(float s, float t) const;
-  
+
   float radius_global(Biarc<Vector>& at);
 
   float thickness_fast();
@@ -169,7 +169,7 @@ class Curve : public PKFmanip {
   void check_tangents();
 
   int readPKF(const char* filename);
-  int readPKF(istream &in);
+  bool readPKF(istream &in);
   int writePKF(const char* filename, int Header = 1);
   int writePKF(ostream &out, int Header = 1);
   int readXYZ(const char* filename);
@@ -186,12 +186,12 @@ class Curve : public PKFmanip {
 
 template<class Vector>
 inline ostream &operator<<(ostream &out, Curve<Vector> &c) {
-    
+
   if (c.nodes()==0) {
     out << "-- Curve : No points. --";
     return out;
   }
-  
+
   for (biarc_it it=c.begin();it!=c.end();it++) {
     out << "Biarc "<< it->id() <<" : " << (*it);
     if (it!=(c.end()-1)) out << '\n';

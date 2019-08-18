@@ -31,6 +31,11 @@ OBJ_DOUBLE=${SRC:.cpp=_double.o}
 
 all: $(TODO)
 
+-include .depend
+
+.depend: *.cpp
+	$(CXX) $(FLAGS) -E -MM *.cpp > .depend
+
 # Build float only
 float: ${LIB_FLOAT} ${STATIC_LIB_FLOAT}
 

@@ -12,9 +12,9 @@
   \code
 
   #include "../include/TubeBundle.h"
-  
+
   main(int argc, char **argv) {
-  
+
     // Read curve data from a file
     TubeBundle t("curve.pkf");
 
@@ -46,15 +46,15 @@
     return 0;
   }
   \endcode
-  
+
   \sa Curve, Biarc
-  
+
 */
- 
+
 //
 // documentation of inlined methods
 //
- 
+
 /*!
   \fn ostream &TubeBundle::operator<<(ostream &out, TubeBundle &t) {
 
@@ -267,7 +267,7 @@ void TubeBundle<Vector>::computeBoundingBox() {
 		       BBoxMax[1]:_BBox_Max[1],
 		       BBoxMax[2]>_BBox_Max[2]?
 		       BBoxMax[2]:_BBox_Max[2]);
-    
+
     _Center += container[k].getCenter();
   }
   _Center /= tubes();
@@ -361,6 +361,9 @@ int TubeBundle<Vector>::readPKF(istream& in) {
 
   for (int i=0;i<NoCurves;i++)
     this->newTube(in);
+
+  if (!readEnd(in))
+    return 0;
 
   return 1;
 }

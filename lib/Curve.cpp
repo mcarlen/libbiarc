@@ -1899,7 +1899,7 @@ void Curve<Vector>::check_tangents() {
   \sa writePKF(),CurveBundle,PKFmanip
 */
 template<class Vector>
-int Curve<Vector>::readPKF(istream &in) {
+bool Curve<Vector>::readPKF(istream &in) {
 
   readHeader(in);
 
@@ -1908,14 +1908,14 @@ int Curve<Vector>::readPKF(istream &in) {
   in.getline(tmp,sizeof tmp);
   if(strncmp(tmp,"NCMP ",5)) {
     cerr << "Expected NCMP: " << tmp << '\n';
-    return 0;
+    return false;
   }
   int NoCurves = atoi(tmp+5);
   if (NoCurves>1) {
     cerr << "Number of curves = " << NoCurves << endl
 	 << "The class Curve can not handle more than\n"
 	 << "one component, use a CurveBundle object!";
-    return 0;
+    return false;
   }
 
   if (!readSinglePKF(in)) {
@@ -1923,7 +1923,10 @@ int Curve<Vector>::readPKF(istream &in) {
     return 0;
   }
 
-  return 1;
+  if (!readEnd(in))
+    return false;
+
+  return true;
 }
 
 /*!
@@ -1996,14 +1999,7 @@ int Curve<Vector>::readSinglePKF(istream &in) {
 
   }
 
-  in.getline(tmp,sizeof tmp);
-  if(strncmp(tmp,"END",3)) {
-    cerr << "Expected END: " << tmp << '\n';
-    return 0;
-  }
-
   return 1;
-
 }
 
 /*!

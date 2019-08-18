@@ -2,13 +2,13 @@
   \class PKFmanip include/PKFmanip.h include/PKFmanip.h
   \ingroup BiarcLibGroup
   \brief The PKFmanip class for storing and manipulating biarc curves
-  
+
 */
- 
+
 //
 // documentation of inlined methods
 //
- 
+
 /*!
   \fn ostream & PKFmanip::operator<<(ostream &out, PKFmanip &c)
 
@@ -210,6 +210,16 @@ char* PKFmanip::readString(istream &is,
     exit(1);
   }
   return szString;
+}
+
+bool PKFmanip::readEnd(istream &in) const {
+  char tmp[1024];
+  in.getline(tmp,sizeof tmp);
+  if(strncmp(tmp,"END",3)) {
+    cerr << "Expected END xx: " << tmp << '\n';
+    return false;
+  }
+  return true;
 }
 
 #define MAX_LINE_LENGTH		255

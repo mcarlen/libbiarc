@@ -9,7 +9,7 @@ PROGS=$(SRC:.cpp=)
 
 .PHONY: all
 
-all: .depend $(PROGS)
+all: $(PROGS)
 
 -include .depend
 
