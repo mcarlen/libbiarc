@@ -7,7 +7,8 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "../include/TubeBundle.h"
+#include <TubeBundle.h>
+#include <algo_helpers.h>
 
 int main(int argc, char **argv) {
   if(argc < 6 || argc > 7) {
@@ -29,6 +30,7 @@ int main(int argc, char **argv) {
 	exit(1);
   }
   cout << "Process all curves in PKF :\n";
+  file << "solid " << knot.getName() << endl;
   for (int i=0;i<knot.tubes();i++) {
     knot[i].scale(10.);
     knot[i].link();
@@ -48,36 +50,11 @@ int main(int argc, char **argv) {
     cout << "Write to file : " << argv[5];
 //   cout << "N = " << N << ", S = " << S << endl;
 
-    file << "solid " << knot[i].getName() << endl;
-    for (int j=0;j<N;++j) {
-      for (int k=0;k<=S;++k) {
-        int xii=(j+1)%N, kii=(k+1)%S;
-
-        file << "facet normal "
-             << (knot[i].meshNormal(j*(S+1)+k)+
-                 knot[i].meshNormal(xii*(S+1)+k)+
-                 knot[i].meshNormal(xii*(S+1)+kii))/3. << endl
-             << "  outer loop\n    vertex "
-             << knot[i].meshPoint(j*(S+1)+k) << "\n    vertex "
-             << knot[i].meshPoint(xii*(S+1)+k) << "\n     vertex "
-             << knot[i].meshPoint(xii*(S+1)+kii) << endl
-             << "  endloop\nendfacet\n";
-
-        file << "facet normal "
-             << (knot[i].meshNormal(j*(S+1)+k)+
-                 knot[i].meshNormal(xii*(S+1)+kii)+
-                 knot[i].meshNormal(j*(S+1)+kii))/3. << endl
-             << "  outer loop\n    vertex "
-             << knot[i].meshPoint(j*(S+1)+k) << "\n    vertex "
-             << knot[i].meshPoint(xii*(S+1)+kii) << "\n    vertex "
-             << knot[i].meshPoint(j*(S+1)+kii) << endl
-             << "  endloop\nendfacet\n";
-      }
-    }
-    file << "endsolid " << knot[i].getName() << endl;
+    write_STL(file, knot[i], S);
 
     cout << "\t\t\t[OK]\n";
   }
+  file << "endsolid " << knot.getName() << endl;
   file.close();
   return 0;
 }

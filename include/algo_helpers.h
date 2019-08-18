@@ -6,6 +6,7 @@
 #include "Vector4.h"
 #include "Biarc.h"
 #include "CurveBundle.h"
+#include "Tube.h"
 
 #define biarc_it  typename vector< Biarc<Vector> >::iterator
 #define candi_it typename vector<Candi<Vector> >::iterator
@@ -125,6 +126,8 @@ void aux_corner(float s_in, float t_in, float Qs, float Qt,
 template<class Vector>
 float min_seg_dist(const Vector &B0, const Vector &B0p, const Vector &B1,
                    const Vector &B1p,float &s,float &t);
+
+void write_STL(ostream &file, const Tube<Vector3> &tube, const int S);
 
 #include "../lib/algo_helpers.cpp"
 
