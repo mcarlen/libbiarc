@@ -7,7 +7,7 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "../include/Curve.h"
+#include <Curve.h>
 
 int main(int argc, char **argv) {
 
