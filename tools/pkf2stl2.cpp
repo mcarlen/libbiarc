@@ -67,12 +67,12 @@ int main(int argc, char **argv) {
     else
       knot[i].make_default();
 
-    cout << "Generate mesh (N="<<knot[i].nodes()<<",S="<<S<<",R="<<R<<")";
+    cout << "Generate mesh (N=" << knot[i].nodes() << ",S=" << S
+	 << ",R=" << R<<")";
     knot[i].makeMesh(knot[i].nodes(),S,R,Tol);
     cout << "\t\t[OK]\n";
 
     cout << "Write to file : " << argv[5];
-//   cout << "N = " << N << ", S = " << S << endl;
 
     file << "solid " << knot[i].getName() << endl;
     for (int j=0;j<knot[i].nodes();++j) {
