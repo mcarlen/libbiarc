@@ -54,7 +54,7 @@ class Tube : public Curve
   void init();
   void clear_tube();
 
-  Vector & meshPoint(int i);
+  Vector & meshPoint(int i) const;
   Vector & meshNormal(int i);
 
   int segments();
@@ -99,7 +99,7 @@ inline ostream &operator<<(ostream &out, Tube<Vector> &t) {
     return out;
   }
   */
-  
+
   /* first and last circle point as well as
    * first and last point on curve are repeated !!
    * to keep connectivity of the mesh

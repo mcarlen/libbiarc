@@ -12,9 +12,9 @@
   \code
 
   #include "../include/Tube.h"
-  
+
   main(int argc, char **argv) {
-  
+
     // Read curve data from a file
     Tube t("curve.pkf");
 
@@ -46,15 +46,15 @@
     return 0;
   }
   \endcode
-  
+
   \sa Curve, Biarc
-  
+
 */
- 
+
 //
 // documentation of inlined methods
 //
- 
+
 /*!
   \fn ostream &Tube::operator<<(ostream &out, Tube &t) {
 
@@ -197,7 +197,7 @@ void Tube<Vector>::clear_tube() {
 /*!
   Returns the number of segments on the tubular cross section.
 
-  \sa Curve::nodes(),radius()  
+  \sa Curve::nodes(),radius()
 */
 template <class Vector>
 int Tube<Vector>::segments() {
@@ -216,16 +216,16 @@ float Tube<Vector>::radius() {
 
 /*!
   Returns mesh point number \a i. There are a total
-  of \f$(segments+1)\cdot (nodes+1)\f$ mesh points. 
+  of \f$(segments+1)\cdot (nodes+1)\f$ mesh points.
 */
 template <class Vector>
-Vector & Tube<Vector>::meshPoint(int i) {
+Vector & Tube<Vector>::meshPoint(int i) const {
   return _MeshPoints[i];
 }
 
 /*!
   Returns mesh normal number \a i. There are a total
-  of \f$(segments+1)\cdot (nodes+1)\f$ mesh normals. 
+  of \f$(segments+1)\cdot (nodes+1)\f$ mesh normals.
 */
 template <class Vector>
 Vector & Tube<Vector>::meshNormal(int i) {
@@ -292,7 +292,7 @@ void Tube<Vector>::computeBoundingBox() {
 			  _MeshPoints[idx][1]:_BBox_Max[1],
 			  _MeshPoints[idx][2]>_BBox_Max[2]?
 			  _MeshPoints[idx][2]:_BBox_Max[2]);
-      
+
       _Center += _MeshPoints[idx];
     }
   }
@@ -519,7 +519,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
       Frame = (Frame*tmp.cay(Theta));
 
       Normals[i] = Frame[0];
-      Normals[i].normalize();  
+      Normals[i].normalize();
 
     }
 
@@ -530,7 +530,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
      * and the direction from the center of the
      * circle to the closest point on the circle
      * given by the last normal Normals[N]
-     * 
+     *
      * O = circle center
      * Search for closest point to O+Normals[0]
      * on the circle defined by Normals[N]
@@ -578,7 +578,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
 
       else {
         angleDiff = acos(Normals[0].dot(ClosestDirection));
-        // get rotation handedness to correct the mesh 
+        // get rotation handedness to correct the mesh
         direction = (ClosestDirection.cross(Normals[0])).dot(Tangents[0]) ;
         AngularSpeedScale = angleDiff/Nloc; // maybe /10.0
 
@@ -682,16 +682,16 @@ void Tube<Vector>::renderman_init() {
 
   for (int i=0;i<NU;i++) {
     for (int j=0;j<NV;j++) {
-      
+
       MeshPoints[j*NU+i][0] = meshPoint(i*NV+j)[0];
       MeshPoints[j*NU+i][1] = meshPoint(i*NV+j)[1];
       MeshPoints[j*NU+i][2] = meshPoint(i*NV+j)[2];
-      
+
       MeshNormals[j*NU+i][0] = meshNormal(i*NV+j)[0];
       MeshNormals[j*NU+i][1] = meshNormal(i*NV+j)[1];
       MeshNormals[j*NU+i][2] = meshNormal(i*NV+j)[2];
     }
-  }  
+  }
 };
 
 /*!
@@ -735,7 +735,7 @@ void Tube<Vector>::exportRIBFile(char* filename, int W, int H,
   // Setup Camera
   RiRotate(-angle/M_PI*180.,-a[0],-a[1],a[2]);
   RiTranslate(-p[0],-p[1],p[2]);
-  
+
   RiWorldBegin();
   // FIXME : colors ? other shaders ?
   // Inventor and RenderMan do not have the sym coord system

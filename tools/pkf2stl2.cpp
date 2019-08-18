@@ -27,6 +27,24 @@ static void write_facet(ostream &file,
        << el << ef;
 }
 
+static void write_STL(ostream &file, const Tube<Vector3> &tube, const int S) {
+  for (int j=0;j<tube.nodes();++j) {
+    for (int k=0;k<S;++k) {
+      int xii=(j+1)%tube.nodes();
+      int kii=(k+1)%S;
+
+      write_facet(file,
+		  tube.meshPoint(j*(S+1)+k),
+		  tube.meshPoint(xii*(S+1)+k),
+		  tube.meshPoint(xii*(S+1)+kii));
+
+      write_facet(file, tube.meshPoint(j*(S+1)+k),
+		  tube.meshPoint(xii*(S+1)+kii),
+		  tube.meshPoint(j*(S+1)+kii));
+    }
+  }
+}
+
 int main(int argc, char **argv) {
   if(argc < 6 || argc > 7) {
     cerr << argv[0] << " <PFK file> <Node multiplier> "
@@ -55,6 +73,7 @@ int main(int argc, char **argv) {
   R *= compute_thickness(&cb) / 2;
 
   cout << "Process all curves in PKF :\n";
+  file << "solid " << knot.getName() << endl;
   for (int i=0;i<knot.tubes();i++) {
     knot[i].link();
     if (N != 1) {
@@ -74,26 +93,11 @@ int main(int argc, char **argv) {
 
     cout << "Write to file : " << argv[5];
 
-    file << "solid " << knot[i].getName() << endl;
-    for (int j=0;j<knot[i].nodes();++j) {
-      for (int k=0;k<S;++k) {
-      int xii=(j+1)%knot[i].nodes();
-      int kii=(k+1)%S;
-
-      write_facet(file,
-		  knot[i].meshPoint(j*(S+1)+k),
-		  knot[i].meshPoint(xii*(S+1)+k),
-		  knot[i].meshPoint(xii*(S+1)+kii));
-
-      write_facet(file, knot[i].meshPoint(j*(S+1)+k),
-		  knot[i].meshPoint(xii*(S+1)+kii),
-		  knot[i].meshPoint(j*(S+1)+kii));
-      }
-    }
-    file << "endsolid " << knot[i].getName() << endl;
+    write_STL(file, knot[i], S);
 
     cout << "\t\t\t[OK]\n";
   }
+  file << "endsolid " << knot.getName() << endl;
   file.close();
   return 0;
 }
