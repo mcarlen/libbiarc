@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 
     cout << "Write to file : " << argv[5];
 
-    write_STL(file, knot[i], S);
+    knot[i].write_STL(file);
 
     cout << "\t\t\t[OK]\n";
   }

@@ -763,40 +763,4 @@ float min_seg_dist(
   return ((B0+(B0p-B0)*s)-(B1+(B1p-B1)*t)).norm();
 }
 
-
-static void write_facet(ostream &file,
-			const Vector3 a, const Vector3 b, const Vector3 c) {
-  const char fn[] = "facet normal ";
-  const char ol[] = "  outer loop\n";
-  const char v[]  = "    vertex ";
-  const char el[] = "  endloop\n";
-  const char ef[] = "endfacet\n";
-
-  file << fn
-       << (a - b).cross(b - c).normalize() << endl
-       << ol
-       << v << a << endl
-       << v << b << endl
-       << v << c << endl
-       << el << ef;
-}
-
-void write_STL(ostream &file, const Tube<Vector3> &tube, const int S) {
-  for (int j=0;j<tube.nodes();++j) {
-    for (int k=0;k<S;++k) {
-      int xii=(j+1)%tube.nodes();
-      int kii=(k+1)%S;
-
-      write_facet(file,
-		  tube.meshPoint(j*(S+1)+k),
-		  tube.meshPoint(xii*(S+1)+k),
-		  tube.meshPoint(xii*(S+1)+kii));
-
-      write_facet(file, tube.meshPoint(j*(S+1)+k),
-		  tube.meshPoint(xii*(S+1)+kii),
-		  tube.meshPoint(j*(S+1)+kii));
-    }
-  }
-}
-
 #endif // __ALGO_SRC__

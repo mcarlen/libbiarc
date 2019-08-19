@@ -65,6 +65,8 @@ class Tube : public Curve
   Vector & getCenter();
   void scaleTubeRadius(float NewRadius);
 
+  void write_STL(ostream &file) const;
+
 #ifdef RENDERMAN
   RtInt NU; //  = knot->nodes()+1;
   RtInt NV; // = knot->segments()+1;

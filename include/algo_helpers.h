@@ -127,8 +127,6 @@ template<class Vector>
 float min_seg_dist(const Vector &B0, const Vector &B0p, const Vector &B1,
                    const Vector &B1p,float &s,float &t);
 
-void write_STL(ostream &file, const Tube<Vector3> &tube, const int S);
-
 #include "../lib/algo_helpers.cpp"
 
 #endif // __ALGO_HELPERS__

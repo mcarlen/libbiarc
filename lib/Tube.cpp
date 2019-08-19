@@ -665,6 +665,44 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
 
 }
 
+template <class Vector>
+void write_facet(ostream &file,
+		 const Vector a, const Vector b, const Vector c) {
+  const char fn[] = "facet normal ";
+  const char ol[] = "  outer loop\n";
+  const char v[]  = "    vertex ";
+  const char el[] = "  endloop\n";
+  const char ef[] = "endfacet\n";
+
+  file << fn
+       << (a - b).cross(b - c).normalize() << endl
+       << ol
+       << v << a << endl
+       << v << b << endl
+       << v << c << endl
+       << el << ef;
+}
+
+template <class Vector>
+void Tube<Vector>::write_STL(ostream &file) const {
+ for (int j=0;j<this->nodes();++j) {
+    for (int k=0;k<_Segments;++k) {
+      int xii=(j+1)%this->nodes();
+      int kii=(k+1)%_Segments;
+
+      write_facet(file,
+		  meshPoint(j*(_Segments+1)+k),
+		  meshPoint(xii*(_Segments+1)+k),
+		  meshPoint(xii*(_Segments+1)+kii));
+
+      write_facet(file,
+		  meshPoint(j*(_Segments+1)+k),
+		  meshPoint(xii*(_Segments+1)+kii),
+		  meshPoint(j*(_Segments+1)+kii));
+    }
+  }
+}
+
 #ifdef RENDERMAN
 
 /*!
