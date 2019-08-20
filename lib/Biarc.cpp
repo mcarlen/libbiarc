@@ -145,7 +145,7 @@ void Biarc<Vector>::setPoint(const Vector &p) {
 */
 /* We do it more general than with simply 3 components ...
 template<class Vector>
-void Biarc<Vector>::setPoint(float p0,float p1,float p2) {
+void Biarc<Vector>::setPoint(FLOAT_TYPE p0,FLOAT_TYPE p1,FLOAT_TYPE p2) {
   _Point=Vector3(p0,p1,p2);
 }
 */
@@ -196,7 +196,7 @@ void Biarc<Vector>::setTangent(const Vector &t) {
 */
 /* no longer exists
 template<class Vector>
-void Biarc<Vector>::setTangent(float t0,float t1,float t2) {
+void Biarc<Vector>::setTangent(FLOAT_TYPE t0,FLOAT_TYPE t1,FLOAT_TYPE t2) {
   _Tangent = Vector3(t0,t1,t2);
   _Tangent.normalize();
 }
@@ -304,17 +304,17 @@ void Biarc<Vector>::setBiarc() {
   \sa getBezier(),getBezierArc0(),getBezierArc1(),Curve::make()
 */
 template<class Vector>
-void Biarc<Vector>::make(float Gamma) {
+void Biarc<Vector>::make(FLOAT_TYPE Gamma) {
 
   // is the biarc proper?
   if(!isProper()) {
-    cerr << "Biarc::make(float Gamma) : Biarc " << (*this) << " is not proper\n";
+    cerr << "Biarc::make(FLOAT_TYPE Gamma) : Biarc " << (*this) << " is not proper\n";
     return;
   }
 
   // we have to check if MidpointRule betw. 0 and 1
   if(Gamma < 0.0 || Gamma > 1.0) {
-    cerr << "Biarc::make(float Gamma) : Wrong Gamma value :"
+    cerr << "Biarc::make(FLOAT_TYPE Gamma) : Wrong Gamma value :"
          << Gamma << endl;
     return;
   }
@@ -335,7 +335,7 @@ void Biarc<Vector>::make(float Gamma) {
 
     // cerr << "Straight Segment! : " << *this << endl;
 
-    float GammaBar = 1 - Gamma;
+    FLOAT_TYPE GammaBar = 1 - Gamma;
 
     _MidPoint = (_Point*GammaBar + getNext().getPoint()*Gamma);
     _MidPoint /= (Gamma+GammaBar);
@@ -343,7 +343,7 @@ void Biarc<Vector>::make(float Gamma) {
     _MidTangent = (_Tangent+getNext().getTangent())/2;
     _MidTangent.normalize();
 
-    float d = (getNext().getPoint() - _Point).norm();
+    FLOAT_TYPE d = (getNext().getPoint() - _Point).norm();
     _BezierPoint0 = _Point + _Tangent*Gamma*d/2.0;
     _BezierPoint1 = getNext().getPoint() - getNext().getTangent()*GammaBar*d/2.0;
 
@@ -359,8 +359,8 @@ void Biarc<Vector>::make(float Gamma) {
   }
 
   // The biarc parameters are not independent
-  float val = Gamma*(1-t0.dot(t1))*d.norm2()+2*t0.dot(d)*t1.dot(d);
-  float GammaBar = 2*(1-Gamma)*t0.dot(d)*t1.dot(d)/val;
+  FLOAT_TYPE val = Gamma*(1-t0.dot(t1))*d.norm2()+2*t0.dot(d)*t1.dot(d);
+  FLOAT_TYPE GammaBar = 2*(1-Gamma)*t0.dot(d)*t1.dot(d)/val;
 
   // Compute Midpoint with given Gamma/GammaBar
   _MidPoint = (q0*t0.dot(d)*GammaBar + q1*t1.dot(d)*Gamma)/(t1.dot(d)*Gamma + t0.dot(d)*GammaBar);
@@ -391,13 +391,13 @@ void Biarc<Vector>::make(float Gamma) {
   line (up to the StraightSegTol tolerance)
 */
 template<class Vector>
-float Biarc<Vector>::_radius(const Vector &q0, const Vector &q1, const Vector &t0) const {
+FLOAT_TYPE Biarc<Vector>::_radius(const Vector &q0, const Vector &q1, const Vector &t0) const {
   // should already be normalized
   // t0.normalize();
   Vector d = q1-q0; Vector e = q1-q0;
   e.normalize();
 
-  float R2 = d.norm2()/4.0;
+  FLOAT_TYPE R2 = d.norm2()/4.0;
 
   if ((1.-e.dot(t0)*e.dot(t0))< StraightSegTol)
     return -1.;
@@ -411,7 +411,7 @@ float Biarc<Vector>::_radius(const Vector &q0, const Vector &q1, const Vector &t
   Internal function that is used by the cache() funtion.
 */
 template<class Vector>
-float Biarc<Vector>::_radius0() const {
+FLOAT_TYPE Biarc<Vector>::_radius0() const {
   return _radius(_Point,_MidPoint,_Tangent);
 }
 
@@ -420,7 +420,7 @@ float Biarc<Vector>::_radius0() const {
   Internal function that is used by the cache() funtion.
 */
 template<class Vector>
-float Biarc<Vector>::_radius1() const {
+FLOAT_TYPE Biarc<Vector>::_radius1() const {
   return _radius(_MidPoint,getNext().getPoint(),_MidTangent);
 }
 
@@ -428,7 +428,7 @@ float Biarc<Vector>::_radius1() const {
   Compute and return the radius of the first arc.
 */
 template<class Vector>
-float Biarc<Vector>::radius0() const {
+FLOAT_TYPE Biarc<Vector>::radius0() const {
   return _Radius0;
 }
 
@@ -436,7 +436,7 @@ float Biarc<Vector>::radius0() const {
   Compute and return the radius of the second arc.
 */
 template<class Vector>
-float Biarc<Vector>::radius1() const {
+FLOAT_TYPE Biarc<Vector>::radius1() const {
   return _Radius1;
 }
 
@@ -445,12 +445,12 @@ float Biarc<Vector>::radius1() const {
   The circle is given by start and endpoint and a tangent.
 */
 template<class Vector>
-float Biarc<Vector>::_angle(const Vector &q0, const Vector &q1, const Vector &t0) const {
+FLOAT_TYPE Biarc<Vector>::_angle(const Vector &q0, const Vector &q1, const Vector &t0) const {
   Vector d = q1-q0;
   d.normalize();
   // should already be normalized
   // t0.normalize();
-  float tmp = d.dot(t0);
+  FLOAT_TYPE tmp = d.dot(t0);
 
   return 2*acos(tmp);
 }
@@ -459,7 +459,7 @@ float Biarc<Vector>::_angle(const Vector &q0, const Vector &q1, const Vector &t0
   Computes and returns the angle swept out by arc of circle one.
 */
 template<class Vector>
-float Biarc<Vector>::_angle0() const {
+FLOAT_TYPE Biarc<Vector>::_angle0() const {
   return _angle(_Point,_MidPoint,_Tangent);
 }
 
@@ -467,7 +467,7 @@ float Biarc<Vector>::_angle0() const {
   Computes and returns the angle swept out by arc of circle two.
 */
 template<class Vector>
-float Biarc<Vector>::_angle1() const {
+FLOAT_TYPE Biarc<Vector>::_angle1() const {
   return _angle(_MidPoint,getNext().getPoint(),_MidTangent);
 }
 
@@ -476,7 +476,7 @@ float Biarc<Vector>::_angle1() const {
   of the current biarc.
 */
 template<class Vector>
-float Biarc<Vector>::_arclength0() const {
+FLOAT_TYPE Biarc<Vector>::_arclength0() const {
   if (_radius0()<0)
     return (_MidPoint - _Point).norm();
   else
@@ -488,7 +488,7 @@ float Biarc<Vector>::_arclength0() const {
   of the current biarc.
 */
 template<class Vector>
-float Biarc<Vector>::_arclength1() const {
+FLOAT_TYPE Biarc<Vector>::_arclength1() const {
   if (_radius1()<0)
     return (getNext().getPoint() - _MidPoint).norm();
   else
@@ -520,7 +520,7 @@ void Biarc<Vector>::cache() {
   \sa arclength1(), biarclength().
 */
 template<class Vector>
-float Biarc<Vector>::arclength0() const {
+FLOAT_TYPE Biarc<Vector>::arclength0() const {
   return _ArcLength0;
 }
 
@@ -530,7 +530,7 @@ float Biarc<Vector>::arclength0() const {
   \sa arclength0(), biarclength().
 */
 template<class Vector>
-float Biarc<Vector>::arclength1() const {
+FLOAT_TYPE Biarc<Vector>::arclength1() const {
   return _ArcLength1;
 }
 
@@ -541,7 +541,7 @@ float Biarc<Vector>::arclength1() const {
   \sa arclength0(), arclength1().
 */
 template<class Vector>
-float Biarc<Vector>::biarclength() const {
+FLOAT_TYPE Biarc<Vector>::biarclength() const {
   return _Length;
 }
 
@@ -610,13 +610,13 @@ void Biarc<Vector>::getBezier(Vector& b0_0, Vector& b1_0, Vector& b2_0,
 */
 template<class Vector>
 Vector Biarc<Vector>::a(const Vector &b0, const Vector &b1,
-	  	        const Vector &b2, float tau) const {
+	  	        const Vector &b2, FLOAT_TYPE tau) const {
 
-  float omega = (b1-b0).dot(b2-b0)/(b1-b0).norm()/(b2-b0).norm();
+  FLOAT_TYPE omega = (b1-b0).dot(b2-b0)/(b1-b0).norm()/(b2-b0).norm();
 
   // Return point on Bezier arc a(tau)
   Vector tmp = b0*(1.0-tau)*(1.0-tau)+b1*2.0*omega*tau*(1.0-tau)+b2*tau*tau;
-  float tmp2 = (1-tau)*(1.0-tau)+2.0*omega*tau*(1.0-tau)+tau*tau;
+  FLOAT_TYPE tmp2 = (1-tau)*(1.0-tau)+2.0*omega*tau*(1.0-tau)+tau*tau;
   return tmp/tmp2;
 
 }
@@ -633,11 +633,11 @@ Vector Biarc<Vector>::a(const Vector &b0, const Vector &b1,
   \sa pointOnArc0(),pointOnArc1(),pointOnBiarc(),a1().
 */
 template<class Vector>
-Vector Biarc<Vector>::a0(float tau) const {
+Vector Biarc<Vector>::a0(FLOAT_TYPE tau) const {
   if (_BIARC_ && tau<=1.0 && tau>=0.0)
     return a(_Point,_BezierPoint0,_MidPoint,tau);
   else {
-    cerr << "Biarc::a0(float) : "
+    cerr << "Biarc::a0(FLOAT_TYPE) : "
 	 << (_BIARC_?"tau value problem\n":"not a valid biarc\n");
     return Vector();
   }
@@ -655,11 +655,11 @@ Vector Biarc<Vector>::a0(float tau) const {
   \sa pointOnArc0(),pointOnArc1(),pointOnBiarc(),a0().
 */
 template<class Vector>
-Vector Biarc<Vector>::a1(float tau) const {
+Vector Biarc<Vector>::a1(FLOAT_TYPE tau) const {
   if (_BIARC_ && tau<=1.0 && tau>=0.0) {
     return a(_MidPoint,_BezierPoint1,getNext().getPoint(),tau);
   }  else {
-    cerr << "Biarc::a1(float) : "
+    cerr << "Biarc::a1(FLOAT_TYPE) : "
 	 << (_BIARC_?"tau value problem\n":"not a valid biarc\n");
     return Vector();
   }
@@ -720,7 +720,7 @@ inline void Biarc<Vector>::setIdAndCurve(const int i, Curve<Vector>* c) {
   \sa pointOnBiarc(),pointOnArc1().
 */
 template<class Vector>
-Vector Biarc<Vector>::pointOnArc0(float s) const {
+Vector Biarc<Vector>::pointOnArc0(FLOAT_TYPE s) const {
   if (s==0) return _Point;
   if (s==_ArcLength0) return _MidPoint;
 
@@ -741,10 +741,10 @@ Vector Biarc<Vector>::pointOnArc0(float s) const {
 
   P_s+=offset; P_l+=offset;
 
-  float scale_factor = P_l.norm();
+  FLOAT_TYPE scale_factor = P_l.norm();
   P_l.normalize();
 
-  float tau = 0;
+  FLOAT_TYPE tau = 0;
   if (P_s.dot(P_l)>10e-8)
     tau = P_s.dot(P_l)/scale_factor;
 
@@ -780,7 +780,7 @@ Vector Biarc<Vector>::pointOnArc0(float s) const {
   \sa pointOnBiarc(),pointOnArc0().
 */
 template<class Vector>
-Vector Biarc<Vector>::pointOnArc1(float s) const {
+Vector Biarc<Vector>::pointOnArc1(FLOAT_TYPE s) const {
   if (s==0) return _MidPoint;
   if (s==_ArcLength1) return getNext().getPoint();
 
@@ -797,10 +797,10 @@ Vector Biarc<Vector>::pointOnArc1(float s) const {
 
   P_s+=offset; P_l+=offset;
 
-  float scale_factor = P_l.norm();
+  FLOAT_TYPE scale_factor = P_l.norm();
   P_l.normalize();
 
-  float tau = 0;
+  FLOAT_TYPE tau = 0;
   if (P_s.dot(P_l)>10e-8)
     tau = P_s.dot(P_l)/scale_factor;
 
@@ -833,15 +833,15 @@ Vector Biarc<Vector>::pointOnArc1(float s) const {
   \sa pointOnArc0(),pointOnArc1().
 */
 template<class Vector>
-Vector Biarc<Vector>::pointOnBiarc(float arclength) const {
+Vector Biarc<Vector>::pointOnBiarc(FLOAT_TYPE arclength) const {
 
   if (arclength>_Length) {
-    cerr << "Biarc::pointOnBiarc(float) : value out of bounds\n";
+    cerr << "Biarc::pointOnBiarc(FLOAT_TYPE) : value out of bounds\n";
     return Vector();
   }
 
   if (!_BIARC_) {
-    cerr << "Biarc::pointOnBiarc(float) : Not a valid biarc\n";
+    cerr << "Biarc::pointOnBiarc(FLOAT_TYPE) : Not a valid biarc\n";
     return Vector();
   }
 
@@ -861,13 +861,13 @@ Vector Biarc<Vector>::pointOnBiarc(float arclength) const {
   Returns tangent vector at a(s) on the biarc
 */
 template<class Vector>
-Vector Biarc<Vector>::tangentOnBiarc(float arclength) const {
+Vector Biarc<Vector>::tangentOnBiarc(FLOAT_TYPE arclength) const {
   if (arclength>_Length) {
-    cerr << "Biarc::tangentOnBiarc(float) : val out of bounds\n";
+    cerr << "Biarc::tangentOnBiarc(FLOAT_TYPE) : val out of bounds\n";
     return Vector();
   }
   if (!_BIARC_) {
-    cerr << "Biarc::tangentOnBiarc(float) : Not a valid biarc\n";
+    cerr << "Biarc::tangentOnBiarc(FLOAT_TYPE) : Not a valid biarc\n";
     return Vector();
   }
 
@@ -904,13 +904,13 @@ Vector Biarc<Vector>::tangentOnBiarc(float arclength) const {
   0,0,0 if not defined (straight segment).
 */
 template<class Vector>
-Vector Biarc<Vector>::normalOnBiarc(float arclength) const {
+Vector Biarc<Vector>::normalOnBiarc(FLOAT_TYPE arclength) const {
   if (arclength>_Length || arclength < 0.0) {
-    cerr << "Biarc::tangentOnBiarc(float) : val out of bounds\n";
+    cerr << "Biarc::tangentOnBiarc(FLOAT_TYPE) : val out of bounds\n";
     return Vector();
   }
   if (!_BIARC_) {
-    cerr << "Biarc::tangentOnBiarc(float) : Not a valid biarc\n";
+    cerr << "Biarc::tangentOnBiarc(FLOAT_TYPE) : Not a valid biarc\n";
     return Vector();
   }
 
@@ -1016,21 +1016,21 @@ void Biarc<Vector>::setPreviousNULL() {
   Returns a biarc whose point value is multiplied by \a s.
 */
 template<class Vector>
-Biarc<Vector> Biarc<Vector>::operator*(const float s) const {
+Biarc<Vector> Biarc<Vector>::operator*(const FLOAT_TYPE s) const {
   return Biarc(_Point*s,_Tangent);
 }
 
 // not used yet
 /* Friend
-Biarc Biarc::operator *(Biarc & b, float d) {
+Biarc Biarc::operator *(Biarc & b, FLOAT_TYPE d) {
   return Biarc(b.GetPoint()*d,b.GetTangent());
 }
 
-Biarc Biarc::operator *(float d, Biarc & b) {
+Biarc Biarc::operator *(FLOAT_TYPE d, Biarc & b) {
   return Biarc(b.GetPoint()*d,b.GetTangent());
 }
 
-Biarc Biarc::operator /(Biarc & b, float d) {
+Biarc Biarc::operator /(Biarc & b, FLOAT_TYPE d) {
   return Biarc(b.GetPoint()/d,b.GetTangent());
 }
 */
@@ -1089,7 +1089,7 @@ Biarc<Vector>& Biarc<Vector>::operator-=(const Vector &v) {
   an instance to itself.
 */
 template<class Vector>
-Biarc<Vector>& Biarc<Vector>::operator/=(const float d) {
+Biarc<Vector>& Biarc<Vector>::operator/=(const FLOAT_TYPE d) {
   _Point /= d;
   return *this;
 }
@@ -1099,7 +1099,7 @@ Biarc<Vector>& Biarc<Vector>::operator/=(const float d) {
   an instance to itself.
 */
 template<class Vector>
-Biarc<Vector>& Biarc<Vector>::operator*=(const float d) {
+Biarc<Vector>& Biarc<Vector>::operator*=(const FLOAT_TYPE d) {
   _Point *= d;
   return *this;
 }

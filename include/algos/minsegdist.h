@@ -13,8 +13,8 @@ int double_critical_test(const Vector &a0, const Vector &a1,
                          const Vector &b0, const Vector &b1,
                          const Vector &t0b,const Vector &t1b) {
   Vector w = (a0+a1-b0-b1);
-  float denum = w.norm();
-  float val0 = (a0-a1).norm(), val1 = (b0-b1).norm();
+  FLOAT_TYPE denum = w.norm();
+  FLOAT_TYPE val0 = (a0-a1).norm(), val1 = (b0-b1).norm();
 
   // Jana's Thesis eq 7.23
   // !! prevents thicknesscomputation on curves with a
@@ -25,7 +25,7 @@ int double_critical_test(const Vector &a0, const Vector &a1,
   // do balls intersect?
   if (denum<=(val0+val1)) return 1;
 
-  float sina = (val0+val1)/denum;
+  FLOAT_TYPE sina = (val0+val1)/denum;
   w.normalize();
   if ((w.dot(t0a)<-sina) && (w.dot(t1a)<-sina)) return 0;
   if ((w.dot(t0a)>sina)  && (w.dot(t1a)>sina)) return 0;

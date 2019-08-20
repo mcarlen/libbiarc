@@ -2,9 +2,9 @@
   \class Matrix3 include/Matrix3.h include/Matrix3.h
   \ingroup BiarcLibGroup
   \brief The Matrix3 class is a 3x3 dimensional Matrix class with
-  floating point entries.
+  FLOAT_TYPEing point entries.
 
-  This class provides storage for a 3x3 floating point table, representing
+  This class provides storage for a 3x3 FLOAT_TYPEing point table, representing
   a matrix. It is possible to compute determinant, inverse, transpose and
   other standart matrix operations.
 
@@ -73,11 +73,11 @@ Matrix3::Matrix3(const Vector3 &v0,const Vector3 &v1,const Vector3 &v2) {
 }
 
 /*!
-  Constructs a Matrix3 from 9 floats. Given in row-first order.
+  Constructs a Matrix3 from 9 FLOAT_TYPEs. Given in row-first order.
 */
-Matrix3::Matrix3(const float &x00, const float &x01, const float &x02,
-                 const float &x10, const float &x11, const float &x12,
-                 const float &x20, const float &x21, const float &x22) {
+Matrix3::Matrix3(const FLOAT_TYPE &x00, const FLOAT_TYPE &x01, const FLOAT_TYPE &x02,
+                 const FLOAT_TYPE &x10, const FLOAT_TYPE &x11, const FLOAT_TYPE &x12,
+                 const FLOAT_TYPE &x20, const FLOAT_TYPE &x21, const FLOAT_TYPE &x22) {
   _v[0] = Vector3(x00,x10,x20);
   _v[1] = Vector3(x01,x11,x21);
   _v[2] = Vector3(x02,x12,x22);
@@ -101,7 +101,7 @@ void Matrix3::setOne(int c, const Vector3 &v) { _v[c] = v; }
 /*!
   Fill matrix column \a c from top to bottom with the values \a v1 to \a v3.
 */
-void Matrix3::setOne(int c, const float v1, const float v2, const float v3) {
+void Matrix3::setOne(int c, const FLOAT_TYPE v1, const FLOAT_TYPE v2, const FLOAT_TYPE v3) {
   _v[c] = Vector3(v1,v2,v3);
 }
 
@@ -176,7 +176,7 @@ Matrix3 & Matrix3::transpose() {
 /*!
   Computes and returns the determinant of the Matrix3.
 */
-float Matrix3::det() {
+FLOAT_TYPE Matrix3::det() {
   return
     (*this)[0][0] * (*this)[1][1] * (*this)[2][2]
     + (*this)[1][0] * (*this)[2][1] * (*this)[0][2]
@@ -202,8 +202,8 @@ float Matrix3::det() {
   itself is not changed.
 */
 Matrix3 & Matrix3::inv() {
-  float d = det();
-  float x, y, z;
+  FLOAT_TYPE d = det();
+  FLOAT_TYPE x, y, z;
 
   if(fabs(d) < 0.0001) {
     cerr << "Matrix non or hardly invertible" << endl;
@@ -295,7 +295,7 @@ Matrix3& Matrix3::vecCross(const Vector3 &v) {
 
 */
 Matrix3& Matrix3::cay(const Vector3 &v) {
-  float a = 1/(1 + v.norm2()/4);
+  FLOAT_TYPE a = 1/(1 + v.norm2()/4);
   Matrix3 vcross, tmp, m;
   vcross.vecCross(v);
   tmp = vcross*vcross;
@@ -312,10 +312,10 @@ Matrix3& Matrix3::cay(const Vector3 &v) {
   Where the rotation is in the positive trigonometric direction
   about the axis v by an angle alpha.
 */
-Matrix3& Matrix3::rotAround(const Vector3 &v, float alpha) {
+Matrix3& Matrix3::rotAround(const Vector3 &v, FLOAT_TYPE alpha) {
   Vector3 ax = -v; ax.normalize();
-  float x  = ax[0], y  = ax[1], z  = ax[2];
-  float sa = sin(alpha), ca = cos(alpha);
+  FLOAT_TYPE x  = ax[0], y  = ax[1], z  = ax[2];
+  FLOAT_TYPE sa = sin(alpha), ca = cos(alpha);
   _v[0][0]= ca + x*x * (1.-ca);
   _v[0][1]=  x*y*(1.-ca) - z*sa;
   _v[0][2]= z*x*(1.-ca) + y*sa;
@@ -348,7 +348,7 @@ Matrix3 Matrix3::operator*(const Matrix3 &m) {
   and returns a vector with the result.
 */
 Vector3 Matrix3::operator*(const Vector3 &v) {
-  float a[3];
+  FLOAT_TYPE a[3];
   for (int i=0;i<3;i++) {
     a[i] = 0;
     for (int j=0;j<3;j++) {
@@ -362,7 +362,7 @@ Vector3 Matrix3::operator*(const Vector3 &v) {
   Multiplies every element of the matrix \a m by a factor of \a d.
   and returns a Matrix3 object.
 */
-Matrix3 operator*(const Matrix3 &m, float d) {
+Matrix3 operator*(const Matrix3 &m, FLOAT_TYPE d) {
   Matrix3 tmp = m;
   return Matrix3(d*tmp[0],d*tmp[1],d*tmp[2]);
 }
@@ -371,7 +371,7 @@ Matrix3 operator*(const Matrix3 &m, float d) {
   Multiplies every element of the matrix \a m by a factor of \a d.
   and returns a Matrix3 object.
 */
-Matrix3 operator*(float d, const Matrix3 &m) {
+Matrix3 operator*(FLOAT_TYPE d, const Matrix3 &m) {
   Matrix3 tmp = m;
   return Matrix3(d*tmp[0],d*tmp[1],d*tmp[2]);
 }
@@ -380,7 +380,7 @@ Matrix3 operator*(float d, const Matrix3 &m) {
   Divides every element of the matrix \a m by \a d.
   and returns a Matrix3 object.
 */
-Matrix3 operator/(const Matrix3 &m, const float d) {
+Matrix3 operator/(const Matrix3 &m, const FLOAT_TYPE d) {
   Matrix3 tmp = m;
   return Matrix3(tmp[0]/d, tmp[1]/d, tmp[2]/d);
 }
@@ -440,7 +440,7 @@ Matrix3& Matrix3::operator-=(const Matrix3 &m) {
   Divides all the elements of the current matrix by \a s and returns\
   an instance to itself.
 */
-Matrix3& Matrix3::operator/=(const float s) {
+Matrix3& Matrix3::operator/=(const FLOAT_TYPE s) {
   for(int i=0;i<3;i++)
     (*this)[i]/=s;
   return *this;
@@ -450,7 +450,7 @@ Matrix3& Matrix3::operator/=(const float s) {
   Multiplies all the elements of the current matrix by \a s and returns\
   an instance to itself.
 */
-Matrix3& Matrix3::operator*=(float d) {
+Matrix3& Matrix3::operator*=(FLOAT_TYPE d) {
   for (int i=0;i<3;i++)
     (*this)[i]*=d;
   return *this;

@@ -20,8 +20,8 @@ class Matrix4 {
   const Vector4 &operator[](int n) const;
     
   void setOne(const int c, const Vector4 &v);
-  void setOne(const int c, const float v1, const float v2,
-	      const float v3, const float v4);
+  void setOne(const int c, const FLOAT_TYPE v1, const FLOAT_TYPE v2,
+	      const FLOAT_TYPE v3, const FLOAT_TYPE v4);
   void setAll(const Vector4 &v1, const Vector4 &v2,
 	      const Vector4 &v3, const Vector4 &v4);
   void setAll(const Vector4 *v);
@@ -32,16 +32,16 @@ class Matrix4 {
   Matrix4 & id();
   Matrix4 & transpose();
   Matrix3 sub(const int r, const int c);
-  float det();
+  FLOAT_TYPE det();
   Matrix4 & inv();
   Matrix4 & adjoint();
   Matrix4& outer(const Vector4 &a, const Vector4 &b);
 
   Matrix4 operator*(const Matrix4 &m);
   Vector4 operator*(const Vector4 &v);
-  friend Matrix4 operator*(const Matrix4 &m, float d);
-  friend Matrix4 operator*(float d, const Matrix4 &m);
-  friend Matrix4 operator/(const Matrix4 &m, float d);
+  friend Matrix4 operator*(const Matrix4 &m, FLOAT_TYPE d);
+  friend Matrix4 operator*(FLOAT_TYPE d, const Matrix4 &m);
+  friend Matrix4 operator/(const Matrix4 &m, FLOAT_TYPE d);
 
   Matrix4 operator+(const Matrix4 &m) const;
   Matrix4 operator-(const Matrix4 &m) const;
@@ -50,8 +50,8 @@ class Matrix4 {
   Matrix4& operator=(const Matrix4 &m);
   Matrix4& operator+=(const Matrix4 &m);
   Matrix4& operator-=(const Matrix4 &m);
-  Matrix4& operator*=(const float s);
-  Matrix4& operator/=(const float s);
+  Matrix4& operator*=(const FLOAT_TYPE s);
+  Matrix4& operator/=(const FLOAT_TYPE s);
   
   int operator==(const Matrix4 &m) const;
   int operator!=(const Matrix4 &m) const;

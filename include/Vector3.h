@@ -4,52 +4,54 @@
 #include <math.h>
 #include <iostream>
 
-#ifndef PRECISION_HACK
-#define float double
+#ifdef PRECISION_HACK
+#define FLOAT_TYPE float
+#else
+#define FLOAT_TYPE double
 #endif
 
 using namespace std;
 
 class Vector3 {
  private:
-  float	_v[3];
+  FLOAT_TYPE	_v[3];
  public:
 
   // FIXME : how many dims? is this necessary?
   static const unsigned int type = 3;
   
   Vector3() ;
-  Vector3(const float x, const float y, const float z) ;
-  Vector3(const float v[3]) ;
+  Vector3(const FLOAT_TYPE x, const FLOAT_TYPE y, const FLOAT_TYPE z) ;
+  Vector3(const FLOAT_TYPE v[3]) ;
   Vector3(const Vector3& v) ;
   ~Vector3() ;
 
-  float &operator[](const int c);
-  const float &operator[](const int c) const;
+  FLOAT_TYPE &operator[](const int c);
+  const FLOAT_TYPE &operator[](const int c) const;
 
   Vector3 & zero() ;
 
-  void getValues(float& X, float& Y, float& Z) const;
-  Vector3 & setValues(const float X, const float Y, const float Z);
-  Vector3 & setValues(const float v[3]);
+  void getValues(FLOAT_TYPE& X, FLOAT_TYPE& Y, FLOAT_TYPE& Z) const;
+  Vector3 & setValues(const FLOAT_TYPE X, const FLOAT_TYPE Y, const FLOAT_TYPE Z);
+  Vector3 & setValues(const FLOAT_TYPE v[3]);
 
-  float dot(const Vector3 &v) const;
+  FLOAT_TYPE dot(const Vector3 &v) const;
   Vector3 cross(const Vector3 &v) const;
-  float norm() const;
-  float norm2() const;
+  FLOAT_TYPE norm() const;
+  FLOAT_TYPE norm2() const;
   Vector3 &normalize();
-  float max();
-  float min();
+  FLOAT_TYPE max();
+  FLOAT_TYPE min();
 
   Vector3 reflect(const Vector3 &v) const;
-  Vector3 rotPtAroundAxis(float angle, Vector3 axis) const;
+  Vector3 rotPtAroundAxis(FLOAT_TYPE angle, Vector3 axis) const;
 
   Vector3 operator*(const Vector3 &v) const;
-  // Vector3 operator*(const float s) const;
-  // Vector3 operator/(const float d) const;
-  friend Vector3 operator*(const Vector3 & v, float d);
-  friend Vector3 operator*(float d, const Vector3 & v);
-  friend Vector3 operator/(const Vector3 & v, float d);
+  // Vector3 operator*(const FLOAT_TYPE s) const;
+  // Vector3 operator/(const FLOAT_TYPE d) const;
+  friend Vector3 operator*(const Vector3 & v, FLOAT_TYPE d);
+  friend Vector3 operator*(FLOAT_TYPE d, const Vector3 & v);
+  friend Vector3 operator/(const Vector3 & v, FLOAT_TYPE d);
 
   Vector3 operator+(const Vector3 &v) const;
   Vector3 operator-(const Vector3 &v) const;
@@ -58,8 +60,8 @@ class Vector3 {
 //  Vector3& operator=(const Vector3 &v);
   Vector3& operator+=(const Vector3 &v);
   Vector3& operator-=(const Vector3 &v);
-  Vector3& operator*=(const float s);
-  Vector3& operator/=(const float s);
+  Vector3& operator*=(const FLOAT_TYPE s);
+  Vector3& operator/=(const FLOAT_TYPE s);
 
   int operator==(const Vector3 &v) const;
   int operator!=(const Vector3 &v) const;
@@ -70,11 +72,11 @@ class Vector3 {
 
 };
 
-inline float & Vector3::operator [](const int c) {
+inline FLOAT_TYPE & Vector3::operator [](const int c) {
   return this->_v[c];
 }
 
-inline const float & Vector3::operator [](const int c) const {
+inline const FLOAT_TYPE & Vector3::operator [](const int c) const {
   return this->_v[c];
 }
 

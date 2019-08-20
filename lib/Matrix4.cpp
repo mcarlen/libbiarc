@@ -2,9 +2,9 @@
   \class Matrix4 include/Matrix4.h include/Matrix4.h
   \ingroup BiarcLibGroup
   \brief The Matrix4 class is a 4x4 dimensional Matrix class with
-  floating point entries.
+  FLOAT_TYPEing point entries.
 
-  This class provides storage for a 4x4 floating point table, representing
+  This class provides storage for a 4x4 FLOAT_TYPEing point table, representing
   a matrix. It is possible to compute determinant, inverse, transpose and
   other matrix operations in 4-dimensions.
 
@@ -97,8 +97,8 @@ void Matrix4::setOne(int c, const Vector4 &v) { _v[c] = v; }
 /*!
   Fill matrix column \a c from top to bottom with the values \a v1 to \a v4.
 */
-void Matrix4::setOne(int c, const float v1, const float v2,
-		     const float v3, const float v4) {
+void Matrix4::setOne(int c, const FLOAT_TYPE v1, const FLOAT_TYPE v2,
+		     const FLOAT_TYPE v3, const FLOAT_TYPE v4) {
   _v[c] = Vector4(v1,v2,v3,v4);
 }
 
@@ -180,9 +180,9 @@ Matrix4 & Matrix4::transpose() {
 
   \sa sub(),inv(),adjoint()
 */
-float Matrix4::det() {
+FLOAT_TYPE Matrix4::det() {
 
-  float Det = 0;
+  FLOAT_TYPE Det = 0;
   for (int i=0;i<4;i++) {
     if (i%2)
       Det -= _v[i][0]*this->sub(0,i).det();
@@ -287,7 +287,7 @@ Matrix4 & Matrix4::adjoint() {
 */
 Matrix4 & Matrix4::inv() {
 
-  float Det ;
+  FLOAT_TYPE Det ;
   Det = this->det();
 
   if ( fabs( Det ) < 0.0001) {
@@ -353,7 +353,7 @@ Matrix4 Matrix4::operator*(const Matrix4 &m) {
   and returns a vector with the result.
 */
 Vector4 Matrix4::operator*(const Vector4 &v) {
-  float a[4];
+  FLOAT_TYPE a[4];
   for (int i=0;i<4;i++) {
     a[i] = 0;
     for (int j=0;j<4;j++) {
@@ -367,7 +367,7 @@ Vector4 Matrix4::operator*(const Vector4 &v) {
   Multiplies every element of the matrix \a m by a factor of \a d.
   and returns a Matrix4 object.
 */
-Matrix4 operator*(const Matrix4 &m, float d) {
+Matrix4 operator*(const Matrix4 &m, FLOAT_TYPE d) {
   return Matrix4(d*m[0],d*m[1],d*m[2],d*m[3]);
 }
 
@@ -375,7 +375,7 @@ Matrix4 operator*(const Matrix4 &m, float d) {
   Multiplies every element of the matrix \a m by a factor of \a d.
   and returns a Matrix4 object.
 */
-Matrix4 operator*(float d, const Matrix4 &m) {
+Matrix4 operator*(FLOAT_TYPE d, const Matrix4 &m) {
   return Matrix4(d*m[0],d*m[1],d*m[2],d*m[3]);
 }
 
@@ -383,7 +383,7 @@ Matrix4 operator*(float d, const Matrix4 &m) {
   Divides every element of the matrix \a m by \a d.
   and returns a Matrix4 object.
 */
-Matrix4 operator/(const Matrix4 &m, float d) {
+Matrix4 operator/(const Matrix4 &m, FLOAT_TYPE d) {
   return Matrix4(m[0]/d, m[1]/d, m[2]/d, m[3]/d);
 }
 
@@ -445,7 +445,7 @@ Matrix4& Matrix4::operator-=(const Matrix4 &m) {
   Divides all the elements of the current matrix by \a s and returns\
   an instance to itself.
 */
-Matrix4& Matrix4::operator/=(const float s) {
+Matrix4& Matrix4::operator/=(const FLOAT_TYPE s) {
   for(int i=0;i<4;i++)
     (*this)[i]/=s;
   return *this;
@@ -455,7 +455,7 @@ Matrix4& Matrix4::operator/=(const float s) {
   Multiplies all the elements of the current matrix by \a s and returns\
   an instance to itself.
 */
-Matrix4& Matrix4::operator*=(float d) {
+Matrix4& Matrix4::operator*=(FLOAT_TYPE d) {
   for (int i=0;i<4;i++)
     (*this)[i]*=d;
   return *this;

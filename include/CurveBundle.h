@@ -29,21 +29,21 @@ class CurveBundle : public PKFmanip {
   CurveBundle &operator= (const CurveBundle &cb);
   ~CurveBundle();
 
-  void make(float f);
+  void make(FLOAT_TYPE f);
   void makeMidpointRule();
   void resample(int NewNoNodes);
 
   void changeDirection();
   void normalize();
-  float length();
-  float thickness();
-  float thickness_fast();
+  FLOAT_TYPE length();
+  FLOAT_TYPE thickness();
+  FLOAT_TYPE thickness_fast();
   CurveBundle& operator+=(const Vector &vec);
   CurveBundle& operator-=(const Vector &vec);
   void center();
 
   Vector getCenter() ;
-  CurveBundle& scale(float s);
+  CurveBundle& scale(FLOAT_TYPE s);
   CurveBundle& rotate(Matrix3 &m);
   
   int readPKF(const char* infile);

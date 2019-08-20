@@ -5,6 +5,8 @@
 
 typedef struct RGB {
   unsigned char r,g,b;
+
+  RGB() : r(0), g(0), b(0) {}
 } RGB;
 
 inline void set_rgb(RGB* c, unsigned char r, unsigned char g, unsigned char b) {

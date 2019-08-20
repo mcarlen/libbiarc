@@ -7,7 +7,7 @@
    At the end of the routine the matrix a is q!
 */
 #include "../Matrix3.h"
-const float qr_eps = 1e-6;
+const FLOAT_TYPE qr_eps = 1e-6;
 void qr_decomp(Matrix3 &a, Matrix3 &r);
 
 #endif // __UTILS_QR__

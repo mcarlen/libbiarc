@@ -22,7 +22,7 @@ class Tube : public Curve
   int _Segments;
 
   // tube radius
-  float _Radius;
+  FLOAT_TYPE _Radius;
 
   // tube mesh \_Segments+1 columns and \_NoNodes+1 lines
   Vector *_MeshPoints;
@@ -58,12 +58,12 @@ class Tube : public Curve
   Vector & meshNormal(int i);
 
   int segments();
-  float radius();
-  void makeMesh(int N, int S, float R, float Tol = -1.0);
+  FLOAT_TYPE radius();
+  void makeMesh(int N, int S, FLOAT_TYPE R, FLOAT_TYPE Tol = -1.0);
 
   void getBoundingBox(Vector & BBox_BL, Vector & BBox_UR);
   Vector & getCenter();
-  void scaleTubeRadius(float NewRadius);
+  void scaleTubeRadius(FLOAT_TYPE NewRadius);
 
   void write_STL(ostream &file) const;
 
@@ -77,7 +77,7 @@ class Tube : public Curve
   void renderman_init();
   void renderman_draw();
   void exportRIBFile(char* filename, int W, int H,
-                     const Vector &p, const Vector &a, float angle,
+                     const Vector &p, const Vector &a, FLOAT_TYPE angle,
                      const Vector &light_dir);
 #endif
 

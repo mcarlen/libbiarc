@@ -31,7 +31,7 @@ ArcInfo<Vector>::ArcInfo(const Vector &a0,const Vector &a1,const Vector &a2)
 // // Second constructor for iteration part
 template<class Vector>
 ArcInfo<Vector>::ArcInfo(const Vector &a0,const Vector &a1,const Vector &a2,
-                 const float &Err, const float &FErr)
+                 const FLOAT_TYPE &Err, const FLOAT_TYPE &FErr)
   : b0(a0),b1(a1),b2(a2),err(Err),ferr(FErr)
 {
   Vector b1b0 = b1-b0, b2b0 = b2-b0;
@@ -45,18 +45,18 @@ Candi<Vector>::Candi(const Vector &a0,const Vector &a1,const Vector &a2,
              const Vector &b0,const Vector &b1,const Vector &b2)
   : a(a0,a1,a2), b(b0,b1,b2)
 {
-  static float dum1,dum2;
+  static FLOAT_TYPE dum1,dum2;
   d = min_seg_dist(a0,a2,b0,b2,dum1,dum2);
 }
 
 template<class Vector>
 Candi<Vector>::Candi(const Vector &a0,const Vector &a1,const Vector &a2,
-             const float &a_err,const float &a_ferr,
+             const FLOAT_TYPE &a_err,const FLOAT_TYPE &a_ferr,
              const Vector &b0,const Vector &b1,const Vector &b2,
-             const float &b_err,const float &b_ferr)
+             const FLOAT_TYPE &b_err,const FLOAT_TYPE &b_ferr)
   : a(a0,a1,a2,a_err,a_ferr), b(b0,b1,b2,b_err,b_ferr)
 {
-  static float dum1,dum2;
+  static FLOAT_TYPE dum1,dum2;
   d = min_seg_dist(a0,a2,b0,b2,dum1,dum2);
 }
 
@@ -65,7 +65,7 @@ Candi<Vector>::Candi(const Vector &a0,const Vector &a1,const Vector &a2,
    the binormal b and the center c of the circle through b0,b1,b2
 */
 template<class Vector>
-void get_it(Vector b0,Vector b1,Vector b2,float r,Vector &b, Vector &c) {
+void get_it(Vector b0,Vector b1,Vector b2,FLOAT_TYPE r,Vector &b, Vector &c) {
   b = (b0-b1).cross(b2-b1); b.normalize();
   Vector t0=(b1-b0); t0.normalize();
   c = (b0 + t0.cross(b)*r);
@@ -73,9 +73,9 @@ void get_it(Vector b0,Vector b1,Vector b2,float r,Vector &b, Vector &c) {
 
 // jana page 100
 template<class Vector>
-int rhopt(Vector p, Vector b0,Vector b1,Vector b2,float r,Vector &v) {
+int rhopt(Vector p, Vector b0,Vector b1,Vector b2,FLOAT_TYPE r,Vector &v) {
   Vector b,c,aux;
-  float val0 = (b1-b0).dot(b0-p),val1 = (b2-b1).dot(b2-p);
+  FLOAT_TYPE val0 = (b1-b0).dot(b0-p),val1 = (b2-b1).dot(b2-p);
   if (val0<0 && val1 < 0) return 0;//cerr << "No min inside arc,min on endpoint\n";
   else if (val0<=0.0 && val1>=0.0) {
     get_it(b0,b1,b2,r,b,c);
@@ -98,8 +98,8 @@ int rhopt(Vector p, Vector b0,Vector b1,Vector b2,float r,Vector &v) {
     else {
       get_it(b0,b1,b2,r,b,c);
       Vector centersph=c+b*(b.dot(p-c));
-      float circ_cos= (b0-centersph).dot(b)/(b0-centersph).norm();
-      float point_cos=(p-centersph).dot(b)/(p-centersph).norm();
+      FLOAT_TYPE circ_cos= (b0-centersph).dot(b)/(b0-centersph).norm();
+      FLOAT_TYPE point_cos=(p-centersph).dot(b)/(p-centersph).norm();
       if (point_cos < circ_cos) {
         aux = p-c-b*b.dot(p-c);
         aux.normalize();
@@ -128,9 +128,9 @@ void dump_candidates(vector<Candi<Vector > > *C,int iter) {
  radius of curvature. Returns 2x that radius.
 */
 template<class Vector>
-float check_local_curvature(Curve<Vector>* c) {
+FLOAT_TYPE check_local_curvature(Curve<Vector>* c) {
   // First we check the local redii of the arcs
-  float tmpf, min_diam = 2.*c->begin()->radius0();
+  FLOAT_TYPE tmpf, min_diam = 2.*c->begin()->radius0();
   if (min_diam<0) min_diam = 1e99;
   for (biarc_it it=c->begin();it!=c->end()-(c->isClosed()?0:1);++it) {
     tmpf = 2.0*it->radius0();
@@ -155,7 +155,7 @@ float check_local_curvature(Curve<Vector>* c) {
 */
 template<class Vector>
 void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC,
-                             float dCurrentMin) {
+                             FLOAT_TYPE dCurrentMin) {
 
   CritC.clear();
 
@@ -214,7 +214,7 @@ void initial_dbl_crit_filter(Curve<Vector>* c,vector<Candi<Vector> > &CritC,
   vector CritC. The reference to CritC is cleared at the beginning!
 */
 template<class Vector>
-void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC, const float dCurrentMin) {
+void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC, const FLOAT_TYPE dCurrentMin) {
 
   // Double Critical Test
   CritC.clear();
@@ -280,10 +280,10 @@ void dbl_crit_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &CritC, co
   md is the smallest localdiameter so far.
 */
 template<class Vector>
-void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, float &ub, float &err, candi_it &min_candi) {
+void compute_thickness_bounds(vector<Candi<Vector> > &C,FLOAT_TYPE md, FLOAT_TYPE &lb, FLOAT_TYPE &ub, FLOAT_TYPE &err, candi_it &min_candi) {
   // Initial Thickness Bounds
-  float D_lb = 1e8, D_ub = 1e8;
-  float max_err = 0, tmperr, tmpf; // ,relerr;
+  FLOAT_TYPE D_lb = 1e8, D_ub = 1e8;
+  FLOAT_TYPE max_err = 0, tmperr, tmpf; // ,relerr;
 
   for (candi_it i=C.begin();i!=C.end();i++) {
     tmperr = i->a.err+i->b.err;
@@ -317,8 +317,8 @@ void compute_thickness_bounds(vector<Candi<Vector> > &C,float md, float &lb, flo
   to the vector Cfiltered. Cfiltered is cleared first!
 */
 template<class Vector>
-void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered, const float dCurrMin) {
-  float d_b = dCurrMin, tmpf;
+void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered, const FLOAT_TYPE dCurrMin) {
+  FLOAT_TYPE d_b = dCurrMin, tmpf;
   if (Cfiltered.size()!=0)
     Cfiltered.clear();
   for (candi_it i=C.begin();i!=C.end();i++) {
@@ -339,13 +339,13 @@ void distance_filter(vector<Candi<Vector> > &C,vector<Candi<Vector> > &Cfiltered
  to give a biarc pair where the thickness was achieved in the last thickness computation.
 */
 template<class Vector>
-float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hint_i, const int hint_j) {
+FLOAT_TYPE compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hint_i, const int hint_j) {
 
 //  double myt = start_time();
 
-  float min_diam = check_local_curvature(c);
+  FLOAT_TYPE min_diam = check_local_curvature(c);
   vector<Candi<Vector> > tmp, candidates;
-  float global_min = min_diam, curr_min;
+  FLOAT_TYPE global_min = min_diam, curr_min;
 
 //	cerr << "Local curvature min : " << global_min << endl;
 
@@ -424,17 +424,17 @@ float compute_thickness(Curve<Vector> *c, Vector *from, Vector *to, const int hi
  Compute thickness for CurveBundle. "from" and "to" are the points where it is achieved.
 */
 template<class Vector>
-float compute_thickness(CurveBundle<Vector> *cb, Vector *from, Vector *to) {
+FLOAT_TYPE compute_thickness(CurveBundle<Vector> *cb, Vector *from, Vector *to) {
 
-  float min_diam = check_local_curvature(&((*cb)[0]));
+  FLOAT_TYPE min_diam = check_local_curvature(&((*cb)[0]));
   for (int i=1;i<cb->curves();++i) {
-    float min_diam_tmp = check_local_curvature(&((*cb)[i]));
+    FLOAT_TYPE min_diam_tmp = check_local_curvature(&((*cb)[i]));
     if (min_diam_tmp<min_diam)
       min_diam = min_diam_tmp;
   }
 
   vector<Candi<Vector> > tmp, candidates;
-  float global_min = min_diam, curr_min;
+  FLOAT_TYPE global_min = min_diam, curr_min;
 
   for (int ic=0;ic<cb->curves();++ic) {
   for (int ic2=ic;ic2<cb->curves();++ic2) {
@@ -496,9 +496,9 @@ float compute_thickness(CurveBundle<Vector> *cb, Vector *from, Vector *to) {
   \a from and \a to.
 */
 template<class Vector>
-float mindist_between_bezier_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
+FLOAT_TYPE mindist_between_bezier_arcs(const Vector &a0,const Vector &a1,const Vector &a2,
                                   const Vector &b0,const Vector &b1,const Vector &b2,
-                                  const float dCurrMin,
+                                  const FLOAT_TYPE dCurrMin,
                                   Vector* from,
                                   Vector* to) {
   Candi<Vector> arcs(a0,a1,a2,b0,b1,b2);
@@ -513,15 +513,15 @@ float mindist_between_bezier_arcs(const Vector &a0,const Vector &a1,const Vector
   \a from and \a to.
 */
 template<class Vector>
-float mindist_between_arcs(const Vector &q00,const Vector &q01,const Vector &t0,
+FLOAT_TYPE mindist_between_arcs(const Vector &q00,const Vector &q01,const Vector &t0,
                            const Vector &q10,const Vector &q11,const Vector &t1,
-                           const float dCurrMin, Vector* from, Vector* to) {
+                           const FLOAT_TYPE dCurrMin, Vector* from, Vector* to) {
   Vector a0 = q00, a2 = q10;
   Vector b0 = q10, b2 = q11;
 
   // Compute bezier points a1 and b1
   Vector d = q01 - q00;
-  float l = d.norm2()*.5/d.dot(t0);
+  FLOAT_TYPE l = d.norm2()*.5/d.dot(t0);
   Vector a1 = q00 + t0*l;
 
   d = q11 - q10;
@@ -541,12 +541,12 @@ float mindist_between_arcs(const Vector &q00,const Vector &q01,const Vector &t0,
   and \a to.
 */
 template<class Vector>
-float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrMin,
+FLOAT_TYPE mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const FLOAT_TYPE dCurrMin,
                    Vector* from, Vector* to) {
 
-  const float rel_err_tol = 1e-12;
-  float D_lb,D_ub;
-  float rel_err = 1e99, max_err = 1e99;
+  const FLOAT_TYPE rel_err_tol = 1e-12;
+  FLOAT_TYPE D_lb,D_ub;
+  FLOAT_TYPE rel_err = 1e99, max_err = 1e99;
 
   biarc_it current, var;
   vector<Candi<Vector> > CritC, DistC;
@@ -583,7 +583,7 @@ float mindist_between_arcs(const Candi<Vector> &pair_of_arcs, const float dCurrM
   }
 
   if (from!=NULL && to!=NULL) {
-    float param_s,param_t;
+    FLOAT_TYPE param_s,param_t;
     Vector a0 = min_candi->a.b0, a2 = min_candi->a.b2;
     Vector b0 = min_candi->b.b0, b2 = min_candi->b.b2;
 
@@ -605,11 +605,11 @@ int double_critical_test(const Vector &a0, const Vector &a1,
                          const Vector &t0a,const Vector &t1a,
                          const Vector &b0, const Vector &b1,
                          const Vector &t0b,const Vector &t1b,
-                         const float dCurrentMin) {
+                         const FLOAT_TYPE dCurrentMin) {
 
   Vector w = (a0+a1-b0-b1);
-  float denum = w.norm();
-  float val0 = (a0-a1).norm(), val1 = (b0-b1).norm();
+  FLOAT_TYPE denum = w.norm();
+  FLOAT_TYPE val0 = (a0-a1).norm(), val1 = (b0-b1).norm();
 
   // Jana's Thesis eq 7.23
   // !! prevents thicknesscomputation on curves with a
@@ -628,9 +628,9 @@ int double_critical_test(const Vector &a0, const Vector &a1,
   // if ( dCurrentMin < 1e12 && (denum - val0 - val1)*.5 > dCurrentMin) return 0;
 
   // tolerance in percent we let slide
-  float eps = 1e-6;
+  FLOAT_TYPE eps = 1e-6;
 
-  float sina = (val0+val1)/denum*(1.+eps) ;
+  FLOAT_TYPE sina = (val0+val1)/denum*(1.+eps) ;
   w.normalize();
 
   if ((w.dot(t0a)<-sina) && (w.dot(t1a)<-sina)) return 0;
@@ -645,7 +645,7 @@ template<class Vector>
 int double_critical_test_v2(
              const Vector &a0,const Vector &a1,const Vector &a2,
              const Vector &b0,const Vector &b1,const Vector &b2,
-             const float dCurrentMin
+             const FLOAT_TYPE dCurrentMin
                            ) {
   // Possible optimization : since the Bezier triangles are
   // equilateral, only 2 of the 4 norms need to be calculated!
@@ -664,7 +664,7 @@ int double_critical_test_v2(
 
 // segment/segment distance computation
 
-float aux_edge(float tmp, float denum) {
+FLOAT_TYPE aux_edge(FLOAT_TYPE tmp, FLOAT_TYPE denum) {
   // F(t) = Q(1,t) = (a+2*d+f)+2*(b+e)*t+c*t^2
   // F'(T) = 0 when T = -(b+e)/c
   if (tmp>0.0)
@@ -677,9 +677,9 @@ float aux_edge(float tmp, float denum) {
   }
 }
 
-void aux_corner(float s_in, float t_in, float Qs, float Qt,
-                 float edge0, float denum0, float edge1,
-                 float denum1, float &s, float &t) {
+void aux_corner(FLOAT_TYPE s_in, FLOAT_TYPE t_in, FLOAT_TYPE Qs, FLOAT_TYPE Qt,
+                 FLOAT_TYPE edge0, FLOAT_TYPE denum0, FLOAT_TYPE edge1,
+                 FLOAT_TYPE denum1, FLOAT_TYPE &s, FLOAT_TYPE &t) {
   if (Qs>0.0) { t=t_in;s=aux_edge(edge0,denum0); }
   else { s=s_in;
     if (Qt>0.0) t=aux_edge(edge1,denum1);
@@ -688,16 +688,16 @@ void aux_corner(float s_in, float t_in, float Qs, float Qt,
 }
 
 template<class Vector>
-float min_seg_dist(
+FLOAT_TYPE min_seg_dist(
             const Vector &B0, const Vector &B0p, const Vector &B1,
-            const Vector &B1p,float &s,float &t
+            const Vector &B1p,FLOAT_TYPE &s,FLOAT_TYPE &t
                   ) {
-  const float tol = 1e-12;
+  const FLOAT_TYPE tol = 1e-12;
   Vector D = B0-B1, M0 = B0p-B0, M1 = B1p-B1;
-  float a = M0.dot(M0), b = -M0.dot(M1), c = M1.dot(M1);
-  float d = M0.dot(D), e = -M1.dot(D); // , f = D.dot(D);
-  float det = std::abs(a*c-b*b);
-  float invDet, tmp;
+  FLOAT_TYPE a = M0.dot(M0), b = -M0.dot(M1), c = M1.dot(M1);
+  FLOAT_TYPE d = M0.dot(D), e = -M1.dot(D); // , f = D.dot(D);
+  FLOAT_TYPE det = std::abs(a*c-b*b);
+  FLOAT_TYPE invDet, tmp;
   s = b*e-c*d; t = b*d-a*e;
 
   if (det>=tol) {

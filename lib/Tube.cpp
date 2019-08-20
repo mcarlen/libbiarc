@@ -28,10 +28,10 @@
     int S = 10;
 
     // The radius is set to 1.0
-    float R = 1.0;
+    FLOAT_TYPE R = 1.0;
 
     // We match up the mesh with this tolerance value
-    float Tol = 1e-3;
+    FLOAT_TYPE Tol = 1e-3;
 
     // Generate mesh points and normals
     t.makeMesh(N,S,R,Tol);
@@ -210,7 +210,7 @@ int Tube<Vector>::segments() {
   \sa Curve::nodes(),segments()
 */
 template <class Vector>
-float Tube<Vector>::radius() {
+FLOAT_TYPE Tube<Vector>::radius() {
   return _Radius;
 }
 
@@ -297,7 +297,7 @@ void Tube<Vector>::computeBoundingBox() {
     }
   }
 
-  _Center /= (float)(N*S+1);
+  _Center /= (FLOAT_TYPE)(N*S+1);
 
 }
 
@@ -311,7 +311,7 @@ void Tube<Vector>::computeBoundingBox() {
   process.
 */
 template <class Vector>
-void Tube<Vector>::scaleTubeRadius(float NewRadius) {
+void Tube<Vector>::scaleTubeRadius(FLOAT_TYPE NewRadius) {
 
   if (_MeshPoints==NULL) {
     cerr << "Tube::scaleTubeRadius() : No mesh points\n";
@@ -321,7 +321,7 @@ void Tube<Vector>::scaleTubeRadius(float NewRadius) {
   // Move the points in _MeshPoints s.t. the tube has radius NewRadius
   // this is done by scaling the points on each circle by OldRadius/NewRadius
 
-  float ScaleFactor = NewRadius/this->_Radius;
+  FLOAT_TYPE ScaleFactor = NewRadius/this->_Radius;
 
   Vector Tmp, Point;
 
@@ -379,7 +379,7 @@ void Tube<Vector>::scaleTubeRadius(float NewRadius) {
   with Gamma = 0.5.
 */
 template <class Vector>
-void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
+void Tube<Vector>::makeMesh(int N, int S, FLOAT_TYPE R, FLOAT_TYPE Tol) {
 
   // clean up old mesh points/normals
   clear_tube();
@@ -447,15 +447,15 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
   Vector3 Binormal, Theta;
   Vector3 ClosestDirection;
   Matrix3 Frame, tmp;
-  float b, a, denom, tn, tb, Theta0, Theta1, angleDiff = 100000.0;
+  FLOAT_TYPE b, a, denom, tn, tb, Theta0, Theta1, angleDiff = 100000.0;
 
   // To keep track of the first and last circle points connectivity
   int PermutationIndex = 0 ;
 
   // Frame Twist Parameter
-  float TwistSpeed = 0.0;
+  FLOAT_TYPE TwistSpeed = 0.0;
   int Stop = 1;
-  float direction, AngularSpeedScale = 1.0;
+  FLOAT_TYPE direction, AngularSpeedScale = 1.0;
 
   biarc_it current = this->begin();
   for (int i=0;i<this->nodes();i++) {
@@ -488,7 +488,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
   Binormal.normalize();
 
   Vector3 rot_point;
-  float dist;
+//  FLOAT_TYPE dist;
 
   do {
 
@@ -548,12 +548,12 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
       Stop = 0;
     else {
       ClosestDirection = Normals[Nloc-1];
-      dist = (ClosestDirection-Normals[0]).norm();
       /* Disable Permutation stuff (which minimizes internal twist)
          but this is specially for visualization and texturing painfull!
          for (int j=0;j<S;j++) {
+      dist = (ClosestDirection-Normals[0]).norm();
       // trigonometric orientation of the point on the circle !!!
-      rot_point = Normals[Nloc-1].rotPtAroundAxis(2.0*M_PI/(float)S*(float)j,
+      rot_point = Normals[Nloc-1].rotPtAroundAxis(2.0*M_PI/(FLOAT_TYPE)S*(FLOAT_TYPE)j,
       Tangents[0]);
       if ((rot_point-Normals[0]).norm()<dist) {
       if (iterations==0) {
@@ -608,7 +608,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
   if (!TwistFlag) {
     for (int i=0;i<Nloc;i++) {
       for (int j=0;j<=S;j++) {
-        dummy = Normals[i].rotPtAroundAxis(-2.0*M_PI/(float)S*(float)(j%S),
+        dummy = Normals[i].rotPtAroundAxis(-2.0*M_PI/(FLOAT_TYPE)S*(FLOAT_TYPE)(j%S),
             Tangents[i]);
         dummy.normalize();
 
@@ -621,7 +621,7 @@ void Tube<Vector>::makeMesh(int N, int S, float R, float Tol) {
   else {
     for (int i=0;i<Nloc;i++) {
       for (int j=0;j<=S;j++) {
-        dummy = Normals[i].rotPtAroundAxis(-2.0*M_PI/(float)S*(float)(j%S),
+        dummy = Normals[i].rotPtAroundAxis(-2.0*M_PI/(FLOAT_TYPE)S*(FLOAT_TYPE)(j%S),
             Tangents[i]);
         dummy.normalize();
 
@@ -747,7 +747,7 @@ void Tube<Vector>::renderman_draw() {
 
 template <class Vector>
 void Tube<Vector>::exportRIBFile(char* filename, int W, int H,
-                                 const Vector &p, const Vector &a, float angle,
+                                 const Vector &p, const Vector &a, FLOAT_TYPE angle,
                                  const Vector &light_dir) {
   if (!MeshPoints) renderman_init();
   RiBegin(filename);
