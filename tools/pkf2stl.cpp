@@ -17,8 +17,24 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
-  int N = atoi(argv[2]), S = atoi(argv[3]);
-  float R = atof(argv[4]);
+  const char *Nstr = argv[2];
+  bool N_is_multiplier = false;
+  if (Nstr[0] == '*') {
+    N_is_multiplier = true;
+    ++Nstr;
+  }
+  const int N = atoi(Nstr);
+
+  const int S = atoi(argv[3]);
+
+  const char *Rstr = argv[4];
+  float R = atof(Rstr);
+  if (Rstr[0] == '*') {
+    CurveBundle<Vector3> cb(argv[1]);
+    cb.link();
+    cb.make_default();
+    R = atof(Rstr + 1) * compute_thickness(&cb) / 2;
+  }
 
   float Tol;
   Tol = (argc==7?atof(argv[6]):1e-03);
@@ -32,19 +48,19 @@ int main(int argc, char **argv) {
   cout << "Process all curves in PKF :\n";
   file << "solid " << knot.getName() << endl;
   for (int i=0;i<knot.tubes();i++) {
-    knot[i].scale(10.);
     knot[i].link();
-    if (knot[i].nodes()!=N) {
-      cout << "Resample curve " << i+1 << " with " << N << " points";
+    const int p = N_is_multiplier ? N * knot[i].nodes() : N;
+    if (knot[i].nodes() != p) {
+      cout << "Resample curve " << i+1 << " with " << p << " points";
       knot[i].make_default();
-      knot[i].resample(N);
+	knot[i].resample(p);
       cout << "\t\t[OK]\n";
     }
     else
       knot[i].make_default();
 
-    cout << "Generate mesh (N="<<N<<",S="<<S<<",R="<<R<<")";
-    knot[i].makeMesh(N,S,R,Tol);
+    cout << "Generate mesh (N=" << p << ",S=" << S << ",R=" << R << ")";
+    knot[i].makeMesh(p,S,R,Tol);
     cout << "\t\t[OK]\n";
 
     cout << "Write to file : " << argv[5];
