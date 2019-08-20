@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
   cout << "Thickness is " << c.thickness_fast() << endl;
 
 #define b3 vector<Biarc<Vector3> >::iterator
-  float r0, r1;
+//  float r0, r1;
   int changed = 0;
   for (int i=1;i<=Iterations;++i) {
     for (b3 it=c.begin();it!=c.end();++it) {
@@ -44,8 +44,8 @@ int main(int argc, char **argv) {
      else prev = it-1;
      if (it == c.end()-1) next = c.begin();
      else next = it+1;
-      r0 = prev->radius1();
-      r1 = it->radius0();
+//      r0 = prev->radius1();
+//      r1 = it->radius0();
 // cout << "R " << r0 << " " << r1 << endl;
       // if (r0*2.0 < thick || r1*2.0 < thick) {
 // Select more points accoring to the stencil variable

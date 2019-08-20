@@ -70,14 +70,14 @@ int main(int argc, char** argv) {
 
   vector<container> final = contacts;
   for (int i=2;i<=k;++i)
-    for (int j=0;j<final.size();++j) {
+    for (unsigned int j=0;j<final.size();++j) {
       float v = final[j].sigma;
       if (v<0) cout << v << " neg\n";
       if (v>=1) cout << v << " pos\n";
       final[j].sigma = interpolate(contacts, v);
     }
 
-  for (int i=0;i<final.size();++i)
+  for (unsigned int i=0;i<final.size();++i)
     cout << final[i].s << " " << final[i].sigma << endl;
 
   return 0;

@@ -53,9 +53,13 @@ void generateNormals(int N, Vector3 *Normals, Curve<Vector3> &c, int S, float To
   // given the tangents. Try to match up start and
   // end normal if the curve is closed!
   float TwistSpeed = 0.0;
-  int PermutationIndex = 0, Stop = 0, iterations = 0;
+  int Stop = 0, iterations = 0;
   Vector3 rot_point;
-  float direction, AngularSpeedScale = 1.0, dist, angleDiff = 1e6;
+  float direction, AngularSpeedScale = 1.0, angleDiff = 1e6;
+
+  // Permuation related variables.
+  // int PermutationIndex = 0;
+  // float dist;
 
   do {
     Frame = Matrix3(Normals[0],vt0.cross(Normals[0]),vt0);
@@ -64,9 +68,9 @@ void generateNormals(int N, Vector3 *Normals, Curve<Vector3> &c, int S, float To
       Normals[i] = propagate(Frame,c[i%c.nodes()].getTangent(),TwistSpeed);
 
     ClosestDirection = Normals[N-1];
-    dist = (ClosestDirection-Normals[0]).norm();
-    PermutationIndex = 0;
 /* Disable Permutation
+    PermutationIndex = 0;
+    dist = (ClosestDirection-Normals[0]).norm();
     for (int j=0;j<S;++j) {
       rot_point = Normals[N-1].rotPtAroundAxis(2.0*M_PI/(float)S*(float)j,
                                                vt0);

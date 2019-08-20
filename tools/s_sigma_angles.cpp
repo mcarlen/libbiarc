@@ -30,7 +30,7 @@ bool compare(const contact& a, const contact& b) {
 // Contacts struts
 struct CStrut {
   Vector3 p0, p1;
-	Vector3 t0, t1;
+  Vector3 t0, t1;
 };
 typedef CStrut CStrut;
 float thick;
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
   sort(final.begin(),final.end(),compare);
 
   float ot = final[0].t, os = final[0].s;
-  float s, t, val;
+  float s, t;
   c.s = os; c.t = ot;
   final2.push_back(c);
 
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
     s = final[i].s; t = final[i].t;
     if (s>1. || s<0.) continue;
 
-    val = (os-s)*(os-s) + (ot-t)*(ot-t);
+//  float val = (os-s)*(os-s) + (ot-t)*(ot-t);
  //   if (val < 0.0001) continue;
 
     // We want a monotone function

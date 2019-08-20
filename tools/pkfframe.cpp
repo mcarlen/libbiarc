@@ -104,8 +104,6 @@ int main(int argc, char** argv) {
   Binormal.normalize();
 
   Vector3 rot_point;
-  float dist;
-
   do {
 
     Frame = Matrix3(Normals[0],Binormal,Tangents[0]);
@@ -145,7 +143,6 @@ int main(int argc, char** argv) {
      }
     else {
       ClosestDirection = Normals[Nloc-1];
-      dist = (ClosestDirection-Normals[0]).norm();
 
 // angle difference between first normal and closest last direction
       if (Normals[0].dot(ClosestDirection) > 1-Tol) Stop=0;

@@ -27,10 +27,9 @@ int main(int argc, char** argv) {
   //char line[1024];
 
   ifstream in;
-  char filename[100];
-  char call[100];
+  char filename[1024];
+  char call[1024];
   //char KnotName[40];
-  char* val;
   float real_part[2];
   int real_ind;
   float temp_number;
@@ -78,9 +77,9 @@ int main(int argc, char** argv) {
 
       // Parse that line
       // No nodes
-      val = strtok(tmp," ");
-      val = strtok(NULL," ");
-      val = strtok(NULL," ");
+      strtok(tmp," ");
+      strtok(NULL," ");
+      strtok(NULL," ");
 
       NSS = atoi(strtok(NULL," "));
       for (int i=0;i<NSS;i++) {
@@ -98,7 +97,7 @@ int main(int argc, char** argv) {
 
 	// Eat up rest (img part, helix stuff)
 	for (int k=0;k<7;k++)
-	  val = strtok(NULL," ");
+	  strtok(NULL," ");
 
 	if (real_part[0]*real_part[1]>0) {
 	  if (real_part[0]>0 && real_part[1]>0) {

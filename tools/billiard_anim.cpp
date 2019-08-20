@@ -62,7 +62,7 @@ void dump_frame(vector<CContact> &struts, int flag) {
   cout << "0 0 1 ] }\n";
   */
   cout << "      Coordinate3 {\npoint [\n";
-  for (int i=flag;i<struts.size();++i) {
+  for (int i = flag; i < static_cast<int>(struts.size()); ++i) {
     cout << struts[i].p[0] << ",\n";
   }
   cout << struts.back().p[2] << "\n]\n      }\n";
