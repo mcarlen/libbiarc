@@ -6,6 +6,7 @@
 #include "Vector4.h"
 #include "Biarc.h"
 #include "CurveBundle.h"
+#include "Tube.h"
 
 #define biarc_it  typename vector< Biarc<Vector> >::iterator
 #define candi_it typename vector<Candi<Vector> >::iterator
@@ -49,7 +50,7 @@ inline ostream & operator<< (ostream &out, const Candi<Vector> &c) {
   Vector3 tb1 = (c.b.b2-c.b.b1); tb1.normalize();
 
   out << c.a.b0 << " " << c.a.b2 << " " << ta0 << " " << ta1 << " "
-      << c.b.b0 << " " << c.b.b2 << " " << tb0 << " " << tb1 << " " << c.d; 
+      << c.b.b0 << " " << c.b.b2 << " " << tb0 << " " << tb1 << " " << c.d;
   return out;
 }
 

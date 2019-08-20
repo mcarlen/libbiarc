@@ -4,6 +4,26 @@
 # Outputs
 *.a
 *.so
+*/.depend
+objects/bone
+objects/borromean
+objects/circle
+objects/circle4
+objects/crouzy
+objects/ellipse
+objects/helix
+objects/hopf
+objects/inf
+objects/knottable
+objects/line
+objects/random
+objects/sinus
+objects/solenoid
+objects/spiral
+objects/stadium
+objects/torusknot
+objects/torusknot4
+objects/trefoil
 tools/align
 tools/angle_condition
 tools/angle_principal_normal_contacts

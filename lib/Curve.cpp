@@ -577,7 +577,7 @@ void Curve<Vector>::changeDirection() {
   had been used), and 0 otherwise.
 */
 template<class Vector>
-int Curve<Vector>::isClosed() const {
+bool Curve<Vector>::isClosed() const {
   return _Closed;
 }
 
@@ -1899,7 +1899,7 @@ void Curve<Vector>::check_tangents() {
   \sa writePKF(),CurveBundle,PKFmanip
 */
 template<class Vector>
-int Curve<Vector>::readPKF(istream &in) {
+bool Curve<Vector>::readPKF(istream &in) {
 
   readHeader(in);
 
@@ -1908,14 +1908,14 @@ int Curve<Vector>::readPKF(istream &in) {
   in.getline(tmp,sizeof tmp);
   if(strncmp(tmp,"NCMP ",5)) {
     cerr << "Expected NCMP: " << tmp << '\n';
-    return 0;
+    return false;
   }
   int NoCurves = atoi(tmp+5);
   if (NoCurves>1) {
     cerr << "Number of curves = " << NoCurves << endl
 	 << "The class Curve can not handle more than\n"
 	 << "one component, use a CurveBundle object!";
-    return 0;
+    return false;
   }
 
   if (!readSinglePKF(in)) {
@@ -1923,7 +1923,10 @@ int Curve<Vector>::readPKF(istream &in) {
     return 0;
   }
 
-  return 1;
+  if (!readEnd(in))
+    return false;
+
+  return true;
 }
 
 /*!
@@ -1932,19 +1935,19 @@ int Curve<Vector>::readPKF(istream &in) {
   \sa writePKF()
 */
 template<class Vector>
-int Curve<Vector>::readPKF(const char* filename) {
+bool Curve<Vector>::readPKF(const char* filename) {
 
   ifstream ifs(filename,ios::in);
   if (!ifs.good()) {
     cerr << "Curve::readPKF() : Problem reading file " << filename << endl;
-    return 0;
+    return false;
   }
   if (!readPKF(ifs)) {
     cerr << "Curve::readPKF() : could not read curve.\n";
-    return 0;
+    return false;
   }
 
-  return 1;
+  return true;
 }
 
 /*!
@@ -1996,14 +1999,7 @@ int Curve<Vector>::readSinglePKF(istream &in) {
 
   }
 
-  in.getline(tmp,sizeof tmp);
-  if(strncmp(tmp,"END",3)) {
-    cerr << "Expected END: " << tmp << '\n';
-    return 0;
-  }
-
   return 1;
-
 }
 
 /*!
@@ -2015,13 +2011,13 @@ int Curve<Vector>::readSinglePKF(istream &in) {
   \sa readPKF(),CurveBundle
 */
 template<class Vector>
-int Curve<Vector>::writePKF(ostream &out, int Header) {
+bool Curve<Vector>::writePKF(ostream &out, int Header) {
   if (Header) {
     writeHeader(out);
-    out << "NCMP 1"<<endl;
+    out << "NCMP 1\n";
   }
   writeSinglePKF(out);
-  return 1;
+  return true;
 }
 
 /*!
@@ -2033,18 +2029,18 @@ int Curve<Vector>::writePKF(ostream &out, int Header) {
   \sa readPKF(),CurveBundle
 */
 template<class Vector>
-int Curve<Vector>::writePKF(const char* filename, int Header) {
+bool Curve<Vector>::writePKF(const char* filename, int Header) {
 
   ofstream ofs(filename,ios::out);
   if (!ofs.good()) {
     cerr << "Curve::writePKF() : write to file " << filename << "problem.\n";
-    return 0;
+    return false;
   }
   if (!writePKF(ofs, Header)) {
     cerr << "Curve::writePKF() : could not write curve.\n";
-    return 0;
+    return false;
   }
-  return 1;
+  return true;
 }
 
 /*!
@@ -2088,7 +2084,7 @@ ostream& Curve<Vector>::writeSinglePKF(ostream &out) {
   \sa computeTangents(),polygonalToArcs(),arcsToPolygonal()
 */
 template<class Vector>
-int Curve<Vector>::readData(istream &in, const char* delimiter) {
+bool Curve<Vector>::readData(istream &in, const char* delimiter) {
   return readSingleData(in,delimiter);
 }
 
@@ -2102,7 +2098,7 @@ int Curve<Vector>::readData(istream &in, const char* delimiter) {
   \sa readPKF(), readData()
 */
 template<class Vector>
-int Curve<Vector>::readXYZ(istream &in) {
+bool Curve<Vector>::readXYZ(istream &in) {
   return readSingleXYZ(in);
 }
 
@@ -2113,18 +2109,18 @@ int Curve<Vector>::readXYZ(istream &in) {
   delimiter is a space.
 */
 template<class Vector>
-int Curve<Vector>::readXYZ(const char* filename) {
+bool Curve<Vector>::readXYZ(const char* filename) {
   ifstream ifs(filename,ios::in);
   if (!ifs.good()) {
     cerr << "Curve::readXYZ() : Could not read from " << filename << ".\n";
-    return 0;
+    return false;
   }
   if (!readXYZ(ifs)) {
     cerr << "Curve::readXYZ() : Could not read data from "
 	 <<filename<<".\n";
-    return 0;
+    return false;
   }
-  return 1;
+  return true;
 }
 
 
@@ -2134,18 +2130,18 @@ int Curve<Vector>::readXYZ(const char* filename) {
   delimiter is a space.
 */
 template<class Vector>
-int Curve<Vector>::readData(const char* filename, const char* delimiter) {
+bool Curve<Vector>::readData(const char* filename, const char* delimiter) {
   ifstream ifs(filename,ios::in);
   if (!ifs.good()) {
     cerr << "Curve::readData() : Could not read from " << filename << ".\n";
-    return 0;
+    return false;
   }
   if (!readData(ifs, delimiter)) {
     cerr << "Curve::readData() : Could not read data from "
 	 <<filename<<".\n";
-    return 0;
+    return false;
   }
-  return 1;
+  return true;
 }
 
 /*!
@@ -2222,16 +2218,16 @@ int Curve<Vector>::readSingleData(istream &in, const char* delimiter) {
   \sa writeSingleData(),readData()
 */
 template<class Vector>
-int Curve<Vector>::writeData(const char* filename, const char* delimiter,
+bool Curve<Vector>::writeData(const char* filename, const char* delimiter,
 			  int tangents_flag) {
   ofstream out(filename,ios::out);
   if (!out.good()) {
     cerr << "Can not write to " << filename << endl;
-    return 0;
+    return false;
   }
   out << 1 << endl;
   writeSingleData(out,delimiter,tangents_flag);
-  return 1;
+  return true;
 }
 
 /*!
@@ -2245,11 +2241,11 @@ int Curve<Vector>::writeData(const char* filename, const char* delimiter,
   \sa writeSingleData(),readData()
 */
 template<class Vector>
-int Curve<Vector>::writeData(ostream &out, const char* delimiter,
+bool Curve<Vector>::writeData(ostream &out, const char* delimiter,
 			  int tangents_flag) {
   out << 1 << endl;
   writeSingleData(out,delimiter,tangents_flag);
-  return 1;
+  return true;
 }
 
 /*!
