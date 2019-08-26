@@ -93,10 +93,10 @@ class Curve : public PKFmanip {
 
   void changeDirection() ;
 
-  void make(float f);
+  void make(FLOAT_TYPE f);
   void makeMidpointRule();
-  void make(int from_N, int to_N, float f);
-  void make(Biarc<Vector>* from, Biarc<Vector>* to, float f);
+  void make(int from_N, int to_N, FLOAT_TYPE f);
+  void make(Biarc<Vector>* from, Biarc<Vector>* to, FLOAT_TYPE f);
   void makeMidpointRule(int from_N, int to_N);
   void makeMidpointRule(Biarc<Vector>* from, Biarc<Vector>* to);
 
@@ -105,35 +105,35 @@ class Curve : public PKFmanip {
   void refine(biarc_it from, biarc_it to, int NewNoNodes);
 
   // caution it's actually radius_tp !!!
-  float radius_pt(int from, int to);
-  float radius_pt(biarc_it from, biarc_it to);
-  float radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &to);
-  float radius_pt(const Vector &p0, const Vector &t0, const Vector &p1) const;
-  float radius_pt(const float s, const float t) const;
+  FLOAT_TYPE radius_pt(int from, int to);
+  FLOAT_TYPE radius_pt(biarc_it from, biarc_it to);
+  FLOAT_TYPE radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &to);
+  FLOAT_TYPE radius_pt(const Vector &p0, const Vector &t0, const Vector &p1) const;
+  FLOAT_TYPE radius_pt(const FLOAT_TYPE s, const FLOAT_TYPE t) const;
 
-  float pp(int from, int to) const;
-  float pp(float s, float t) const;
+  FLOAT_TYPE pp(int from, int to) const;
+  FLOAT_TYPE pp(FLOAT_TYPE s, FLOAT_TYPE t) const;
 
-  float radius_global(Biarc<Vector>& at);
+  FLOAT_TYPE radius_global(Biarc<Vector>& at);
 
-  float thickness_fast();
-  float thickness(Vector *from = NULL, Vector *to = NULL);
+  FLOAT_TYPE thickness_fast();
+  FLOAT_TYPE thickness(Vector *from = NULL, Vector *to = NULL);
 
   void get_hint(int *i, int *j) const;
   void set_hint(const int i, const int j);
 
-  float minSegDistance();
-  float maxSegDistance();
-  float span() const;
-  float distEnergy();
+  FLOAT_TYPE minSegDistance();
+  FLOAT_TYPE maxSegDistance();
+  FLOAT_TYPE span() const;
+  FLOAT_TYPE distEnergy();
 
-  float curvature(int n);
-  float curvature(biarc_it b);
+  FLOAT_TYPE curvature(int n);
+  FLOAT_TYPE curvature(biarc_it b);
   Vector normalVector(int n);
   Vector normalVector(biarc_it b);
-  float torsion(int n, int a);
-  float torsion2(int n);
-  float signed_torsion(int n, int a);
+  FLOAT_TYPE torsion(int n, int a);
+  FLOAT_TYPE torsion2(int n);
+  FLOAT_TYPE signed_torsion(int n, int a);
 
   // Return Frenet-Frame
   // void frenet(Vector3& t, Vector3& n, Vector3& b);
@@ -146,25 +146,25 @@ class Curve : public PKFmanip {
   void arcsToPolygonal();
 
   int nodes() const;
-  float length() const;
-  Vector pointAt(float s) const;
-  Vector tangentAt(float s) const;
-  biarc_it biarcAt(float s);
-  int biarcPos(float s);
+  FLOAT_TYPE length() const;
+  Vector pointAt(FLOAT_TYPE s) const;
+  Vector tangentAt(FLOAT_TYPE s) const;
+  biarc_it biarcAt(FLOAT_TYPE s);
+  int biarcPos(FLOAT_TYPE s);
 
-  Curve& rotAroundAxis(float angle,Vector axis);
+  Curve& rotAroundAxis(FLOAT_TYPE angle,Vector axis);
   Curve& operator+=(const Vector &v);
   Curve& operator-=(const Vector &v);
 
   Curve operator+(const Curve &c) const;
   Curve operator-(const Curve &c) const;
-  Curve operator*(const float s) const;
+  Curve operator*(const FLOAT_TYPE s) const;
 
   Curve& apply(Matrix3 &m);
   Vector getCenter() ;
   void center();
   void normalize();
-  void scale(float s);
+  void scale(FLOAT_TYPE s);
 
   void check_tangents();
 

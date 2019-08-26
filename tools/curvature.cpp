@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 
   cout.precision(16);
 
-  float s = 0, r, r_global, r_global_fast;
+  FLOAT_TYPE s = 0, r, r_global, r_global_fast;
   for (int i=0;i<cb.curves();i++) {
 
     float D = cb[i].thickness();

@@ -43,11 +43,11 @@ public:
   void newTube(istream& in);
   Tube<Vector>& operator[](int c) ;
 
-  void makeMesh(int N, int S, float R, float Tol = -1.0);
+  void makeMesh(int N, int S, FLOAT_TYPE R, FLOAT_TYPE Tol = -1.0);
 
   void getBoundingBox(Vector & BBox_Min, Vector & BBox_Max);
   Vector & getCenter();
-  void scaleTubeRadius(float NewRadius);
+  void scaleTubeRadius(FLOAT_TYPE NewRadius);
 
   /*
     TODO :

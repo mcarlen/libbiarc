@@ -333,10 +333,10 @@ namespace CxxTest
     CXXTEST_COPY_CONST_TRAITS( double );
 
     //
-    // ValueTraits: float
+    // ValueTraits: FLOAT_TYPE
     //
-    CXXTEST_COPY_TRAITS( const float, const double );
-    CXXTEST_COPY_CONST_TRAITS( float );
+    CXXTEST_COPY_TRAITS( const FLOAT_TYPE, const double );
+    CXXTEST_COPY_CONST_TRAITS( FLOAT_TYPE );
 #endif // !CXXTEST_USER_VALUE_TRAITS
 };
 

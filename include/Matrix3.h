@@ -11,16 +11,16 @@ class Matrix3 {
 
   Matrix3();
   Matrix3(const Vector3 &v0,const Vector3 &v1,const Vector3 &v2);
-  Matrix3(const float &x00, const float &x01, const float &x02,
-          const float &x10, const float &x11, const float &x12,
-          const float &x20, const float &x21, const float &x22);
+  Matrix3(const FLOAT_TYPE &x00, const FLOAT_TYPE &x01, const FLOAT_TYPE &x02,
+          const FLOAT_TYPE &x10, const FLOAT_TYPE &x11, const FLOAT_TYPE &x12,
+          const FLOAT_TYPE &x20, const FLOAT_TYPE &x21, const FLOAT_TYPE &x22);
 
   Matrix3 & zero();
   Vector3 &operator[](int n);
   const Vector3 &operator[](int n) const;
     
   void setOne(const int c, const Vector3 &v);
-  void setOne(const int c, const float v1, const float v2, const float v3);
+  void setOne(const int c, const FLOAT_TYPE v1, const FLOAT_TYPE v2, const FLOAT_TYPE v3);
   void setAll(const Vector3 &v1, const Vector3 &v2, const Vector3 &v3);
   void setAll(const Vector3 *v);
   Vector3 getOne(const int c);
@@ -28,18 +28,18 @@ class Matrix3 {
 
   Matrix3 & id();
   Matrix3 & transpose();
-  float det();
+  FLOAT_TYPE det();
   Matrix3 & inv();
   Matrix3& outer(const Vector3 &a, const Vector3 &b);
   Matrix3& vecCross(const Vector3 &v);
   Matrix3& cay(const Vector3 &v);
-  Matrix3& rotAround(const Vector3 &v, float angle);
+  Matrix3& rotAround(const Vector3 &v, FLOAT_TYPE angle);
 
   Matrix3 operator*(const Matrix3 &m);
   Vector3 operator*(const Vector3 &v);
-  friend Matrix3 operator*(const Matrix3 &m, float d);
-  friend Matrix3 operator*(float d, const Matrix3 &m);
-  friend Matrix3 operator/(const Matrix3 &m, float d);
+  friend Matrix3 operator*(const Matrix3 &m, FLOAT_TYPE d);
+  friend Matrix3 operator*(FLOAT_TYPE d, const Matrix3 &m);
+  friend Matrix3 operator/(const Matrix3 &m, FLOAT_TYPE d);
 
   Matrix3 operator+(const Matrix3 &m) const;
   Matrix3 operator-(const Matrix3 &m) const;
@@ -48,8 +48,8 @@ class Matrix3 {
   Matrix3& operator=(const Matrix3 &m);
   Matrix3& operator+=(const Matrix3 &m);
   Matrix3& operator-=(const Matrix3 &m);
-  Matrix3& operator*=(const float s);
-  Matrix3& operator/=(const float s);
+  Matrix3& operator*=(const FLOAT_TYPE s);
+  Matrix3& operator/=(const FLOAT_TYPE s);
   
   int operator==(const Matrix3 &m) const;
   int operator!=(const Matrix3 &m) const;

@@ -53,7 +53,7 @@ make
   \class Vector3 include/Vector3.h include/Vector3.h
   \ingroup BiarcLibGroup
   \brief The Vector3 class is a 3 dimensional Vector class with
-  floating point coordinates.
+  FLOAT_TYPEing point coordinates.
 
   This class provides storage for a 3 dimensional vector
   aswell as arithmetic operations on vectors, like the dot
@@ -66,14 +66,14 @@ make
 //
 
 /*!
-  \fn float & Vector3::operator[](const int c)
+  \fn FLOAT_TYPE & Vector3::operator[](const int c)
   Index operator. Returns modifiable x, y or z coordinate of the vector.
  
   \sa getValue() and setValue().
 */
  
 /*!
-  \fn float Vector3::operator[](const int c) const
+  \fn FLOAT_TYPE Vector3::operator[](const int c) const
   Index operator. Returns x, y or z coordinate of vector.
  
   \sa getValue() and setValue().
@@ -113,14 +113,14 @@ Vector3::Vector3() {
 /*!
   Constructs a Vector3 instance from \a x, \a y and \a z.
 */
-Vector3::Vector3(const float x, const float y, const float z) {
+Vector3::Vector3(const FLOAT_TYPE x, const FLOAT_TYPE y, const FLOAT_TYPE z) {
   _v[0]=x; _v[1]=y; _v[2]=z;
 }
 
 /*!
   Constructs a Vector3 with initial values from \a v.
 */
-Vector3::Vector3(const float v[3]) {
+Vector3::Vector3(const FLOAT_TYPE v[3]) {
   _v[0]=v[0];  _v[1]=v[1]; _v[2] = v[2];
 }
 
@@ -149,7 +149,7 @@ Vector3 & Vector3::zero() {
 /*!
   Recover the vector components and put them into \a X, \a Y and \a Z.
 */
-void Vector3::getValues(float& X, float& Y, float &Z) const {
+void Vector3::getValues(FLOAT_TYPE& X, FLOAT_TYPE& Y, FLOAT_TYPE &Z) const {
   X = _v[0];
   Y = _v[1];
   Z = _v[2];
@@ -158,7 +158,7 @@ void Vector3::getValues(float& X, float& Y, float &Z) const {
 /*!
   Set the vector to \a <X,Y,Z>. Returns a reference to itself.
 */
-Vector3 & Vector3::setValues(const float X, const float Y, const float Z) {
+Vector3 & Vector3::setValues(const FLOAT_TYPE X, const FLOAT_TYPE Y, const FLOAT_TYPE Z) {
   this->_v[0] = X;
   this->_v[1] = Y;
   this->_v[2] = Z;
@@ -168,7 +168,7 @@ Vector3 & Vector3::setValues(const float X, const float Y, const float Z) {
 /*!
   Set new coordinates from the given array \a v. Returns a reference to itself.
 */
-Vector3 & Vector3::setValues(const float v[3]) {
+Vector3 & Vector3::setValues(const FLOAT_TYPE v[3]) {
   this->_v[0] = v[0];
   this->_v[1] = v[1];
   this->_v[2] = v[2];
@@ -178,7 +178,7 @@ Vector3 & Vector3::setValues(const float v[3]) {
 /*!
   Returns the dot product between the current vector and \a v.
 */
-float Vector3::dot(const Vector3 &v) const {
+FLOAT_TYPE Vector3::dot(const Vector3 &v) const {
   return(this->_v[0]*v._v[0] + this->_v[1]*v._v[1] + this->_v[2]*v._v[2]);
 }
 
@@ -201,7 +201,7 @@ Vector3 Vector3::cross(const Vector3 &v) const {
 
   \sa norm2(), normalize().
 */
-float Vector3::norm() const {
+FLOAT_TYPE Vector3::norm() const {
   return(sqrt(_v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2]));
 }
 
@@ -212,7 +212,7 @@ float Vector3::norm() const {
 
   \sa norm(), normalize().
 */
-float Vector3::norm2() const {
+FLOAT_TYPE Vector3::norm2() const {
   return (_v[0]*_v[0] + _v[1]*_v[1] + _v[2]*_v[2]);
 }
 
@@ -226,14 +226,14 @@ float Vector3::norm2() const {
   \sa norm(), norm2().
 */
 Vector3 & Vector3::normalize() {
-  float Norm = norm();
+  FLOAT_TYPE Norm = norm();
 
   if (Norm == 0) {
     return *this;
     cerr << "Warning : Vector3 has zero length!\n";
   }
   else {
-    float iNorm = 1.0/Norm;
+    FLOAT_TYPE iNorm = 1.0/Norm;
     this->_v[0] *= iNorm;
     this->_v[1] *= iNorm;
     this->_v[2] *= iNorm;
@@ -244,7 +244,7 @@ Vector3 & Vector3::normalize() {
 /*!
   Returns the largest component of the current vector.
 */
-float Vector3::max() {
+FLOAT_TYPE Vector3::max() {
   if( fabs(_v[0]) > fabs(_v[1]) ){
     if( fabs(_v[2]) > fabs(_v[0])){
       return _v[2];
@@ -262,8 +262,8 @@ float Vector3::max() {
 /*!
   Returns the smallest component of the current vector.
 */
-float Vector3::min() {
-  float min = 1000000.0;
+FLOAT_TYPE Vector3::min() {
+  FLOAT_TYPE min = 1000000.0;
 
   for (int i=0;i<3;i++)
     if (_v[i]<min)
@@ -294,7 +294,7 @@ Vector3 Vector3::reflect(const Vector3 &ref_ax) const {
   Rotate the current point at <x,y,z> around the given rotational axes \a axis
   and an angle \a angle. The value for the angle is given in radians.
 */
-Vector3 Vector3::rotPtAroundAxis(float angle, Vector3 axis) const {
+Vector3 Vector3::rotPtAroundAxis(FLOAT_TYPE angle, Vector3 axis) const {
 
   Vector3 point = *this;
 
@@ -304,11 +304,11 @@ Vector3 Vector3::rotPtAroundAxis(float angle, Vector3 axis) const {
   Vector3 direction  = point - proj_point;
   Vector3 tmp;
   
-  float x = axis[0], y = axis[1], z = axis[2];
+  FLOAT_TYPE x = axis[0], y = axis[1], z = axis[2];
   
   // Calculate the sine and cosine of the angle once
-  float cosTheta = (float)cos(angle);
-  float sinTheta = (float)sin(angle);
+  FLOAT_TYPE cosTheta = (FLOAT_TYPE)cos(angle);
+  FLOAT_TYPE sinTheta = (FLOAT_TYPE)sin(angle);
       
   // Find the new x position for the new rotated point
   tmp[0]  = (cosTheta + (1 - cosTheta) * x * x)     * direction[0];
@@ -342,7 +342,7 @@ Vector3 Vector3::operator*(const Vector3 &v) const {
   Returns a Vector3 that is this vector scaled by a scalar \a s.
 */
 /*
-Vector3 Vector3::operator*(const float s) const {
+Vector3 Vector3::operator*(const FLOAT_TYPE s) const {
   return Vector3(s*_v[0], s*_v[1], s*_v[2]);
 }
 */
@@ -350,7 +350,7 @@ Vector3 Vector3::operator*(const float s) const {
 /*!
   Returns a Vector3 that is the vector \a v scaled by a scalar \a d.
 */
-Vector3 operator*(const Vector3 & v, float d) {
+Vector3 operator*(const Vector3 & v, FLOAT_TYPE d) {
   return Vector3(d*v[0], d*v[1], d*v[2]);
 }
 
@@ -358,7 +358,7 @@ Vector3 operator*(const Vector3 & v, float d) {
   Returns a Vector3, that is the vector \a v
   scaled by a scalar \a s.
 */
-Vector3 operator*(float d, const Vector3 & v) {
+Vector3 operator*(FLOAT_TYPE d, const Vector3 & v) {
   return Vector3(d*v[0],d*v[1],d*v[2]);
 }
 
@@ -366,8 +366,8 @@ Vector3 operator*(float d, const Vector3 & v) {
   Returns a Vector3 whose components are divided by \a d.
 */
 /*
-Vector3 Vector3::operator/(const float d) const {
-  float fac = 1.0/d;
+Vector3 Vector3::operator/(const FLOAT_TYPE d) const {
+  FLOAT_TYPE fac = 1.0/d;
   return Vector3(_v[0]*fac, _v[1]*fac, _v[2]*fac);
 }
 */
@@ -376,8 +376,8 @@ Vector3 Vector3::operator/(const float d) const {
   Friend function that returns the vector v whose components are
   scaled by d.
 */
-Vector3 operator /(const Vector3 & v, float d) {
-  float fac = 1.0/d;
+Vector3 operator /(const Vector3 & v, FLOAT_TYPE d) {
+  FLOAT_TYPE fac = 1.0/d;
   return Vector3(v[0]*fac, v[1]*fac, v[2]*fac);
 }
 
@@ -419,7 +419,7 @@ Vector3& Vector3::operator=(const Vector3 &v) {
   Multiplies this vector's components by \a s and returns
   an instance to itself.
 */
-Vector3& Vector3::operator*=(const float s) {
+Vector3& Vector3::operator*=(const FLOAT_TYPE s) {
   _v[0] *= s;
   _v[1] *= s;
   _v[2] *= s;
@@ -431,8 +431,8 @@ Vector3& Vector3::operator*=(const float s) {
   Divides this vector's components by \a s and returns
   an instance to itself.
 */
-Vector3& Vector3::operator/=(const float s) {
-  float fac = 1.0/s;
+Vector3& Vector3::operator/=(const FLOAT_TYPE s) {
+  FLOAT_TYPE fac = 1.0/s;
   _v[0] *= fac;
   _v[1] *= fac;
   _v[2] *= fac;

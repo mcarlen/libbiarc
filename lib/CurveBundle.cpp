@@ -139,7 +139,7 @@ int CurveBundle<Vector>::nodes() const {
   of the curve bundle
 */
 template<class Vector>
-float CurveBundle<Vector>::thickness() {
+FLOAT_TYPE CurveBundle<Vector>::thickness() {
   return compute_thickness(this);
 }
 
@@ -148,10 +148,10 @@ float CurveBundle<Vector>::thickness() {
   of the curve bundle.
 */
 template<class Vector>
-float CurveBundle<Vector>::thickness_fast() {
-  float thick = bundle[0].thickness_fast();
+FLOAT_TYPE CurveBundle<Vector>::thickness_fast() {
+  FLOAT_TYPE thick = bundle[0].thickness_fast();
   for (int i=1;i<curves();++i) {
-    float th = bundle[i].thickness_fast();
+    FLOAT_TYPE th = bundle[i].thickness_fast();
     if (th<thick) thick = th;
   }
   return thick;
@@ -163,8 +163,8 @@ float CurveBundle<Vector>::thickness_fast() {
   sum of the arc-length of all the stored curves.
 */
 template<class Vector>
-float CurveBundle<Vector>::length() {
-  float L = 0.0;
+FLOAT_TYPE CurveBundle<Vector>::length() {
+  FLOAT_TYPE L = 0.0;
   for (int i=0;i<curves();i++)
     L += bundle[i].length();
 
@@ -238,7 +238,7 @@ Curve<Vector>& CurveBundle<Vector>::operator[](int c) {
   \sa Curve::make(), makeMidpointRule()
 */
 template<class Vector>
-void CurveBundle<Vector>::make(float f) {
+void CurveBundle<Vector>::make(FLOAT_TYPE f) {
   for (int i=0;i<curves();i++)
     bundle[i].make(f);
 }
@@ -291,7 +291,7 @@ void CurveBundle<Vector>::changeDirection() {
 */
 template<class Vector>
 void CurveBundle<Vector>::normalize() {
-  float invL = 1.0/length();
+  FLOAT_TYPE invL = 1.0/length();
   for (int i=0;i<curves();i++)
     bundle[i].scale(invL);
 }
@@ -304,7 +304,7 @@ void CurveBundle<Vector>::normalize() {
   \sa normalize()
 */
 template<class Vector>
-CurveBundle<Vector>& CurveBundle<Vector>::scale(float s) {
+CurveBundle<Vector>& CurveBundle<Vector>::scale(FLOAT_TYPE s) {
   for (int i=0;i<curves();i++)
     bundle[i].scale(s);
   return *this;

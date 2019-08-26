@@ -1,7 +1,7 @@
 #ifndef __PNGWRITE_H__
 #define __PNGWRITE_H__
 
-#include "png.h"
+#include <png.h>
 
 // stolen and adapted from inkscape
 

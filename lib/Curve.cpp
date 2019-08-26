@@ -65,7 +65,7 @@
     circle.header("Circle","Author","","");
 
     // Build the circle with 10 nodes
-    for (float i=0;i<10;i+=1.0) {
+    for (FLOAT_TYPE i=0;i<10;i+=1.0) {
 
       // Compute point and tangent of the circle
       p = Vector3(sin(i*M_PI/5.0), cos(i*M_PI/5.0),0);
@@ -262,10 +262,10 @@ inline int Curve<Vector>::nodes() const {return _Biarcs.size();}
   difference between an open or a closed curve.
 */
 template<class Vector>
-inline float Curve<Vector>::length() const {
+inline FLOAT_TYPE Curve<Vector>::length() const {
   assert(_Biarcs[0].isBiarc());
 
-  float L = 0.0;
+  FLOAT_TYPE L = 0.0;
 
   biarc_constit stop = _Biarcs.end()-(_Closed?0:1);
   for (biarc_constit it=_Biarcs.begin();it!=stop;it++)
@@ -279,7 +279,7 @@ inline float Curve<Vector>::length() const {
   s is in [0,curvelength]
 */
 template<class Vector>
-Vector Curve<Vector>::pointAt(float s) const {
+Vector Curve<Vector>::pointAt(FLOAT_TYPE s) const {
   biarc_constit current;
   Vector p;
   if (s==0.0) {
@@ -309,7 +309,7 @@ Vector Curve<Vector>::pointAt(float s) const {
   s is in [0,curvelength]
 */
 template<class Vector>
-Vector Curve<Vector>::tangentAt(float s) const {
+Vector Curve<Vector>::tangentAt(FLOAT_TYPE s) const {
   biarc_constit current;
   Vector t;
   if (s==0.0) {
@@ -339,7 +339,7 @@ Vector Curve<Vector>::tangentAt(float s) const {
   point Curve(s) is. s is in [0,curvelength]
 */
 template<class Vector>
-inline biarc_it Curve<Vector>::biarcAt(float s) {
+inline biarc_it Curve<Vector>::biarcAt(FLOAT_TYPE s) {
   biarc_it current;
   Vector p;
   if (s==0.0) {
@@ -369,7 +369,7 @@ inline biarc_it Curve<Vector>::biarcAt(float s) {
   Curve(s). s is in [0,curvelength]
 */
 template<class Vector>
-inline int Curve<Vector>::biarcPos(float s) {
+inline int Curve<Vector>::biarcPos(FLOAT_TYPE s) {
   biarc_it it = biarcAt(s);
   return it->id();
 }
@@ -594,7 +594,7 @@ bool Curve<Vector>::isClosed() const {
   \sa Biarc::make(),CurveBundle::make()
 */
 template<class Vector>
-void Curve<Vector>::make(float f) {
+void Curve<Vector>::make(FLOAT_TYPE f) {
   biarc_it it = _Biarcs.begin();
   biarc_it stop = _Closed?_Biarcs.end():(_Biarcs.end()-1);
   for (it=_Biarcs.begin();it!=stop;it++)
@@ -617,7 +617,7 @@ void Curve<Vector>::makeMidpointRule() {
   // FIXME: here we assume that _Biarcs has at least 2 data points!
   biarc_it next    = current+1;
   Vector d, t0, t1;
-  float Gamma, d2, t0d, t1d, tt, tts, val_tmp;
+  FLOAT_TYPE Gamma, d2, t0d, t1d, tt, tts, val_tmp;
   for (;next!=_Biarcs.end();next++,current++) {
     d = next->getPoint() - current->getPoint();
     d2 = d.norm2();
@@ -654,7 +654,7 @@ void Curve<Vector>::makeMidpointRule() {
 /* Ben/Jana Style */
   biarc_it p0 = _Biarcs.begin(),p1 = _Biarcs.begin()+1;
   Vector q0,q1,t0,t1,q1m0,qhalf;
-  float l,y,d,b,c;
+  FLOAT_TYPE l,y,d,b,c;
   int N = nodes() - (_Closed?0:1);
   for (int i=0;i<N;i++) {
     if (p0==_Biarcs.end()) p0 = _Biarcs.begin();
@@ -685,7 +685,7 @@ void Curve<Vector>::makeMidpointRule() {
 
 /*! TODO DOC */
 template<class Vector>
-void Curve<Vector>::make(int from_N, int to_N, float f) {
+void Curve<Vector>::make(int from_N, int to_N, FLOAT_TYPE f) {
 // #error "make not finished"
 /*
   Biarc<Vector>* from = accessBiarc(from_N);
@@ -697,11 +697,11 @@ void Curve<Vector>::make(int from_N, int to_N, float f) {
 
 /*! TODO DOC */
 template<class Vector>
-void Curve<Vector>::make(Biarc<Vector>* from, Biarc<Vector>* to, float f) {
+void Curve<Vector>::make(Biarc<Vector>* from, Biarc<Vector>* to, FLOAT_TYPE f) {
 // #error "make not finished"
 /*
   if (!this->isBiarc()) {
-    cerr << "Warning:make(Biarc*,Biarc*,float):You try to interpolate a part of a"
+    cerr << "Warning:make(Biarc*,Biarc*,FLOAT_TYPE):You try to interpolate a part of a"
 	 << " non interpolated curve!\n";
   }
 
@@ -709,7 +709,7 @@ void Curve<Vector>::make(Biarc<Vector>* from, Biarc<Vector>* to, float f) {
 
   while (current!=to) {
     if (current==NULL || current->getNext()==NULL) {
-      cerr << "Error:make(Biarc*,Biarc*,float):current or next biarc NULL!"
+      cerr << "Error:make(Biarc*,Biarc*,FLOAT_TYPE):current or next biarc NULL!"
 	   << "Forgot to close the curve?\n";
       return;
     }
@@ -737,10 +737,10 @@ void Curve<Vector>::makeMidpointRule(Biarc<Vector>* from, Biarc<Vector>* to) {
 // #error "makeMidpointRule not finished"
 /*
   Vector d, t0, t1;
-  float Gamma, d2, t0d, t1d, tt, tts, val_tmp;
+  FLOAT_TYPE Gamma, d2, t0d, t1d, tt, tts, val_tmp;
 
   if (!this->isBiarc()) {
-    cerr << "Warning:make(Biarc*,Biarc*,float):You try to interpolate a part of a"
+    cerr << "Warning:make(Biarc*,Biarc*,FLOAT_TYPE):You try to interpolate a part of a"
 	 << " non interpolated curve!\n";
   }
 
@@ -748,7 +748,7 @@ void Curve<Vector>::makeMidpointRule(Biarc<Vector>* from, Biarc<Vector>* to) {
 
   while (current!=to) {
     if (current==NULL || current->getNext()==NULL) {
-      cerr << "Error:make(Biarc*,Biarc*,float):current or next biarc NULL!"
+      cerr << "Error:make(Biarc*,Biarc*,FLOAT_TYPE):current or next biarc NULL!"
 	   << "Forgot to close the curve?\n";
       return;
     }
@@ -780,7 +780,7 @@ void Curve<Vector>::makeMidpointRule(Biarc<Vector>* from, Biarc<Vector>* to) {
   \sa thickness(), thickness_fast()
 */
 template<class Vector>
-float Curve<Vector>::radius_pt(int from, int to) {
+FLOAT_TYPE Curve<Vector>::radius_pt(int from, int to) {
 
   biarc_it A = _Biarcs.begin()+from;
   biarc_it B = _Biarcs.begin()+to;
@@ -798,7 +798,7 @@ float Curve<Vector>::radius_pt(int from, int to) {
   \sa thickness(), thickness_fast()
 */
 template<class Vector>
-float Curve<Vector>::radius_pt(biarc_it from, biarc_it to) {
+FLOAT_TYPE Curve<Vector>::radius_pt(biarc_it from, biarc_it to) {
   return radius_pt(from->getPoint(),from->getTangent(),to->getPoint());
 }
 
@@ -812,7 +812,7 @@ float Curve<Vector>::radius_pt(biarc_it from, biarc_it to) {
   \sa thickness(), thickness_fast()
 */
 template<class Vector>
-float Curve<Vector>::radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &to) {
+FLOAT_TYPE Curve<Vector>::radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &to) {
   return radius_pt(from.getPoint(),from.getTangent(),to.getPoint());
 }
 
@@ -827,14 +827,14 @@ float Curve<Vector>::radius_pt(const Biarc<Vector> &from, const Biarc<Vector> &t
   \sa thickness(), thickness_fast()
 */
 template<class Vector>
-float Curve<Vector>::radius_pt(const Vector &p0, const Vector &t0,
+FLOAT_TYPE Curve<Vector>::radius_pt(const Vector &p0, const Vector &t0,
                                const Vector &p1) const {
 
   Vector D = p1 - p0;
-  float Dlen = D.norm();
+  FLOAT_TYPE Dlen = D.norm();
 
-  float cosa = t0.dot(D)/Dlen;
-  float sina = sqrt(1.0-cosa*cosa);
+  FLOAT_TYPE cosa = t0.dot(D)/Dlen;
+  FLOAT_TYPE sina = sqrt(1.0-cosa*cosa);
 
   if (sina==0.0)
     return -1.0;
@@ -852,7 +852,7 @@ float Curve<Vector>::radius_pt(const Vector &p0, const Vector &t0,
   \sa thickness(), thickness_fast()
 */
 template<class Vector>
-float Curve<Vector>::radius_pt(const float s, const float t) const {
+FLOAT_TYPE Curve<Vector>::radius_pt(const FLOAT_TYPE s, const FLOAT_TYPE t) const {
   Vector p0 = pointAt(s);
   Vector t0 = tangentAt(s);
   Vector p1 = pointAt(t);
@@ -864,7 +864,7 @@ float Curve<Vector>::radius_pt(const float s, const float t) const {
 	Compute the pp (euclidean distance) function between two nodes
  */
 template<class Vector>
-float Curve<Vector>::pp(int from, int to) const {
+FLOAT_TYPE Curve<Vector>::pp(int from, int to) const {
 	return (_Biarcs[from]-_Biarcs[to]).norm();
 }
 
@@ -872,7 +872,7 @@ float Curve<Vector>::pp(int from, int to) const {
 	Compute the pp (euclidean distance) function between \f$\gamma(s)\f$ and \f$\gamma(t)\f$
  */
 template<class Vector>
-float Curve<Vector>::pp(float s, float t) const {
+FLOAT_TYPE Curve<Vector>::pp(FLOAT_TYPE s, FLOAT_TYPE t) const {
 	return (this->pointAt(s) - this->pointAt(t)).norm();
 }
 
@@ -884,9 +884,9 @@ float Curve<Vector>::pp(float s, float t) const {
   \sa thickness(), thickness_fast()
 */
 template<class Vector>
-float Curve<Vector>::radius_global(Biarc<Vector> &at) {
+FLOAT_TYPE Curve<Vector>::radius_global(Biarc<Vector> &at) {
   biarc_it current = this->begin();
-  float global = 1e8, r;
+  FLOAT_TYPE global = 1e8, r;
   for (;current!=_Biarcs.end();current++) {
     if ((*current)!=at) {
       r = radius_pt(at,(*current));
@@ -910,17 +910,17 @@ float Curve<Vector>::radius_global(Biarc<Vector> &at) {
   \sa radius_pt(), thickness_fast()
 */
 template<class Vector>
-float Curve<Vector>::thickness(Vector *from, Vector *to) {
+FLOAT_TYPE Curve<Vector>::thickness(Vector *from, Vector *to) {
   Vector lfrom, lto;
 
   // Check that the hints are not the same biarc
   if (_hint_i==_hint_j) { _hint_i = -1; _hint_j = -1; }
 
-  float d = compute_thickness(this,&lfrom,&lto,_hint_i,_hint_j);
+  FLOAT_TYPE d = compute_thickness(this,&lfrom,&lto,_hint_i,_hint_j);
 
   // Change hint values according to from and to.
   // FIXME this part of finding the biarcs should be made smarter!
-  float dfrom = 1e22, dto = 1e22, tmp;
+  FLOAT_TYPE dfrom = 1e22, dto = 1e22, tmp;
   for (biarc_it it=this->begin();it!=this->end();++it) {
     tmp = (it->getPoint()-lfrom).norm2();
     if (tmp < dfrom) { dfrom = tmp; _hint_i = it->id(); }
@@ -943,9 +943,9 @@ float Curve<Vector>::thickness(Vector *from, Vector *to) {
   \sa radius_pt()
 */
 template<class Vector>
-float Curve<Vector>::thickness_fast() {
+FLOAT_TYPE Curve<Vector>::thickness_fast() {
 
-  float minrad = 1e16, radpt;
+  FLOAT_TYPE minrad = 1e16, radpt;
 
 //  Biarc<Vector> current, sweep;
 
@@ -999,10 +999,10 @@ void Curve<Vector>::set_hint(const int i, const int j) {
   \sa minSegDistance()
 */
 template<class Vector>
-float Curve<Vector>::maxSegDistance() {
+FLOAT_TYPE Curve<Vector>::maxSegDistance() {
   assert(_Biarcs[0].isBiarc());
 
-  float M = -1.0;
+  FLOAT_TYPE M = -1.0;
 
   biarc_it it, stop = (_Closed?end():end()-1);
   for (it=begin();it!=stop;it++)
@@ -1018,10 +1018,10 @@ float Curve<Vector>::maxSegDistance() {
   \sa maxSegDistance()
 */
 template<class Vector>
-float Curve<Vector>::minSegDistance() {
+FLOAT_TYPE Curve<Vector>::minSegDistance() {
   assert(_Biarcs[0].isBiarc());
 
-  float M = 1e12;
+  FLOAT_TYPE M = 1e12;
 
   biarc_it it, stop = (_Closed?end():end()-1);
   for (it=begin();it!=stop;it++)
@@ -1034,8 +1034,8 @@ float Curve<Vector>::minSegDistance() {
   Return distance between the 2 most distant points.
 */
 template<class Vector>
-float Curve<Vector>::span() const {
-  float d = 0, dc;
+FLOAT_TYPE Curve<Vector>::span() const {
+  FLOAT_TYPE d = 0, dc;
   for (unsigned int i=0;i<_Biarcs.size();++i)
     for (unsigned int j=i+1;j<_Biarcs.size();++j) {
       dc = (_Biarcs[i].getPoint()-_Biarcs[j].getPoint()).norm2();
@@ -1050,10 +1050,10 @@ float Curve<Vector>::span() const {
   \sa maxSegDistance(), minSegDistance()
 */
 template<class Vector>
-float Curve<Vector>::distEnergy() {
+FLOAT_TYPE Curve<Vector>::distEnergy() {
   assert(_Biarcs[0].isBiarc());
 
-  float avg = length() / nodes(), E = 0.0, t;
+  FLOAT_TYPE avg = length() / nodes(), E = 0.0, t;
 
   biarc_it it, stop = (_Closed?end():end()-1);
   for (it=begin();it!=stop;it++) {
@@ -1087,16 +1087,16 @@ void Curve<Vector>::resample(int NewNoNodes) {
   // check if we have valid biarcs!
   assert(current->isBiarc());
 
-  float SegLen;
+  FLOAT_TYPE SegLen;
 
   // We want exactly \NewNoNodes points on curve, therefore
   if (_Closed)
-    SegLen = length()/(float)NewNoNodes;
+    SegLen = length()/(FLOAT_TYPE)NewNoNodes;
   else
-    SegLen = length()/((float)(NewNoNodes-1));
+    SegLen = length()/((FLOAT_TYPE)(NewNoNodes-1));
 
-  float SegDummy = SegLen;
-  float Total = 0.0;
+  FLOAT_TYPE SegDummy = SegLen;
+  FLOAT_TYPE Total = 0.0;
 
   // Set first point
   c->append(*current);
@@ -1126,7 +1126,7 @@ void Curve<Vector>::resample(int NewNoNodes) {
         if (current==stop_biarc) {
           current = _Biarcs.begin();
           if (NewNoNodes!=c->nodes()) {
-  	    float d = ((*c)[0].getPoint()-((*c).end()-1)->getPoint()).norm();
+  	    FLOAT_TYPE d = ((*c)[0].getPoint()-((*c).end()-1)->getPoint()).norm();
   	    if (d < SegLen/100.0)
 	      c->remove(c->nodes()-1);
   	  }
@@ -1204,7 +1204,7 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
   Vector p, t;
 
   // Compute arclength between biarc begin to end
-  float PartLength = 0.0;
+  FLOAT_TYPE PartLength = 0.0;
 
   while (current!=end) {
     PartLength += current->biarclength();
@@ -1214,9 +1214,9 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
       current++;
   }
 
-  float SegLen = PartLength/((float)NewNoNodes-1.0);
+  FLOAT_TYPE SegLen = PartLength/((FLOAT_TYPE)NewNoNodes-1.0);
 
-  float SegDummy = SegLen;
+  FLOAT_TYPE SegDummy = SegLen;
 
   // Init first part of curve till biarc begin
   // begin+1 since the stl range copy is excluding the last elem
@@ -1311,7 +1311,7 @@ void Curve<Vector>::refine(biarc_it from, biarc_it to, int NewNoNodes) {
   \sa torsion(),torsion2()
 */
 template<class Vector>
-float Curve<Vector>::curvature(int n) {
+FLOAT_TYPE Curve<Vector>::curvature(int n) {
   biarc_it b = accessBiarc(n);
   return curvature(b);
 }
@@ -1328,7 +1328,7 @@ float Curve<Vector>::curvature(int n) {
   \sa torsion(),torsion2()
 */
 template<class Vector>
-float Curve<Vector>::curvature(biarc_it b) {
+FLOAT_TYPE Curve<Vector>::curvature(biarc_it b) {
 
   biarc_it current   = b;
   biarc_it current_h = b+1;
@@ -1349,8 +1349,8 @@ float Curve<Vector>::curvature(biarc_it b) {
   Vector t_0 = current->getTangent();
   Vector t_h = current_h->getTangent();
 
-  float radius_0 = d_h.norm2()/2.0/(d_h.cross(t_0)).norm();
-  float radius_1 = d_h.norm2()/2.0/(d_h.cross(t_h)).norm();
+  FLOAT_TYPE radius_0 = d_h.norm2()/2.0/(d_h.cross(t_0)).norm();
+  FLOAT_TYPE radius_1 = d_h.norm2()/2.0/(d_h.cross(t_h)).norm();
 
   // return radius of curvature which is 1/rho
   return 3.0/(2.0*radius_0 + radius_1);
@@ -1409,12 +1409,12 @@ Vector Curve<Vector>::normalVector(biarc_it b) {
   \sa torsion2(),curvature()
 */
 template<class Vector>
-float Curve<Vector>::torsion(int n, int a) {
+FLOAT_TYPE Curve<Vector>::torsion(int n, int a) {
 
 
 //  Biarc<Vector> *current = accessBiarc(n), *current_h;
   biarc_it current = _Biarcs.begin()+n, current_h;
-  float h, sin_phi;
+  FLOAT_TYPE sin_phi;
   Vector d_0,t_0,d_h,t_h;
 
   /*
@@ -1423,7 +1423,6 @@ float Curve<Vector>::torsion(int n, int a) {
   if (_Closed) {
     current_h = current+1; // ->getNext();
     if (current_h == _Biarcs.end()) current_h = _Biarcs.begin();
-    h = current->biarclength();
   }
   else {
     if (n>=(nodes()-2)) {
@@ -1433,11 +1432,9 @@ float Curve<Vector>::torsion(int n, int a) {
 //      current_h = accessBiarc(n-1);
       current = _Biarcs.begin()+n-2;
       current_h = _Biarcs.begin()+n-1;
-      h = current->biarclength();
     }
     else {
       current_h = current + 1; // current->getNext();
-      h = current->biarclength();
     }
   }
 
@@ -1483,7 +1480,7 @@ float Curve<Vector>::torsion(int n, int a) {
   \sa torsion(),curvature()
 */
 template<class Vector>
-float Curve<Vector>::torsion2(int n) {
+FLOAT_TYPE Curve<Vector>::torsion2(int n) {
 
   assert(_Biarcs[0].isBiarc());
 
@@ -1495,8 +1492,8 @@ float Curve<Vector>::torsion2(int n) {
   biarc_it previous = current - 1;
   if (current == _Biarcs.begin()) previous = _Biarcs.end() - 1;
 
-//  float h = current->getPrevious()->arclength1() + current->arclength0();
-  float h = previous->arclength1() + current->arclength0();
+//  FLOAT_TYPE h = current->getPrevious()->arclength1() + current->arclength0();
+  FLOAT_TYPE h = previous->arclength1() + current->arclength0();
 
   Vector d_0,t_0,d_h,t_h;
 
@@ -1509,7 +1506,7 @@ float Curve<Vector>::torsion2(int n) {
   Vector v_1 = t_h.cross(d_h);
 
   v_0.normalize(), v_1.normalize();
-  float sin_phi = std::abs((v_0.cross(v_1)).norm());
+  FLOAT_TYPE sin_phi = std::abs((v_0.cross(v_1)).norm());
   return 3.0*sin_phi/h;
 
 }
@@ -1521,11 +1518,11 @@ float Curve<Vector>::torsion2(int n) {
    \sa torsion
 */
 template<class Vector>
-float Curve<Vector>::signed_torsion(int n, int a) {
+FLOAT_TYPE Curve<Vector>::signed_torsion(int n, int a) {
 
 //  Biarc<Vector> *current = accessBiarc(n), *current_h;
   biarc_it current = _Biarcs.begin()+n, current_h;
-  float h, sin_phi;
+  FLOAT_TYPE sin_phi;
   Vector d_0,t_0,d_h,t_h;
 
   /*
@@ -1534,7 +1531,6 @@ float Curve<Vector>::signed_torsion(int n, int a) {
   if (_Closed) {
     current_h = current+1; // ->getNext();
     if (current_h == _Biarcs.end()) current_h = _Biarcs.begin();
-    h = current->biarclength();
   }
   else {
     if (n>=(nodes()-2)) {
@@ -1544,11 +1540,9 @@ float Curve<Vector>::signed_torsion(int n, int a) {
 //      current_h = accessBiarc(n-1);
       current = _Biarcs.begin()+n-2;
       current_h = _Biarcs.begin()+n-1;
-      h = current->biarclength();
     }
     else {
       current_h = current + 1; // current->getNext();
-      h = current->biarclength();
     }
   }
 
@@ -1660,7 +1654,7 @@ void Curve<Vector>::principalAxis(Matrix3 &mat) {
 template<class Vector>
 void Curve<Vector>::normalize() {
   assert (_Biarcs.begin()->isBiarc());
-  float invL = 1.0/length();
+  FLOAT_TYPE invL = 1.0/length();
   scale(invL);
 }
 
@@ -1672,7 +1666,7 @@ void Curve<Vector>::normalize() {
   \sa normalize(),CurveBundle::scale()
 */
 template<class Vector>
-void Curve<Vector>::scale(float s) {
+void Curve<Vector>::scale(FLOAT_TYPE s) {
   for (biarc_it it=_Biarcs.begin();it!=_Biarcs.end();it++)
     (*it)*=s;
 }
@@ -1716,10 +1710,10 @@ Curve<Vector>& Curve<Vector>::operator-=(const Vector &v) {
   is given in radians!!!
 */
 template<class Vector>
-Curve<Vector>& Curve<Vector>::rotAroundAxis(float angle,Vector axis) {
-  float c = cos(angle), s = sin(angle);
-  float t = 1. - c;
-  float X=axis[0],Y=axis[1],Z=axis[2];
+Curve<Vector>& Curve<Vector>::rotAroundAxis(FLOAT_TYPE angle,Vector axis) {
+  FLOAT_TYPE c = cos(angle), s = sin(angle);
+  FLOAT_TYPE t = 1. - c;
+  FLOAT_TYPE X=axis[0],Y=axis[1],Z=axis[2];
   Matrix3 m(Vector3(t*X*X+c,t*X*Y+s*Z,t*X*Z-s*Y),
             Vector3(t*X*Y-s*Z,t*Y*Y+c,t*Y*Z+s*X),
             Vector3(t*X*Z+s*Y,t*Y*Z-s*X,t*Z*Z+c));
@@ -1771,7 +1765,7 @@ Curve<Vector> Curve<Vector>::operator-(const Curve<Vector> &c) const {
   Returns a copy of the curve scaled by a factor of s.
 */
 template<class Vector>
-Curve<Vector> Curve<Vector>::operator*(const float s) const {
+Curve<Vector> Curve<Vector>::operator*(const FLOAT_TYPE s) const {
 
   Curve<Vector> c_new(*this);
   c_new.scale(s);
@@ -1830,7 +1824,7 @@ Vector Curve<Vector>::getCenter() {
 
   for (;current!=_Biarcs.end();current++)
     sum += current->getPoint();
-  sum /= ((float)nodes());
+  sum /= ((FLOAT_TYPE)nodes());
   return sum;
 }
 

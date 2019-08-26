@@ -83,8 +83,6 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
   static int FRAME_VIEW = 0;
   static const char* frame_str[] = { "Disabled", "Standard Frenet", "Fourier Frenet", "Parallel", "Parallel ODE", "Writhe", "Writhe ODE" };
 
-  SoChildList *children = new SoChildList(viewer->scene);
-  int child_len;
   Tube<Vector3>* bez_tub, tube_tmp;
 	SoSeparator* sep;
 
@@ -102,10 +100,6 @@ SbBool myAppEventHandler(void *userData, QEvent *anyevent) {
   }
 
   if(anyevent->type()==QEvent::KeyPress) {
-
-    children = viewer->scene->getChildren();
-    child_len = children->getLength();
-
     myKeyEvent = (QKeyEvent *) anyevent;
 
     // For new tube

@@ -2,7 +2,7 @@ PROGS = curview # animate plotzoom # kv4
 QTPRESENT=$(shell if which soqt-config >/dev/null; then echo OK; fi)
 
 include ../Makefile.config
-include .depend
+-include .depend
 
 ######### INCLUDES ###########################
 
@@ -24,8 +24,6 @@ INC_LIB+= -L${PIXIEHOME}/lib
 LIBS+= -lri
 endif
 
-
-
 ######### SOURCE FILES #######################
 
 SRC = SoKnot.cpp xyzview.cpp \
@@ -46,15 +44,15 @@ all: depend $(PROGS)
 
 t: t.o SoKnot.o
 	@echo Link ${<:.o=}
-	@$(LINKER) $(FLAGS) -o t $(INC_LIB) $? $(LIBS)
+	@$(LD) $(FLAGS) -o t $(INC_LIB) $? $(LIBS)
 
 #kv4: knot4view.o SoKnot.o
 #	@echo Link ${<:.o=}
-#	@$(LINKER) $(FLAGS) -o kv4 $(INC_LIB) knot4view.o SoKnot.o $(LIBS)
+#	@$(LD) $(FLAGS) -o kv4 $(INC_LIB) knot4view.o SoKnot.o $(LIBS)
 
 xyzview: xyzview.o SoKnot.o
 	@echo Link ${<:.o=}
-	@$(LINKER) $(FLAGS) -o xyzview $(INC_LIB) $? $(LIBS)
+	@$(LD) $(FLAGS) -o xyzview $(INC_LIB) $? $(LIBS)
 
 fourier_syn.o: ../fourierknots/fourier_syn.cpp
 	@echo Compile $<
@@ -65,23 +63,23 @@ ifeq ($(QTPRESENT),OK)
 		@echo Link $@
 		@$(CXX) ${FLAGS} -c ../experimental/pngmanip/pngwrite.c
 		@$(CXX) ${FLAGS} -c ../experimental/pngmanip/plot_funcs.cpp
-		@$(LINKER) $(FLAGS) -o curview $(INC_LIB) SoKnot.o curview.o pt.o moc_pt.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o plot_funcs.o pngwrite.o moc_pp.o pp.o moc_tt.o tt.o $(LIBS)
+		@$(CXX) $(FLAGS) -o curview $(INC_LIB) SoKnot.o curview.o pt.o moc_pt.o qrc_application.o utils.o mainwindow.o moc_mainwindow.o gui.o fourier_syn.o plot_funcs.o pngwrite.o moc_pp.o pp.o moc_tt.o tt.o $(LIBS)
 else
 		@echo "soqt-config not found. Coin with SoQt may not be installed. Skip building inventor viewer."
 endif
 
 plotzoom: plotzoom.o moc_plotzoom.o
 	@echo Link $@
-	@echo $(LINKER) $(FLAGS) -o plotzoom $(INC_LIB) $? $(LIBS)
-	@$(LINKER) $(FLAGS) -o plotzoom $(INC_LIB) $? $(LIBS)
+	@echo $(LD) $(FLAGS) -o plotzoom $(INC_LIB) $? $(LIBS)
+	@$(LD) $(FLAGS) -o plotzoom $(INC_LIB) $? $(LIBS)
 
 animate: SoKnot.o animate.o 
 	@echo Link $@
-	@$(LINKER) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
+	@$(LD) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
 
 animate_open: SoKnot.o animate_open.o 
 	@echo Link $@
-	@$(LINKER) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
+	@$(LD) $(FLAGS) -o $@ $(INC_LIB) $^ $(LIBS)
 
 qrc_application.cpp: application.qrc
 	rcc -o $@ $<
@@ -90,7 +88,7 @@ moc_%.cpp: %.h
 
 trefoil_builder: SoKnot.o trefoil_builder.o moc_Widgets.o Widgets.o moc_trefoil_builder.o moc_curview.o
 	@echo Link $@
-	@$(LINKER) $(FLAGS) -o trefoil_builder $(INC_LIB) $< $(LIBS)
+	@$(LD) $(FLAGS) -o trefoil_builder $(INC_LIB) $< $(LIBS)
 
 # dependencies
 depend:

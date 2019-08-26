@@ -97,7 +97,10 @@ void dump_obj_surface(ofstream& out, vector<CStrut>& contacts, unsigned int num,
       t1 = (float)(i+1)/(float)(Segments-1);
 
       // for glm lib make it wrap
-      if(s==1) s=0;if(t==1)t=0;if(s1==1)s1=0;if(t1==1)t1=0;
+      if(s==1.) s=0.;
+      if(t==1.) t=0.;
+      if(s1==1.)s1=0.;
+      if(t1==1.)t1=0.;
 
       // triangle 1
 			Vector3 vv =  (V1 + (N_direc_vect_1*(i*step_size_1)));

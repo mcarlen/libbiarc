@@ -28,10 +28,10 @@
     int S = 10;
 
     // The radius is set to 1.0
-    float R = 1.0;
+    FLOAT_TYPE R = 1.0;
 
     // We match up the mesh with this tolerance value
-    float Tol = 1e-3;
+    FLOAT_TYPE Tol = 1e-3;
 
     // Generate mesh points and normals
     t.makeMesh(N,S,R,Tol);
@@ -283,7 +283,7 @@ void TubeBundle<Vector>::computeBoundingBox() {
   process.
 */
 template <class Vector>
-void TubeBundle<Vector>::scaleTubeRadius(float NewRadius) {
+void TubeBundle<Vector>::scaleTubeRadius(FLOAT_TYPE NewRadius) {
   for (int i=0;i<tubes();i++)
     container[i].scaleTubeRadius(NewRadius);
 }
@@ -315,7 +315,7 @@ void TubeBundle<Vector>::scaleTubeRadius(float NewRadius) {
   with Gamma = 0.5.
 */
 template <class Vector>
-void TubeBundle<Vector>::makeMesh(int N, int S, float R, float Tol) {
+void TubeBundle<Vector>::makeMesh(int N, int S, FLOAT_TYPE R, FLOAT_TYPE Tol) {
   for (int i=0;i<tubes();i++)
     container[i].makeMesh(N,S,R,Tol);
   // cache bounding box and center
