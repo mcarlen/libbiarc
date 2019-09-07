@@ -128,7 +128,7 @@ int RemoveOverlaps(Curve<Vector4> &c, int N, int m, int **nn, float D, float del
 #endif
 					) {
           overlap++;
-          diff = fabsf(v.norm()-(D*(1-delta)))*.5; v.normalize();
+          diff = std::abs(v.norm()-(D*(1-delta)))*.5; v.normalize();
           c[ip].setPoint(c[ip].getPoint()+v*diff);
           c[jp].setPoint(c[jp].getPoint()-v*diff);
         }
@@ -305,7 +305,7 @@ int main(int argc,char** argv) {
       // Save it anyway
       SavePkf(c,LogFreq);
     }
-    if (overlap <= OverlapTol) { 
+    if (overlap <= OverlapTol) {
       SavePkf(c,LogFreq);
       Shrink(c,ShrinkFactor);
       ControlLeashes(c,l);
@@ -349,7 +349,7 @@ int main(int argc,char** argv) {
 
   float l = L/(float)N;
 
-  ShiftNodes(c,0.1);  
+  ShiftNodes(c,0.1);
 
   c.writePKF("out.pkf");
   return 0;

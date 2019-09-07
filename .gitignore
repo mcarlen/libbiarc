@@ -5,6 +5,11 @@
 *.a
 *.so
 */.depend
+annealing/anneal
+annealing/anneal4
+annealing/curvatureflow
+annealing/sono
+annealing/sono4
 objects/bone
 objects/borromean
 objects/circle
