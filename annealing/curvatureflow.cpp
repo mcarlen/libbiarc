@@ -30,7 +30,7 @@ int check_grc(Curve<Vector3> *c, float tol) {
   float grc = c->radius_global(*b);
   b++;
   for (;b!=c->end();++b) {
-    if (fabsf(c->radius_global(*b)-grc)/grc > tol)
+    if (std::abs(c->radius_global(*b)-grc)/grc > tol)
       return 0;
   }
   return 1;
@@ -65,8 +65,6 @@ int main(int argc,char** argv) {
   cout << "L=" << length << ",D=" << thickness << endl;
   int n = 0;
   char buf[1000];
-
-  int ALREADY_SET = 0;
 
   while (true) {
 
@@ -120,7 +118,7 @@ int main(int argc,char** argv) {
 
     thickness = c.thickness_fast(); length = c.length();
     scale = thick_scale*thickness;
-    
+
 // XXX Log stuff exponentially (since we adapt the LogFreq dynamically)
 //    if (n%LogFreq == 0) {
     if (LogFreq>0) LogFreq--;

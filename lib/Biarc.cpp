@@ -330,8 +330,8 @@ void Biarc<Vector>::make(FLOAT_TYPE Gamma) {
 
   t0.normalize(); t1.normalize();
 
-  if (fabsf(t0.dot(t1)>(1.0-StraightSegTol)) &&
-      fabsf(t0.dot(linecheck))>(1.0-StraightSegTol)) {
+  if (std::abs(t0.dot(t1))>(1.0-StraightSegTol) &&
+      std::abs(t0.dot(linecheck))>(1.0-StraightSegTol)) {
 
     // cerr << "Straight Segment! : " << *this << endl;
 

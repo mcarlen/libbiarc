@@ -43,7 +43,6 @@ inline float r(float dLower,float dUpper) {
 }
 
 static float s_dMinSegDistance;
-static float s_dInitialStep;
 
 class CStep
     {
@@ -198,8 +197,8 @@ float LengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
   // return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
 
   // On S^3 we maximize thickness
-  return length 
-                + ((s_dMinSegDistance > minthickness )?0:(exp(10.0*(minthickness - s_dMinSegDistance))-1)) 
+  return length
+                + ((s_dMinSegDistance > minthickness )?0:(exp(10.0*(minthickness - s_dMinSegDistance))-1))
                 + 1e-8*(off_equi)/s_dMinSegDistance;
 }
 
@@ -222,12 +221,12 @@ float MaxLengthEnergy_fixedThickness_e(CurveBundle<TVec> &rKnot) {
   // return rKnot.length()/s_dMinSegDistance; // +0.0001*(off_equi);
 
   // On S^3 we maximize thickness
-  return 100. -length 
+  return 100. -length
                 + ((s_dMinSegDistance > minthickness )?0:(exp(10.0*(minthickness - s_dMinSegDistance))-1)) ;
   //              + 1e-8*(off_equi)/s_dMinSegDistance;
 }
 
-#if 0 
+#if 0
 #define Energy MaxLengthEnergy_fixedThickness_e
 #define Energy_str "MaxLengthEnergy_fixedThickness_e"
 #else
@@ -280,7 +279,6 @@ BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
   int n,c;
   float dMin=s_dMinSegDistance;
   Curve<TVec> *pC;
-  static int nTurns;
   bool bChangePoint;
   c=R(0,rKnot.curves()-1);
   pC=&(rKnot[c]);
@@ -303,7 +301,7 @@ BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
     float d=(bChangePoint ? info.m_dStepSize : info.m_dTStepSize)
  	*(StepArray[n].Get(bChangePoint))
         ;
-    // we calculate a random tangent vTan 
+    // we calculate a random tangent vTan
     TVec vTan = TVec(r(-d,d)*r(0,1), r(-d,d)*r(0,1), r(-d,d)*r(0,1), r(-d,d)*r(0,1));
     // Project to normal plane, so vTan is tangent to S^3
     TVec vBasePoint =(*pC)[n].getPoint();
@@ -315,7 +313,7 @@ BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
         vNew += vTan;
         vNew.normalize();
       }
-    else 
+    else
       {
         vTan -= vNew.dot(vTan)/vTan.norm() * vNew;
         vNew += vTan;
@@ -324,7 +322,6 @@ BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
         vNew.normalize();
       }
 
-    BOOL ok;
     if(bChangePoint) {
       (*pC)[n].setPoint(vNew);
       // Fix tangent to be in TS^3
@@ -386,7 +383,7 @@ BOOL AnnealAll(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
   CurveBundle<TVec> rCopy(rKnot);
   vector<Biarc<TVec> >::iterator b;
   TVec tnow,pnow;
-  int n; 
+  int n;
   float aaa=rKnot[0].minSegDistance();
   float bbb = rKnot.thickness_fast();
   float d=min(aaa, bbb)/100.0;
@@ -400,7 +397,7 @@ shuffle_again:
       pnow = b->getPoint();
       // d=info.m_dStepSize*(StepArray[n].Get(1));
       // cout << "d = " << d << endl;
-      // we calculate a random tangent vTan 
+      // we calculate a random tangent vTan
       TVec vTan = TVec(d*r(-1,1), d*r(-1,1),
                        d*r(-1,1), d*r(-1,1));
       // Project to normal plane, so vTan is tangent to S^3
@@ -418,9 +415,9 @@ shuffle_again:
     for (b=rKnot[i].begin();b!=rKnot[i].end();++b) {
       pnow = b->getPoint();
       tnow = b->getTangent();
-      // d=info.m_dTStepSize*(StepArray[n].Get(0)); 
+      // d=info.m_dTStepSize*(StepArray[n].Get(0));
       // cout << "d = " << d << endl;
-      // we calculate a random tangent vTan 
+      // we calculate a random tangent vTan
       TVec vTan = TVec(d*r(-1,1), d*r(-1,1),
                        d*r(-1,1), d*r(-1,1));
       tnow += d*vTan;
@@ -579,7 +576,7 @@ BOOL dance_around(CurveBundle<TVec> &rKnot,
   CurveBundle<TVec> rCopy(rKnot);
   Curve<TVec> *knot;
   float percentage_of_points = r(0,1);
-  
+
   for (int i=0;i<rKnot.curves();++i) {
     knot = &(rKnot[i]);
     float scale = r(0,0.001)*knot->minSegDistance(); //Use rKnot[0].minSegDistance() ? XXX
@@ -587,7 +584,7 @@ BOOL dance_around(CurveBundle<TVec> &rKnot,
     Vector4 vTan, pnow;
     for (it=knot->begin();it!=knot->end();++it) {
       if ( r(0,1) > 1.0 - percentage_of_points) {
-        vTan = it->getTangent(); 
+        vTan = it->getTangent();
         pnow = it->getPoint();
         pnow += scale*r(-1,1)*vTan;
         pnow.normalize();
@@ -777,7 +774,7 @@ int main(int argc,char **argv)
       vector<Biarc<Vector4> >::iterator it;
       Vector4 vTan, pnow;
       for (it=Cknot->begin();it!=Cknot->end();++it) {
-        vTan = it->getTangent(); 
+        vTan = it->getTangent();
         pnow = it->getPoint();
         pnow.normalize();
         vTan -= vTan.dot(pnow)*((pnow)/vTan.norm());
@@ -834,7 +831,7 @@ int main(int argc, char** argv) {
       best_thick = thick;
       best_knot = knot;
       cout << "!!!" << no << " Thickness : " << thick << endl;
-    } 
+    }
     else {knot = best_knot;}
     if (no%SNAP_FREQ) {
       sprintf(buf,"snap%05d.pkf",no);

@@ -40,7 +40,6 @@ inline float r(float dLower,float dUpper) {
 }
 
 static float s_dMinSegDistance;
-static float s_dInitialStep;
 
 class CStep
     {
@@ -179,7 +178,6 @@ BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
   int n,c;
   float dMin=s_dMinSegDistance;
   Curve<TVec> *pC;
-  static int nTurns;
   bool bChangePoint;
   c=R(0,rKnot.curves()-1);
   pC=&(rKnot[c]);
@@ -205,7 +203,6 @@ BOOL Anneal(CurveBundle<TVec> &rKnot,CAnnealInfo &info,float &dCurEnergy) {
     //vNew+=TVec(r(-d,d)*r(0,1),r(-d,d)*r(0,1),r(-d,d)*r(0,1));
     vNew+=TVec(d*r(-1,1),d*r(-1,1),d*r(-1,1));
 
-    BOOL ok;
     if(bChangePoint) {
       (*pC)[n].setPoint(vNew);
       if(!CheckPoint(n,*pC)) {

@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
     if (knot[i].nodes() != p) {
       cout << "Resample curve " << i+1 << " with " << p << " points";
       knot[i].make_default();
-	knot[i].resample(p);
+      knot[i].resample(p);
       cout << "\t\t[OK]\n";
     }
     else
